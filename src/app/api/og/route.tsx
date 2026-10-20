@@ -150,7 +150,7 @@ function ogElement(title: string, subtitle: string, description: string) {
             marginTop: 22,
             fontSize: 38,
             lineHeight: 1.4,
-            color: '#C6ECF9',
+            color: '#64C4D9',
           }}
         >
           {subtitle}
@@ -203,7 +203,7 @@ function fallbackElement() {
       }}
     >
       <div style={{ display: 'flex', fontSize: 64, fontWeight: 700 }}>{site.name}</div>
-      <div style={{ display: 'flex', marginTop: 20, fontSize: 34, color: '#C6ECF9' }}>{site.slogan}</div>
+      <div style={{ display: 'flex', marginTop: 20, fontSize: 34, color: '#64C4D9' }}>{site.slogan}</div>
     </div>
   );
 }

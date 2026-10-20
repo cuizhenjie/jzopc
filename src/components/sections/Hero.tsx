@@ -30,7 +30,7 @@ export default function Hero() {
         aria-hidden="true"
         style={{
           background:
-            'linear-gradient(100deg, rgba(10,37,71,.96) 0%, rgba(10,37,71,.88) 34%, rgba(10,37,71,.45) 58%, rgba(10,37,71,0) 78%)',
+            'linear-gradient(100deg, rgba(14,55,105,.96) 0%, rgba(14,55,105,.88) 34%, rgba(14,55,105,.45) 58%, rgba(14,55,105,0) 78%)',
         }}
       />
       <div
@@ -41,8 +41,8 @@ export default function Hero() {
 
       <div className="relative mx-auto flex min-h-[620px] w-full max-w-[1240px] flex-col justify-center px-5 pb-20 pt-32 sm:min-h-[720px] sm:px-8 sm:pt-36 lg:min-h-[760px]">
         <div className="max-w-3xl">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[12px] font-medium tracking-wide text-white/85 ring-1 ring-white/20 backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-brand-teal)]" />
+          {/* 竖线小标：不用胶囊 + backdrop-blur（玻璃拟态是 AI 感来源，且深底上压过文字） */}
+          <p className="inline-flex items-center gap-2 border-l-2 border-[var(--color-brand-teal)] pl-3 text-[12px] font-medium tracking-[0.18em] text-white/85">
             {site.launch}
           </p>
 

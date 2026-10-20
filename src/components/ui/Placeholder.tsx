@@ -18,7 +18,7 @@ export default function Placeholder({
   children?: ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-dashed border-[var(--color-brand-blue)]/25 bg-[var(--color-surface)] px-7 py-14 sm:px-12 sm:py-20">
+    <div className="relative overflow-hidden rounded-xl border border-dashed border-[var(--color-brand-blue)]/25 bg-[var(--color-surface)] px-7 py-14 sm:px-12 sm:py-20">
       <div
         className="pointer-events-none absolute inset-0 opacity-70"
         aria-hidden="true"
@@ -28,7 +28,8 @@ export default function Placeholder({
         }}
       />
       <div className="relative mx-auto max-w-2xl text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-blue)]/8 px-3.5 py-1 text-xs font-medium text-[var(--color-brand-blue-deep)] ring-1 ring-[var(--color-brand-blue)]/15">
+        {/* 纯文字小标（不用胶囊 + 描边：那是模板站的标志性元素） */}
+        <span className="inline-flex items-center gap-2 text-[12px] font-medium tracking-[0.18em] text-[var(--color-brand-blue-deep)]">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-brand-cyan)]" />
           {hint}
         </span>

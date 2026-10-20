@@ -61,30 +61,43 @@ export default async function NewsPage() {
           </Reveal>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {all.map((n) => (
-              <Reveal key={n.slug}>
-                <Link
-                  href={`/news/${n.slug}`}
-                  data-filter-key={n.category}
-                  data-filter-text={`${n.title} ${n.summary}`}
-                  className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]"
-                >
-                  <div className="flex items-center gap-2">
-                    <Badge tone="blue">{n.category}</Badge>
-                    <time className="text-[12px] text-[var(--color-ink-3)]">{n.published_at}</time>
-                  </div>
-                  <h2 className="mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
-                    {n.title}
-                  </h2>
-                  <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-                    {n.summary}
-                  </p>
-                  <span className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
-                    阅读全文 →
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
+            {all.map((n, i) => {
+              const isFeatured = i === 0;
+              return (
+                <Reveal key={n.slug} className={isFeatured ? 'lg:col-span-2' : undefined}>
+                  <Link
+                    href={`/news/${n.slug}`}
+                    data-filter-key={n.category}
+                    data-filter-text={`${n.title} ${n.summary}`}
+                    className={
+                      isFeatured
+                        ? 'group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-7 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]'
+                        : 'group flex h-full flex-col rounded-xl border border-[var(--color-line)] bg-white p-5 shadow-none transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]'
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <Badge tone="blue" className="text-[12px]">{n.category}</Badge>
+                      <time className="text-[12px] text-[var(--color-ink-3)]">{n.published_at}</time>
+                    </div>
+                    <h2
+                      className={
+                        isFeatured
+                          ? 'mt-4 text-[19px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]'
+                          : 'mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]'
+                      }
+                    >
+                      {n.title}
+                    </h2>
+                    <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
+                      {n.summary}
+                    </p>
+                    <span className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
+                      阅读全文 →
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
 
           <div className="mt-10" data-filter-empty style={{ display: 'none' }}>

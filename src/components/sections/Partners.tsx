@@ -14,7 +14,7 @@ export default function Partners({ names }: { names: string[] }) {
           {names.map((name) => (
             <li
               key={name}
-              className="flex h-[68px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-3 text-center text-[13px] font-medium text-[var(--color-ink-2)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-brand-blue)]/30 hover:text-[var(--color-brand-blue-deep)] hover:shadow-[var(--shadow-card)]"
+              className="flex h-[68px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-3 text-center text-[13px] font-medium text-[var(--color-ink-2)] transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/35 hover:bg-[var(--color-surface)] hover:text-[var(--color-brand-blue-deep)]"
             >
               {name}
             </li>

@@ -56,10 +56,10 @@ export default async function MarketDetailPage({ params }: { params: Promise<{ s
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone={item.type === 'demand' ? 'blue' : 'teal'}>
+              <Badge tone={item.type === 'demand' ? 'blue' : 'teal'} className="text-[12px]">
                 {item.type === 'demand' ? '需求方' : '供给方'}
               </Badge>
-              <Badge tone="outline">{item.category}</Badge>
+              <Badge tone="outline" className="text-[12px]">{item.category}</Badge>
               <time className="text-[12px] text-[var(--color-ink-3)]">发布于 {item.published_at}</time>
             </div>
 
@@ -79,13 +79,13 @@ export default async function MarketDetailPage({ params }: { params: Promise<{ s
             <h3 className="mt-9 text-[15px] font-semibold text-[var(--color-brand-navy)]">相关标签</h3>
             <div className="mt-3 flex flex-wrap gap-2">
               {item.tags.map((t) => (
-                <Badge key={t} tone="outline">
+                <Badge key={t} tone="outline" className="text-[12px]">
                   {t}
                 </Badge>
               ))}
             </div>
 
-            <div className="mt-9 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+            <div className="mt-9 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-card)]">
               <h3 className="text-[15px] font-semibold text-[var(--color-brand-navy)]">对接方式</h3>
               <p className="mt-2.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
                 社区不公开双方联系方式。你提交合作意向后，由社区运营在双方之间做一轮对接，确认意向后再安排具体沟通。

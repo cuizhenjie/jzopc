@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Section } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
+import JsonLd from '@/components/ui/JsonLd';
+import { site } from '@/lib/site/config';
 import LeadForm from '@/components/forms/LeadForm';
 import { Badge } from '@/components/ui/Card';
 import { getCourse, getCourses } from '@/lib/queries';
@@ -32,8 +34,24 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const course = await getCourse(slug);
   if (!course) notFound();
 
+  const courseJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: course.title,
+    description: course.summary,
+    inLanguage: 'zh-CN',
+    provider: { '@type': 'Organization', name: site.company, url: site.url },
+    url: `${site.url}/academy/courses/${course.slug}`,
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'online',
+      courseWorkload: course.mentor ? `导师：${course.mentor}` : undefined,
+    },
+  };
+
   return (
     <>
+      <JsonLd data={courseJsonLd} />
       <PageHero
         eyebrow={course.track}
         title={course.title}
@@ -79,15 +97,15 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               ))}
             </ul>
 
-            <div className="mt-9 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+            <div className="mt-9 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-card)]">
               <h3 className="text-[15px] font-semibold text-[var(--color-brand-navy)]">授课与认证</h3>
               <p className="mt-2.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
                 线下授课 + 项目制实战，社区内企业会提供真实项目作为练习素材。完成课程后可进入就业推荐环节，认证与研学班另行申请。
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Badge tone="blue">实战教学</Badge>
-                <Badge tone="teal">AIGC认证</Badge>
-                <Badge tone="outline">就业推荐</Badge>
+                <Badge tone="blue" className="text-[12px]">实战教学</Badge>
+                <Badge tone="teal" className="text-[12px]">AIGC认证</Badge>
+                <Badge tone="outline" className="text-[12px]">就业推荐</Badge>
               </div>
             </div>
           </div>

@@ -4,8 +4,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { nav } from '@/lib/site/config';
+import { nav, contentReady, type NavItem } from '@/lib/site/config';
 import BrandMark from '@/components/ui/BrandMark';
+
+/**
+ * 过滤掉「内容尚未就绪」的子项（PRD FR-ABOUT-05）。
+ *
+ * 「发展历程 / 服务对象」目前只有内容占位（G6 / G7），按需求应当在导航里
+ * **隐藏**而不是点进去看到空页。是否就绪由 `config.ts` 的 `contentReady`
+ * 数据表决定 —— 业务补齐内容后把对应值改成 `true`，导航自动出现，Header 无需再改。
+ */
+function visibleChildren(item: NavItem) {
+  return (item.children ?? []).filter((c) => contentReady[c.href] !== false);
+}
 
 function Logo({ light = false }: { light?: boolean }) {
   return (
@@ -26,7 +37,7 @@ function Logo({ light = false }: { light?: boolean }) {
         </span>
         <span
           className={clsx(
-            'mt-0.5 text-[10px] tracking-[0.18em]',
+            'mt-0.5 text-[11px] tracking-[0.18em]',
             light ? 'text-white/55' : 'text-[var(--color-ink-3)]',
           )}
         >
@@ -115,7 +126,7 @@ export default function Header() {
                 )}
               >
                 {item.label}
-                {item.children && (
+                {visibleChildren(item).length > 0 && (
                   <svg
                     viewBox="0 0 12 12"
                     className="h-2.5 w-2.5 transition-transform group-hover:rotate-180"
@@ -127,10 +138,10 @@ export default function Header() {
                 )}
               </Link>
 
-              {item.children && (
+              {visibleChildren(item).length > 0 && (
                 <div className="invisible absolute left-0 top-full w-52 translate-y-1 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                  <div className="rounded-xl border border-[var(--color-line)] bg-white p-1.5 shadow-[var(--shadow-lift)]">
-                    {item.children.map((c) => (
+                  <div className="rounded-xl border border-[var(--color-line)] bg-white p-1.5 shadow-[var(--shadow-overlay)]">
+                    {visibleChildren(item).map((c) => (
                       <Link
                         key={c.href}
                         href={c.href}
@@ -188,23 +199,25 @@ export default function Header() {
       >
         <nav className="px-5 py-6" aria-label="移动端导航">
           {nav.map((item) => (
-            <div key={item.label} className="border-b border-[var(--color-line)] py-3 last:border-0">
+            <div key={item.label} className="border-b border-[var(--color-line)] py-1 last:border-0">
               <Link
                 href={item.href}
                 className={clsx(
-                  'block text-[16px] font-medium',
+                  // 触控区：min-h-[40px] 让移动端抽屉导航项的可点击高度 ≥ 40px
+                  // （原先仅 24px，低于 Apple HIG 建议的 44pt 与主流 32–40px 实践）
+                  'flex min-h-[40px] items-center text-[16px] font-medium',
                   isActive(item.href) ? 'text-[var(--color-brand-blue-deep)]' : 'text-[var(--color-brand-navy)]',
                 )}
               >
                 {item.label}
               </Link>
-              {item.children && (
-                <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                  {item.children.map((c) => (
+              {visibleChildren(item).length > 0 && (
+                <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0.5 pb-2">
+                  {visibleChildren(item).map((c) => (
                     <Link
                       key={c.href}
                       href={c.href}
-                      className="rounded-md px-2 py-1.5 text-[13px] text-[var(--color-ink-2)]"
+                      className="flex min-h-[40px] items-center rounded-md px-2 text-[13px] text-[var(--color-ink-2)]"
                     >
                       {c.label}
                     </Link>

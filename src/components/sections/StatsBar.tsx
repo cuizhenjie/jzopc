@@ -49,13 +49,22 @@ function Counter({ value, suffix, reduced }: { value: number; suffix: string; re
 export default function StatsBar({ stats }: { stats: readonly Stat[] }) {
   const reduced = useReducedMotion();
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-6">
-      {stats.map((s) => (
-        <div key={s.key} className="text-center">
+    // 编辑式数据条：每个数字上方一条细线、左对齐。
+    // 过去的「四个居中裸数字浮在白底上」是 AI 模板站的典型样貌 —— 数字没有容器、没有分隔，读不出结构。
+    <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 sm:gap-8">
+      {stats.map((s, i) => (
+        <div
+          key={s.key}
+          className={
+            'border-t pt-4 ' +
+            // 第一个用品牌色起头，其余用分割线 —— 制造节奏而不是四等分的呆板
+            (i === 0 ? 'border-[var(--color-brand-blue-deep)]' : 'border-[var(--color-line)]')
+          }
+        >
           <p className="text-[34px] font-semibold leading-none tracking-tight text-[var(--color-brand-navy)] sm:text-[44px]">
             <Counter value={s.value} suffix={s.suffix} reduced={Boolean(reduced)} />
           </p>
-          <p className="mt-3 text-[13px] text-[var(--color-ink-2)] sm:text-sm">{s.label}</p>
+          <p className="mt-2.5 text-[13px] text-[var(--color-ink-2)] sm:text-sm">{s.label}</p>
         </div>
       ))}
     </div>

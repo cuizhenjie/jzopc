@@ -15,7 +15,7 @@ export function StaticNebula({ className }: { className?: string }) {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(120% 90% at 50% 18%, #1D7FBA 0%, #142F59 42%, #0E3769 72%, #0A2547 100%)',
+            'radial-gradient(120% 90% at 50% 18%, #1D7FBA 0%, #142F59 42%, #0E3769 72%, #0E3769 100%)',
         }}
       />
       <div
@@ -32,7 +32,7 @@ export function StaticNebula({ className }: { className?: string }) {
       />
       <div
         className="absolute inset-x-0 bottom-0 h-1/2"
-        style={{ background: 'linear-gradient(to top, rgba(10,37,71,.92), transparent)' }}
+        style={{ background: 'linear-gradient(to top, rgba(14,55,105,.92), transparent)' }}
       />
     </div>
   );

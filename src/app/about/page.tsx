@@ -51,7 +51,7 @@ export default async function AboutPage() {
           </div>
 
           <Reveal delay={0.12}>
-            <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-7">
+            <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-card)]">
               <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">关键事实</h3>
               <dl className="mt-5 space-y-4">
                 {facts.map((f) => (
@@ -78,11 +78,12 @@ export default async function AboutPage() {
           desc="社区的八大赋能不是孤立的功能，而是接在真实的产业网络里。"
         />
         <Reveal>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+          {/* 生态伙伴用单线网格呈现，不做成卡片墙 */}
+          <ul className="grid grid-cols-2 border-t border-[var(--color-line)] sm:grid-cols-4 lg:grid-cols-8">
             {partners.map((name) => (
               <li
                 key={name}
-                className="flex h-[64px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-3 text-center text-[13px] font-medium text-[var(--color-ink-2)]"
+                className="flex h-[64px] items-center justify-center border-b border-[var(--color-line)] px-3 text-center text-[13px] font-medium text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
               >
                 {name}
               </li>

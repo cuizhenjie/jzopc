@@ -109,6 +109,30 @@ describe('品牌色板约束', () => {
     }
   });
 
+  test('全仓 hex 字面量都属于「品牌色板 ∪ 中性阶梯」', () => {
+    // 中性阶梯：logo.svg 只提供一个中性灰 #4D5153，但正文/分割线/底色需要更多层级，
+    // 这几档是设计中性色，不属于品牌色，故单列白名单。
+    const NEUTRAL = new Set(['1a2333', '4d5153', '5f6878', 'e3e9f2', 'eef4fa', 'f6f9fc', 'ffffff']);
+    const ALLOWED = new Set([...BRAND_PALETTE, ...NEUTRAL]);
+    const offenders: string[] = [];
+    for (const file of collectFiles(srcDir)) {
+      const src = readFileSync(file, 'utf8');
+      // 去掉注释后再扫，避免把「原 #7b8494 …」这类说明文字算进来
+      const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+      for (const m of code.matchAll(/#[0-9a-fA-F]{6}\b/g)) {
+        const hex = m[0].slice(1).toLowerCase();
+        if (!ALLOWED.has(hex)) {
+          offenders.push(`${file.replace(repoRoot + '/', '')} → ${m[0]}`);
+        }
+      }
+    }
+    assert.deepEqual(
+      offenders,
+      [],
+      `以下色值既不在品牌色板、也不在中性阶梯内：\n  ${offenders.join('\n  ')}`,
+    );
+  });
+
   test('色板 token 集合与 logo.svg 实际出现的色值一致', () => {
     const svg = readFileSync(resolve(repoRoot, 'logo.svg'), 'utf8');
     const svgHexes = new Set(

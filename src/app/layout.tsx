@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import JsonLd from '@/components/ui/JsonLd';
 import { site } from '@/lib/site/config';
 
 export const metadata: Metadata = {
@@ -38,8 +39,40 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // 组织与站点实体（PRD FR-SITE-03）。地址只用已确认的信息，不臆造电话/邮箱。
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: site.name,
+    legalName: site.company,
+    alternateName: site.shortName,
+    url: site.url,
+    description: site.description,
+    slogan: site.slogan,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: '北京市',
+      addressRegion: '丰台区',
+      streetAddress: '大红门',
+    },
+  };
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    alternateName: site.shortName,
+    url: site.url,
+    description: site.description,
+    inLanguage: 'zh-CN',
+    publisher: { '@type': 'Organization', name: site.company, url: site.url },
+  };
+
   return (
     <html lang="zh-CN">
+      <head>
+        <JsonLd data={organizationJsonLd} />
+        <JsonLd data={websiteJsonLd} />
+      </head>
       <body className="min-h-screen bg-white antialiased">
         <a
           href="#main"

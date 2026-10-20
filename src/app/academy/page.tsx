@@ -31,7 +31,7 @@ export default async function AcademyPage() {
           {academy.tags.map((t) => (
             <span
               key={t}
-              className="rounded-full bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white/85 ring-1 ring-white/18 backdrop-blur"
+              className="rounded bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white/85 ring-1 ring-white/18 backdrop-blur"
             >
               {t}
             </span>
@@ -49,12 +49,12 @@ export default async function AcademyPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {academy.tracks.map((t, i) => (
             <Reveal key={t.name} delay={i * 0.05}>
-              <div className="group h-full rounded-2xl border border-[var(--color-line)] bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+              <div className="group h-full rounded-xl border border-[var(--color-line)] bg-white p-6 shadow-none transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-[19px] font-semibold text-[var(--color-brand-navy)]">
                     {t.name}
                   </h3>
-                  <Badge tone="blue">{t.tag}</Badge>
+                  <Badge tone="blue" className="text-[12px]">{t.tag}</Badge>
                 </div>
                 <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-2)]">{t.desc}</p>
                 <div className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
@@ -73,26 +73,30 @@ export default async function AcademyPage() {
           title="从学习到就业，全程陪伴"
           desc="从学习到就业，全程陪伴，让每一次努力都有结果"
         />
-        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 就业服务是「测评 → 培训 → 实战 → 求职 → 推荐 → 跟踪」的线性流程，
+            用竖向时间线呈现，不做成六张同款卡片 */}
+        <ol className="mt-2">
           {academy.steps.map((s, i) => (
-            <li key={s.step} className="h-full">
-              <Reveal delay={Math.min(i, 6) * 0.05} className="h-full">
-                <div className="flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6">
-                <div className="flex items-baseline gap-2.5">
+            <li
+              key={s.step}
+              className="border-l-2 border-[var(--color-brand-blue)]/25 py-6 pl-5 first:pt-3 last:pb-3"
+            >
+              <Reveal delay={Math.min(i, 6) * 0.05}>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="font-mono text-[12px] font-semibold tracking-widest text-[var(--color-ink-3)]">
                     STEP
                   </span>
                   <span className="font-mono text-[24px] font-semibold leading-none text-[var(--color-brand-blue-deep)]">
                     {s.step}
                   </span>
+                  <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">
+                    {s.title}
+                  </h3>
                 </div>
-                <h3 className="mt-3 text-[16px] font-semibold text-[var(--color-brand-navy)]">
-                  {s.title}
-                </h3>
-                <ul className="mt-4 space-y-2.5">
+                <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1.5">
                   {s.points.map((p) => (
-                    <li key={p} className="flex items-start gap-2 text-[13px] text-[var(--color-ink-2)]">
-                      <svg viewBox="0 0 16 16" className="mt-0.5 h-3.5 w-3.5 shrink-0" fill="none" aria-hidden="true">
+                    <li key={p} className="flex items-center gap-1.5 text-[13px] text-[var(--color-ink-2)]">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0" fill="none" aria-hidden="true">
                         <path
                           d="M3 8.5 6.2 11.5 13 4.5"
                           stroke="var(--color-brand-teal)"
@@ -105,7 +109,6 @@ export default async function AcademyPage() {
                     </li>
                   ))}
                 </ul>
-                </div>
               </Reveal>
             </li>
           ))}
@@ -121,9 +124,9 @@ export default async function AcademyPage() {
               <Reveal key={c.slug} delay={Math.min(i, 6) * 0.05}>
                 <Link
                   href={`/academy/courses/${c.slug}`}
-                  className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
+                  className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
                 >
-                  <Badge tone="outline">{c.track}</Badge>
+                  <Badge tone="outline" className="text-[12px]">{c.track}</Badge>
                   <h3 className="mt-3.5 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
                     {c.title}
                   </h3>
@@ -132,7 +135,7 @@ export default async function AcademyPage() {
                   </p>
                   <div className="mt-4 flex flex-wrap gap-1.5">
                     {c.tags.map((t) => (
-                      <span key={t} className="rounded bg-[var(--color-surface)] px-2 py-0.5 text-[11px] text-[var(--color-ink-3)]">
+                      <span key={t} className="rounded bg-[var(--color-surface)] px-2 py-0.5 text-[12px] text-[var(--color-ink-3)]">
                         {t}
                       </span>
                     ))}

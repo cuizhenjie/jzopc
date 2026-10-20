@@ -32,11 +32,12 @@ export default async function PartnersPage() {
           desc="合作方名单以实际授权为准，持续更新中。若你的企业希望成为社区生态伙伴，欢迎联系我们。"
         />
         <Reveal>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {/* 合作方名单用单线网格呈现，不做成卡片墙 */}
+          <ul className="grid grid-cols-2 border-t border-[var(--color-line)] sm:grid-cols-3 lg:grid-cols-4">
             {partners.map((name) => (
               <li
                 key={name}
-                className="flex h-[76px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-4 text-center text-[14px] font-medium text-[var(--color-ink-2)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-brand-blue)]/30 hover:text-[var(--color-brand-blue-deep)]"
+                className="flex h-[76px] items-center justify-center border-b border-[var(--color-line)] px-4 text-center text-[14px] font-medium text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
               >
                 {name}
               </li>

@@ -13,6 +13,17 @@ export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   description:
     '集美科技旗下，面向 AI 创业团队的一站式 AI 应用综合赋能平台。位于北京丰台大红门，首期 3000 余平米，以八大赋能体系为核心，整合产业资源，赋能 AI 创业团队。',
+  /**
+   * 联系方式（PRD FR-HOME-09 要求页脚展示）。
+   *
+   * ⚠️ **空值是刻意的**：业务方尚未提供电话/邮箱，**不得臆造**。
+   * 页脚按「有值才渲染」处理，所以留空不会显示空占位。
+   * 填好后页脚会自动出现对应条目。
+   */
+  contact: {
+    phone: '',
+    email: '',
+  },
 } as const;
 
 /** 品牌色（logo.svg 实测），供 canvas/shader 与内联样式使用 */
@@ -42,6 +53,21 @@ export type NavItem = {
   children?: NavChild[];
   /** 是否主按钮样式 */
   cta?: boolean;
+};
+
+/**
+ * 导航项的内容就绪度（**数据表驱动，不是 Header 里硬编码**）。
+ *
+ * 规则见 PRD FR-ABOUT-05：「发展历程 / 服务对象」在**内容为空时从导航下拉中隐藏**，
+ * 而不是展示一个空页。当前这两页只有 `Placeholder` 占位（内容缺口 G6 / G7），
+ * 因此标记为未就绪；业务方补齐内容后把这里改成 `true` 即可，导航会自动出现。
+ *
+ * 未来接 Supabase `site_contents` 表时，把这张表换成按 section 查询即可，
+ * Header 侧的过滤逻辑无需改动。
+ */
+export const contentReady: Record<string, boolean> = {
+  '/about/history': false,
+  '/about/audience': false,
 };
 
 export const nav: NavItem[] = [

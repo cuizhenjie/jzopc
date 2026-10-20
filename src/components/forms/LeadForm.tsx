@@ -1,9 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/Button';
-import { leadTypeLabel, type LeadType } from '@/lib/lead/schema';
+import {
+  leadTypeLabel,
+  requiresAgreement,
+  AGREEMENT_REQUIRED_MESSAGE,
+  type LeadType,
+} from '@/lib/lead/schema';
 
 type Props = {
   leadType: LeadType;
@@ -27,6 +32,26 @@ const tracks = [
   '其他',
 ] as const;
 
+/**
+ * 幂等键：**表单实例级**，每次挂载生成一个新的。
+ *
+ * ⚠️ 曾经踩过的坑：键按 leadType 存进 sessionStorage 并复用 → 用户在同一浏览会话里
+ * 第二次提交**不同内容**的咨询时，会撞上 `leads.idempotency_key` 的部分唯一索引，
+ * API 把它当成「重复提交」静默返回成功，**而这条线索根本没落库**（运营侧看不到）。
+ * 现在改为实例级 UUID：同一次提交（含重复点击 / 网络重试）用同一把键，
+ * 提交成功后换一把新键，供下一次**新的**咨询使用。
+ * 「重复点击 / 网络重试」的去重由服务端的 30 分钟窗口负责（app/api/leads/route.ts）。
+ */
+function newIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  // 非安全上下文（http 且非 localhost）下 crypto.randomUUID 不可用，退回随机串
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
+
 export default function LeadForm({
   leadType,
   sourcePage,
@@ -40,23 +65,31 @@ export default function LeadForm({
   const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [agreed, setAgreed] = useState(false);
 
-  const [idempotencyKey, setIdempotencyKey] = useState('');
+  /** 幂等键：表单实例级，提交成功后换新 */
+  const [idempotencyKey, setIdempotencyKey] = useState(newIdempotencyKey);
+  const agreeId = useId();
 
-  function ensureKey() {
-    if (typeof window === 'undefined') return '';
-    const storageKey = `jz_lead_key_${leadType}`;
-    let k = sessionStorage.getItem(storageKey);
-    if (!k) {
-      k = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      sessionStorage.setItem(storageKey, k);
-    }
-    setIdempotencyKey(k);
-    return k;
-  }
+  /**
+   * 是否需要勾选同意入驻须知。
+   * 申请入驻场景（withApplyFields 或 leadType === 'apply'）才要求，
+   * 其它留资表单（算力 / 企服 / 流量…）不出现该勾选。
+   * 判定与服务端共用 requiresAgreement()，避免两边规则漂移。
+   */
+  const needAgreement = withApplyFields || requiresAgreement(leadType);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    // 服务端也会校验（双保险：按钮禁用可能被绕过，例如脚本直接发请求）
+    if (needAgreement && !agreed) {
+      setStatus('error');
+      setMessage(AGREEMENT_REQUIRED_MESSAGE);
+      setFieldErrors({ agreeTerms: AGREEMENT_REQUIRED_MESSAGE });
+      return;
+    }
+
     setStatus('sending');
     setMessage('');
     setFieldErrors({});
@@ -76,7 +109,8 @@ export default function LeadForm({
       sourcePage,
       sourceRef: sourceRef ?? '',
       company: String(fd.get('company') ?? ''),
-      idempotencyKey: ensureKey(),
+      agreeTerms: agreed,
+      idempotencyKey,
     };
 
     try {
@@ -95,6 +129,9 @@ export default function LeadForm({
         setStatus('ok');
         setMessage('提交成功！社区团队会尽快与你联系。');
         (e.target as HTMLFormElement).reset();
+        setAgreed(false);
+        // 提交成功后才换新键：下一条是「另一条咨询」，不能复用本次的键
+        setIdempotencyKey(newIdempotencyKey());
         return;
       }
 
@@ -128,9 +165,26 @@ export default function LeadForm({
           </svg>
         </div>
         <p className="text-[15px] font-medium text-[var(--color-brand-navy)]">{message}</p>
+        {/* 对接时间窗：与全站口径一致（入驻流程 / 赋能页均为「一个工作日内」）。
+            联系方式待业务方在 src/lib/site/config.ts 补充电话 / 邮箱后再补上，
+            宁可少写也不编造对外联系方式。 */}
         <p className="mt-2 text-[13px] text-[var(--color-ink-2)]">
-          {leadTypeLabel[leadType]}已受理，我们会通过你留下的联系方式对接。
+          {leadTypeLabel[leadType]}已受理，社区团队会在 1 个工作日内与你联系，请保持你填写的联系方式畅通。
         </p>
+        <p className="mt-3 text-[12px] leading-relaxed text-[var(--color-ink-3)]">
+          我们仅将你填写的信息用于本次对接沟通，并保存至本次对接完成。
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setStatus('idle');
+            setMessage('');
+            setFieldErrors({});
+          }}
+          className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)] underline underline-offset-4 transition-colors hover:text-[var(--color-brand-navy)]"
+        >
+          再提交一条
+        </button>
       </div>
     );
   }
@@ -289,12 +343,47 @@ export default function LeadForm({
         </p>
       )}
 
+      {/* 同意入驻须知：仅申请入驻场景出现（FR-APPLY-01 / FR-APPLY-03） */}
+      {needAgreement && (
+        <div className="mt-5">
+          <label
+            htmlFor={agreeId}
+            className="flex cursor-pointer items-start gap-2.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]"
+          >
+            <input
+              id={agreeId}
+              name="agreeTerms"
+              type="checkbox"
+              checked={agreed}
+              onChange={(ev) => setAgreed(ev.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-brand-blue-deep)]"
+            />
+            <span>
+              我已阅读并同意上方《入驻须知》
+              <span className="ml-0.5 text-[var(--color-brand-blue-deep)]">*</span>
+            </span>
+          </label>
+          {!agreed && (
+            <p className="mt-1.5 text-[12px] text-[var(--color-brand-blue-deep)]" role="status">
+              请先勾选同意《入驻须知》后再提交。
+            </p>
+          )}
+          {fieldErrors.agreeTerms && (
+            <p className="mt-1.5 text-[12px] text-red-600">{fieldErrors.agreeTerms}</p>
+          )}
+        </div>
+      )}
+
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <Button type="submit" size="lg" disabled={status === 'sending'}>
+        <Button
+          type="submit"
+          size="lg"
+          disabled={status === 'sending' || (needAgreement && !agreed)}
+        >
           {status === 'sending' ? '提交中…' : '提交'}
         </Button>
         <p className="text-[12px] leading-relaxed text-[var(--color-ink-3)]">
-          提交即表示同意社区使用上述信息与你联系，信息仅用于本次对接。
+          提交即表示同意社区使用上述信息与你联系。信息仅用于本次对接沟通，并保存至本次对接完成，不会用于其他用途。
         </p>
       </div>
     </form>

@@ -26,7 +26,7 @@ const actions: Record<string, string> = {
 
 export default function Onboarding() {
   return (
-    <div className="rounded-2xl border border-[var(--color-line)] bg-white p-6 sm:p-8">
+    <div className="rounded-xl border border-[var(--color-line)] bg-white p-6 sm:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="text-[17px] font-semibold text-[var(--color-brand-navy)]">
           入驻之后，你可以在社区里做这 8 件事
@@ -39,7 +39,7 @@ export default function Onboarding() {
           <div key={m.slug}>
             <Link
               href={m.href}
-              className="group flex items-start gap-3.5 rounded-xl px-2 py-2 -mx-2 transition-colors duration-200 hover:bg-[var(--color-surface)]"
+              className="group flex items-start gap-3.5 border-b border-[var(--color-line)] py-4 transition-colors duration-200 last:border-b-0 hover:bg-[var(--color-surface)]"
             >
               <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full font-mono text-[11px] font-semibold text-white"
                 style={{ background: 'linear-gradient(135deg,#0968AB,#0E3769)' }}

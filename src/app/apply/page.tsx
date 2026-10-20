@@ -59,7 +59,7 @@ export default function ApplyPage() {
             </ol>
 
             <Reveal delay={0.2}>
-              <div className="mt-9 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
+              <div className="mt-9 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6">
                 <h3 className="text-[15px] font-semibold text-[var(--color-brand-navy)]">入驻须知</h3>
                 <ul className="mt-4 space-y-2.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
                   <li>· 社区面向 AI 创业团队、微型团队与「一人公司」，团队规模原则上不超过 10 人。</li>

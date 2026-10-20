@@ -63,6 +63,11 @@ export function Reveal({
   }, [y]);
 
   return (
+    // ⚠️ 这个包裹 <div> 就是**真正的 grid item**。
+    //    跨列 / 跨行 / 网格定位类（`col-span-*`、`row-span-*` 等）必须传给 `className`
+    //    挂在这里，**不能**写在里面的 <Link> 上 —— 那样类存在但对布局完全无效。
+    //    （2026-10-20 实测踩过：首页与动态页的 featured 卡写成 `lg:col-span-2`，
+    //      结果首条卡与其余卡一样宽，跨列从未生效。）
     <div
       ref={ref}
       data-reveal=""

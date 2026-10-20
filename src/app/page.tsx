@@ -46,7 +46,7 @@ export default async function HomePage() {
             <>
               一站式 AI 应用
               <br className="hidden sm:block" />
-              <span className="text-gradient">综合赋能体系</span>
+              <span className="text-[var(--color-brand-blue-deep)]">综合赋能体系</span>
             </>
           }
           desc="场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区，需求不出社区。"
@@ -56,11 +56,13 @@ export default async function HomePage() {
 
       {/* 平台优势 + 愿景 */}
       <Section>
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="rounded-2xl border border-[var(--color-line)] bg-white p-7 shadow-[var(--shadow-card)] sm:p-9">
+        {/* 不用两张同款卡片：改成两栏开放式排版 + 顶部色条，并且不等宽，
+            避免「左右双胞胎」的模板感。 */}
+        <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+          <div className="border-t-2 border-[var(--color-brand-blue-deep)] pt-6">
             <Advantages />
           </div>
-          <div className="rounded-2xl border border-[var(--color-line)] bg-white p-7 shadow-[var(--shadow-card)] sm:p-9">
+          <div className="border-t-2 border-[var(--color-brand-teal)] pt-6">
             <Vision />
           </div>
         </div>
@@ -78,13 +80,22 @@ export default async function HomePage() {
             eyebrow="社区动态"
             title="社区正在发生什么"
             desc="沙龙、活动与最新资讯，第一时间了解社区与入驻团队的进展。"
+            align="center"
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {news.slice(0, 3).map((n) => (
-              <Reveal key={n.slug}>
+            {news.slice(0, 3).map((n, i) => (
+              // ⚠️ 跨列类必须挂在 **Reveal 包裹层**上：Reveal 渲染的那层 <div>
+              //    才是真正的 grid item，类写在里面的 <Link> 上对布局无效。
+              <Reveal key={n.slug} className={i === 0 ? 'sm:col-span-2 lg:col-span-2' : undefined}>
                 <Link
                   href={`/news/${n.slug}`}
-                  className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
+                  className={
+                    // 首条横跨两列做主卡（更大内距 + 阴影），其余两条为次级卡
+                    'group flex h-full flex-col border bg-white transition-all duration-300 ' +
+                    (i === 0
+                      ? 'rounded-2xl border-[var(--color-line)] p-7 shadow-[var(--shadow-card)] hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]'
+                      : 'rounded-xl border-[var(--color-line)] p-6 shadow-none hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]')
+                  }
                 >
                   <div className="flex items-center gap-2">
                     <Badge tone="blue">{n.category}</Badge>
@@ -113,7 +124,7 @@ export default async function HomePage() {
 
       {/* CTA */}
       <Section tone="navy">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12 sm:py-20">
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12 sm:py-20">
           <div
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{

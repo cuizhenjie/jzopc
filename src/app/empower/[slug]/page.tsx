@@ -69,7 +69,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
               <Stagger className="grid gap-4 sm:grid-cols-2">
                 {m.values.map((v) => (
                   <Reveal key={v.title} y={0}>
-                    <div className="h-full rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                    <div className="h-full rounded-xl border border-[var(--color-line)] bg-white p-5 shadow-none transition-colors hover:border-[var(--color-brand-blue)]/30">
                       <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">
                         {v.title}
                       </h3>
@@ -86,7 +86,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
           <div>
             {m.highlights && m.highlights.length > 0 && (
               <Reveal>
-                <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-7">
+                <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-card)]">
                   <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">关键数据</h3>
                   <dl className="mt-5 space-y-4">
                     {m.highlights.map((h) => (
@@ -106,7 +106,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
             )}
 
             <Reveal delay={0.1} className="mt-6">
-              <div className="rounded-2xl border border-[var(--color-line)] bg-white p-7">
+              <div className="rounded-2xl border border-[var(--color-line)] bg-white p-7 shadow-[var(--shadow-card)]">
                 <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">包含能力</h3>
                 <ul className="mt-5 grid gap-3 sm:grid-cols-2">
                   {m.items.map((i) => (
@@ -161,7 +161,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
         ) : (
           <div className="grid gap-8 text-center sm:grid-cols-2">
             <Reveal>
-              <div className="rounded-2xl border border-[var(--color-line)] bg-white p-8">
+              <div className="rounded-xl border border-[var(--color-line)] bg-white p-6">
                 <h3 className="text-[18px] font-semibold text-[var(--color-brand-navy)]">
                   去{m.title}专区
                 </h3>
@@ -192,7 +192,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
               </div>
             </Reveal>
             <Reveal delay={0.08}>
-              <div className="rounded-2xl border border-[var(--color-line)] bg-white p-8">
+              <div className="rounded-xl border border-[var(--color-line)] bg-white p-6">
                 <h3 className="text-[18px] font-semibold text-[var(--color-brand-navy)]">
                   还有疑问？
                 </h3>
@@ -218,7 +218,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
             <Link
               key={r.slug}
               href={r.href}
-              className="group rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
+              className="group rounded-xl border border-[var(--color-line)] bg-white p-5 transition-colors hover:border-[var(--color-brand-blue)]/30"
             >
               <span className="font-mono text-[12px] font-semibold tracking-widest text-[var(--color-brand-blue-deep)]">
                 {r.index}

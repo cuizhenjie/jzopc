@@ -31,11 +31,23 @@ export function Section({
   );
 }
 
+/**
+ * 区块标题。
+ *
+ * ## 两处刻意的调整（消除「AI 感」）
+ *
+ * 1. **默认左对齐**。过去默认 `align="center"`，全站 12 处区块标题里 9 处是
+ *    「居中大标题 + 副标题 + 一排同款卡片」，滚动时节奏完全不变 —— 这是模板站最强的信号。
+ *    改成左对齐后，页面读起来像「编排过的内容」而不是「组件拼装」。
+ *    需要居中的区块请显式传 `align="center"`。
+ * 2. **eyebrow 从胶囊改成纯文字小标**。每个区块顶部挂一颗圆角胶囊 + 描边，
+ *    是 AI 生成模板的标志性元素；纯文字小标更克制，也更接近编辑排版。
+ */
 export function SectionHead({
   eyebrow,
   title,
   desc,
-  align = 'center',
+  align = 'left',
   dark = false,
 }: {
   eyebrow?: string;
@@ -55,10 +67,8 @@ export function SectionHead({
       {eyebrow && (
         <span
           className={clsx(
-            'inline-block rounded-full px-3.5 py-1 text-xs font-medium tracking-wide',
-            dark
-              ? 'bg-white/10 text-[var(--color-brand-cyan)] ring-1 ring-white/15'
-              : 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue-deep)] ring-1 ring-[var(--color-brand-blue)]/15',
+            'block text-[12px] font-medium tracking-[0.18em]',
+            dark ? 'text-[var(--color-brand-cyan)]' : 'text-[var(--color-brand-blue-deep)]',
           )}
         >
           {eyebrow}

@@ -48,7 +48,11 @@ export default function PageHero({
               <span key={c.label} className="flex items-center gap-1.5">
                 {i > 0 && <span className="text-white/30">/</span>}
                 {c.href ? (
-                  <Link href={c.href} className="text-white/55 transition-colors hover:text-white">
+                  <Link
+                    href={c.href}
+                    // 面包屑链接原本 18px 高，加内边距让触控高度达 24px（WCAG 2.5.8 AA）
+                    className="inline-block py-1 text-white/55 transition-colors hover:text-white"
+                  >
                     {c.label}
                   </Link>
                 ) : (
@@ -60,7 +64,9 @@ export default function PageHero({
         )}
 
         {eyebrow && (
-          <span className="inline-block rounded-full bg-white/10 px-3.5 py-1 text-xs font-medium tracking-wide text-[var(--color-brand-cyan)] ring-1 ring-white/15">
+          // 纯文字小标（去掉胶囊底色与描边）：内页 Hero 的 eyebrow 不再是「徽章」，
+          // 深底上用亮青，对比度 4.79:1 合规
+          <span className="inline-block text-[12px] font-medium tracking-[0.18em] text-[var(--color-brand-cyan)]">
             {eyebrow}
           </span>
         )}

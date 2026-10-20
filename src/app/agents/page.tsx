@@ -15,7 +15,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/agents' },
 };
 
-export const revalidate = 600;
+export const revalidate = 300;
+
+/**
+ * 目录里的「主卡」数量：前 6 个作为精选位（带卡片阴影、较大圆角），
+ * 其余退为次级卡（只描边、无阴影），避免 29 张卡同款的「AI 生成感」。
+ */
+const PRIMARY_CARD_COUNT = 6;
 
 export default async function AgentsPage() {
   const [all, categories] = await Promise.all([getAgents(), getAgentCategories()]);
@@ -84,44 +90,51 @@ export default async function AgentsPage() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {all.map((a, i) => (
-              <Reveal key={a.slug} delay={Math.min(i, 8) * 0.04}>
-                <Link
-                  href={`/agents/${a.slug}`}
-                  data-filter-key={a.category}
-                  data-filter-text={`${a.name} ${a.summary} ${a.tags.join(' ')}`}
-                  className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--color-brand-blue)]/10 text-[15px] font-semibold text-[var(--color-brand-blue-deep)]">
-                      {a.name.slice(0, 1)}
-                    </span>
-                    <Badge tone="outline">
-                      {categories.find((c) => c.slug === a.category)?.name ?? a.category}
-                    </Badge>
-                  </div>
-                  <h3 className="mt-4 text-[16px] font-semibold text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
-                    {a.name}
-                  </h3>
-                  <p className="mt-2 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-                    {a.summary}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {a.tags.slice(0, 3).map((t) => (
-                      <span key={t} className="rounded bg-[var(--color-surface)] px-2 py-0.5 text-[11px] text-[var(--color-ink-3)]">
-                        {t}
+            {all.map((a, i) => {
+              const isPrimary = i < PRIMARY_CARD_COUNT;
+              return (
+                <Reveal key={a.slug} delay={Math.min(i, 8) * 0.04}>
+                  <Link
+                    href={`/agents/${a.slug}`}
+                    data-filter-key={a.category}
+                    data-filter-text={`${a.name} ${a.summary} ${a.tags.join(' ')}`}
+                    className={
+                      isPrimary
+                        ? 'group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]'
+                        : 'group flex h-full flex-col rounded-xl border border-[var(--color-line)] bg-white p-5 shadow-none transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]'
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--color-brand-blue)]/10 text-[15px] font-semibold text-[var(--color-brand-blue-deep)]">
+                        {a.name.slice(0, 1)}
                       </span>
-                    ))}
-                  </div>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
-                    查看详情
-                    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" fill="none" aria-hidden="true">
-                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
+                      <Badge tone="outline" className="text-[12px]">
+                        {categories.find((c) => c.slug === a.category)?.name ?? a.category}
+                      </Badge>
+                    </div>
+                    <h3 className="mt-4 text-[16px] font-semibold text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
+                      {a.name}
+                    </h3>
+                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
+                      {a.summary}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {a.tags.slice(0, 3).map((t) => (
+                        <span key={t} className="rounded bg-[var(--color-surface)] px-2 py-0.5 text-[12px] text-[var(--color-ink-3)]">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
+                      查看详情
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" fill="none" aria-hidden="true">
+                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
 
           <div className="mt-10" data-filter-empty style={{ display: 'none' }}>

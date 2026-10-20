@@ -57,14 +57,14 @@ export default function AudiencePage() {
           <Stagger className="grid gap-4 sm:grid-cols-2">
             {audiences.map((a) => (
               <Reveal key={a.title} y={0}>
-                <div className="h-full rounded-2xl border border-[var(--color-line)] bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                <div className="h-full rounded-xl border border-[var(--color-line)] bg-white p-5 transition-colors hover:border-[var(--color-brand-blue)]/30">
                   <h3 className="text-[17px] font-semibold text-[var(--color-brand-navy)]">{a.title}</h3>
                   <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-2)]">{a.desc}</p>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {a.tags.map((t) => (
                       <span
                         key={t}
-                        className="rounded-md bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand-blue-deep)]"
+                        className="rounded-md bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[12px] font-medium text-[var(--color-brand-blue-deep)]"
                       >
                         {t}
                       </span>
