@@ -36,7 +36,7 @@ export default async function PartnersPage() {
             {partners.map((name) => (
               <li
                 key={name}
-                className="flex h-[76px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-4 text-center text-[14px] font-medium text-[var(--color-ink-2)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-brand-blue)]/30 hover:text-[var(--color-brand-blue)]"
+                className="flex h-[76px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-4 text-center text-[14px] font-medium text-[var(--color-ink-2)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-brand-blue)]/30 hover:text-[var(--color-brand-blue-deep)]"
               >
                 {name}
               </li>

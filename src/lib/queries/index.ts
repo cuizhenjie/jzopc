@@ -19,6 +19,20 @@ import { agentCategories, empowerModules, partners, stats } from '@/lib/site/con
 
 const FALLBACK = { agents: seedAgents, market: seedMarket, courses: seedCourses, news: seedNews };
 
+/**
+ * 归一化 DB 行的正文字段。
+ *
+ * `body` 在 DB 里是 jsonb 段落数组；旧迁移曾定义成 `body_md text`，
+ * 接真库时 `post.body` 会是 undefined —— 页面直接 `post.body.map(...)` 会抛错。
+ * 这里统一兜底成数组：即使数据形状不对，页面也只是少一段正文，不会 500。
+ */
+function withBody<T extends { body?: unknown }>(row: T): T & { body: string[] } {
+  const body = Array.isArray(row?.body)
+    ? row.body.filter((x): x is string => typeof x === 'string')
+    : [];
+  return { ...row, body };
+}
+
 async function fetchTable<T>(table: string, fallback: T[], order?: string): Promise<T[]> {
   const sb = getSupabaseAdmin();
   if (!sb) return fallback;
@@ -100,7 +114,7 @@ export const getMarketItems = cache(async (type?: 'demand' | 'supply'): Promise<
         .select('*')
         .eq('published', true)
         .order('published_at', { ascending: false });
-      if (data && data.length > 0) list = data as MarketItem[];
+      if (data && data.length > 0) list = (data as MarketItem[]).map(withBody);
     } catch {
       /* 回落到种子数据 */
     }
@@ -118,7 +132,7 @@ export const getMarketItem = cache(async (slug: string): Promise<MarketItem | nu
         .eq('slug', slug)
         .eq('published', true)
         .maybeSingle();
-      if (data) return data as MarketItem;
+      if (data) return withBody(data as MarketItem);
     } catch {
       /* 回落到种子数据 */
     }
@@ -148,7 +162,7 @@ export const getCourse = cache(async (slug: string): Promise<Course | null> => {
         .eq('slug', slug)
         .eq('published', true)
         .maybeSingle();
-      if (data) return data as Course;
+      if (data) return withBody(data as Course);
     } catch {
       /* 回落到种子数据 */
     }
@@ -166,7 +180,7 @@ export const getNewsPosts = cache(async (category?: string): Promise<NewsPost[]>
         .select('*')
         .eq('status', 'published')
         .order('published_at', { ascending: false });
-      if (data && data.length > 0) list = data as NewsPost[];
+      if (data && data.length > 0) list = (data as NewsPost[]).map(withBody);
     } catch {
       /* 回落到种子数据 */
     }
@@ -184,7 +198,7 @@ export const getNewsPost = cache(async (slug: string): Promise<NewsPost | null> 
         .eq('slug', slug)
         .eq('status', 'published')
         .maybeSingle();
-      if (data) return data as NewsPost;
+      if (data) return withBody(data as NewsPost);
     } catch {
       /* 回落到种子数据 */
     }

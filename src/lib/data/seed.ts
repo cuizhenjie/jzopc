@@ -27,6 +27,8 @@ export type MarketItem = {
   title: string;
   category: string;
   summary: string;
+  /** 完整描述段落（DB 列 body jsonb；本期种子为空数组，留给运营填写） */
+  body?: string[];
   org_name: string;
   tags: string[];
   published_at: string;
@@ -37,6 +39,8 @@ export type Course = {
   track: string;
   title: string;
   summary: string;
+  /** 课程大纲段落（DB 列 body jsonb；本期种子为空数组） */
+  body?: string[];
   tags: string[];
   mentor: string;
 };

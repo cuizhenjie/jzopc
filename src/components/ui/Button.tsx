@@ -10,10 +10,10 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-[var(--color-brand-blue)] text-white shadow-[0_8px_24px_-10px_rgba(29,127,186,0.9)] hover:bg-[var(--color-brand-navy)] hover:shadow-[0_12px_30px_-10px_rgba(20,47,89,0.85)] hover:-translate-y-0.5',
+    'bg-[var(--color-brand-blue-deep)] text-white shadow-[0_8px_24px_-10px_rgba(29,127,186,0.9)] hover:bg-[var(--color-brand-navy)] hover:shadow-[0_12px_30px_-10px_rgba(20,47,89,0.85)] hover:-translate-y-0.5',
   secondary:
-    'border border-[var(--color-brand-blue)]/35 text-[var(--color-brand-blue)] hover:border-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/6',
-  ghost: 'text-[var(--color-ink-2)] hover:text-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/6',
+    'border border-[var(--color-brand-blue)]/35 text-[var(--color-brand-blue-deep)] hover:border-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)]/6',
+  ghost: 'text-[var(--color-ink-2)] hover:text-[var(--color-brand-blue-deep)] hover:bg-[var(--color-brand-blue)]/6',
   light:
     'bg-white/10 text-white border border-white/25 backdrop-blur hover:bg-white/18 hover:border-white/40',
 };

@@ -8,6 +8,28 @@
 --    site_stats / agent_categories 没有 published 列；
 --    news_posts 用 status 而非 published。
 
+-- ── 显式授权 ───────────────────────────────────────────────────────────
+-- Supabase 平台会自动给 public schema 的表授予 anon / authenticated 的权限，
+-- 但这里显式写出来有两个好处：
+--   ① 迁移自洽，不依赖平台默认值（换自建 Postgres 也不会漏授权）；
+--   ② 可以在**裸 PostgreSQL** 上直接验证 RLS 行为 —— 本仓库的
+--      `supabase/tests/001_migration_smoke.sql` 就是这么跑的。
+--
+-- ⚠️ **leads 表不授予 anon / authenticated 任何权限**：线索数据只有
+--    service_role（服务端 Route Handler）能读写，浏览器直连连 select 都不行。
+--    （即便授予了 select，leads 开着 RLS 且零策略，默认也是全部拒绝。）
+grant usage on schema public to anon, authenticated, service_role;
+
+grant select on
+  site_contents, empower_modules, site_stats, agent_categories,
+  agents, market_items, courses, news_posts, partners, media_assets
+  to anon, authenticated;
+
+grant all on all tables in schema public to service_role;
+-- 序列也要授权：bigserial 主键的插入需要序列的 USAGE 权限，
+-- 否则 service_role 写 leads 会在 "permission denied for sequence leads_id_seq" 上失败。
+grant all on all sequences in schema public to service_role;
+
 -- ── 公开内容表：全部开启 RLS ─────────────────────────────────────────────
 alter table site_contents    enable row level security;
 alter table empower_modules  enable row level security;

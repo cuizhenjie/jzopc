@@ -57,7 +57,7 @@ export default async function AcademyPage() {
                   <Badge tone="blue">{t.tag}</Badge>
                 </div>
                 <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-2)]">{t.desc}</p>
-                <div className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue)]">
+                <div className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
                   {courses.filter((c) => c.track === t.name).length} 门课程在售 →
                 </div>
               </div>
@@ -75,13 +75,14 @@ export default async function AcademyPage() {
         />
         <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {academy.steps.map((s, i) => (
-            <Reveal key={s.step} delay={Math.min(i, 6) * 0.05}>
-              <li className="h-full rounded-2xl border border-[var(--color-line)] bg-white p-6">
+            <li key={s.step} className="h-full">
+              <Reveal delay={Math.min(i, 6) * 0.05} className="h-full">
+                <div className="flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6">
                 <div className="flex items-baseline gap-2.5">
                   <span className="font-mono text-[12px] font-semibold tracking-widest text-[var(--color-ink-3)]">
                     STEP
                   </span>
-                  <span className="font-mono text-[24px] font-semibold leading-none text-[var(--color-brand-blue)]">
+                  <span className="font-mono text-[24px] font-semibold leading-none text-[var(--color-brand-blue-deep)]">
                     {s.step}
                   </span>
                 </div>
@@ -104,8 +105,9 @@ export default async function AcademyPage() {
                     </li>
                   ))}
                 </ul>
-              </li>
-            </Reveal>
+                </div>
+              </Reveal>
+            </li>
           ))}
         </ol>
       </Section>
@@ -122,7 +124,7 @@ export default async function AcademyPage() {
                   className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
                 >
                   <Badge tone="outline">{c.track}</Badge>
-                  <h3 className="mt-3.5 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue)]">
+                  <h3 className="mt-3.5 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
                     {c.title}
                   </h3>
                   <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">

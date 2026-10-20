@@ -1,7 +1,7 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { brandRamp, curlNoise, simplex3d } from './shaders/noise.glsl';
 
@@ -107,6 +107,21 @@ export default function HeroNebula({
     g.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 3));
     return g;
   }, [count]);
+
+  /**
+   * 释放 GPU 资源。
+   *
+   * ⚠️ r3f **不会**自动释放通过 `<primitive object={...}>` 传入的对象
+   * （只有声明式创建的 `<bufferGeometry>` 等才会被自动回收）。
+   * 本组件的 geometry 由 `useMemo` 创建并以 primitive 挂载，
+   * 因此必须在「geometry 变化」与「组件卸载」时显式 dispose()，
+   * 否则自适应降档每换一次粒子数就泄漏一份 GPU buffer（docs/06 §8 V8）。
+   */
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+    };
+  }, [geometry]);
 
   const uniforms = useMemo(
     () => ({

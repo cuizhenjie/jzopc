@@ -52,7 +52,7 @@ export default function TrafficPage() {
               {values.map((v, i) => (
                 <Reveal key={v.title} delay={i * 0.07}>
                   <div className="flex gap-4">
-                    <span className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-blue)]/10 font-mono text-[13px] font-semibold text-[var(--color-brand-blue)]">
+                    <span className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-blue)]/10 font-mono text-[13px] font-semibold text-[var(--color-brand-blue-deep)]">
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <div>

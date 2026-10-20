@@ -93,7 +93,7 @@ export default function LeadTable({
           {list.map((r) => (
             <tr key={r.id} className="border-b border-[var(--color-line)] last:border-0 hover:bg-[var(--color-surface)]/60">
               <td className="px-4 py-3">
-                <span className="rounded bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand-blue)]">
+                <span className="rounded bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand-blue-deep)]">
                   {typeLabel[r.lead_type] ?? r.lead_type}
                 </span>
               </td>

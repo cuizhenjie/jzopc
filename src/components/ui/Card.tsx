@@ -36,8 +36,8 @@ export function Badge({
   className?: string;
 }) {
   const tones = {
-    blue: 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue)]',
-    teal: 'bg-[var(--color-brand-teal)]/12 text-[#3d8578]',
+    blue: 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue-deep)]',
+    teal: 'bg-[var(--color-brand-teal)]/12 text-[var(--color-brand-navy-3)]',
     navy: 'bg-[var(--color-brand-navy)] text-white',
     outline: 'border border-[var(--color-line)] text-[var(--color-ink-2)]',
   };

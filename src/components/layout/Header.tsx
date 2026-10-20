@@ -5,19 +5,16 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { nav } from '@/lib/site/config';
+import BrandMark from '@/components/ui/BrandMark';
 
 function Logo({ light = false }: { light?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5" aria-label="集智 AI OPC 社区 首页">
-      <span
-        className={clsx(
-          'grid h-9 w-9 place-items-center rounded-[10px] text-[13px] font-bold tracking-tight',
-          light ? 'bg-white/12 text-white ring-1 ring-white/25' : 'text-white',
-        )}
-        style={{ background: light ? undefined : 'linear-gradient(135deg,#0968AB,#57B6A5)' }}
-      >
-        集智
-      </span>
+    // 不设 aria-label：可见文字为「集智 AI / JIZHI · AI」，
+    // 若用 aria-label 覆盖会违反 WCAG 2.5.3（可访问名须包含可见文字）。
+    // 「首页」用 sr-only 追加，名称即变为「…首页」，仍包含全部可见文字。
+    <Link href="/" className="flex items-center gap-2.5">
+      {/* 品牌徽记取自 logo.svg（浅底版 / 深底反白版），详见 components/ui/BrandMark */}
+      <BrandMark light={light} />
       <span className="flex flex-col leading-none">
         <span
           className={clsx(
@@ -36,6 +33,7 @@ function Logo({ light = false }: { light?: boolean }) {
           JIZHI · AI
         </span>
       </span>
+      <span className="sr-only">首页</span>
     </Link>
   );
 }
@@ -91,8 +89,8 @@ export default function Header() {
 
   // 未滚动且顶部为深底 → 导航用浅色字；其余情况用深色字
   const navOnDark = !scrolled && darkTop;
-  const navText = navOnDark ? 'text-white/85 hover:text-white' : 'text-[var(--color-ink-2)] hover:text-[var(--color-brand-blue)]';
-  const navTextActive = navOnDark ? 'text-white' : 'text-[var(--color-brand-blue)]';
+  const navText = navOnDark ? 'text-white/85 hover:text-white' : 'text-[var(--color-ink-2)] hover:text-[var(--color-brand-blue-deep)]';
+  const navTextActive = navOnDark ? 'text-white' : 'text-[var(--color-brand-blue-deep)]';
 
   return (
     <header
@@ -139,8 +137,8 @@ export default function Header() {
                         className={clsx(
                           'block rounded-lg px-3 py-2 text-[13px] transition-colors',
                           isActive(c.href)
-                            ? 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue)]'
-                            : 'text-[var(--color-ink-2)] hover:bg-[var(--color-surface)] hover:text-[var(--color-brand-blue)]',
+                            ? 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue-deep)]'
+                            : 'text-[var(--color-ink-2)] hover:bg-[var(--color-surface)] hover:text-[var(--color-brand-blue-deep)]',
                         )}
                       >
                         {c.label}
@@ -156,7 +154,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <Link
             href="/apply"
-            className="hidden h-10 items-center rounded-full bg-[var(--color-brand-blue)] px-6 text-sm font-medium text-white shadow-[0_8px_24px_-10px_rgba(29,127,186,.9)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-brand-navy)] lg:inline-flex"
+            className="hidden h-10 items-center rounded-full bg-[var(--color-brand-blue-deep)] px-6 text-sm font-medium text-white shadow-[0_8px_24px_-10px_rgba(29,127,186,.9)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-brand-navy)] lg:inline-flex"
           >
             申请入驻
           </Link>
@@ -195,7 +193,7 @@ export default function Header() {
                 href={item.href}
                 className={clsx(
                   'block text-[16px] font-medium',
-                  isActive(item.href) ? 'text-[var(--color-brand-blue)]' : 'text-[var(--color-brand-navy)]',
+                  isActive(item.href) ? 'text-[var(--color-brand-blue-deep)]' : 'text-[var(--color-brand-navy)]',
                 )}
               >
                 {item.label}
@@ -217,7 +215,7 @@ export default function Header() {
           ))}
           <Link
             href="/apply"
-            className="mt-6 flex h-12 items-center justify-center rounded-full bg-[var(--color-brand-blue)] text-[15px] font-medium text-white"
+            className="mt-6 flex h-12 items-center justify-center rounded-full bg-[var(--color-brand-blue-deep)] text-[15px] font-medium text-white"
           >
             申请入驻
           </Link>

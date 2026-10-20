@@ -96,7 +96,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ sl
                 href={agent.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--color-brand-blue)] text-[15px] font-medium text-white transition-colors hover:bg-[var(--color-brand-navy)]"
+                className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--color-brand-blue-deep)] text-[15px] font-medium text-white transition-colors hover:bg-[var(--color-brand-navy)]"
               >
                 前往 {agent.name}
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden="true">

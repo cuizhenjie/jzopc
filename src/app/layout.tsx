@@ -18,8 +18,16 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: `${site.name} · ${site.slogan}`,
     description: site.description,
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: `${site.name} · ${site.slogan}`,
+      },
+    ],
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: { card: 'summary_large_image', images: ['/api/og'] },
   robots: { index: true, follow: true },
 };
 

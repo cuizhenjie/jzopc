@@ -4,6 +4,8 @@ import { Section, SectionHead } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
 import { Badge, EmptyState } from '@/components/ui/Card';
 import { Reveal } from '@/components/ui/Reveal';
+import FilterRoot from '@/components/ui/FilterRoot';
+import FilterLink from '@/components/ui/FilterLink';
 import { ButtonLink } from '@/components/ui/Button';
 import { getMarketItems } from '@/lib/queries';
 import { marketHero } from '@/lib/data/seed';
@@ -17,15 +19,8 @@ export const metadata: Metadata = {
 
 export const revalidate = 600;
 
-export default async function MarketPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const { tab } = await searchParams;
-  const active = tab === 'supply' ? 'supply' : 'demand';
+export default async function MarketPage() {
   const all = await getMarketItems();
-  const list = all.filter((m) => m.type === active);
 
   return (
     <>
@@ -47,7 +42,7 @@ export default async function MarketPage({
           {marketSteps.map((s, i) => (
             <Reveal key={s.index} delay={i * 0.06}>
               <div className="h-full rounded-2xl border border-[var(--color-line)] bg-white p-6">
-                <span className="font-mono text-[22px] font-semibold text-[var(--color-brand-blue)]">
+                <span className="font-mono text-[22px] font-semibold text-[var(--color-brand-blue-deep)]">
                   {s.index}
                 </span>
                 <h3 className="mt-3 text-[16px] font-semibold text-[var(--color-brand-navy)]">
@@ -60,8 +55,10 @@ export default async function MarketPage({
         </div>
       </Section>
 
-      {/* 列表 */}
+      {/* 列表：服务端渲染全部条目，客户端按 URL 参数过滤
+          （页面保持静态，title/description 才会落在 <head> 内） */}
       <Section tone="surface" size="sm">
+        <FilterRoot param="tab" defaultValue="demand">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex gap-2">
             {(
@@ -70,35 +67,33 @@ export default async function MarketPage({
                 { key: 'supply', label: '社区能力', count: all.filter((m) => m.type === 'supply').length },
               ] as const
             ).map((t) => (
-              <Link
+              <FilterLink
                 key={t.key}
                 href={`/market?tab=${t.key}`}
-                className={
-                  active === t.key
-                    ? 'rounded-full bg-[var(--color-brand-blue)] px-5 py-2.5 text-[14px] font-medium text-white'
-                    : 'rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue)]'
-                }
+                param="tab"
+                value={t.key}
+                className="rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
               >
                 {t.label}
                 <span className="ml-1.5 text-[12px] opacity-70">{t.count}</span>
-              </Link>
+              </FilterLink>
             ))}
           </div>
         </div>
 
-        {list.length === 0 ? (
-          <div className="mt-8">
-            <EmptyState
-              title="暂时没有公开条目"
-              desc="你提交的需求会由社区运营整理后发布到这里。直接提交，我们会更快对接。"
-            />
-          </div>
-        ) : (
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            {list.map((m, i) => (
+        <div className="mt-8" data-filter-empty style={{ display: 'none' }}>
+          <EmptyState
+            title="暂时没有公开条目"
+            desc="你提交的需求会由社区运营整理后发布到这里。直接提交，我们会更快对接。"
+          />
+        </div>
+        <div className="mt-8 grid gap-4 lg:grid-cols-2">
+            {all.map((m, i) => (
               <Reveal key={m.slug} delay={Math.min(i, 6) * 0.05}>
                 <Link
                   href={`/market/${m.slug}`}
+                  data-filter-key={m.type}
+                  data-filter-text={`${m.title} ${m.summary} ${m.category} ${m.org_name} ${m.tags.join(' ')}`}
                   className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
                 >
                   <div className="flex items-center gap-2">
@@ -110,7 +105,7 @@ export default async function MarketPage({
                       {m.published_at}
                     </time>
                   </div>
-                  <h3 className="mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue)]">
+                  <h3 className="mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
                     {m.title}
                   </h3>
                   <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
@@ -128,7 +123,7 @@ export default async function MarketPage({
               </Reveal>
             ))}
           </div>
-        )}
+        </FilterRoot>
 
         <div className="mt-10 rounded-2xl border border-[var(--color-line)] bg-white p-7">
           <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">

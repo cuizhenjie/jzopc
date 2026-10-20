@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { footerNav, site } from '@/lib/site/config';
+import BrandMark from '@/components/ui/BrandMark';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -9,12 +10,8 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <div className="flex items-center gap-2.5">
-              <span
-                className="grid h-9 w-9 place-items-center rounded-[10px] text-[13px] font-bold text-white"
-                style={{ background: 'linear-gradient(135deg,#0968AB,#57B6A5)' }}
-              >
-                集智
-              </span>
+              {/* 品牌徽记取自 logo.svg（浅底版），详见 components/ui/BrandMark */}
+              <BrandMark />
               <span className="flex flex-col leading-none">
                 <span className="text-[15px] font-semibold text-[var(--color-brand-navy)]">集智 AI</span>
                 <span className="mt-0.5 text-[10px] tracking-[0.18em] text-[var(--color-ink-3)]">
@@ -32,13 +29,15 @@ export default function Footer() {
 
           {footerNav.map((col) => (
             <div key={col.title}>
-              <h3 className="text-[13px] font-semibold text-[var(--color-brand-navy)]">{col.title}</h3>
+              {/* 页脚分组标题用 h2：部分页面（如 /ops/leads 的口令页）正文只有 h1，
+                  用 h3 会造成 h1 → h3 跳级，违反 heading 层级规则 */}
+              <h2 className="text-[13px] font-semibold text-[var(--color-brand-navy)]">{col.title}</h2>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="text-[13px] text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-brand-blue)]"
+                      className="text-[13px] text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
                     >
                       {l.label}
                     </Link>
@@ -54,10 +53,10 @@ export default function Footer() {
             © {year} {site.company} · 集智 AI OPC 社区
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <Link href="/about" className="transition-colors hover:text-[var(--color-brand-blue)]">
+            <Link href="/about" className="transition-colors hover:text-[var(--color-brand-blue-deep)]">
               关于我们
             </Link>
-            <Link href="/apply" className="transition-colors hover:text-[var(--color-brand-blue)]">
+            <Link href="/apply" className="transition-colors hover:text-[var(--color-brand-blue-deep)]">
               申请入驻
             </Link>
             <span>京ICP备 号位</span>

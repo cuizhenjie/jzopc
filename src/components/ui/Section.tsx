@@ -58,7 +58,7 @@ export function SectionHead({
             'inline-block rounded-full px-3.5 py-1 text-xs font-medium tracking-wide',
             dark
               ? 'bg-white/10 text-[var(--color-brand-cyan)] ring-1 ring-white/15'
-              : 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue)] ring-1 ring-[var(--color-brand-blue)]/15',
+              : 'bg-[var(--color-brand-blue)]/8 text-[var(--color-brand-blue-deep)] ring-1 ring-[var(--color-brand-blue)]/15',
           )}
         >
           {eyebrow}

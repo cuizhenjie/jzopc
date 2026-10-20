@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { Section } from '@/components/ui/Section';
+import { Section, SectionHead } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
 import LeadForm from '@/components/forms/LeadForm';
 import { Reveal } from '@/components/ui/Reveal';
+import Onboarding from '@/components/sections/Onboarding';
 
 export const metadata: Metadata = {
   title: '申请入驻',
@@ -36,21 +37,24 @@ export default function ApplyPage() {
             <h2 className="text-[22px] font-semibold text-[var(--color-brand-navy)]">入驻流程</h2>
             <ol className="mt-7 space-y-6">
               {process.map((p, i) => (
-                <Reveal key={p.step} delay={i * 0.06}>
-                  <li className="flex gap-4">
-                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-blue)]/10 font-mono text-[13px] font-semibold text-[var(--color-brand-blue)]">
-                      {p.step}
-                    </span>
-                    <div>
-                      <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">
-                        {p.title}
-                      </h3>
-                      <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-                        {p.desc}
-                      </p>
+                // li 必须是 ol 的直接子元素，Reveal 包裹层放在 li 内部
+                <li key={p.step}>
+                  <Reveal delay={i * 0.06}>
+                    <div className="flex gap-4">
+                      <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-blue)]/10 font-mono text-[13px] font-semibold text-[var(--color-brand-blue-deep)]">
+                        {p.step}
+                      </span>
+                      <div>
+                        <h3 className="text-[16px] font-semibold text-[var(--color-brand-navy)]">
+                          {p.title}
+                        </h3>
+                        <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
+                          {p.desc}
+                        </p>
+                      </div>
                     </div>
-                  </li>
-                </Reveal>
+                  </Reveal>
+                </li>
               ))}
             </ol>
 
@@ -77,6 +81,17 @@ export default function ApplyPage() {
             />
           </div>
         </div>
+      </Section>
+
+      {/* 入驻后可做的事：把八大赋能落到入驻者每天的真实动作上 */}
+      <Section tone="surface" size="sm">
+        <SectionHead
+          eyebrow="八大赋能落地清单"
+          title="入驻之后，这 8 件事都能在社区里做"
+          desc="八大赋能不是一张服务清单。签完约之后，它们对应着你每天真实会做的八件事——从领到工位，到接到第一单。"
+          align="left"
+        />
+        <Onboarding />
       </Section>
     </>
   );

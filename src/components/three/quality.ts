@@ -9,6 +9,8 @@ export type DeviceProfile = {
   dpr: [number, number];
   particleCount: number;
   hasWebGL2: boolean;
+  /** 诊断用：设备是否至少支持 WebGL1（three 需 WebGL2） */
+  hasWebGL1: boolean;
   reducedMotion: boolean;
   saveData: boolean;
   deviceMemory: number;
@@ -21,15 +23,36 @@ const PARTICLE_COUNT: Record<QualityTier, number> = {
   static: 0,
 };
 
-/** WebGL2 能力探测（Paper Shaders 与 three 都需要 WebGL 上下文） */
+/**
+ * WebGL2 能力探测。
+ *
+ * ⚠️ 必须是**严格的 WebGL2**，不能把 WebGL1 也算作可用：
+ *   - three r163 起移除了 WebGL1 支持（`WebGL1Renderer` 已删除），
+ *     构建产物里只剩一句 `const contextName = 'webgl2';`（实测 three@0.169.0）；
+ *   - Paper Shaders 同样是 GLSL ES 3.00（WebGL2）。
+ *
+ * 之前这里写的是 `getContext('webgl2') ?? getContext('webgl')`，
+ * 于是 **WebGL1-only 设备会被判为可用** → 挂载 three →
+ * `THREE.WebGLRenderer: Error creating WebGL context.` 未捕获异常
+ * → 整个 Hero 子树（含 H1 与 CTA）一起被炸掉。
+ * 实测证据见 docs/06 §4.3。
+ */
 export function detectWebGL2(): boolean {
   if (typeof document === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
-    const gl =
-      canvas.getContext('webgl2') ??
-      (canvas.getContext('webgl') as WebGLRenderingContext | null);
-    return Boolean(gl);
+    return Boolean(canvas.getContext('webgl2'));
+  } catch {
+    return false;
+  }
+}
+
+/** 仅供诊断：设备是否至少支持 WebGL1（three 已用不上，但可判断是否为老旧设备） */
+export function detectWebGL1(): boolean {
+  if (typeof document === 'undefined') return false;
+  try {
+    const canvas = document.createElement('canvas');
+    return Boolean(canvas.getContext('webgl'));
   } catch {
     return false;
   }
@@ -43,6 +66,7 @@ export function profileDevice(): DeviceProfile {
       dpr: [1, 1],
       particleCount: 0,
       hasWebGL2: false,
+      hasWebGL1: false,
       reducedMotion: true,
       saveData: false,
       deviceMemory: 4,
@@ -56,11 +80,13 @@ export function profileDevice(): DeviceProfile {
   const saveData = Boolean(conn?.saveData);
   const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
   const hasWebGL2 = detectWebGL2();
+  const hasWebGL1 = detectWebGL1();
 
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
 
   let tier: QualityTier;
+  // 无 WebGL2（含只有 WebGL1 的老旧设备）→ 直接静态档
   if (!hasWebGL2) tier = 'static';
   else if (reducedMotion || saveData || deviceMemory <= 2) tier = 'static';
   else if (isMobile || deviceMemory <= 4) tier = 'low';
@@ -72,6 +98,7 @@ export function profileDevice(): DeviceProfile {
     dpr: [1, dpr] as [number, number],
     particleCount: PARTICLE_COUNT[tier],
     hasWebGL2,
+    hasWebGL1,
     reducedMotion,
     saveData,
     deviceMemory,

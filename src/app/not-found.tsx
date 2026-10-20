@@ -41,7 +41,7 @@ export default function NotFound() {
           { label: '集智商学院', href: '/academy' },
           { label: '社区动态', href: '/news' },
         ].map((l) => (
-          <Link key={l.href} href={l.href} className="transition-colors hover:text-[var(--color-brand-blue)]">
+          <Link key={l.href} href={l.href} className="transition-colors hover:text-[var(--color-brand-blue-deep)]">
             {l.label}
           </Link>
         ))}

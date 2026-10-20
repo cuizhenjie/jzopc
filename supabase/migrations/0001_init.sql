@@ -80,7 +80,8 @@ create table if not exists market_items (
   title        text not null,
   category     text not null,
   summary      text not null,
-  body_md      text,
+  -- 正文段落数组（与 src/lib/data/seed.ts 的 body: string[] 同形）
+  body         jsonb not null default '[]'::jsonb,
   org_name     text,
   tags         text[] not null default '{}',
   contact_hint text,
@@ -99,7 +100,8 @@ create table if not exists courses (
   track      text not null,
   title      text not null,
   summary    text not null,
-  body_md    text,
+  -- 正文段落数组（与 src/lib/data/seed.ts 的 body: string[] 同形）
+  body       jsonb not null default '[]'::jsonb,
   tags       text[] not null default '{}',
   cover_url  text,
   mentor     text,
@@ -115,7 +117,8 @@ create table if not exists news_posts (
   slug         text not null unique,
   title        text not null,
   summary      text not null,
-  body_md      text,
+  -- 正文段落数组（与 src/lib/data/seed.ts 的 body: string[] 同形）
+  body         jsonb not null default '[]'::jsonb,
   cover_url    text,
   category     text not null,
   author       text,

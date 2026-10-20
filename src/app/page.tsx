@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Hero from '@/components/sections/Hero';
 import StatsBar from '@/components/sections/StatsBar';
-import EmpowerGrid from '@/components/sections/EmpowerGrid';
-import EmpowerChain from '@/components/sections/EmpowerChain';
+import EmpowerSection from '@/components/sections/EmpowerSection';
 import { Advantages, Vision } from '@/components/sections/Advantages';
 import Partners from '@/components/sections/Partners';
 import { Section, SectionHead } from '@/components/ui/Section';
@@ -52,8 +51,7 @@ export default async function HomePage() {
           }
           desc="场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区，需求不出社区。"
         />
-        <EmpowerChain />
-        <EmpowerGrid />
+        <EmpowerSection />
       </Section>
 
       {/* 平台优势 + 愿景 */}
@@ -92,13 +90,13 @@ export default async function HomePage() {
                     <Badge tone="blue">{n.category}</Badge>
                     <time className="text-[12px] text-[var(--color-ink-3)]">{n.published_at}</time>
                   </div>
-                  <h3 className="mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue)]">
+                  <h3 className="mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
                     {n.title}
                   </h3>
                   <p className="mt-3 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
                     {n.summary}
                   </p>
-                  <span className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue)]">
+                  <span className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
                     阅读全文 →
                   </span>
                 </Link>

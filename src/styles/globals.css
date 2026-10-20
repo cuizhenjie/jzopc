@@ -7,6 +7,10 @@
 @theme {
   /* 品牌主色 */
   --color-brand-blue: #1d7fba;
+  /* 浅底可读蓝：取品牌渐变起始色 #0968ab（logo.svg 实测）。
+     主蓝 #1d7fba 在白底仅 4.38:1，达不到 WCAG AA 正文 4.5:1；
+     浅底上的小字与填充按钮统一改用此色（白底 5.87:1 / surface 5.49:1）。 */
+  --color-brand-blue-deep: #0968ab;
   --color-brand-navy: #142f59;
   --color-brand-navy-2: #152e56;
   --color-brand-navy-3: #0e3769;
@@ -21,7 +25,8 @@
   /* 中性 */
   --color-ink: #1a2333;
   --color-ink-2: #4d5153;
-  --color-ink-3: #7b8494;
+  /* 次级文字：原 #7b8494 在 surface 上仅 3.56:1，达不到 AA 4.5:1，调整后 5.3:1 */
+  --color-ink-3: #5f6878;
   --color-line: #e3e9f2;
   --color-surface: #f6f9fc;
   --color-surface-2: #eef4fa;
@@ -69,17 +74,33 @@ body {
   font-feature-settings: 'tnum';
 }
 
-/* 渐变文字 */
+/* 渐变文字
+   仅用于浅底上的大号标题（≥24px，AA 大字阈值 3:1）。
+   端点全部取自品牌色板且最浅端 ≥4.38:1，避免亮青/青绿端（2.77 / 2.45）不可读。
+   亮青与青绿保留在深色区与 3D 粒子中使用（深底对比度 4.79 / 5.40）。 */
 .text-gradient {
   background: linear-gradient(
-    100deg,
-    var(--color-gradient-from) 0%,
-    var(--color-brand-cyan) 45%,
-    var(--color-brand-teal) 100%
+    75deg,
+    var(--color-brand-navy-3) 0%,
+    var(--color-brand-blue-deep) 45%,
+    var(--color-brand-blue) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* 筛选按钮的选中态。
+   列表页（/agents、/market、/news）为保证 <title>/<meta description> 落在 <head> 内
+   而保持静态渲染，服务端拿不到 searchParams，选中态只能由客户端 FilterRoot 写入
+   data-active；未选中态的底色/字色也一并在这里统一，避免各页重复写条件类名。 */
+[data-filter-option][data-active='true'] {
+  background-color: var(--color-brand-blue-deep);
+  color: #fff;
+}
+[data-filter-option][data-active='false'] {
+  background-color: #fff;
+  color: var(--color-ink-2);
 }
 
 /* 细网格底纹（科技感，低强度） */

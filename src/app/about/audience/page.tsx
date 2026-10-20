@@ -64,7 +64,7 @@ export default function AudiencePage() {
                     {a.tags.map((t) => (
                       <span
                         key={t}
-                        className="rounded-md bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand-blue)]"
+                        className="rounded-md bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand-blue-deep)]"
                       >
                         {t}
                       </span>

@@ -50,6 +50,16 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           <div>
             <h2 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">课程介绍</h2>
             <p className="mt-4 text-[15px] leading-[1.9] text-[var(--color-ink-2)]">{course.summary}</p>
+            {/* 课程大纲（DB 列 body jsonb，运营填写后显示；本期种子为空则不渲染） */}
+            {course.body && course.body.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {course.body.map((p, i) => (
+                  <p key={i} className="text-[15px] leading-[1.9] text-[var(--color-ink-2)]">
+                    {p}
+                  </p>
+                ))}
+              </div>
+            )}
 
             <h3 className="mt-9 text-[15px] font-semibold text-[var(--color-brand-navy)]">适合人群</h3>
             <ul className="mt-3 grid gap-2.5 sm:grid-cols-2">

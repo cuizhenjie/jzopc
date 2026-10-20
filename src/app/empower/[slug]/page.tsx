@@ -143,7 +143,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
               </p>
               {m.pending && (
                 <div className="mt-6 rounded-xl border border-[var(--color-brand-blue)]/20 bg-[var(--color-brand-blue)]/[0.04] px-4 py-3.5 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-                  <span className="font-medium text-[var(--color-brand-blue)]">内容说明：</span>
+                  <span className="font-medium text-[var(--color-brand-blue-deep)]">内容说明：</span>
                   {m.pending}
                 </div>
               )}
@@ -220,10 +220,10 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
               href={r.href}
               className="group rounded-2xl border border-[var(--color-line)] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
             >
-              <span className="font-mono text-[12px] font-semibold tracking-widest text-[var(--color-brand-cyan)]">
+              <span className="font-mono text-[12px] font-semibold tracking-widest text-[var(--color-brand-blue-deep)]">
                 {r.index}
               </span>
-              <h3 className="mt-2.5 text-[15px] font-semibold text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue)]">
+              <h3 className="mt-2.5 text-[15px] font-semibold text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
                 {r.title}
               </h3>
               <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-ink-2)]">{r.tagline}</p>

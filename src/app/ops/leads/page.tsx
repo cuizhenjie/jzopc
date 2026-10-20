@@ -6,6 +6,7 @@ import LeadTable, { type LeadRow } from './LeadTable';
 
 export const metadata: Metadata = {
   title: '线索看板',
+  description: '集智 AI OPC 社区内部线索看板，仅供运营人员使用。',
   robots: { index: false, follow: false },
 };
 

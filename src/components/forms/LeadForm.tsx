@@ -173,7 +173,7 @@ export default function LeadForm({
                   className={clsx(
                     'px-3 text-[13px] transition-colors',
                     contactType === t
-                      ? 'bg-[var(--color-brand-blue)] text-white'
+                      ? 'bg-[var(--color-brand-blue-deep)] text-white'
                       : 'bg-white text-[var(--color-ink-2)] hover:bg-[var(--color-surface)]',
                   )}
                 >
@@ -323,7 +323,7 @@ function Field({
         className="mb-1.5 block text-[13px] font-medium text-[var(--color-ink)]"
       >
         {label}
-        {required && <span className="ml-0.5 text-[var(--color-brand-blue)]">*</span>}
+        {required && <span className="ml-0.5 text-[var(--color-brand-blue-deep)]">*</span>}
       </label>
       {children}
       {error && <p className="mt-1.5 text-[12px] text-red-600">{error}</p>}

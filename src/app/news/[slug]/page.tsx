@@ -78,7 +78,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                       <span className="mt-0.5 shrink-0 rounded bg-[var(--color-surface)] px-2 py-0.5 text-[11px] text-[var(--color-ink-3)]">
                         {r.category}
                       </span>
-                      <span className="text-[14px] font-medium text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue)]">
+                      <span className="text-[14px] font-medium text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
                         {r.title}
                       </span>
                     </Link>

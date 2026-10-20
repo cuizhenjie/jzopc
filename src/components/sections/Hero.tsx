@@ -3,8 +3,13 @@
 import dynamic from 'next/dynamic';
 import { ButtonLink } from '@/components/ui/Button';
 import { site } from '@/lib/site/config';
+import { StaticNebula } from '@/components/three/StaticNebula';
+import ThreeErrorBoundary from '@/components/three/ThreeErrorBoundary';
 
-const HeroScene = dynamic(() => import('@/components/three/HeroScene'), { ssr: false });
+// HeroScene 本身**允许 SSR**：它的服务端首渲染就是静态渐变兜底（StaticNebula），
+// 这样「无 JS / JS 异常」时首屏背景与文案都完整存在于 HTML 中。
+// three 与 Paper 的代码仍在各自 ssr:false 的子块里，不会拖慢首屏。
+const HeroScene = dynamic(() => import('@/components/three/HeroScene'));
 
 export default function Hero() {
   return (
@@ -12,8 +17,12 @@ export default function Hero() {
       data-nav-theme="dark"
       className="relative isolate min-h-[620px] overflow-hidden bg-[var(--color-brand-navy)] sm:min-h-[720px] lg:min-h-[760px]"
     >
-      {/* 3D 背景层：粒子 + MeshGradient，任何降级级别下都保证信息不丢失 */}
-      <HeroScene />
+      {/* 3D 背景层：粒子 + MeshGradient，任何降级级别下都保证信息不丢失。
+          错误边界包在最外层，连「动态模块加载失败」也能兜住 ——
+          3D 永远不能把首屏文案带走。 */}
+      <ThreeErrorBoundary fallback={<StaticNebula className="absolute inset-0" />}>
+        <HeroScene />
+      </ThreeErrorBoundary>
 
       {/* 文案区暗部：保证首屏文字对比度，同时把粒子让到右侧 */}
       <div

@@ -9,8 +9,8 @@ function NumberedList({ items, accent }: { items: readonly string[]; accent: 'bl
           <span
             className={
               accent === 'blue'
-                ? 'mt-0.5 font-mono text-[15px] font-semibold text-[var(--color-brand-blue)]'
-                : 'mt-0.5 font-mono text-[15px] font-semibold text-[var(--color-brand-teal)]'
+                ? 'mt-0.5 font-mono text-[15px] font-semibold text-[var(--color-brand-blue-deep)]'
+                : 'mt-0.5 font-mono text-[15px] font-semibold text-[var(--color-brand-navy-3)]'
             }
           >
             {String(i + 1).padStart(2, '0')}

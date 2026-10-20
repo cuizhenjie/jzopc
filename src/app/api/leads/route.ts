@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { leadSchema, validateContact } from '@/lib/lead/schema';
+import { notify } from '@/lib/lead/notify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -118,30 +119,4 @@ export async function POST(req: Request) {
   void notify(data);
 
   return NextResponse.json({ ok: true, message: '提交成功' });
-}
-
-/** 通知运营：邮件 + 企业 IM webhook（均可选，失败静默） */
-async function notify(data: {
-  leadType: string;
-  name: string;
-  contactType: string;
-  contact: string;
-  orgName?: string;
-  sourcePage: string;
-}) {
-  const text = `【集智 AI OPC 新线索】${data.leadType} | ${data.name} | ${data.contact} | ${data.sourcePage}`;
-
-  const webhook = process.env.LEAD_NOTIFY_WEBHOOK;
-  if (webhook) {
-    try {
-      await fetch(webhook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ msgtype: 'text', text: { content: text } }),
-        signal: AbortSignal.timeout(5000),
-      });
-    } catch (e) {
-      console.error('[lead:notify-webhook-failed]', e);
-    }
-  }
 }

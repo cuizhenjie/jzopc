@@ -28,7 +28,7 @@ export default function Placeholder({
         }}
       />
       <div className="relative mx-auto max-w-2xl text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-blue)]/8 px-3.5 py-1 text-xs font-medium text-[var(--color-brand-blue)] ring-1 ring-[var(--color-brand-blue)]/15">
+        <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-blue)]/8 px-3.5 py-1 text-xs font-medium text-[var(--color-brand-blue-deep)] ring-1 ring-[var(--color-brand-blue)]/15">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-brand-cyan)]" />
           {hint}
         </span>

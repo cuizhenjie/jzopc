@@ -4,9 +4,20 @@ import { Section } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
 import LeadForm from '@/components/forms/LeadForm';
 import { Badge } from '@/components/ui/Card';
-import { getMarketItem } from '@/lib/queries';
+import { getMarketItem, getMarketItems } from '@/lib/queries';
 
 export const revalidate = 600;
+
+/**
+ * 预渲染全部供需条目。
+ *
+ * 不加这个函数，页面会走动态渲染，Next.js 会把 <title> / <meta description>
+ * 一起 flush 到 </body> 之后 —— 搜索引擎读不到（实测确认）。
+ * 与 /agents/[slug] 保持一致的处理方式。
+ */
+export function generateStaticParams() {
+  return getMarketItems().then((list) => list.map((m) => ({ slug: m.slug })));
+}
 
 export async function generateMetadata({
   params,
@@ -54,6 +65,16 @@ export default async function MarketDetailPage({ params }: { params: Promise<{ s
 
             <h2 className="mt-8 text-[19px] font-semibold text-[var(--color-brand-navy)]">详情说明</h2>
             <p className="mt-4 text-[15px] leading-[1.9] text-[var(--color-ink-2)]">{item.summary}</p>
+            {/* 完整描述（DB 列 body jsonb，运营填写后显示；本期种子为空则不渲染） */}
+            {item.body && item.body.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {item.body.map((p, i) => (
+                  <p key={i} className="text-[15px] leading-[1.9] text-[var(--color-ink-2)]">
+                    {p}
+                  </p>
+                ))}
+              </div>
+            )}
 
             <h3 className="mt-9 text-[15px] font-semibold text-[var(--color-brand-navy)]">相关标签</h3>
             <div className="mt-3 flex flex-wrap gap-2">
