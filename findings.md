@@ -81,7 +81,40 @@
 | G11 | 数据指标冲突 | docx 正文写「100+ 精品课程」，参考图 image2 写「200+ 培训课程」——以本品牌 500+/1000+/100+/50+ 为准，参考图数字不继承 |
 | G12 | 文案矛盾 | 申请入驻段落写「九大创业赋能资源」，全站其余处均为「八大赋能」——需修正为八大 |
 | G13 | 命名不统一 | 导航用「供需市场」，八大赋能里叫「订单市场」——需统一 |
+
+**G13 补充证据（2026-10-20 复核 docx 原文，已定位到两处具体来源）**：docx 本身**两处都在用**，不是笔误：
+
+| docx 位置 | 原文用词 | 官网对应位置 | 当前实现 |
+|---|---|---|---|
+| 顶部导航 + 八大赋能清单（段 13/16/76） | **供需市场** | 顶部导航、内页标题 `/empower/market` | ✅ 用「供需市场」 |
+| 「八项一句话（内页 banner 图位置）」第 06 项（段 51） | **订单市场** | 首页八大赋能卡片、申请入驻页「入驻后可做什么」清单 | ✅ 用「订单市场」 |
+| 首页简介段落（段 42） | 订单市场 | 首页简介 | ✅ 保留原文 |
+
+**当前结论**：代码**忠实还原了 docx 的两处用法**，未做单方统一。这是**待业务方拍板的命名决策**，不是缺陷：
+
+- 方案 A（现状态）：结构性位置用「供需市场」，banner/卡片文案用「订单市场」——保真，但用户点击前后会看到两个名字。
+- 方案 B：全站统一为「供需市场」——一致，但需改 4 处原文文案。
+- 方案 C：全站统一为「订单市场」——与导航 docx 段 13/16/76 冲突，且「供需」更准确地覆盖发布需求与承接需求两个方向。
+
+**建议**：方案 C 排除；采用方案 B 并在首页简介保留「订单市场」括注一次（`供需市场（订单市场）`），或在卡片上首次出现时做一次性说明。**待业务方确认后统一执行。**
 | G14 | 合作企业 | 16 家 logo 为参考图素材，是否为真实合作方需业务确认，页面需可维护 |
+
+## 7.1 落地后新发现并已修复的问题（2026-10-20 真实 PostgreSQL 实测）
+
+| # | 问题 | 为什么之前没发现 | 修复 |
+|---|---|---|---|
+| G15 | `news_posts` 正文列 DDL 是 `body_md text`，应用类型是 `body: string[]`，页面直接 `post.body.map(...)` → **接真库时新闻详情页抛错** | 本地「未配置 Supabase → 回落种子数据」，种子的 `body` 恰好是数组，**完全掩盖了错配** | DDL 统一为 `body jsonb`（新增 `0003` 升级路径）；查询层加 `withBody()` 归一化兜底；`test/db-schema-contract.test.ts` 锁死 DDL 与应用类型的列名一致 |
+| G16 | 迁移脚本**没有显式 GRANT**，且 service_role 缺**序列**权限 | 本地无 Supabase，从未执行过迁移 | `0002_rls.sql` 补显式授权；leads 表对 anon/authenticated **一列都不给**；service_role 给全部表与序列 |
+| G17 | 「leads 表零策略」原先只靠"没授权"兜底，**未验证 RLS 本身能拦住** | 同上 | 冒烟测试分两层验证：未授权层 + **兜底层**（临时授予 anon INSERT + 序列权限后仍被 `violates row-level security policy` 拦住） |
+
+> G15–G17 的共同根因：**本地种子回落会掩盖一切数据层契约问题**。数据层从此固定两道防线：静态契约测试（`pnpm test`，不依赖数据库）+ 真实 PostgreSQL 行为冒烟测试（`supabase/tests/001_migration_smoke.sql`）。
+
+| # | 问题 | 为什么之前没发现 | 修复 |
+|---|---|---|---|
+| G18 | 3D 降级链在 **WebGL1-only 设备上不是「没有 3D」，而是「把整页炸掉」**：three 抛 `THREE.WebGLRenderer: Error creating WebGL context.`，未捕获异常沿 React 树冒泡，**整个 Hero 子树被卸载，H1 与 CTA 全部消失** | 降级链只写在文档里，**从未被逐级实测**；且 `detectWebGL2()` 把 WebGL1 也判为可用（`getContext('webgl2') ?? getContext('webgl')`），而 three r163+ 只支持 WebGL2 | ① 探测改为**严格 WebGL2**（无 WebGL2 → 直接静态档，根本不挂载 three）；② 新增 `ThreeErrorBoundary` 错误边界（3D 任何运行时异常都降级为静态背景，内容不受影响）；③ `HeroScene` 改为**允许 SSR**，让静态兜底层真正进入服务端 HTML（原先 `ssr:false` 导致无 JS 时首屏只剩纯色）；④ 降级档位与粒子数暴露为 `data-3d-tier` / `data-3d-particles` 以便逐级留证；⑤ 新增 `test/degradation-chain.test.ts` 锁死上述不变量 |
+| G20 | **真实的 GPU 内存泄漏**：粒子 geometry 由 `useMemo` 创建并以 `<primitive object={geometry}>` 挂载，而 **r3f 不自动释放 primitive 传入的对象**（只有声明式创建的 `<bufferGeometry>` 才会被回收）→ 自适应降档每换一次粒子数就漏一份 GPU buffer，卸载时也漏 | 泄漏是**渐进的**（每次降档 1 份、12000 粒子的几何体约数百 KB），单次观察看不出来；docs/06 V8 虽写了「卸载时 dispose()」，但代码里从未实现 | 补 `useEffect(() => () => geometry.dispose(), [geometry])`；并由 `test/degradation-chain.test.ts` 断言「用 primitive 挂载 → 必须有 dispose()」，防止再次退化 |
+
+| G19 | 原规格的降级链 ③「仅 three（WebGL1）」**在物理上不可实现** | 规格是按 three 尚支持 WebGL1 的旧认知写的 | 实测 `three@0.169.0` 构建产物中 `webgl2` 出现 3 次、`webgl1` **0 次**，并硬编码 `const contextName = 'webgl2';`（r163 起 `WebGL1Renderer` 已删除）；Paper 同样需 WebGL2 → **③ 与 ④ 合并为静态档**，`docs/02` §7.7 与 `docs/06` §4.3 已同步修订 |
 
 ## 8. 本期技术裁决（由范围决策推导）
 
