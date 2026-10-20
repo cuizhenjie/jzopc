@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+
+/* ─────────────────────────────────────────────────────────────
+   集智 AI · 设计 Token
+   色板全部来自 logo.svg 实测值，不得臆造新色
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* 品牌主色 */
+  --color-brand-blue: #1d7fba;
+  --color-brand-navy: #142f59;
+  --color-brand-navy-2: #152e56;
+  --color-brand-navy-3: #0e3769;
+  --color-brand-teal: #57b6a5;
+  --color-brand-cyan: #1aa8d3;
+  --color-brand-cyan-2: #1fabbe;
+
+  /* 品牌渐变端点 */
+  --color-gradient-from: #0968ab;
+  --color-gradient-to: #64c4d9;
+
+  /* 中性 */
+  --color-ink: #1a2333;
+  --color-ink-2: #4d5153;
+  --color-ink-3: #7b8494;
+  --color-line: #e3e9f2;
+  --color-surface: #f6f9fc;
+  --color-surface-2: #eef4fa;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC', sans-serif;
+
+  --radius-card: 16px;
+
+  --shadow-card: 0 1px 2px rgb(20 47 89 / 4%), 0 8px 24px -8px rgb(20 47 89 / 10%);
+  --shadow-lift: 0 2px 4px rgb(20 47 89 / 6%), 0 18px 40px -12px rgb(20 47 89 / 18%);
+
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #fff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* 键盘可达性：焦点环必须可见 */
+:focus-visible {
+  outline: 2px solid var(--color-brand-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 数字指标等宽 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* 渐变文字 */
+.text-gradient {
+  background: linear-gradient(
+    100deg,
+    var(--color-gradient-from) 0%,
+    var(--color-brand-cyan) 45%,
+    var(--color-brand-teal) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 细网格底纹（科技感，低强度） */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(29 127 186 / 6%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(29 127 186 / 6%) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* 滚动揭示：服务端渲染时内容默认可见，客户端挂载后才可能进入 pending。
+   规则见 src/components/ui/Reveal.tsx */
+[data-reveal] {
+  --reveal-y: 18px;
+  opacity: 1;
+  transform: none;
+}
+
+html.js-reveal [data-reveal][data-state='pending'] {
+  opacity: 0;
+  transform: translateY(var(--reveal-y));
+}
+
+html.js-reveal [data-reveal][data-state='in'] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s var(--ease-out-soft),
+    transform 0.6s var(--ease-out-soft);
+}
+
+/* 减弱动效：关掉所有非必要动画 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+::selection {
+  background: rgb(26 168 211 / 25%);
+}

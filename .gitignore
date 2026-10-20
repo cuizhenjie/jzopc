@@ -1,0 +1,35 @@
+# 依赖
+node_modules/
+.pnpm-store/
+.pnp.*
+
+# 构建产物
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# 环境变量（含密钥，绝不提交）
+.env
+.env.*
+!.env.example
+
+# 本地工具痕迹 / 临时产物
+.umadev/
+.screenshots/
+.vercel/
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Office 临时锁文件
+~$*.docx
+~$*.doc
+~$*.xlsx
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
