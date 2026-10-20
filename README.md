@@ -13,6 +13,8 @@
 | [`docs/02-技术方案.md`](docs/02-技术方案.md) | Next.js 15 + Supabase + 火山方舟 + Three.js/GLSL 的架构、数据模型 DDL、RLS 策略、3D Shader 场景实现、降级链、部署与风险 |
 | [`docs/03-开发计划.md`](docs/03-开发计划.md) | 7 个里程碑、82 个可开工任务、依赖与排期、风险对策、上线验收清单、交叉复核记录 |
 | [`docs/04-shader选型指南.md`](docs/04-shader选型指南.md) | 3D 动效选型：`shaders`(WebGPU) / `@paper-design/shaders-react`(WebGL) / `three+R3F` 三方案的 **esbuild 体积实测**与渲染后端核验，附品牌色映射与组件清单、降级链修订 |
+| [`docs/05-全国OPC社区与商业楼宇平台竞品审查.md`](docs/05-全国OPC社区与商业楼宇平台竞品审查.md) | 全国 OPC 社区格局与标杆逐一拆解（经开区、大兴生物医药基地、西红门智创谷等）、产业园数字化平台可借鉴点、集智定位裁决与待实机调研的信息缺口 |
+| [`docs/06-视觉方案与3D动效规范.md`](docs/06-视觉方案与3D动效规范.md) | 视觉总纲、色彩系统、排版栅格、3D 粒子动效规范、页面级视觉矩阵、组件规范、可访问性与 V1–V10 验收清单 |
 | [`findings.md`](findings.md) | 从 docx 提取的原始事实、设计参考观察、品牌色板实测值、**14 项内容缺口与矛盾清单** |
 | [`task_plan.md`](task_plan.md) | 规划过程的任务清单与范围决策记录 |
 
