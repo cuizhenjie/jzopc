@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Hero from '@/components/sections/Hero';
 import StatsBar from '@/components/sections/StatsBar';
 import EmpowerGrid from '@/components/sections/EmpowerGrid';
+import EmpowerChain from '@/components/sections/EmpowerChain';
 import { Advantages, Vision } from '@/components/sections/Advantages';
 import Partners from '@/components/sections/Partners';
 import { Section, SectionHead } from '@/components/ui/Section';
@@ -51,6 +52,7 @@ export default async function HomePage() {
           }
           desc="场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区，需求不出社区。"
         />
+        <EmpowerChain />
         <EmpowerGrid />
       </Section>
 
