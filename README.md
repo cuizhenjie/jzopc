@@ -23,6 +23,7 @@ pnpm build && pnpm start   # 生产（默认 3000 端口）
 | `pnpm verify` | 零依赖工程校验：文档表格列数 / FR 编号悬空 / 文档文件路径悬空 / package scripts 路径 / 路由清单 vs 实际目录 / 品牌色 vs `logo.svg`。**当前 6 项全绿** |
 | `pnpm db:types` | 从 `supabase/migrations/0001_init.sql` 解析生成 `src/lib/supabase/database.types.ts`（11 表 / 122 字段，可重复执行） |
 | `pnpm db:smoke` | **数据库迁移冒烟测试**：自动起一次性 PostgreSQL → 逐字执行全部迁移 → 跑 **27 条断言** → 自动清理集群。一条命令，无需手工准备 |
+| `node scripts/responsive-audit.mjs` | **响应式审计器**（零依赖，驱动 headless Chrome over CDP）：17 页 × 375/768/1024/1440 = **68 组合**，量横向溢出 / 越界元素 / 小字 / 触控目标 / 文本硬裁，产出 JSON + 截图 |
 
 > 测试用 Node 24 的原生 TypeScript 类型剥离直接跑 `.ts`；`@/` 路径别名由 `scripts/test-hooks.mjs` 的 resolve hook 注入（**需 Node ≥ 22.15**，仅影响本地跑测试）。
 
@@ -66,7 +67,8 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 | 浏览器控制台 | 0 错误 0 警告 |
 | 滚动揭示 | 19/19 正确触发，服务端直出可见（不依赖 JS） |
 | 3D Hero | WebGL 2.0，粒子层自写 GLSL，canvas 随视口等比缩放 |
-| 测试 | `pnpm test` → **119 pass / 0 fail**（含 DDL 契约校验 + 3D 降级链结构约束） |
+| 测试 | `pnpm test` → **126 pass / 0 fail**（含 DDL 契约校验 + 3D 降级链结构约束 + 品牌色板约束） |
+| 响应式 | **68/68 组合 0 问题**（17 页 × 4 断点）：无横向滚动、无越界元素、无文本硬裁、触控目标全部 ≥ WCAG AA 24×24、含中文的小字 0 处 |
 | 3D 降级链 | **逐级实测留证**：①完整 12000 粒子 / ②轻量 2500 粒子 / ③无 WebGL2 静态档 / ④减弱动效静态档 / ⑤无 JS 服务端 HTML 完整 —— 每一级 Hero 文案与 CTA 均可见 |
 | 数据库 | 迁移脚本在真实 PostgreSQL 上逐字执行通过，冒烟测试 **27/27**（全新安装 + 老库升级两条路径） |
 | 校验 | `pnpm verify` → 6 项全绿 |
@@ -93,6 +95,9 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 | 数据访问 | Supabase 优先，未配置自动回落种子；**回落会掩盖列名错配**，故由 `test/db-schema-contract.test.ts` + 真实 PG 冒烟测试双重兜底 | 本地「一切正常」不代表接真库也正常 —— 2026-10-20 的 `body_md` 错配就是这么藏了很久 |
 | 数据库授权 | `0002_rls.sql` 里**显式**写 grant，不依赖 Supabase 平台默认值 | 迁移自洽、换自建 Postgres 不漏授权，也才能在裸 PG 上验证 RLS |
 | 3D 降级 | 严格 WebGL2 探测 + `ThreeErrorBoundary` 错误边界 + `HeroScene` 允许 SSR | three r163+ 只支持 WebGL2；探测不严会挂载必炸的 three，而未捕获异常会**把整个 Hero 连同 H1 与 CTA 一起卸载**。详见 `docs/06` §4.3 |
+| 卡片层级 | **两档制**：主卡 16px+阴影+抬升 / 次级卡 12px+描边**无阴影** | 「所有卡片统一圆角+阴影」这条旧规范本身是「AI 生成感」的制度性根因。详见 `docs/06` §2.4 |
+| 八大赋能 | **6 个链路节点 + 2 项贯穿支撑**（学院/企服） | 消除「文案说是一条链、视觉却是八张同款并列卡」的自相矛盾；8 个详情页仍全部可达 |
+| 数据层回落 | 区分「未配置库」（回落种子）/「查询报错」（回落）/「已配置但为空」（**不回落**） | 回落会掩盖「已下架」与「真·空态」语义。详见 `findings.md` G21–G22 |
 
 ## 本期范围（已确认）
 
