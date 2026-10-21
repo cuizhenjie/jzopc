@@ -149,7 +149,7 @@ export const empowerDetails: EmpowerDetail[] = [
     ],
     items: ['AIGC 内容生产', '产品素材与视觉', '投放与账号运营', '内容测试与迭代'],
     pending:
-      '陆总AI实训基地介绍与赋能机制的资料正在整理中，正式内容将补充到本页。',
+      '集智AIGC新媒体流量基地介绍与赋能机制的资料正在整理中，正式内容将补充到本页。',
     leadType: 'traffic',
     related: ['market', 'agents', 'academy'],
   },

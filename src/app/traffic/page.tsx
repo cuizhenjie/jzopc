@@ -83,8 +83,8 @@ export default function TrafficPage() {
 
       <Section tone="surface" size="sm">
         <Placeholder
-          title="陆总AI实训基地介绍与赋能机制"
-          desc="实训基地的完整介绍、赋能机制与实训项目清单正在整理中。内容完成后会补充到本页，并同步到首页的八大赋能卡片。"
+          title="集智AIGC新媒体流量基地介绍与赋能机制"
+          desc="该基地的完整介绍、赋能机制与实训项目清单正在整理中。内容完成后会补充到本页，并同步到首页的八大赋能卡片。"
         />
       </Section>
     </>
