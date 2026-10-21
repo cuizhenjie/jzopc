@@ -6,10 +6,13 @@ import { Badge, EmptyState } from '@/components/ui/Card';
 import { Reveal } from '@/components/ui/Reveal';
 import FilterRoot from '@/components/ui/FilterRoot';
 import FilterLink from '@/components/ui/FilterLink';
+import SearchField from '@/components/ui/SearchField';
 import { ButtonLink } from '@/components/ui/Button';
 import { getMarketItems } from '@/lib/queries';
 import { marketHero } from '@/lib/data/seed';
 import { marketSteps } from '@/lib/site/config';
+import { searchItemText } from '@/lib/search/matcher';
+import { marketToSearchItem } from '@/lib/search/items';
 
 export const metadata: Metadata = {
   title: '供需市场',
@@ -81,16 +84,31 @@ export default async function MarketPage() {
                 className="rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
               >
                 {t.label}
-                <span className="ml-1.5 text-[12px] opacity-70">{t.count}</span>
+                <span className="filter-count ml-1.5 text-[12px]">{t.count}</span>
               </FilterLink>
             ))}
           </div>
+          {/* 关键词搜索：与 /agents、全局搜索共用同一个原语（SearchField）。
+              实时写入 ?q= 并广播 jizhi:filter-change，由 FilterRoot 过滤。 */}
+          <SearchField
+            param="q"
+            basePath="/market"
+            placeholder="搜索需求标题、分类或发布方"
+            className="w-full sm:w-auto sm:max-w-sm"
+          />
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">供需条目</h2>
+          <p className="text-[13px] text-[var(--color-ink-3)]">
+            共 <span data-filter-count>{all.length}</span> 条
+          </p>
         </div>
 
         <div className="mt-8" data-filter-empty style={{ display: 'none' }}>
           <EmptyState
-            title="暂时没有公开条目"
-            desc="你提交的需求会由社区运营整理后发布到这里。直接提交，我们会更快对接。"
+            title="没有匹配的条目"
+            desc="可能是当前关键词或分类下暂时没有公开条目。换个关键词、切换分类再试试；如果你要的是某个具体需求，直接提交给我们，我们会更快对接。"
           />
         </div>
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
@@ -101,7 +119,7 @@ export default async function MarketPage() {
                 <Link
                   href={`/market/${m.slug}`}
                   data-filter-key={m.type}
-                  data-filter-text={`${m.title} ${m.summary} ${m.category} ${m.org_name} ${m.tags.join(' ')}`}
+                  data-filter-text={searchItemText(marketToSearchItem(m))}
                   className={
                     isPrimary
                       ? 'group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]'
@@ -146,6 +164,12 @@ export default async function MarketPage() {
             本期供需市场不提供自动撮合算法。你提交需求后，由社区运营团队人工对接、匹配合适的团队并安排沟通——我们不会用「已为你智能匹配」这类说法掩盖人工服务的过程。
           </p>
         </div>
+
+        {/* 示例数据标注：与 /agents、/search 同一口径（PRD 明确要求示例内容必须标注，
+            否则会被当成真实名录引用）。发布方已做匿名化处理。 */}
+        <p className="mt-10 text-center text-[12px] text-[var(--color-ink-3)]">
+          当前展示的供需条目为社区运营整理前的**示例内容**（发布方已匿名化），用于展示页面结构与排版；正式条目将按运营采集结果持续发布。
+        </p>
       </Section>
     </>
   );

@@ -282,6 +282,8 @@ export const footerNav = [
       { label: '供需市场', href: '/market' },
       { label: '集智商学院', href: '/academy' },
       { label: '社区动态', href: '/news' },
+      // 全局搜索（FR-SITE-08）：一个入口覆盖上面四类内容
+      { label: '站内搜索', href: '/search' },
     ],
   },
 ] as const;

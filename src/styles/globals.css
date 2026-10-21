@@ -115,6 +115,18 @@ body {
   color: var(--color-ink-2);
 }
 
+/* 筛选按钮里的计数小字（如「智能体 29」）。
+   ⚠️ **不能用 opacity 压暗**：同一个色值要同时压得住「白底」和「蓝底」两种背景，
+   实测 12px 在白底只有 3.71:1、蓝底只有 3.72:1（Lighthouse color-contrast 判失败）。
+   改为按选中态分别给色：白底用次级灰（5.3:1），蓝底用 88% 白（6.02:1），
+   既保住「数字比标签弱一档」的层级，又过 AA 4.5:1。 */
+[data-filter-option] .filter-count {
+  color: var(--color-ink-3);
+}
+[data-filter-option][data-active='true'] .filter-count {
+  color: rgb(255 255 255 / 88%);
+}
+
 /* 细网格底纹（科技感，低强度） */
 .bg-grid {
   background-image:
@@ -179,7 +191,16 @@ html.js-reveal [data-reveal][data-state='in'] {
 html { scroll-padding-top: 96px; }
 body { line-height: 1.65; }
 a, button { -webkit-tap-highlight-color: transparent; }
-button, input, textarea, select { font: inherit; }
+
+/* 表单控件继承正文字体。
+   ⚠️ 这条**必须放进 @layer base**：Tailwind v4 里未分层的样式优先级**高于**
+   `@layer utilities`（CSS Cascade 5：未分层 > 已分层），写在层级外会让
+   `text-[14px]` 这类字号工具类对 input/button 全部失效 —— 实测 input 实算
+   16px、div 实算 14px，作者写下的字号被静默吞掉。
+   放进 base 后，工具层能正常覆盖它。 */
+@layer base {
+  button, input, textarea, select { font: inherit; }
+}
 .site-container { width: 100%; max-width: 1280px; margin-inline: auto; padding-inline: 32px; }
 .section-eyebrow { display: block; font-size: 12px; font-weight: 600; line-height: 1.5; letter-spacing: .12em; color: var(--color-brand-blue-deep); }
 .editorial-link { display: inline-flex; align-items: center; gap: 22px; min-height: 40px; color: var(--color-brand-blue-deep); font-size: 14px; font-weight: 500; }
@@ -197,7 +218,10 @@ button, input, textarea, select { font: inherit; }
 :root:has(main [data-nav-theme='dark']) .header-on-dark .header-mark-default { display: none; }
 :root:has(main [data-nav-theme='dark']) .header-on-dark .header-mark-on-dark { display: block; }
 .header-brand-name { font-size: 19px; line-height: 1.2; font-weight: 600; letter-spacing: .03em; }
-.header-brand-latin { margin-top: 5px; font-size: 9px; line-height: 1; letter-spacing: .12em; opacity: .65; }
+/* 品牌副标。opacity 0.65 时，实底页头（滚动后 .header-solid）下是
+   #142F59 @65% = #677893 on #fff → 4.4:1，**差 0.1 达不到 AA 的 4.5:1**；
+   0.7 时为 #5A6D8B → 5.29:1。深色页头下白字两种透明度都远达标。 */
+.header-brand-latin { margin-top: 5px; font-size: 9px; line-height: 1; letter-spacing: .12em; opacity: .7; }
 .desktop-nav { display: flex; align-items: center; gap: 2px; margin-left: auto; }
 .nav-group { position: relative; }
 .nav-link { display: flex; align-items: center; gap: 5px; padding: 13px 10px; font-size: 13px; line-height: 1.5; white-space: nowrap; opacity: .78; transition: opacity .2s; }

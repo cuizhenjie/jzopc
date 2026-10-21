@@ -212,7 +212,7 @@ export default function LeadForm({
             maxLength={40}
             required
             placeholder="怎么称呼你"
-            className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
+            className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
           />
         </Field>
 
@@ -242,7 +242,7 @@ export default function LeadForm({
               required
               maxLength={120}
               placeholder={contactType === 'phone' ? '11 位手机号' : 'name@example.com'}
-              className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
+              className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
             />
           </div>
         </Field>
@@ -254,7 +254,7 @@ export default function LeadForm({
             type="text"
             maxLength={80}
             placeholder="选填"
-            className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
+            className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
           />
         </Field>
 
@@ -262,7 +262,7 @@ export default function LeadForm({
           <select
             id="role"
             name="role"
-            className="w-full appearance-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors focus:border-[var(--color-brand-blue)]"
+            className="w-full appearance-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors focus:border-[var(--color-brand-blue)]"
           >
             <option value="">请选择</option>
             {roles.map((r) => (
@@ -280,7 +280,7 @@ export default function LeadForm({
                 id="subjectType"
                 name="subjectType"
                 required
-                className="w-full appearance-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors focus:border-[var(--color-brand-blue)]"
+                className="w-full appearance-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors focus:border-[var(--color-brand-blue)]"
               >
                 <option value="">请选择</option>
                 <option value="个人">个人</option>
@@ -297,7 +297,7 @@ export default function LeadForm({
                 min={1}
                 max={999}
                 placeholder="选填"
-                className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
+                className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
               />
             </Field>
 
@@ -306,7 +306,7 @@ export default function LeadForm({
                 id="track"
                 name="track"
                 required
-                className="w-full appearance-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors focus:border-[var(--color-brand-blue)]"
+                className="w-full appearance-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors focus:border-[var(--color-brand-blue)]"
               >
                 <option value="">请选择</option>
                 {tracks.map((t) => (
@@ -327,7 +327,7 @@ export default function LeadForm({
           rows={3}
           maxLength={1000}
           placeholder="简单介绍你的项目或需求，方便我们提前准备（选填）"
-          className="w-full resize-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
+          className="w-full resize-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
         />
       </Field>
 

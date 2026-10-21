@@ -48,6 +48,9 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     author: { '@type': 'Organization', name: post.author },
     publisher: { '@type': 'Organization', name: site.company, url: site.url },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${site.url}/news/${post.slug}` },
+    // Google Article 富媒体需要代表性图片；站内没有逐条配图，
+    // 用动态 OG 图（按本条标题生成）而不是编一张不存在的照片
+    image: `${site.url}/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.category)}`,
     inLanguage: 'zh-CN',
   };
 

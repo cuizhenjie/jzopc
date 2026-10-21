@@ -19,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/academy`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${base}/traffic`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/news`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${base}/search`, changeFrequency: 'weekly', priority: 0.5 },
     { url: `${base}/apply`, changeFrequency: 'monthly', priority: 0.9 },
     ...empowerDetails.map((m) => ({
       url: `${base}/empower/${m.slug}`,

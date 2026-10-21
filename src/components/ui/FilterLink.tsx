@@ -35,6 +35,12 @@ export default function FilterLink({
 
     e.preventDefault();
     const url = new URL(href, window.location.origin);
+    // 保留地址栏里**其它**查询参数（如搜索词 q）。
+    // 否则「先搜索、再切分类」时 q 会被丢掉 —— href 里只带了分类参数。
+    for (const [key, val] of new URLSearchParams(window.location.search)) {
+      if (key === param) continue;
+      if (!url.searchParams.has(key)) url.searchParams.set(key, val);
+    }
     if (value) url.searchParams.set(param, value);
     else url.searchParams.delete(param);
     window.history.pushState({}, '', url.toString());

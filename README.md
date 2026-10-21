@@ -3,7 +3,7 @@
 > 集众智之力，启 AI 未来
 > 一站式 AI 应用综合赋能平台 · 北京集美科技有限公司 · 北京丰台大红门 · 首期 3000+ ㎡
 
-**代码已落地并构建通过**：Next.js 15 App Router + TypeScript + Tailwind v4 + Supabase + 火山方舟 + 自写 GLSL 粒子动效，共 **27 条路由**。
+**代码已落地并构建通过**：Next.js 15 App Router + TypeScript + Tailwind v4 + Supabase + 火山方舟 + 自写 GLSL 粒子动效，共 **73 个公开 URL**（18 个页面路由 + 4 个业务 API + llms 摘要 + robots/sitemap）。
 
 ## 快速开始
 
@@ -19,11 +19,11 @@ pnpm build && pnpm start   # 生产（默认 3000 端口）
 
 | 命令 | 作用 |
 |---|---|
-| `pnpm test` | Node 24 内置 runner（`node --test` + `node:assert`，**零测试依赖**），103 个用例覆盖 zod 契约、种子回落、站点配置结构、品牌色一致性 |
+| `pnpm test` | Node 24 内置 runner（`node --test` + `node:assert`，**零测试依赖**），**178 个用例**覆盖 zod 契约、种子回落、站点配置结构、品牌色一致性、搜索匹配规则与静态渲染红线 |
 | `pnpm verify` | 零依赖工程校验：文档表格列数 / FR 编号悬空 / 文档文件路径悬空 / package scripts 路径 / 路由清单 vs 实际目录 / 品牌色 vs `logo.svg`。**当前 6 项全绿** |
 | `pnpm db:types` | 从 `supabase/migrations/0001_init.sql` 解析生成 `src/lib/supabase/database.types.ts`（11 表 / 122 字段，可重复执行） |
 | `pnpm db:smoke` | **数据库迁移冒烟测试**：自动起一次性 PostgreSQL → 逐字执行全部迁移 → 跑 **27 条断言** → 自动清理集群。一条命令，无需手工准备 |
-| `node scripts/responsive-audit.mjs` | **响应式审计器**（零依赖，驱动 headless Chrome over CDP）：17 页 × 375/768/1024/1440 = **68 组合**，量横向溢出 / 越界元素 / 小字 / 触控目标 / 文本硬裁，产出 JSON + 截图 |
+| `node scripts/responsive-audit.mjs` | **响应式审计器**（零依赖，驱动 headless Chrome over CDP）：18 页 × 375/768/1024/1440 = **72 组合**，量横向溢出 / 越界元素 / 小字 / 触控目标 / 文本硬裁，产出 JSON + 截图 |
 
 > 测试用 Node 24 的原生 TypeScript 类型剥离直接跑 `.ts`；`@/` 路径别名由 `scripts/test-hooks.mjs` 的 resolve hook 注入（**需 Node ≥ 22.15**，仅影响本地跑测试）。
 
@@ -59,7 +59,7 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 
 ## 已实现的页面
 
-`/` · `/about` `/about/history` `/about/audience` `/about/partners` · `/empower/[slug]`（8 个赋能页） · `/agents` `/agents/[slug]` · `/market` `/market/[slug]` · `/academy` `/academy/courses/[slug]` · `/news` `/news/[slug]` · `/traffic` · `/apply` · `/ops/leads`（线索看板） · `/api/leads`（留资） · `/api/ops/leads`（线索状态） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` · `not-found`
+`/` · `/about` `/about/history` `/about/audience` `/about/partners` · `/empower/[slug]`（8 个赋能页） · `/agents` `/agents/[slug]` · `/market` `/market/[slug]` · `/academy` `/academy/courses/[slug]` · `/news` `/news/[slug]` · `/traffic` · `/apply` · `/search`（站内搜索） · `/ops/leads`（线索看板） · `/api/leads`（留资） · `/api/ops/leads`（线索状态） · `/api/search`（站内检索） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` · `not-found`
 
 ## 质量基线（实测）
 
@@ -69,14 +69,14 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 | 浏览器控制台 | 0 错误 0 警告 |
 | 滚动揭示 | 19/19 正确触发，服务端直出可见（不依赖 JS） |
 | 3D Hero | WebGL 2.0，粒子层自写 GLSL，canvas 随视口等比缩放 |
-| 测试 | `pnpm test` → **126 pass / 0 fail**（含 DDL 契约校验 + 3D 降级链结构约束 + 品牌色板约束） |
-| 响应式 | **68/68 组合 0 问题**（17 页 × 4 断点）：无横向滚动、无越界元素、无文本硬裁、触控目标全部 ≥ WCAG AA 24×24、含中文的小字 0 处 |
+| 测试 | `pnpm test` → **178 pass / 0 fail**（含 DDL 契约校验 + 3D 降级链结构约束 + 品牌色板约束 + 搜索匹配规则与静态渲染红线） |
+| 响应式 | **72/72 组合 0 问题**（18 页 × 4 断点）：无横向滚动、无越界元素、无文本硬裁、触控目标全部 ≥ WCAG AA 24×24、含中文的小字 0 处 |
 | 3D 降级链 | **逐级实测留证**：①完整 12000 粒子 / ②轻量 2500 粒子 / ③无 WebGL2 静态档 / ④减弱动效静态档 / ⑤无 JS 服务端 HTML 完整 —— 每一级 Hero 文案与 CTA 均可见 |
 | 数据库 | 迁移脚本在真实 PostgreSQL 上逐字执行通过，冒烟测试 **27/27**（全新安装 + 老库升级两条路径） |
 | 校验 | `pnpm verify` → 6 项全绿 |
-| 构建 | `pnpm build` → 62 个静态页，**全部公开页面为静态/SSG** |
-| 路由 | 69 个 URL（含 54 个动态页）全部 200，未知路径 404 |
-| metadata | 18 个公开页面的 `<title>` / `<meta description>` **全部落在 `<head>` 内** |
+| 构建 | `pnpm build` → 74 个静态页，**全部公开页面为静态/SSG** |
+| 路由 | 73 个公开 URL 全部 200（`/api/leads`、`/api/ops/leads` 为 POST-only，GET 返回 405 属预期），未知路径 404 |
+| metadata | 66 个公开页面（含 54 个动态页）的 `<title>` / `<meta description>` **全部落在 `<head>` 内** |
 
 ## 关键实现决策
 

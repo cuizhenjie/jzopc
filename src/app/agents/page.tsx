@@ -6,8 +6,11 @@ import { EmptyState, Badge } from '@/components/ui/Card';
 import { Reveal } from '@/components/ui/Reveal';
 import FilterRoot from '@/components/ui/FilterRoot';
 import FilterLink from '@/components/ui/FilterLink';
+import SearchField from '@/components/ui/SearchField';
 import { getAgentCategories, getAgents } from '@/lib/queries';
 import { agentHero } from '@/lib/site/config';
+import { searchItemText } from '@/lib/search/matcher';
+import { agentToSearchItem } from '@/lib/search/items';
 
 export const metadata: Metadata = {
   title: '智能体',
@@ -49,6 +52,8 @@ export default async function AgentsPage() {
                   className="rounded-full bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
                 >
                   全部
+                  {/* 分类计数：与 /market、/search 的筛选条同一套写法（同一处 .filter-count 样式） */}
+                  <span className="filter-count ml-1.5 text-[12px]">{all.length}</span>
                 </FilterLink>
                 {categories.map((c) => (
                   <FilterLink
@@ -59,26 +64,21 @@ export default async function AgentsPage() {
                     className="rounded-full bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
                   >
                     {c.name}
+                    <span className="filter-count ml-1.5 text-[12px]">
+                      {all.filter((a) => a.category === c.slug).length}
+                    </span>
                   </FilterLink>
                 ))}
               </div>
 
-              <form action="/agents" className="flex gap-2">
-                <input type="hidden" name="category" value="" data-filter-sync-input="category" />
-                <input
-                  type="search"
-                  name="q"
-                  defaultValue={''}
-                  placeholder="搜索智能体名称、能力或标签"
-                  className="h-10 w-full max-w-sm rounded-lg border border-[var(--color-line)] bg-white px-3.5 text-[14px] outline-none focus:border-[var(--color-brand-blue-deep)]"
-                />
-                <button
-                  type="submit"
-                  className="h-10 shrink-0 rounded-lg bg-[var(--color-brand-navy)] px-5 text-[14px] font-medium text-white transition-colors hover:bg-[var(--color-brand-blue-deep)]"
-                >
-                  搜索
-                </button>
-              </form>
+              {/* 关键词搜索：与 /market、全局搜索共用同一个原语（SearchField）。
+                  实时写入 ?q= 并广播 jizhi:filter-change，由 FilterRoot 过滤。 */}
+              <SearchField
+                param="q"
+                basePath="/agents"
+                placeholder="搜索智能体名称、能力或标签"
+                className="w-full max-w-sm"
+              />
             </div>
           </Reveal>
 
@@ -97,7 +97,7 @@ export default async function AgentsPage() {
                   <Link
                     href={`/agents/${a.slug}`}
                     data-filter-key={a.category}
-                    data-filter-text={`${a.name} ${a.summary} ${a.tags.join(' ')}`}
+                    data-filter-text={searchItemText(agentToSearchItem(a))}
                     className={
                       isPrimary
                         ? 'group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]'

@@ -40,12 +40,14 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     name: course.title,
     description: course.summary,
     inLanguage: 'zh-CN',
+    // 导师用 schema.org 的 instructor（原先误用 courseWorkload —— 那是 ISO-8601 时长字段）
+    instructor: course.mentor ? { '@type': 'Person', name: course.mentor } : undefined,
     provider: { '@type': 'Organization', name: site.company, url: site.url },
     url: `${site.url}/academy/courses/${course.slug}`,
     hasCourseInstance: {
       '@type': 'CourseInstance',
-      courseMode: 'online',
-      courseWorkload: course.mentor ? `导师：${course.mentor}` : undefined,
+      // 与页面可见文案一致（「线下授课 + 项目制实战」），不能写成 online
+      courseMode: 'onsite',
     },
   };
 
