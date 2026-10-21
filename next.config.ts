@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   poweredByHeader: false,
   compress: true,
   // 上级目录存在其他 lockfile，显式指定工作区根，避免 tracing 警告

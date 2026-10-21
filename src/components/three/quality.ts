@@ -41,7 +41,10 @@ export function detectWebGL2(): boolean {
   if (typeof document === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl2'));
+    const context = canvas.getContext('webgl2');
+    const supported = Boolean(context);
+    context?.getExtension('WEBGL_lose_context')?.loseContext();
+    return supported;
   } catch {
     return false;
   }
@@ -52,7 +55,10 @@ export function detectWebGL1(): boolean {
   if (typeof document === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl'));
+    const context = canvas.getContext('webgl');
+    const supported = Boolean(context);
+    context?.getExtension('WEBGL_lose_context')?.loseContext();
+    return supported;
   } catch {
     return false;
   }
@@ -80,7 +86,7 @@ export function profileDevice(): DeviceProfile {
   const saveData = Boolean(conn?.saveData);
   const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
   const hasWebGL2 = detectWebGL2();
-  const hasWebGL1 = detectWebGL1();
+  const hasWebGL1 = hasWebGL2 || detectWebGL1();
 
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
@@ -118,11 +124,11 @@ export function useDeviceProfile(): DeviceProfile | null {
  * 帧率自适应：连续采样，若平均帧率过低则降低粒子数。
  * 见 docs/02-技术方案.md §7.2 职责 3。
  */
-export function useAdaptiveQuality(baseCount: number): number {
+export function useAdaptiveQuality(baseCount: number, active = true): number {
   const [count, setCount] = useState(baseCount);
 
   useEffect(() => {
-    if (baseCount <= 0) return;
+    if (baseCount <= 0 || !active) return;
     let frames = 0;
     let start = performance.now();
     let raf = 0;
@@ -146,7 +152,7 @@ export function useAdaptiveQuality(baseCount: number): number {
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [baseCount]);
+  }, [baseCount, active]);
 
   useEffect(() => {
     setCount(baseCount);

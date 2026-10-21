@@ -1,26 +1,13 @@
-import { Reveal } from '@/components/ui/Reveal';
-
 export default function Partners({ names }: { names: string[] }) {
   return (
-    <div>
-      <Reveal>
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h3 className="text-[22px] font-semibold text-[var(--color-brand-navy)]">合作企业</h3>
-          <p className="text-[13px] text-[var(--color-ink-3)]">与众多知名企业达成深度合作</p>
-        </div>
-      </Reveal>
-      <Reveal delay={0.1} className="mt-8">
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-          {names.map((name) => (
-            <li
-              key={name}
-              className="flex h-[68px] items-center justify-center rounded-xl border border-[var(--color-line)] bg-white px-3 text-center text-[13px] font-medium text-[var(--color-ink-2)] transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/35 hover:bg-[var(--color-surface)] hover:text-[var(--color-brand-blue-deep)]"
-            >
-              {name}
-            </li>
-          ))}
-        </ul>
-      </Reveal>
+    <div className="partners-section">
+      <div className="partners-heading">
+        <span className="section-eyebrow">产业生态</span>
+        <h2>生态伙伴</h2>
+      </div>
+      <ul className="partner-wordmarks">
+        {names.map((name) => <li key={name}>{name}</li>)}
+      </ul>
     </div>
   );
 }

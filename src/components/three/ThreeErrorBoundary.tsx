@@ -21,7 +21,7 @@ import { Component, type ReactNode } from 'react';
  * 驱动黑屏、显存不足、Paper 组件内部异常等。
  */
 export default class ThreeErrorBoundary extends Component<
-  { fallback: ReactNode; children: ReactNode },
+  { fallback: ReactNode; children: ReactNode; onFailure?: () => void },
   { failed: boolean }
 > {
   state = { failed: false };
@@ -33,6 +33,7 @@ export default class ThreeErrorBoundary extends Component<
   componentDidCatch(error: Error) {
     // 只记日志，不抛出 —— 让降级静默生效
     console.error('[3d:degraded]', error?.message ?? error);
+    this.props.onFailure?.();
   }
 
   render() {

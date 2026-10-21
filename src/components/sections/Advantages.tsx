@@ -1,21 +1,12 @@
 import { advantages, visions } from '@/lib/site/config';
-import { Reveal } from '@/components/ui/Reveal';
 
-function NumberedList({ items, accent }: { items: readonly string[]; accent: 'blue' | 'teal' }) {
+function NumberedList({ items }: { items: readonly string[] }) {
   return (
-    <ol className="space-y-4">
-      {items.map((t, i) => (
-        <li key={t} className="flex items-start gap-4">
-          <span
-            className={
-              accent === 'blue'
-                ? 'mt-0.5 font-mono text-[15px] font-semibold text-[var(--color-brand-blue-deep)]'
-                : 'mt-0.5 font-mono text-[15px] font-semibold text-[var(--color-brand-navy-3)]'
-            }
-          >
-            {String(i + 1).padStart(2, '0')}
-          </span>
-          <span className="text-[15px] leading-relaxed text-[var(--color-ink)]">{t}</span>
+    <ol className="editorial-list">
+      {items.map((item, index) => (
+        <li key={item}>
+          <span className="tnum">{String(index + 1).padStart(2, '0')}</span>
+          <p>{item}</p>
         </li>
       ))}
     </ol>
@@ -24,35 +15,21 @@ function NumberedList({ items, accent }: { items: readonly string[]; accent: 'bl
 
 export function Advantages() {
   return (
-    <div>
-      <Reveal>
-        <h3 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">
-          为什么选择集智 AI OPC？
-        </h3>
-        <p className="mt-4 text-[14px] leading-relaxed text-[var(--color-ink-2)]">
-          集美科技旗下的一站式 AI 应用综合赋能平台，位于北京丰台大红门，首期 3000
-          余平米。场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区。
-        </p>
-      </Reveal>
-      <Reveal delay={0.1} className="mt-8">
-        <NumberedList items={advantages} accent="blue" />
-      </Reveal>
+    <div className="advantage-block">
+      <span className="section-eyebrow">平台优势</span>
+      <h2>为什么选择<br />集智 AI OPC？</h2>
+      <NumberedList items={advantages} />
     </div>
   );
 }
 
 export function Vision() {
   return (
-    <div>
-      <Reveal>
-        <h3 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">我们的愿景</h3>
-        <p className="mt-4 text-[14px] leading-relaxed text-[var(--color-ink-2)]">
-          集众智之力，启 AI 未来！成为 AI 创业者第一个想到的落脚点。让有想法的人不必先解决场地、算力和客户，就能把产品做出来、把生意跑起来。
-        </p>
-      </Reveal>
-      <Reveal delay={0.1} className="mt-8">
-        <NumberedList items={visions} accent="teal" />
-      </Reveal>
+    <div className="vision-block">
+      <span className="section-eyebrow">我们的愿景</span>
+      <h2>让每一个 AI 项目<br />在此落地生长</h2>
+      <p className="vision-intro">AI 时代，一个人也能是一家公司。我们把这家公司缺的每一环提前铺好。</p>
+      <NumberedList items={visions} />
     </div>
   );
 }

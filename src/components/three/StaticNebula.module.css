@@ -1,0 +1,68 @@
+.art {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+.halo {
+  position: absolute;
+  width: 95%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #1d7fba24 0, #57b6a50b 42%, transparent 70%);
+}
+.sphere {
+  position: absolute;
+  width: 69%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #57b6a57a;
+  background: radial-gradient(circle at 32% 27%, #57b6a528, #1d7fba12 42%, #142f5900 74%);
+  box-shadow: inset -16px -10px 44px #142f5955, inset 6px 5px 28px #1aa8d333, 0 0 55px #1d7fba16;
+  transform: rotate(-14deg);
+}
+.sphere::before {
+  content: '';
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  background-image: radial-gradient(circle, #57b6a5b3 0.7px, transparent 1.1px);
+  background-size: 9px 9px;
+  mask-image: radial-gradient(ellipse at 37% 30%, #000 8%, #0008 50%, transparent 78%);
+}
+.latitude,
+.longitude {
+  position: absolute;
+  border: 1px solid #1aa8d34a;
+  border-radius: 50%;
+}
+.latitude { inset: 22% -8%; transform: rotate(-16deg); }
+.latitude:nth-child(2) { inset: 38% -8%; }
+.longitude { inset: -4% 25%; transform: rotate(18deg); }
+.longitude:nth-child(4) { inset: -4% 42%; }
+.orbit {
+  position: absolute;
+  width: 90%;
+  height: 26%;
+  border: 1px solid #57b6a591;
+  border-radius: 50%;
+  transform: rotate(-19deg);
+  box-shadow: 0 -1px 8px #1aa8d31c;
+}
+.orbit::after {
+  content: '';
+  position: absolute;
+  left: 13%;
+  top: 11%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #64c4d9;
+  box-shadow: 0 0 12px #57b6a599;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art, .art * { transition: none; }
+}

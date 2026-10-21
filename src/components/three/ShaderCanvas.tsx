@@ -1,85 +1,60 @@
 'use client';
 
-import { Canvas, type CanvasProps } from '@react-three/fiber';
-import { Suspense, useEffect, useRef, useState } from 'react';
-import clsx from 'clsx';
-import { detectWebGL2, profileDevice, type QualityTier } from './quality';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Suspense, useEffect, useRef, type ReactNode } from 'react';
+import type { DeviceProfile } from './quality';
 
 type ShaderCanvasProps = {
-  children: React.ReactNode;
-  /** 降级静态内容：品牌渐变 + 静态星点 */
-  fallback?: React.ReactNode;
-  className?: string;
-  quality?: QualityTier;
-  dpr?: [number, number];
-  /** 是否在视口外暂停渲染 */
-  pauseOffscreen?: boolean;
-  'aria-hidden'?: boolean;
+  children: ReactNode;
+  profile: DeviceProfile;
+  active: boolean;
+  onReady: () => void;
+  onContextLost: () => void;
 };
 
-/**
- * r3f Canvas 封装：能力探测 + 质量分级 + 视口暂停 + 卸载清理。
- * 降级链见 docs/02-技术方案.md §7.7。
- */
-export default function ShaderCanvas({
-  children,
-  fallback = null,
-  className,
-  quality,
-  dpr,
-  pauseOffscreen = true,
-  'aria-hidden': ariaHidden = true,
-}: ShaderCanvasProps) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(false);
-  const [tier, setTier] = useState<QualityTier>('static');
-  const [visible, setVisible] = useState(true);
-
+function SceneLifecycle({ onReady, onContextLost }: Pick<ShaderCanvasProps, 'onReady' | 'onContextLost'>) {
+  const gl = useThree((state) => state.gl);
+  const frames = useRef(0);
   useEffect(() => {
-    const p = profileDevice();
-    setTier(quality ?? p.tier);
-    setReady(p.hasWebGL2);
-  }, [quality]);
+    const canvas = gl.domElement;
+    const handleLost = (event: Event) => {
+      event.preventDefault();
+      onContextLost();
+    };
+    const previousShaderError = gl.debug.onShaderError;
+    gl.debug.onShaderError = () => onContextLost();
+    canvas.dataset.renderFrames = '0';
+    canvas.addEventListener('webglcontextlost', handleLost);
+    return () => {
+      canvas.removeEventListener('webglcontextlost', handleLost);
+      gl.debug.onShaderError = previousShaderError;
+    };
+    // Canvas owns renderer disposal + context release on unmount. Disposing it here
+    // would destroy the live renderer during React Strict Mode's effect replay.
+  }, [gl, onContextLost]);
+  useFrame(() => {
+    frames.current += 1;
+    if (frames.current === 1) onReady();
+    if (frames.current === 1 || frames.current % 30 === 0) {
+      gl.domElement.dataset.renderFrames = String(frames.current);
+    }
+  });
+  return null;
+}
 
-  useEffect(() => {
-    if (!pauseOffscreen || typeof IntersectionObserver === 'undefined') return;
-    const el = wrapRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { rootMargin: '120px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [pauseOffscreen]);
-
-  if (!ready) {
-    // 首帧不挂 canvas，避免 CLS；fallback 与 canvas 必须等尺寸
-    return <div className={clsx('overflow-hidden', className)}>{fallback}</div>;
-  }
-
-  if (tier === 'static') {
-    return <div className={clsx('overflow-hidden', className)}>{fallback}</div>;
-  }
-
-  const canvasProps: CanvasProps = {
-    dpr: dpr ?? [1, 1.5],
-    frameloop: visible ? 'always' : 'never',
-    gl: { antialias: tier === 'high', alpha: true, powerPreference: 'high-performance' },
-    camera: { position: [0, 0, 6], fov: 55 },
-    // 容器必须撑满包裹层；包裹层自身由 className 决定定位（默认 absolute inset-0）
-    style: { position: 'absolute', inset: 0, width: '100%', height: '100%' },
-  };
-
+/** Receives the existing device profile: no duplicate GPU capability probes. */
+export default function ShaderCanvas({ children, profile, active, onReady, onContextLost }: ShaderCanvasProps) {
+  if (!profile.hasWebGL2 || profile.tier === 'static') return null;
   return (
-    <div
-      ref={wrapRef}
-      className={clsx('overflow-hidden', className ?? 'absolute inset-0')}
-      aria-hidden={ariaHidden}
+    <Canvas
+      dpr={profile.dpr}
+      frameloop={active ? 'always' : 'never'}
+      gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
+      camera={{ position: [0, 0, 6], fov: 44, near: 0.1, far: 20 }}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
-      <Canvas {...canvasProps}>
-        <Suspense fallback={null}>{children}</Suspense>
-      </Canvas>
-    </div>
+      <SceneLifecycle onReady={onReady} onContextLost={onContextLost} />
+      <Suspense fallback={null}>{children}</Suspense>
+    </Canvas>
   );
 }

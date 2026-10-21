@@ -1,156 +1,112 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import * as THREE from 'three';
-import { brandRamp, curlNoise, simplex3d } from './shaders/noise.glsl';
+import { brandRamp } from './shaders/noise.glsl';
 
 const vertexShader = /* glsl */ `
-${simplex3d}
-${curlNoise}
-
 uniform float uTime;
-uniform vec2  uPointer;
+uniform vec2 uPointer;
 uniform float uPixelRatio;
-
-attribute vec3 aSeed;   // x: 初始相位  y: 噪声频率  z: 亮度权重
-
-varying float vBright;
-varying float vRadius;
-
+attribute vec3 aSeed;
+varying float vLight;
+varying float vColor;
 void main() {
-  float t = uTime * 0.12 + aSeed.x * 6.2831;
-
   vec3 p = position;
-
-  // 无散度噪声场推力：粒子沿旋涡流动而非直冲
-  p += curl(p * aSeed.y, t) * 0.62;
-
-  // 向心引力：表达「众智汇聚」
-  float len = length(p);
-  p += normalize(-p + 1e-5) * (0.40 / (len + 0.6));
-
-  // 指针引力：轻微偏移，不改变构图
-  p.xy += uPointer * 0.07;
-
+  // Keep the silhouette steady: a slight breathing wave, no sprawling noise field.
+  float wave = sin(p.y * 3.2 + p.x * 1.8 + uTime * 0.32 + aSeed.x * 2.0);
+  p *= 1.0 + wave * 0.014;
+  p.xy += uPointer * 0.055;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
-
-  vBright = aSeed.z;
-  vRadius = clamp(len / 5.0, 0.0, 1.0);
-
-  gl_PointSize = (2.6 + aSeed.z * 5.4) * uPixelRatio * (5.2 / max(-mv.z, 0.1));
+  vLight = (0.35 + aSeed.z * 0.65) * mix(0.48, 1.0, smoothstep(-1.8, 1.8, p.z));
+  vColor = aSeed.y;
+  gl_PointSize = (1.3 + aSeed.z * 1.65) * uPixelRatio * (5.0 / max(-mv.z, 0.1));
   gl_Position = projectionMatrix * mv;
 }
 `;
 
 const fragmentShader = /* glsl */ `
 ${brandRamp}
-
-varying float vBright;
-varying float vRadius;
-
+varying float vLight;
+varying float vColor;
 void main() {
-  vec2 uv = gl_PointCoord - 0.5;
-  float d = length(uv);
-  if (d > 0.5) discard;
-
-  // 软圆点 + 中心亮核
-  float soft = smoothstep(0.5, 0.06, d);
-  float core = smoothstep(0.22, 0.0, d);
-
-  // 越靠近中心越亮、越偏主蓝；外围偏青绿
-  float t = mix(1.0 - vRadius, 0.35 + vRadius * 0.6, 0.5);
-  vec3 col = brandRamp(clamp(t + vBright * 0.18, 0.0, 1.0));
-
-  float alpha = soft * (0.10 + vBright * 0.26) + core * 0.16;
-  gl_FragColor = vec4(col * (0.62 + core * 0.75), alpha);
+  float distanceToCenter = length(gl_PointCoord - 0.5);
+  if (distanceToCenter > 0.5) discard;
+  float point = 1.0 - smoothstep(0.10, 0.50, distanceToCenter);
+  // Logo teal and the light cyan gradient endpoint keep the front face legible.
+  vec3 teal = vec3(0.341, 0.714, 0.647);
+  vec3 lightCyan = vec3(0.392, 0.769, 0.851);
+  vec3 accent = mix(teal, lightCyan, vColor * 0.38);
+  float front = smoothstep(0.35, 0.85, vLight);
+  vec3 color = mix(brandRamp(vColor), accent, 0.60 + front * 0.18);
+  gl_FragColor = vec4(color, min(point * vLight * 1.12, 0.95));
 }
 `;
 
-/**
- * Hero「众智星云」粒子层。
- * 运动全部在顶点着色器内完成，CPU 每帧只更新两个 uniform。
- */
-export default function HeroNebula({
-  count = 24000,
-  pointer = { x: 0, y: 0 },
-}: {
+/** A spherical field and gathering orbit, centered inside the Hero's dedicated visual column. */
+export default function HeroNebula({ count = 12000, pointerRef }: {
   count?: number;
-  pointer?: { x: number; y: number };
+  pointerRef: RefObject<{ x: number; y: number }>;
 }) {
-  const matRef = useRef<THREE.ShaderMaterial>(null);
-  const pointerRef = useRef(pointer);
-  pointerRef.current = pointer;
-
+  const pointsRef = useRef<THREE.Points>(null);
   const geometry = useMemo(() => {
-    const g = new THREE.BufferGeometry();
+    const result = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const seeds = new Float32Array(count * 3);
-
-    for (let i = 0; i < count; i++) {
-      // 球壳分布，中心留空形成「星云核」
-      const r = 0.9 + Math.pow(Math.random(), 0.55) * 4.4;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const sinPhi = Math.sin(phi);
-
-      positions[i * 3] = r * sinPhi * Math.cos(theta);
-      positions[i * 3 + 1] = r * sinPhi * Math.sin(theta) * 0.72; // 压扁，更像星盘
-      positions[i * 3 + 2] = r * Math.cos(phi);
-
-      seeds[i * 3] = Math.random();
-      seeds[i * 3 + 1] = 0.18 + Math.random() * 0.34;
-      seeds[i * 3 + 2] = Math.random();
+    const shellCount = Math.floor(count * 0.82);
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+    for (let index = 0; index < count; index += 1) {
+      // Deterministic points keep the overall distribution consistent between mounts.
+      const seed = ((index * 16807) % 2147483647) / 2147483647;
+      const phase = index * goldenAngle;
+      const offset = index * 3;
+      if (index < shellCount) {
+        const y = 1 - 2 * ((index + 0.5) / shellCount);
+        const radius = 1.85 + Math.sin(index * 7.13) * 0.055;
+        const radial = Math.sqrt(1 - y * y);
+        positions[offset] = Math.cos(phase) * radial * radius;
+        positions[offset + 1] = y * radius;
+        positions[offset + 2] = Math.sin(phase) * radial * radius;
+      } else {
+        const angle = ((index - shellCount) / (count - shellCount)) * Math.PI * 2;
+        const spread = Math.sin(index * 13.17) * 0.045;
+        positions[offset] = (2.35 + spread) * Math.cos(angle);
+        positions[offset + 1] = 0.58 * Math.sin(angle) + 0.38 * Math.cos(angle) + spread;
+        positions[offset + 2] = 1.12 * Math.sin(angle);
+      }
+      seeds[offset] = seed;
+      seeds[offset + 1] = 0.47 + ((Math.sin(index * 1.97) + 1) / 2) * 0.48;
+      seeds[offset + 2] = 0.3 + ((Math.sin(index * 3.71) + 1) / 2) * 0.7;
     }
-
-    g.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    g.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 3));
-    return g;
+    result.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    result.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 3));
+    return result;
   }, [count]);
 
-  /**
-   * 释放 GPU 资源。
-   *
-   * ⚠️ r3f **不会**自动释放通过 `<primitive object={...}>` 传入的对象
-   * （只有声明式创建的 `<bufferGeometry>` 等才会被自动回收）。
-   * 本组件的 geometry 由 `useMemo` 创建并以 primitive 挂载，
-   * 因此必须在「geometry 变化」与「组件卸载」时显式 dispose()，
-   * 否则自适应降档每换一次粒子数就泄漏一份 GPU buffer（docs/06 §8 V8）。
-   */
-  useEffect(() => {
-    return () => {
-      geometry.dispose();
-    };
-  }, [geometry]);
-
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uPointer: { value: new THREE.Vector2(0, 0) },
-      uPixelRatio: { value: Math.min(typeof window === 'undefined' ? 1 : window.devicePixelRatio, 1.5) },
-    }),
-    [],
-  );
-
+  // Primitive geometries are owned here; R3F disposes the declarative material.
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 },
+    uPointer: { value: new THREE.Vector2() },
+    uPixelRatio: { value: 1 },
+  }), []);
   useFrame((state, delta) => {
-    const mat = matRef.current;
-    if (!mat) return;
-    mat.uniforms.uTime.value += Math.min(delta, 0.05);
-    const target = pointerRef.current;
-    mat.uniforms.uPointer.value.x += (target.x - mat.uniforms.uPointer.value.x) * 0.05;
-    mat.uniforms.uPointer.value.y += (target.y - mat.uniforms.uPointer.value.y) * 0.05;
-    // 轻微自转，增强生命感
-    state.scene.rotation.y += delta * 0.012;
+    const step = Math.min(delta, 0.05);
+    uniforms.uTime.value += step;
+    uniforms.uPixelRatio.value = state.gl.getPixelRatio();
+    uniforms.uPointer.value.x += (pointerRef.current.x - uniforms.uPointer.value.x) * 0.045;
+    uniforms.uPointer.value.y += (pointerRef.current.y - uniforms.uPointer.value.y) * 0.045;
+    // Only the sculpture rotates; the backdrop and camera retain their alignment.
+    if (pointsRef.current) pointsRef.current.rotation.y += step * 0.022;
   });
-
   return (
-    <points frustumCulled={false} position={[1.5, 0, 0]}>
+    <points ref={pointsRef} frustumCulled={false} rotation={[0.08, 0, -0.12]}>
       <primitive object={geometry} attach="geometry" />
       <shaderMaterial
-        ref={matRef}
+        uniforms={uniforms}
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
-        uniforms={uniforms}
         transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}

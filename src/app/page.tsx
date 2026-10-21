@@ -5,10 +5,9 @@ import StatsBar from '@/components/sections/StatsBar';
 import EmpowerSection from '@/components/sections/EmpowerSection';
 import { Advantages, Vision } from '@/components/sections/Advantages';
 import Partners from '@/components/sections/Partners';
-import { Section, SectionHead } from '@/components/ui/Section';
+import { Section } from '@/components/ui/Section';
 import { ButtonLink } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
-import { Badge } from '@/components/ui/Card';
 import { getNewsPosts, getPartners, getStats } from '@/lib/queries';
 import { site } from '@/lib/site/config';
 
@@ -21,135 +20,79 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [stats, partners, news] = await Promise.all([
-    getStats(),
-    getPartners(),
-    getNewsPosts(),
-  ]);
+  const [stats, partners, news] = await Promise.all([getStats(), getPartners(), getNewsPosts()]);
+  const featured = news[0];
 
   return (
     <>
       <Hero />
+      <Section size="sm" className="home-stats-section"><StatsBar stats={stats} /></Section>
 
-      {/* 数据指标条 */}
-      <Section size="sm" className="!py-12 sm:!py-14">
-        <Reveal>
-          <StatsBar stats={stats} />
-        </Reveal>
-      </Section>
-
-      {/* 八大赋能 */}
-      <Section id="empower-section" tone="surface">
-        <SectionHead
-          eyebrow="八大赋能"
-          title={
-            <>
-              一站式 AI 应用
-              <br className="hidden sm:block" />
-              <span className="text-[var(--color-brand-blue-deep)]">综合赋能体系</span>
-            </>
-          }
-          desc="场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区，需求不出社区。"
-        />
+      <Section id="empower-section" tone="surface" className="empower-home">
+        <div className="section-intro">
+          <div>
+            <span className="section-eyebrow">01 / 八大赋能</span>
+            <h2>一站式 AI 应用<br />综合赋能体系</h2>
+          </div>
+          <p>场地、工具、算力、人才、服务、订单、流量、资金。八件事装进同一个社区，需求不出社区。</p>
+        </div>
         <EmpowerSection />
       </Section>
 
-      {/* 平台优势 + 愿景 */}
-      <Section>
-        {/* 不用两张同款卡片：改成两栏开放式排版 + 顶部色条，并且不等宽，
-            避免「左右双胞胎」的模板感。 */}
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-          <div className="border-t-2 border-[var(--color-brand-blue-deep)] pt-6">
-            <Advantages />
+      <Section className="community-home">
+        <div className="community-intro">
+          <div>
+            <span className="section-eyebrow">02 / 认识集智</span>
+            <h2>AI 时代，<br />一个人也能是一家公司。</h2>
           </div>
-          <div className="border-t-2 border-[var(--color-brand-teal)] pt-6">
-            <Vision />
+          <div>
+            <p>{site.company}旗下，面向 AI 创业团队与「一人公司」的一站式赋能平台。位于北京丰台大红门，首期占地超 3000 平方米。</p>
+            <Link href="/about" className="editorial-link">了解集智社区 <span aria-hidden="true">↗</span></Link>
           </div>
         </div>
+        <div className="community-values"><Advantages /><Vision /></div>
       </Section>
 
-      {/* 合作企业 */}
-      <Section tone="surface" size="sm">
-        <Partners names={partners} />
-      </Section>
+      <Section tone="surface" size="sm"><Partners names={partners} /></Section>
 
-      {/* 社区动态精选 */}
-      {news.length > 0 && (
-        <Section size="sm">
-          <SectionHead
-            eyebrow="社区动态"
-            title="社区正在发生什么"
-            desc="沙龙、活动与最新资讯，第一时间了解社区与入驻团队的进展。"
-            align="center"
-          />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {news.slice(0, 3).map((n, i) => (
-              // ⚠️ 跨列类必须挂在 **Reveal 包裹层**上：Reveal 渲染的那层 <div>
-              //    才是真正的 grid item，类写在里面的 <Link> 上对布局无效。
-              <Reveal key={n.slug} className={i === 0 ? 'sm:col-span-2 lg:col-span-2' : undefined}>
-                <Link
-                  href={`/news/${n.slug}`}
-                  className={
-                    // 首条横跨两列做主卡（更大内距 + 阴影），其余两条为次级卡
-                    'group flex h-full flex-col border bg-white transition-all duration-300 ' +
-                    (i === 0
-                      ? 'rounded-2xl border-[var(--color-line)] p-7 shadow-[var(--shadow-card)] hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]'
-                      : 'rounded-xl border-[var(--color-line)] p-6 shadow-none hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]')
-                  }
-                >
-                  <div className="flex items-center gap-2">
-                    <Badge tone="blue">{n.category}</Badge>
-                    <time className="text-[12px] text-[var(--color-ink-3)]">{n.published_at}</time>
-                  </div>
-                  <h3 className="mt-4 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
-                    {n.title}
-                  </h3>
-                  <p className="mt-3 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-                    {n.summary}
-                  </p>
-                  <span className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
-                    阅读全文 →
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
+      {featured && (
+        <Section className="news-home">
+          <div className="news-heading">
+            <div><span className="section-eyebrow">03 / 社区动态</span><h2>社区正在发生什么</h2></div>
+            <Link href="/news" className="editorial-link">全部动态 <span aria-hidden="true">↗</span></Link>
           </div>
-          <div className="mt-10 flex justify-center">
-            <ButtonLink href="/news" variant="secondary">
-              查看全部动态
-            </ButtonLink>
+          <div className={news.length > 1 ? 'news-editorial' : 'news-editorial news-editorial-single'}>
+            <Reveal>
+              <Link href={`/news/${featured.slug}`} className="news-feature">
+                <div className="news-meta"><span>{featured.category}</span><time dateTime={featured.published_at}>{featured.published_at}</time></div>
+                <h3>{featured.title}</h3>
+                <p>{featured.summary}</p>
+                <span className="editorial-link">阅读全文 <span aria-hidden="true">↗</span></span>
+                <span className="news-feature-index" aria-hidden="true">JZ.</span>
+              </Link>
+            </Reveal>
+            {news.length > 1 && <div className="news-secondary">
+              {news.slice(1, 3).map((item) => (
+                <Link href={`/news/${item.slug}`} key={item.slug} className="news-row">
+                  <div className="news-meta"><span>{item.category}</span><time dateTime={item.published_at}>{item.published_at}</time></div>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
+                  <span className="news-row-arrow" aria-hidden="true">↗</span>
+                </Link>
+              ))}
+            </div>}
           </div>
         </Section>
       )}
 
-      {/* CTA */}
-      <Section tone="navy">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12 sm:py-20">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-60"
-            style={{
-              background:
-                'radial-gradient(60% 80% at 50% 0%, rgba(26,168,211,.22), transparent 70%), radial-gradient(50% 60% at 20% 100%, rgba(87,182,165,.16), transparent 70%)',
-            }}
-          />
-          <div className="relative">
-            <h2 className="text-[26px] font-semibold leading-tight text-white sm:text-[34px]">
-              把创业缺的每一环提前铺好
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-white/70">
-              空间、算力、订单、流量、资金，一次对接。填写意向表单，社区团队会尽快与你沟通。
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3.5">
-              <ButtonLink
-                href="/apply"
-                size="lg"
-                className="!bg-white !text-[var(--color-brand-navy)] hover:!bg-[var(--color-brand-teal)] hover:!text-white"
-              >
-                申请入驻
-              </ButtonLink>
-              <ButtonLink href="/agents" size="lg" variant="light">
-                浏览智能体
-              </ButtonLink>
+      <Section tone="navy" className="home-cta">
+        <div className="cta-layout">
+          <div><span className="section-eyebrow">申请入驻</span><h2>把创业缺的<br />每一环提前铺好</h2></div>
+          <div className="cta-content">
+            <p>空间、算力、订单、流量、资金，一次对接。填写意向表单，社区团队会尽快与你沟通。</p>
+            <div className="cta-actions">
+              <ButtonLink href="/apply" size="lg" className="hero-primary">申请入驻 <span aria-hidden="true">↗</span></ButtonLink>
+              <ButtonLink href="/agents" size="lg" variant="light">浏览智能体</ButtonLink>
             </div>
           </div>
         </div>

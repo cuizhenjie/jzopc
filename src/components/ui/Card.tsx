@@ -1,25 +1,7 @@
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 
-/**
- * 卡片。
- *
- * ## 两档制（消除「AI 感」的关键）
- *
- * 过去全站只有一种卡片：`rounded-2xl` + `border` + `shadow-card`，再配 `hover:-translate-y-1`。
- * 结果是**每一张卡都会「抬起来」**，层级失真，看上去像模板生成的通用官网。
- *
- * 现在分两档：
- *
- * | 变体 | 外观 | 用途 |
- * |---|---|---|
- * | `default`（次级卡） | `rounded-xl` + 1px 描边 + **无阴影** | 列表条目、支撑模块、次级面板 |
- * | `feature`（主卡） | `rounded-2xl` + 描边 + `shadow-card` | 每屏 ≤4 个的主卡 / 主转化面 |
- *
- * hover 行为也随之分级：次级卡只改边框与底色（安静），主卡才抬升换阴影。
- *
- * 详见 `docs/06-视觉方案与3D动效规范.md` §2.4。
- */
+/** Shared content panels use a light outline; emphasis comes from typography and placement. */
 export function Card({
   children,
   className,
@@ -30,7 +12,7 @@ export function Card({
   children: ReactNode;
   className?: string;
   hover?: boolean;
-  /** `feature` = 主卡（带阴影）；`default` = 次级卡（描边、无阴影） */
+  /** Feature panels receive a brand-colored top edge. */
   variant?: 'default' | 'feature';
   as?: 'div' | 'article' | 'li';
 }) {
@@ -38,14 +20,9 @@ export function Card({
   return (
     <Tag
       className={clsx(
-        'border border-[var(--color-line)] bg-white',
-        isFeature
-          ? 'rounded-2xl shadow-[var(--shadow-card)]'
-          : 'rounded-xl shadow-none',
-        hover &&
-          (isFeature
-            ? 'transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-1 hover:border-[var(--color-brand-blue-deep)]/30 hover:shadow-[var(--shadow-lift)]'
-            : 'transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]'),
+        'rounded-xl border border-[var(--color-line)] bg-white shadow-none',
+        isFeature && 'border-t-2 border-t-[var(--color-brand-blue-deep)]',
+        hover && 'transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]',
         className,
       )}
     >

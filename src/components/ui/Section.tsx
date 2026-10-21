@@ -21,12 +21,12 @@ export function Section({
   };
   const sizes = {
     sm: 'py-12 sm:py-16',
-    md: 'py-16 sm:py-24',
+    md: 'py-16 sm:py-24 lg:py-28',
     lg: 'py-20 sm:py-28',
   };
   return (
     <section id={id} className={clsx(tones[tone], sizes[size], className)}>
-      <div className="mx-auto w-full max-w-[1240px] px-5 sm:px-8">{children}</div>
+      <div className="mx-auto w-full max-w-[1280px] px-5 sm:px-8">{children}</div>
     </section>
   );
 }
@@ -76,7 +76,7 @@ export function SectionHead({
       )}
       <h2
         className={clsx(
-          'mt-5 text-[26px] leading-[1.25] font-semibold tracking-tight sm:text-[34px]',
+          'mt-4 text-[28px] leading-[1.25] font-semibold tracking-tight sm:text-[38px]',
           dark ? 'text-white' : 'text-[var(--color-brand-navy)]',
         )}
       >

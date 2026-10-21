@@ -1,27 +1,45 @@
 'use client';
 
-import { MeshGradient } from '@paper-design/shaders-react';
+import { useFrame } from '@react-three/fiber';
+import { useMemo } from 'react';
+import { Color } from 'three';
 import { brand } from '@/lib/site/config';
 
-/**
- * Hero 背景层：Paper Shaders 的 MeshGradient（WebGL/GLSL，零运行时依赖，全库 11.6KB gzip）。
- * 替代手写 FBM 极光层 —— 见 docs/04-shader选型指南.md §7 M3。
- */
-export default function HeroBackdrop({ staticMode = false }: { staticMode?: boolean }) {
+/** A soft halo in the same renderer, behind the particle sculpture. */
+export default function HeroBackdrop() {
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 },
+    uBlue: { value: new Color(brand.blue) },
+    uTeal: { value: new Color(brand.teal) },
+  }), []);
+  useFrame((_, delta) => { uniforms.uTime.value += Math.min(delta, 0.05); });
   return (
-    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      <MeshGradient
-        width="100%"
-        height="100%"
-        colors={[brand.navy, brand.blue, brand.teal, brand.cyan]}
-        distortion={0.82}
-        swirl={0.16}
-        grainMixer={0}
-        grainOverlay={0.08}
-        speed={staticMode ? 0 : 0.25}
-        minPixelRatio={1}
-        maxPixelCount={2_000_000}
+    <mesh position={[0, 0, -2]}>
+      <planeGeometry args={[8, 8]} />
+      <shaderMaterial
+        transparent
+        depthWrite={false}
+        uniforms={uniforms}
+        vertexShader={/* glsl */ `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={/* glsl */ `
+          uniform float uTime;
+          uniform vec3 uBlue;
+          uniform vec3 uTeal;
+          varying vec2 vUv;
+          void main() {
+            vec2 p = (vUv - 0.5) * 2.0;
+            float halo = exp(-dot(p, p) * 5.0);
+            float drift = 0.5 + 0.5 * sin(p.x * 2.0 + uTime * 0.12);
+            gl_FragColor = vec4(mix(uBlue, uTeal, drift), halo * 0.12);
+          }
+        `}
       />
-    </div>
+    </mesh>
   );
 }

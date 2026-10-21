@@ -6,7 +6,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t border-[var(--color-line)] bg-[var(--color-surface)]">
-      <div className="mx-auto w-full max-w-[1240px] px-5 py-14 sm:px-8 sm:py-16">
+      <div className="mx-auto w-full max-w-[1280px] px-5 py-14 sm:px-8 sm:py-16">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <div className="flex items-center gap-2.5">
@@ -79,7 +79,6 @@ export default function Footer() {
             >
               申请入驻
             </Link>
-            <span>京ICP备 号位</span>
           </div>
         </div>
       </div>
