@@ -5,6 +5,7 @@ import StatsBar from '@/components/sections/StatsBar';
 import EmpowerSection from '@/components/sections/EmpowerSection';
 import { Advantages, Vision } from '@/components/sections/Advantages';
 import Partners from '@/components/sections/Partners';
+import HomeFx from '@/components/anim/HomeFx';
 import { Section } from '@/components/ui/Section';
 import { ButtonLink } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
@@ -24,7 +25,7 @@ export default async function HomePage() {
   const featured = news[0];
 
   return (
-    <>
+    <HomeFx>
       <Hero />
       <Section size="sm" className="home-stats-section"><StatsBar stats={stats} /></Section>
 
@@ -97,6 +98,6 @@ export default async function HomePage() {
           </div>
         </div>
       </Section>
-    </>
+    </HomeFx>
   );
 }
