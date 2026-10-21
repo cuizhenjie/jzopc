@@ -17,7 +17,10 @@
     "test:watch": "node --import ./scripts/test-hooks.mjs --test --watch \"test/**/*.test.ts\"",
     "db:types": "node scripts/gen-db-types.mjs",
     "verify": "node scripts/verify.mjs",
-    "db:smoke": "node scripts/db-smoke.mjs"
+    "db:smoke": "node scripts/db-smoke.mjs",
+    "build:deploy": "NEXT_OUTPUT_STANDALONE=1 next build",
+    "prepare:deploy": "node scripts/prepare-deploy.mjs",
+    "start:deploy": "node deploy/server.js"
   },
   "dependencies": {
     "@paper-design/shaders-react": "0.0.81",

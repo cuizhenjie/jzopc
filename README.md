@@ -15,11 +15,25 @@ pnpm build && pnpm start   # 生产（默认 3000 端口）
 
 **未配置 Supabase 环境变量时自动回落本地种子数据**，开箱即可跑通全站；接真库时只需补 `.env`（见 `.env.example`，6 个变量全部可留空），调用方无需改动。
 
+### 裸机部署（不依赖 Docker，只要 Node ≥20）
+
+```bash
+# 构建机：域名必须在**构建期**带上（NEXT_PUBLIC_* 是内联的）
+NEXT_PUBLIC_SITE_URL=https://正式域名 pnpm build:deploy   # standalone 产物
+pnpm prepare:deploy                                       # 组装自包含的 deploy/ 目录（约 68 MB）
+
+# 服务器：只要 node ≥20，不要 pnpm、不要源码、不要项目 node_modules
+cd deploy && PORT=3000 HOSTNAME=127.0.0.1 NODE_ENV=production node server.js
+# 或用进程守护：cd deploy && pm2 start pm2.config.cjs && pm2 save
+```
+
+`pnpm prepare:deploy` 会**逐项校验**产物完整性（server、字体、static、public），缺件直接退出非零 —— 这些缺件在线上都不报错，只会表现成「整站白屏」「分享图中文变方块」。详见 [`docs/02-技术方案.md`](docs/02-技术方案.md) §10.2。
+
 ## 工程化工具
 
 | 命令 | 作用 |
 |---|---|
-| `pnpm test` | Node 24 内置 runner（`node --test` + `node:assert`，**零测试依赖**），**178 个用例**覆盖 zod 契约、种子回落、站点配置结构、品牌色一致性、搜索匹配规则与静态渲染红线 |
+| `pnpm test` | Node 24 内置 runner（`node --test` + `node:assert`，**零测试依赖**），**193 个用例**覆盖 zod 契约、种子回落、站点配置结构、品牌色一致性、搜索匹配规则与静态渲染红线 |
 | `pnpm verify` | 零依赖工程校验：文档表格列数 / FR 编号悬空 / 文档文件路径悬空 / package scripts 路径 / 路由清单 vs 实际目录 / 品牌色 vs `logo.svg`。**当前 6 项全绿** |
 | `pnpm db:types` | 从 `supabase/migrations/0001_init.sql` 解析生成 `src/lib/supabase/database.types.ts`（11 表 / 122 字段，可重复执行） |
 | `pnpm db:smoke` | **数据库迁移冒烟测试**：自动起一次性 PostgreSQL → 逐字执行全部迁移 → 跑 **27 条断言** → 自动清理集群。一条命令，无需手工准备 |
