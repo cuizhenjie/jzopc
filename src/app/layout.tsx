@@ -72,6 +72,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <JsonLd data={organizationJsonLd} />
         <JsonLd data={websiteJsonLd} />
+        {/* 面向 LLM 的站点摘要（llmstxt.org）：告诉 AI 助手「这个站是什么、有哪些入口」 */}
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM 站点摘要" />
       </head>
       <body className="min-h-screen bg-white antialiased">
         <a
