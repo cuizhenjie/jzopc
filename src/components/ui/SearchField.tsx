@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 /**
  * 站内搜索输入框 —— **全站唯一的搜索原语**。
@@ -33,7 +33,6 @@ export default function SearchField({
   placeholder = '搜索',
   label = '站内搜索',
   className,
-  trailing,
   autoFocus,
 }: {
   /** 查询参数名，默认 q */
@@ -41,11 +40,9 @@ export default function SearchField({
   /** 基础路径（默认取当前路径） */
   basePath?: string;
   placeholder?: string;
-  /** 无障碍标签（视觉隐藏） */
+  /** 无障碍标签（视觉隐藏）——应写清「搜什么」，如「搜索供需条目」 */
   label?: string;
   className?: string;
-  /** 尾部附加内容（结果计数等） */
-  trailing?: ReactNode;
   autoFocus?: boolean;
 }) {
   const [query, setQuery] = useState('');
@@ -64,6 +61,19 @@ export default function SearchField({
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [param]);
+
+  /**
+   * 自动聚焦：**不用** HTML 的 `autofocus` 属性。
+   *
+   * `autofocus` 会让浏览器把该元素**滚动进视口** —— /search 的输入框在
+   * 页头与区块标题之下（首屏外），实测直接打开 /search 会把页面滚到
+   * `scrollY ≈ 5132`，用户看到的是页面中部，页头和标题全丢了。
+   * `focus({ preventScroll: true })` 只给焦点、不动滚动位置。
+   */
+  useEffect(() => {
+    if (!autoFocus) return;
+    inputRef.current?.focus({ preventScroll: true });
+  }, [autoFocus]);
 
   const update = (v: string) => {
     setQuery(v);
@@ -111,7 +121,6 @@ export default function SearchField({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder={placeholder}
-        autoFocus={autoFocus}
         // 隐藏 WebKit 自带的清除按钮：否则会和自带的清空按钮叠成两个叉
         // h-full：让输入框撑满 40px 的容器 —— 否则输入框本体只有 23px 高，
         // 低于 WCAG 2.5.8 的 24×24 触控下限，容器上下缘是点不到的死区。
@@ -141,7 +150,6 @@ export default function SearchField({
         </button>
       ) : null}
 
-      {trailing}
     </div>
   );
 }

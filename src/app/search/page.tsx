@@ -62,8 +62,13 @@ export default async function SearchPage() {
             <SearchField
               param="q"
               basePath="/search"
+              label="搜索站内内容"
               placeholder="搜索智能体、供需、课程与动态"
               className="max-w-xl"
+              // 自动聚焦：页头的 ⌘K / Ctrl+K 会跳到本页，落地后必须直接能打字，
+              // 否则快捷键「看起来是坏的」（实测：跳转后焦点停在 body）。
+              // 搜索页自动聚焦是常规做法；iOS/Android 也不会因此自动弹软键盘。
+              autoFocus
             />
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -76,7 +81,8 @@ export default async function SearchPage() {
                   className="rounded-full bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
                 >
                   {t.label}
-                  <span className="filter-count ml-1.5 text-[12px]">
+                  <span className="filter-count ml-1.5 text-[12px]"
+                    data-filter-option-count>
                     {t.value ? (counts[t.value] ?? 0) : items.length}
                   </span>
                 </FilterLink>
@@ -86,7 +92,8 @@ export default async function SearchPage() {
 
           <div className="mt-10 flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">搜索结果</h2>
-            <p className="text-[13px] text-[var(--color-ink-3)]">
+            {/* role=status：筛选后条数变化时由读屏播报 */}
+            <p role="status" className="text-[13px] text-[var(--color-ink-3)]">
               共 <span data-filter-count>{items.length}</span> 条
             </p>
           </div>
@@ -135,7 +142,7 @@ export default async function SearchPage() {
         </FilterRoot>
 
         <p className="mt-10 text-center text-[12px] text-[var(--color-ink-3)]">
-          搜索范围覆盖智能体目录、供需市场、集智学院课程与社区动态，共 {items.length} 条内容；这些条目当前为社区开箱即用的**示例内容**（智能体目录尤其如此），正式清单将按社区采集结果持续更新。
+          搜索范围覆盖智能体目录、供需市场、集智学院课程与社区动态，共 {items.length} 条内容；这些条目当前为社区开箱即用的{' '}<span className="font-medium text-[var(--color-ink-2)]">示例内容</span>（智能体目录尤其如此），正式清单将按社区采集结果持续更新。
         </p>
       </Section>
     </>

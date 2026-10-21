@@ -84,7 +84,8 @@ export default async function MarketPage() {
                 className="rounded-full bg-white px-5 py-2.5 text-[14px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
               >
                 {t.label}
-                <span className="filter-count ml-1.5 text-[12px]">{t.count}</span>
+                <span className="filter-count ml-1.5 text-[12px]"
+                    data-filter-option-count>{t.count}</span>
               </FilterLink>
             ))}
           </div>
@@ -93,6 +94,7 @@ export default async function MarketPage() {
           <SearchField
             param="q"
             basePath="/market"
+            label="搜索供需条目"
             placeholder="搜索需求标题、分类或发布方"
             className="w-full sm:w-auto sm:max-w-sm"
           />
@@ -100,7 +102,8 @@ export default async function MarketPage() {
 
         <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3">
           <h2 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">供需条目</h2>
-          <p className="text-[13px] text-[var(--color-ink-3)]">
+          {/* role=status：筛选后条数变化时由读屏播报「共 N 条」 */}
+          <p role="status" className="text-[13px] text-[var(--color-ink-3)]">
             共 <span data-filter-count>{all.length}</span> 条
           </p>
         </div>
@@ -168,7 +171,7 @@ export default async function MarketPage() {
         {/* 示例数据标注：与 /agents、/search 同一口径（PRD 明确要求示例内容必须标注，
             否则会被当成真实名录引用）。发布方已做匿名化处理。 */}
         <p className="mt-10 text-center text-[12px] text-[var(--color-ink-3)]">
-          当前展示的供需条目为社区运营整理前的**示例内容**（发布方已匿名化），用于展示页面结构与排版；正式条目将按运营采集结果持续发布。
+          当前展示的供需条目为社区运营整理前的{' '}<span className="font-medium text-[var(--color-ink-2)]">示例内容</span>（发布方已匿名化），用于展示页面结构与排版；正式条目将按运营采集结果持续发布。
         </p>
       </Section>
     </>

@@ -26,6 +26,13 @@ export async function generateMetadata({
     title: post.title,
     description: post.summary,
     alternates: { canonical: `/news/${post.slug}` },
+    // 分享图按本条标题生成 —— 与页面里的 Article JSON-LD 指向同一张图，
+    // 避免「结构化数据说 A、分享卡片是 B」
+    openGraph: {
+      images: [
+        `/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.category)}`,
+      ],
+    },
   };
 }
 

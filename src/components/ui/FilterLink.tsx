@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { buildFilterUrl } from '@/lib/filter/url';
 
 /**
  * 筛选按钮（客户端跳转，不整页刷新）。
@@ -34,16 +35,16 @@ export default function FilterLink({
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
 
     e.preventDefault();
-    const url = new URL(href, window.location.origin);
-    // 保留地址栏里**其它**查询参数（如搜索词 q）。
-    // 否则「先搜索、再切分类」时 q 会被丢掉 —— href 里只带了分类参数。
-    for (const [key, val] of new URLSearchParams(window.location.search)) {
-      if (key === param) continue;
-      if (!url.searchParams.has(key)) url.searchParams.set(key, val);
-    }
-    if (value) url.searchParams.set(param, value);
-    else url.searchParams.delete(param);
-    window.history.pushState({}, '', url.toString());
+    // URL 构造规则抽成了纯函数（src/lib/filter/url.ts）——
+    // 「切分类不丢搜索词」这条规则曾经真的坏过，必须有单测兜住。
+    const url = buildFilterUrl({
+      href,
+      param,
+      value,
+      currentSearch: window.location.search,
+      base: window.location.origin,
+    });
+    window.history.pushState({}, '', url);
     window.dispatchEvent(new Event('jizhi:filter-change'));
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import { countMatchesByKey, textMatches } from '@/lib/search/matcher';
 
 /**
  * 客户端筛选容器。
@@ -50,14 +51,34 @@ export default function FilterRoot({
     const apply = () => {
       const sp = new URLSearchParams(window.location.search);
       const active = sp.get(param) ?? defaultValue;
-      const q = (sp.get(queryParam) ?? '').trim().toLowerCase();
+      const q = sp.get(queryParam) ?? '';
 
       root.querySelectorAll<HTMLElement>('[data-filter-key]').forEach((el) => {
         const key = el.getAttribute('data-filter-key') ?? '';
-        const text = (el.getAttribute('data-filter-text') ?? '').toLowerCase();
+        const text = el.getAttribute('data-filter-text') ?? '';
         const hitKey = !active || key === active;
-        const hitText = !q || text.includes(q);
+        // 与 /api/search 用同一个匹配函数（textMatches）——
+        // 页面与接口的「搜得到」必须一致，且都对空白不敏感
+        // （搜「集智AI」= 搜「集智 AI」）。
+        const hitText = textMatches(text, q);
         el.style.display = hitKey && hitText ? '' : 'none';
+      });
+
+      // 分类计数随关键词实时更新：
+      // 静态总数会让人点「智能体 29」却得到 0 条（坏的交互）。
+      // 没有关键词时算出来就是总数，视觉零变化。
+      const entries = Array.from(root.querySelectorAll<HTMLElement>('[data-filter-key]')).map(
+        (el) => ({
+          key: el.getAttribute('data-filter-key') ?? '',
+          text: el.getAttribute('data-filter-text') ?? '',
+        }),
+      );
+      const { byKey, total: textTotal } = countMatchesByKey(entries, q);
+      root.querySelectorAll<HTMLElement>('[data-filter-option]').forEach((el) => {
+        const v = el.getAttribute('data-filter-option') ?? '';
+        const optionCount = el.querySelector<HTMLElement>('[data-filter-option-count]');
+        if (!optionCount) return;
+        optionCount.textContent = String(v === '' ? textTotal : (byKey.get(v) ?? 0));
       });
 
       // 筛选按钮选中态（空串选项代表「全部」）

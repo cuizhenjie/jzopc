@@ -117,7 +117,7 @@ export default function LeadTable({
                   value={r.status}
                   disabled={saving === r.id}
                   onChange={(e) => updateStatus(r.id, e.target.value)}
-                  className="rounded-md border border-[var(--color-line)] bg-white px-2 py-1 text-[12px] outline-none focus:border-[var(--color-brand-blue)] disabled:opacity-50"
+                  className="rounded-md border border-[var(--color-line)] bg-white px-2 py-1 text-[16px] outline-none focus:border-[var(--color-brand-blue)] disabled:opacity-50 sm:text-[12px]"
                 >
                   {Object.entries(statusLabel).map(([k, v]) => (
                     <option key={k} value={k}>

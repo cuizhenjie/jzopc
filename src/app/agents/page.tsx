@@ -53,7 +53,8 @@ export default async function AgentsPage() {
                 >
                   全部
                   {/* 分类计数：与 /market、/search 的筛选条同一套写法（同一处 .filter-count 样式） */}
-                  <span className="filter-count ml-1.5 text-[12px]">{all.length}</span>
+                  <span className="filter-count ml-1.5 text-[12px]"
+                    data-filter-option-count>{all.length}</span>
                 </FilterLink>
                 {categories.map((c) => (
                   <FilterLink
@@ -64,7 +65,8 @@ export default async function AgentsPage() {
                     className="rounded-full bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-ink-2)] ring-1 ring-[var(--color-line)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
                   >
                     {c.name}
-                    <span className="filter-count ml-1.5 text-[12px]">
+                    <span className="filter-count ml-1.5 text-[12px]"
+                    data-filter-option-count>
                       {all.filter((a) => a.category === c.slug).length}
                     </span>
                   </FilterLink>
@@ -76,6 +78,7 @@ export default async function AgentsPage() {
               <SearchField
                 param="q"
                 basePath="/agents"
+                label="搜索智能体"
                 placeholder="搜索智能体名称、能力或标签"
                 className="w-full max-w-sm"
               />
@@ -84,7 +87,8 @@ export default async function AgentsPage() {
 
           <div className="mt-8 flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-[20px] font-semibold text-[var(--color-brand-navy)]">智能体目录</h2>
-            <p className="text-[13px] text-[var(--color-ink-3)]">
+            {/* role=status：筛选后条数变化时由读屏播报 */}
+            <p role="status" className="text-[13px] text-[var(--color-ink-3)]">
               共 <span data-filter-count>{all.length}</span> 个智能体
             </p>
           </div>

@@ -17,7 +17,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { matchItems, searchItemText, type SearchItem } from '@/lib/search/matcher';
+import { countMatchesByKey, matchItems, searchItemText, type SearchItem } from '@/lib/search/matcher';
 import { buildSearchIndex } from '@/lib/search';
 import { agentToSearchItem, marketToSearchItem } from '@/lib/search/items';
 import { seedAgents, seedCourses, seedMarket, seedNews } from '@/lib/data/seed';
@@ -143,6 +143,45 @@ describe('matchItems · 匹配规则', () => {
     const hit = matchItems(items, { q: '智能体' });
     assert.equal(hit.length, 1);
     assert.equal(hit[0].href, '/agents/feishu');
+  });
+
+  test('空白不敏感：搜「集智AI」= 搜「集智 AI」', () => {
+    // 用户手打经常漏掉或多加空格；中文里空格通常不承载语义。
+    const fixture: SearchItem[] = [
+      { type: 'agent', typeLabel: '智能体', title: '集智 AI 社区助手', summary: '', href: '/agents/x' },
+    ];
+    assert.equal(matchItems(fixture, { q: '集智AI' }).length, 1);
+    assert.equal(matchItems(fixture, { q: '集智 AI' }).length, 1);
+    assert.equal(matchItems(fixture, { q: '集  智   AI' }).length, 1);
+    assert.equal(matchItems(fixture, { q: 'AI社区' }).length, 1);
+  });
+
+  test('纯空白的查询词等于没有查询（不能匹配到全部）', () => {
+    const fixture: SearchItem[] = [
+      { type: 'agent', typeLabel: '智能体', title: 'A', summary: '', href: '/agents/a' },
+    ];
+    assert.equal(matchItems(fixture, { q: '   ' }).length, 1, '空查询 = 不过滤');
+    assert.equal(matchItems(fixture, { q: '' }).length, 1);
+  });
+
+  test('分类计数随关键词实时更新（点「智能体 29」不能得到 0 条）', () => {
+    const entries = [
+      { key: 'agent', text: '飞书 智能协作办公套件' },
+      { key: 'agent', text: '钉钉 AI 助理' },
+      { key: 'market', text: '选品数据分析' },
+    ];
+    // 无关键词：就是各类总数
+    const all = countMatchesByKey(entries, '');
+    assert.equal(all.total, 3);
+    assert.equal(all.byKey.get('agent'), 2);
+    assert.equal(all.byKey.get('market'), 1);
+    // 搜「飞书」：只有 agent 还有 1 条
+    // 注意契约：Map 里**没有命中的分类不会建键**（= undefined），
+    // 调用方按 `?? 0` 取值 —— 与 FilterRoot 里的写法一致。
+    const q = countMatchesByKey(entries, '飞书');
+    assert.equal(q.total, 1);
+    assert.equal(q.byKey.get('agent'), 1);
+    assert.equal(q.byKey.get('market') ?? 0, 0);
   });
 
   test('typeSearch 优先于 typeLabel 参与匹配', () => {

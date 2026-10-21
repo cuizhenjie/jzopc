@@ -17,9 +17,6 @@ export const runtime = 'nodejs';
  */
 export const dynamic = 'force-dynamic';
 
-/** 索引数据缓存窗口（10 分钟），与 `/search` 页面的 revalidate 对齐 */
-export const revalidate = 600;
-
 /**
  * `GET /api/search?q=关键词&type=agent|market|course|news`
  *

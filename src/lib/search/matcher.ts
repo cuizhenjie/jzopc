@@ -78,23 +78,68 @@ export function searchItemText(item: SearchItem): string {
 }
 
 /**
+ * 检索文本归一化：小写 + **去掉所有空白**。
+ *
+ * 中文里空格通常不承载语义，而用户手打时经常漏掉或多加：
+ * 搜「集智AI」应该和搜「集智 AI」得到同样的结果，
+ * 搜「集智  AI」（多个空格）也一样。
+ */
+export function normalizeForMatch(text: string): string {
+  return text.toLowerCase().replace(/\s+/g, '');
+}
+
+/**
+ * 归一化后的子串匹配。
+ *
+ * 页面（`FilterRoot`）与接口（`matchItems`）**必须调用同一个函数**，
+ * 否则「页面上搜得到、接口搜不到」或反之。
+ */
+export function textMatches(text: string, query: string): boolean {
+  const q = normalizeForMatch(query);
+  if (!q) return true;
+  return normalizeForMatch(text).includes(q);
+}
+
+/**
+ * 按关键词统计各分类的命中数（用于筛选条上的分类计数）。
+ *
+ * **为什么要实时更新**：筛选条上的「智能体 29」如果是**静态总数**，
+ * 用户搜「飞书」之后再去点「智能体」，计数写着 29、点进去却是 0 条 ——
+ * 这是坏的交互。计数应当反映「在当前关键词下该分类还能命中多少」。
+ *
+ * `key` 为空串表示「全部」。
+ */
+export function countMatchesByKey(
+  entries: Array<{ key: string; text: string }>,
+  query: string,
+): { byKey: Map<string, number>; total: number } {
+  const byKey = new Map<string, number>();
+  let total = 0;
+  for (const entry of entries) {
+    if (!textMatches(entry.text, query)) continue;
+    total += 1;
+    byKey.set(entry.key, (byKey.get(entry.key) ?? 0) + 1);
+  }
+  return { byKey, total };
+}
+
+/**
  * 按关键词与类型过滤条目。
  *
  * - `q` 为空 → 不做文本过滤；
- * - `q` 非空 → 对 title + summary + category + keywords 做**大小写不敏感**的子串匹配；
+ * - `q` 非空 → 对可检索文本做**大小写与空白都不敏感**的子串匹配；
  * - `type` 为空或 `'all'` → 不过滤类型，否则按 type 精确相等。
  */
 export function matchItems(
   items: SearchItem[],
   opts: { q?: string; type?: string } = {},
 ): SearchItem[] {
-  const q = (opts.q ?? '').trim().toLowerCase();
+  const q = opts.q ?? '';
   const rawType = (opts.type ?? '').trim().toLowerCase();
   const type = !rawType || rawType === 'all' ? '' : rawType;
 
   return items.filter((item) => {
     if (type && item.type !== type) return false;
-    if (!q) return true;
-    return searchItemText(item).toLowerCase().includes(q);
+    return textMatches(searchItemText(item), q);
   });
 }
