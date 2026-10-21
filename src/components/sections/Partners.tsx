@@ -5,9 +5,13 @@ export default function Partners({ names }: { names: string[] }) {
         <span className="section-eyebrow">产业生态</span>
         <h2>生态伙伴</h2>
       </div>
-      <ul className="partner-wordmarks">
-        {names.map((name) => <li key={name}>{name}</li>)}
-      </ul>
+      <div className="partner-marquee">
+        {/* 两份名单首尾相接做无缝循环；第二份对读屏隐藏 */}
+        <ul className="partner-track">
+          {names.map((name) => <li key={name}>{name}</li>)}
+          {names.map((name) => <li key={`${name}-dup`} aria-hidden="true">{name}</li>)}
+        </ul>
+      </div>
     </div>
   );
 }

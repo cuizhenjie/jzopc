@@ -14,9 +14,12 @@ export default function Hero() {
     <section data-nav-theme="dark" className="home-hero">
       <div className="hero-shell site-container">
         <div className="hero-copy">
-          <p className="hero-kicker">集智 AI OPC 社区</p>
+          <p className="hero-kicker"><span className="live-dot" aria-hidden="true" />集智 AI OPC 社区</p>
           <p className="hero-audience">面向 AI 创业团队与「一人公司」</p>
-          <h1>集众智之力，<br />启 <span className="hero-ai">AI</span> 未来</h1>
+          <h1>
+            <span className="hero-line"><span className="hero-line-inner">集众智之力，</span></span>
+            <span className="hero-line"><span className="hero-line-inner">启 <span className="hero-ai">AI</span> 未来</span></span>
+          </h1>
           <p className="hero-description">
             一站式 AI 应用综合赋能平台，为创业者提供空间、算力、技术、培训、流量、订单、企业服务、资本政策全方位的支持。
           </p>
@@ -30,6 +33,10 @@ export default function Hero() {
           </div>
         </div>
         <div className="hero-art" aria-hidden="true">
+          <svg className="hero-rings" viewBox="0 0 600 600" aria-hidden="true">
+            <circle className="hero-ring hero-ring-a" cx="300" cy="300" r="232" />
+            <circle className="hero-ring hero-ring-b" cx="300" cy="300" r="284" />
+          </svg>
           <ThreeErrorBoundary fallback={<StaticNebula className="absolute inset-0" />}>
             <HeroScene />
           </ThreeErrorBoundary>

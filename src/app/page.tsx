@@ -87,6 +87,10 @@ export default async function HomePage() {
       )}
 
       <Section tone="navy" className="home-cta">
+        <svg className="cta-rings" viewBox="0 0 640 640" aria-hidden="true">
+          <circle className="cta-ring cta-ring-a" cx="320" cy="320" r="238" />
+          <circle className="cta-ring cta-ring-b" cx="320" cy="320" r="300" />
+        </svg>
         <div className="cta-layout">
           <div><span className="section-eyebrow">申请入驻</span><h2>把创业缺的<br />每一环提前铺好</h2></div>
           <div className="cta-content">

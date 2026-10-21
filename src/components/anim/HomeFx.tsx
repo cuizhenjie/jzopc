@@ -17,7 +17,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  * 包含：
  * 1. Hero 入场时间线（kicker → 标题 → 描述 → 按钮 → 数据条 → 3D 场景淡入）
  * 2. Hero 指针视差 + 滚动视差（3D 星球随指针漂移、随滚动远离）
- * 3. 各区块滚动揭示（标题组 / 服务列表 / 编辑列表 / 合作伙伴 / 新闻）
+ * 3. 各区块滚动揭示（标题组 / 赋能卡片 / 编辑列表 / 伙伴跑马灯 / 新闻）
  * 4. 数据条数字滚动（data-stat-value，SSR 输出终值，滚动到后从 0 计起）
  */
 export default function HomeFx({ children }: { children: ReactNode }) {
@@ -44,8 +44,12 @@ export default function HomeFx({ children }: { children: ReactNode }) {
             tl.from('.hero-kicker', { y: 16, opacity: 0, duration: 0.55 });
           if (has('.hero-audience'))
             tl.from('.hero-audience', { y: 12, opacity: 0, duration: 0.5 }, '-=0.35');
-          if (has('.hero-copy h1'))
-            tl.from('.hero-copy h1', { y: 42, opacity: 0, duration: 1 }, '-=0.25');
+          if (has('.hero-line-inner'))
+            tl.from(
+              '.hero-line-inner',
+              { yPercent: 115, duration: 1, stagger: 0.12 },
+              '-=0.25',
+            );
           if (has('.hero-description'))
             tl.from('.hero-description', { y: 22, opacity: 0, duration: 0.7 }, '-=0.6');
           if (has('.hero-actions > a'))
@@ -127,6 +131,7 @@ export default function HomeFx({ children }: { children: ReactNode }) {
           rise('.advantage-block');
           rise('.cta-layout > div', 26);
           rise('.partners-heading', 22);
+          rise('.partner-marquee', 18);
 
           const batch = (sel: string, vars: gsap.TweenVars) => {
             if (!has(sel)) return;
@@ -137,9 +142,8 @@ export default function HomeFx({ children }: { children: ReactNode }) {
                 gsap.from(els, { ease: 'power3.out', overwrite: true, ...vars }),
             });
           };
-          batch('.service-list > li', { y: 28, opacity: 0, duration: 0.7, stagger: 0.07 });
+          batch('.empower-grid > li', { y: 28, opacity: 0, duration: 0.7, stagger: 0.07 });
           batch('.editorial-list li', { y: 14, opacity: 0, duration: 0.5, stagger: 0.05 });
-          batch('.partner-wordmarks li', { y: 18, opacity: 0, duration: 0.6, stagger: 0.05 });
           batch('.support-link', { y: 16, opacity: 0, duration: 0.5, stagger: 0.06 });
           batch('.news-row', { y: 22, opacity: 0, duration: 0.65, stagger: 0.08 });
 
