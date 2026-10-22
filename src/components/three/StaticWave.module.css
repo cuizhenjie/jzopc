@@ -1,0 +1,55 @@
+/* 纯 CSS 的「数字海洋」占位：与 WaveGrid 同构图 —— 上 1/3 地平线微光，
+   下方 rotateX 点阵向远处收密，SSR / 静态档 / 低端设备像素完整。 */
+.sea {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 24%;
+  width: 80%;
+  aspect-ratio: 1.6;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, #1d7fba1e 0, #57b6a50d 46%, transparent 72%);
+}
+.horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34%;
+  height: 90px;
+  background: linear-gradient(180deg, transparent, #64c4d912 55%, transparent);
+  filter: blur(1px);
+}
+/* 透视点阵：一张点纹平面绕 X 轴倒下，行距向地平线压缩 */
+.floor {
+  position: absolute;
+  left: -60%;
+  top: 34%;
+  width: 220%;
+  height: 150%;
+  transform-origin: 50% 0;
+  transform: perspective(520px) rotateX(58deg);
+  background-image: radial-gradient(circle, #57b6a5a8 0.8px, transparent 1.3px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, transparent 0, #000 26%, #000 76%, transparent 96%);
+}
+/* 近景补一层更大更亮的点，强化纵深 */
+.floorNear {
+  position: absolute;
+  left: -40%;
+  top: 62%;
+  width: 180%;
+  height: 90%;
+  transform-origin: 50% 0;
+  transform: perspective(520px) rotateX(62deg);
+  background-image: radial-gradient(circle, #1aa8d3a3 1.1px, transparent 1.7px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(180deg, transparent 0, #000 30%, #000 72%, transparent 95%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sea, .sea * { transition: none; }
+}

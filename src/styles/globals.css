@@ -252,8 +252,15 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .mobile-apply { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-top: 24px; border-radius: 8px; background: var(--color-brand-blue-deep); color: #fff; padding-inline: 20px; }
 
 /* Homepage hero */
-.home-hero { position: relative; isolation: isolate; overflow: hidden; background: var(--color-brand-navy); color: #fff; }
+/* 首页「数字海洋」fixed 背景层：负 z-index 让它落在所有静态区块背景之下，
+   白色区块自动遮盖，hero 与底部 CTA 背景透明即可透出（openhex wave-grid 模式）。
+   亮暗节奏由 HomeFx 的 ScrollTrigger 驱动；no-JS / 降级档显示 StaticWave 占位。 */
+.home-wave-layer { position: fixed; inset: 0; z-index: -1; pointer-events: none; filter: brightness(1); background: linear-gradient(180deg, var(--color-brand-navy) 0%, #152e56 70%, #0e3769 100%); }
+.home-wave-inner { position: absolute; inset: 0; }
+.home-hero { position: relative; isolation: isolate; overflow: hidden; background: transparent; color: #fff; }
 .hero-shell { position: relative; min-height: 760px; }
+/* 文案区轻纱：让 H1/kicker 落在更沉的远海上，波海亮峰只在中下景 */
+.home-hero::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgb(14 37 66 / 42%) 0%, rgb(14 37 66 / 12%) 34%, transparent 58%); }
 .hero-copy { position: relative; z-index: 2; width: 55%; max-width: 640px; padding-top: 155px; padding-bottom: 155px; }
 .hero-kicker { font-size: 14px; font-weight: 600; letter-spacing: .12em; color: #fff; }
 .hero-audience { margin-top: 8px; font-size: 12px; letter-spacing: .04em; color: rgb(255 255 255 / 62%); }
@@ -363,7 +370,7 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .news-row p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 8px; color: var(--color-ink-3); font-size: 12px; line-height: 1.8; }
 .news-row-arrow { position: absolute; top: 57px; right: 0; color: var(--color-brand-blue-deep); font-size: 23px; }
 .news-row:hover h3, .news-feature:hover h3 { color: var(--color-brand-blue-deep); }
-.home-cta { position: relative; overflow: hidden; }
+.home-cta { position: relative; overflow: hidden; background: transparent !important; } /* 底色由波海层透出 */
 .cta-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 80px; align-items: center; }
 .cta-layout .section-eyebrow { color: var(--color-gradient-to); }
 .cta-layout h2 { color: #fff; font-size: 42px; }

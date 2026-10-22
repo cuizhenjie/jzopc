@@ -4,12 +4,21 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Suspense, useEffect, useRef, type ReactNode } from 'react';
 import type { DeviceProfile } from './quality';
 
+/** 覆盖项缺省时沿用 Hero 场景的默认相机；wave 等场景按构图注入俯视机位。 */
+export type SceneCameraProps = {
+  position?: [number, number, number];
+  fov?: number;
+  near?: number;
+  far?: number;
+};
+
 type ShaderCanvasProps = {
   children: ReactNode;
   profile: DeviceProfile;
   active: boolean;
   onReady: () => void;
   onContextLost: () => void;
+  cameraProps?: SceneCameraProps;
 };
 
 function SceneLifecycle({ onReady, onContextLost }: Pick<ShaderCanvasProps, 'onReady' | 'onContextLost'>) {
@@ -43,14 +52,14 @@ function SceneLifecycle({ onReady, onContextLost }: Pick<ShaderCanvasProps, 'onR
 }
 
 /** Receives the existing device profile: no duplicate GPU capability probes. */
-export default function ShaderCanvas({ children, profile, active, onReady, onContextLost }: ShaderCanvasProps) {
+export default function ShaderCanvas({ children, profile, active, onReady, onContextLost, cameraProps }: ShaderCanvasProps) {
   if (!profile.hasWebGL2 || profile.tier === 'static') return null;
   return (
     <Canvas
       dpr={profile.dpr}
       frameloop={active ? 'always' : 'never'}
       gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
-      camera={{ position: [0, 0, 6], fov: 44, near: 0.1, far: 20 }}
+      camera={{ position: [0, 0, 6], fov: 44, near: 0.1, far: 20, ...cameraProps }}
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
       <SceneLifecycle onReady={onReady} onContextLost={onContextLost} />

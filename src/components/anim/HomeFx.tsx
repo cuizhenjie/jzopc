@@ -18,7 +18,8 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  * 1. Hero 入场时间线（kicker → 标题 → 描述 → 按钮 → 数据条 → 3D 场景淡入）
  * 2. Hero 指针视差 + 滚动视差（3D 星球随指针漂移、随滚动远离）
  * 3. 各区块滚动揭示（标题组 / 赋能卡片 / 编辑列表 / 伙伴跑马灯 / 新闻）
- * 4. 数据条数字滚动（data-stat-value，SSR 输出终值，滚动到后从 0 计起）
+ * 4. 数据条数字滚动（data-stat-value，SSR 输出终值，滚动到后从 0 起计）
+ * 5. 波海背景层节奏（入场淡入；滚出 hero 压暗，底部 CTA 复现 —— openhex wave-grid 模式）
  */
 export default function HomeFx({ children }: { children: ReactNode }) {
   const scope = useRef<HTMLDivElement>(null);
@@ -70,6 +71,12 @@ export default function HomeFx({ children }: { children: ReactNode }) {
               { y: 16, opacity: 0, duration: 0.5, stagger: 0.08 },
               '-=1',
             );
+          if (has('.home-wave-inner'))
+            tl.from(
+              '.home-wave-inner',
+              { opacity: 0, duration: 1.6, ease: 'power2.out' },
+              0.2,
+            );
 
           /* ── 2. Hero 视差 ─────────────────────────────── */
           // 滚动：3D 星球下沉淡出，文案轻微上移，拉出纵深
@@ -95,6 +102,41 @@ export default function HomeFx({ children }: { children: ReactNode }) {
                 scrub: true,
               },
             });
+          }
+
+          /* ── 2.5 波海背景层节奏 ────────────────────── */
+          // 滚出 hero：海面压暗退场（白区本就被实心底遮盖，此处管透出区的观感）；
+          // 底部 navy CTA 进入：海面复现并回到全亮。immediateRender:false 让每段
+          // 的起点值在其滚动区间首次激活时才锁定，三段互不覆盖。
+          if (has('.home-wave-layer') && has('.home-hero')) {
+            gsap.to('.home-wave-layer', {
+              opacity: 0.12,
+              filter: 'brightness(0.6)',
+              ease: 'none',
+              immediateRender: false,
+              scrollTrigger: {
+                trigger: '.home-hero',
+                start: 'bottom 72%',
+                end: 'bottom 22%',
+                scrub: true,
+              },
+            });
+            const cta = q('.home-cta')[0];
+            if (cta) {
+              gsap.to('.home-wave-layer', {
+                // CTA 之下是白色 body，半透明会把海面洗白、伤白字对比度 → 回到不透明
+                opacity: 1,
+                filter: 'brightness(1)',
+                ease: 'none',
+                immediateRender: false,
+                scrollTrigger: {
+                  trigger: cta,
+                  start: 'top 88%',
+                  end: 'top 38%',
+                  scrub: true,
+                },
+              });
+            }
           }
 
           // 指针：仅精确指针设备（鼠标/触控板），quickTo 平滑跟随

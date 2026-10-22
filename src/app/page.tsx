@@ -11,6 +11,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { getNewsPosts, getPartners, getStats } from '@/lib/queries';
 import { site } from '@/lib/site/config';
+import WaveField from '@/components/three/WaveField';
 
 export const metadata: Metadata = {
   title: `${site.name} · ${site.slogan}`,
@@ -26,6 +27,8 @@ export default async function HomePage() {
 
   return (
     <HomeFx>
+      {/* 数字海洋 fixed 背景层：hero 与底部 CTA 透出，白区被实心底遮盖（z-index:-1） */}
+      <WaveField />
       <Hero />
       <Section size="sm" className="home-stats-section"><StatsBar stats={stats} /></Section>
 
@@ -86,7 +89,7 @@ export default async function HomePage() {
         </Section>
       )}
 
-      <Section tone="navy" className="home-cta">
+      <Section id="apply-cta" tone="navy" className="home-cta">
         <svg className="cta-rings" viewBox="0 0 640 640" aria-hidden="true">
           <circle className="cta-ring cta-ring-a" cx="320" cy="320" r="238" />
           <circle className="cta-ring cta-ring-b" cx="320" cy="320" r="300" />

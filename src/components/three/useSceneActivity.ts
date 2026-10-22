@@ -27,11 +27,15 @@ export function observeSceneActivity(
   };
 }
 
-export function useSceneActivity(ref: RefObject<HTMLElement | null>): boolean {
+/**
+ * @param pauseOffscreen 视口外是否暂停；全屏 fixed 层（如首页波海）恒在视口，
+ *   传 false 只跟随页面可见性暂停。
+ */
+export function useSceneActivity(ref: RefObject<HTMLElement | null>, pauseOffscreen = true): boolean {
   const [active, setActive] = useState(false);
   useEffect(() => {
     if (!ref.current) return;
-    return observeSceneActivity(ref.current, setActive);
-  }, [ref]);
+    return observeSceneActivity(ref.current, setActive, pauseOffscreen);
+  }, [ref, pauseOffscreen]);
   return active;
 }
