@@ -39,3 +39,8 @@ desktop.ini
 
 # 裸机部署产物（由 pnpm prepare:deploy 生成）
 deploy/
+
+# 本地工具产物（会话/审计/视频代理，不属于站点源码）
+.mimosa/
+.video_agent/
+.zcode/

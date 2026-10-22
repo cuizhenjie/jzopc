@@ -19,7 +19,7 @@ pnpm build && pnpm start   # 生产（默认 3000 端口）
 
 ```bash
 # 构建机：域名必须在**构建期**带上（NEXT_PUBLIC_* 是内联的）
-NEXT_PUBLIC_SITE_URL=https://正式域名 pnpm build:deploy   # standalone 产物
+NEXT_PUBLIC_SITE_URL=https://t.3cool.cc pnpm build:deploy   # standalone 产物
 pnpm prepare:deploy                                       # 组装自包含的 deploy/ 目录（约 68 MB）
 
 # 服务器：只要 node ≥20，不要 pnpm、不要源码、不要项目 node_modules
@@ -67,13 +67,14 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 | [`docs/05-全国OPC社区与商业楼宇平台竞品事实.md`](docs/05-全国OPC社区与商业楼宇平台竞品事实.md) | **证据层**（1244 行）：14 节事实底稿，每条标注来源与 URL，冲突口径并列不做单方裁决 |
 | [`docs/07-UI优化与性能验收.md`](docs/07-UI优化与性能验收.md) | UI 与性能优化轮次：设计转向（单画布、编辑式排版、延后加载）、本轮性能基线与**逐条实测结果**（含「本机 ≠ 公网」的测量条件说明） |
 | [`docs/08-roadmap.md`](docs/08-roadmap.md) | **产品与技术路线图**：里程碑总览、上线阻塞项（内容缺口 / 待输入 / 待拍板）、可直接开工项、技术债、实机调研清单 |
+| [`docs/09-生产环境复核报告.md`](docs/09-生产环境复核报告.md) | 对《整改优化开发 MVP 计划 v2》的**生产环境复核**：34 项声明逐条实测、13 处数字修订、4 条文档未覆盖的重要事实（生产已有活着的 R3F 粒子层 / 部署形态是 Coze FaaS 非 Docker / partners 页同样纯文字 / admin 后台在建）、排期修订为 11 人日 |
 | [`docs/06-视觉方案与3D动效规范.md`](docs/06-视觉方案与3D动效规范.md) | 视觉总纲、色彩系统、排版栅格、3D 粒子动效规范（含实测调优后的最终参数）、页面级视觉矩阵、组件规范、可访问性与验收清单 |
 | [`findings.md`](findings.md) | 从 docx 提取的原始事实、品牌色板实测值、**14 项内容缺口与矛盾清单**（G13 已补 docx 原文证据） |
 | [`task_plan.md`](task_plan.md) | 规划过程的任务清单与范围决策记录 |
 
 ## 已实现的页面
 
-`/` · `/about` `/about/history` `/about/audience` `/about/partners` · `/empower/[slug]`（8 个赋能页） · `/agents` `/agents/[slug]` · `/market` `/market/[slug]` · `/academy` `/academy/courses/[slug]` · `/news` `/news/[slug]` · `/traffic` · `/apply` · `/search`（站内搜索） · `/ops/leads`（线索看板） · `/api/leads`（留资） · `/api/ops/leads`（线索状态） · `/api/search`（站内检索） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` · `not-found`
+`/` · `/about` `/about/history` `/about/audience` `/about/partners` · `/empower/[slug]`（8 个赋能页） · `/agents` `/agents/[slug]` · `/market` `/market/[slug]` · `/academy` `/academy/courses/[slug]` · `/news` `/news/[slug]` · `/traffic` · `/apply` · `/search`（站内搜索） · `/admin` `/admin/login` `/admin/leads` `/admin/news`（管理后台，管理员账号登录 + shader 背景层，noindex） · `/ops/leads`（旧看板 → 301 跳转 `/admin/leads`） · `/api/leads`（留资） · `/api/admin/session`（后台登录/登出） · `/api/admin/leads/[id]`（线索状态/备注/删除） · `/api/admin/leads/export`（线索 CSV） · `/api/admin/news[/id]`（新闻 CRUD） · `/api/search`（站内检索） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` · `not-found`
 
 ## 质量基线（实测）
 
@@ -100,13 +101,13 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 | 3D 方案 | 粒子层自写 GLSL（three+R3F 251.6KB gzip）+ 背景层用 Paper `MeshGradient`（11.6KB gzip） | **`shaders@4.0.4` 是 WebGPU-only（727.5KB gzip）且无 WebGL 降级**，微信内置浏览器大概率透明 |
 | 降级链 | 五级分叉：完整 → 低档 → 仅 three → 静态 → 无 JS | fallback 与 canvas 必须等尺寸，防 CLS |
 | 数据层 | Supabase 优先，未配置自动回落种子数据 | 开箱可跑，接真库不改调用方 |
-| 后台线索 | `/ops/leads` 用 `OPS_TOKEN` + `timingSafeEqual` + `service_role` | 已登记为技术债 R1，二期换 Supabase Auth + 角色表 |
+| 后台线索 | `/admin` 管理后台（线索/新闻 CRUD）用**管理员账号**（`admin_users` 表，scrypt 密码）+ HMAC 签名 httpOnly 会话 + `service_role`，登录带 IP 限流；OPS_TOKEN 降级为恢复主口令通道 | R1 的账号化已落地；多角色细粒度权限留给后续 |
 | RLS | `leads` 表**零 anon insert 策略**；`site_stats`/`agent_categories` 无 `published` 列、`news_posts` 用 `status` | 逐表显式策略，见 `supabase/migrations/0002_rls.sql` |
 | 滚动揭示 | 服务端可见 + 客户端渐进增强 | framer-motion `whileInView` 会让 SSR HTML 里内容 `opacity:0` |
 | 列表页渲染 | **静态渲染 + 客户端筛选**（`FilterRoot` / `FilterLink`） | 列表页若在服务端 `await searchParams` 会走动态渲染，Next.js 把 `<title>`/`<meta description>` flush 到 `</body>` 之后，**搜索引擎读不到**（实测 3 个页面中招）；改为服务端渲染全部条目 + 客户端过滤后，全部公开页面的 metadata 都回到 `<head>` |
 | 浅底可读蓝 | `--color-brand-blue-deep` = `#0968AB`（品牌渐变起始色） | 主蓝 `#1D7FBA` 在白底仅 4.38:1，达不到 AA 正文 4.5:1；详见 `docs/06` §2.3 |
 | OG 图中文字体 | Noto Sans SC **子集版 1.71MB**（GB2312 全集 + 拉丁 + 标点 + 全角） | `next/og` 自带字体只有拉丁字符，中文会变豆腐块；子集化把函数包体积降 78.5%，许可与子集说明见 `src/app/api/og/fonts/OFL.txt` |
-| 后台口令 | `/ops/leads` 用 `OPS_TOKEN` + `timingSafeEqual` + `service_role` | 已登记为技术债 R1，二期换 Supabase Auth + 角色表；**口令绝不进 URL**（邮件通知只给看板地址） |
+| 后台口令 | `/admin/login` 支持**管理员账号**（用户名+scrypt 密码，`pnpm admin:create` 建号/改密/停用）与 **OPS_TOKEN 恢复主口令**两条通道；会话为 HMAC 签名自包含 token（7 天），cookie 不含任何口令；登录接口 15 分钟 5 次 IP 限流；`admin_users` 表 RLS 零策略（仅 service_role 可读） | 密码只存 scrypt 哈希；密钥轮换自动使全部会话失效；**口令绝不进 URL**（通知邮件只给后台地址） |
 | 种子数据 | 智能体/合作企业为**明确标注的示例数据** | 不臆造真实合作方与智能体清单，正式清单待业务方采集替换 |
 | 数据访问 | Supabase 优先，未配置自动回落种子；**回落会掩盖列名错配**，故由 `test/db-schema-contract.test.ts` + 真实 PG 冒烟测试双重兜底 | 本地「一切正常」不代表接真库也正常 —— 2026-10-20 的 `body_md` 错配就是这么藏了很久 |
 | 数据库授权 | `0002_rls.sql` 里**显式**写 grant，不依赖 Supabase 平台默认值 | 迁移自洽、换自建 Postgres 不漏授权，也才能在裸 PG 上验证 RLS |

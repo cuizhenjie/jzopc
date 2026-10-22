@@ -8,14 +8,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/ops', '/api', '/_next'],
+        disallow: ['/admin', '/ops', '/api', '/_next'],
       },
       {
-        // LLM 站点摘要：明确放行，便于 AI 助手 / 检索工具抓取
-        userAgent: '*',
-        allow: ['/llms.txt', '/llm.txt'],
+        // 常见 AI 训练 / 检索爬虫：内容页与 llms.txt 全量放行（AI SEO）
+        userAgent: ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'PerplexityBot', 'Google-Extended', 'Applebot-Extended', 'CCBot', 'Bytespider', 'Amazonbot'],
+        allow: '/',
       },
     ],
     sitemap: `${base}/sitemap.xml`,
+    host: base,
   };
 }
