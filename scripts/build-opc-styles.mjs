@@ -148,6 +148,30 @@ for (const name of sheets) {
 }
 combined.walkAtRules((rule) => { if (!rule.nodes?.length && /^(media|supports|layer|container)$/.test(rule.name)) rule.remove(); });
 
+// Scroll-reveal gates. The reference site relied on runtime JS to append `.revealed`
+// as blocks entered the viewport; that script is deliberately not shipped, so every
+// "base opacity:0 / transform offset, restored by `.revealed`" pair would keep whole
+// card grids invisible (tool/course/opc/news/resource/rental/advantage/scenario/
+// supply/demand/cta/event cards, sec-heads, stat items, process steps…).
+// Collect the gated classes from the `.revealed` selectors, then neutralize the
+// hidden base state in place — scope stays exact, and no unrelated rule moves.
+const gatedClasses = new Set();
+combined.walkRules((rule) => {
+  if (!rule.selector.includes('.revealed')) return;
+  for (const match of rule.selector.matchAll(/\.([a-zA-Z_][\w-]*)/g)) {
+    if (match[1] !== 'revealed' && match[1] !== 'opc-replica') gatedClasses.add(match[1]);
+  }
+});
+combined.walkRules((rule) => {
+  if (rule.selector.includes('.revealed')) return;
+  const own = [...rule.selector.matchAll(/\.([a-zA-Z_][\w-]*)/g)].map((match) => match[1]);
+  if (!own.some((name) => gatedClasses.has(name))) return;
+  rule.walkDecls((decl) => {
+    if (decl.prop === 'opacity' && parseFloat(decl.value) === 0) decl.value = '1';
+    if (decl.prop === 'transform' && /translate|scale|rotate/.test(decl.value)) decl.value = 'none';
+  });
+});
+
 // Only Latin glyphs are used from the reference display fonts. Store two small
 // variable-font files locally; Chinese text uses the operating-system font.
 try {

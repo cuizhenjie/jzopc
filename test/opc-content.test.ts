@@ -54,7 +54,7 @@ test('city variants retain their source descriptions and global contact address'
   assert.match(page.html, /北京市丰台区西马场甲14号/);
   assert.doesNotMatch(page.html, /上海市鼓楼区/);
   // 社区名里的运营方品牌已换成本站品牌（OPC 作为业务概念词保留）
-  assert.match(page.html, /松江大学城科创源·集智AI OPC社区/);
+  assert.match(page.html, /松江大学城科创源·集智 AI OPC 社区/);
   assert.equal(getReplicaPage('/zone', { city: '<script>' })?.title, getReplicaPage('/zone')?.title);
 });
 
@@ -231,7 +231,8 @@ test('replica page titles and llms.txt carry this site brand', () => {
   assert.ok(article, 'article 392 should resolve');
   const detail = getReplicaPage('/newsdetail', { id: '392' });
   assert.ok(detail, 'newsdetail should resolve');
-  assert.match(detail.title, /集智AI/);
+  assert.match(detail.title, /集智 ?AI/);
   assert.doesNotMatch(detail.title, /同橙/);
-  assert.ok(detail.title.endsWith('集智AI OPC社区平台'), detail.title);
+  // 站名口径以《集智AI 网站.docx》为准：集智 AI OPC 社区（无「平台」后缀）
+  assert.ok(detail.title.endsWith('集智 AI OPC 社区'), detail.title);
 });

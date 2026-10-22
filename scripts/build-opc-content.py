@@ -31,6 +31,9 @@ FORM_TYPES = {"community", "contact", "training", "star", "partner", "demand", "
 QUERY_KEYS = {"id", "formType", "city", "tab", "category", "q", "page", "serverName", "serverCompute", "serverPrice", "rentalType"}
 # 本站自有媒体（品牌标记 / 科技蓝主视觉）：来自 public/，不从原站下载，需在净化器中显式放行。
 LOCAL_MEDIA = {"/logo-mark.svg", "/logo-mark-inverse.svg"} | {f"/opc/hero-{name}.svg" for name in ("grid", "flow", "orbit", "waves")}
+# 本站主站路由（不在复刻路由集 paths 里）：复刻页链接到主站页面时放行，
+# 否则 safe_url 会按原站 BASE 把它们拼成绝对地址。
+LOCAL_LINKS = {"/empower/space"}
 
 
 @dataclass
@@ -148,11 +151,13 @@ OPERATOR_ADDRESS_LONG = "南京市鼓楼区古平岗4号智梦园B座"
 OPERATOR_ICP = "苏ICP备2026012874号"
 
 BRAND_RULES = [
-    ("同橙OPC社区平台", "集智AI OPC社区平台"),
-    ("同橙 OPC 社区平台", "集智AI OPC 社区平台"),
-    ("同橙OPC社区", "集智AI OPC社区"),
-    ("同橙 OPC 社区", "集智AI OPC 社区"),
-    ("同橙OPC", "集智AI OPC"),
+    # 站名口径以《集智AI 网站.docx》为准：「集智 AI OPC 社区」（主站 config.name 同源）。
+    # 原映射目标带的「平台」后缀与无空格写法均与 Word 口径不一致，统一收敛。
+    ("同橙OPC社区平台", "集智 AI OPC 社区"),
+    ("同橙 OPC 社区平台", "集智 AI OPC 社区"),
+    ("同橙OPC社区", "集智 AI OPC 社区"),
+    ("同橙 OPC 社区", "集智 AI OPC 社区"),
+    ("同橙OPC", "集智 AI OPC"),
     ("同橙 AI 学院", "集智AI 学院"),
     ("同橙AI学院", "集智AI学院"),
     ("同橙科创产业发展集团", "集智AI 产业发展集团"),
@@ -179,7 +184,15 @@ BRAND_RULES = [
     ("http://t.3cool.cc", SITE_URL),
     ("t.3cool.cc", SITE_DOMAIN),
     # 「算力超市」外链：原站指向 ai.opcstore.com → 本站。
-    # ⚠️ `shanghai.opcstore.com` 等社区链接**不含**本串，不会被误伤。
+    # ⚠️ **先消化城市子域名再匹配本条**：`shanghai.opcstore.com` 里含有
+    # `ai.opcstore.com` 子串（shang·HAI.OPC·store…），直排替换会把它撕成
+    # `shangth.jimei.cn` 这种残链（社区页「上海」入口实测中招）。
+    # 页面上的城市入口链接由 `localize_operator_links()` 归位到 `/zone?city=…`，
+    # 这里兜底处理散落在正文文字里的城市域名引用。
+    ("https://shanghai.opcstore.com", SITE_URL),
+    ("shanghai.opcstore.com", SITE_DOMAIN),
+    ("https://nanjing.opcstore.com", SITE_URL),
+    ("nanjing.opcstore.com", SITE_DOMAIN),
     ("https://ai.opcstore.com", "https://th.jimei.cn"),
     ("http://ai.opcstore.com", "https://th.jimei.cn"),
     ("ai.opcstore.com", "th.jimei.cn"),
@@ -189,6 +202,7 @@ BRAND_RULES = [
 BRAND_MARKERS = (
     "同橙", "OPC Store", "OPCStore", "tongcc", "tongcheng",
     "南京市鼓楼区古平岗4号", "t.3cool.cc", "ai.opcstore.com",
+    "nanjing.opcstore.com", "shanghai.opcstore.com",
 )
 
 # 媒体地址属性：不做品牌替换（见 rebrand_tree 的说明）
@@ -268,6 +282,40 @@ def remove_header_login(node):
         node,
         lambda n: (n.tag == "li" and "loginli" in n.classes) or "user-area" in n.classes,
     )
+
+
+def localize_operator_links(node, cities):
+    """把页面上指向原运营方线上资产的链接改指到本站对应页。
+
+    · 城市入口（原 `nanjing.opcstore.com`，以及被域名替换误伤成
+      `shang*h.jimei.cn` 的上海入口）→ 本站 `/zone?city=城市`
+    · 原站论坛（`opcstore.com/bbs`，「社区交流」页签）→ 本站 `/community`
+    · 其余仍指向 opcstore.com 的绝对链接 → **去链接保文字**（本站无对应页，
+      不能把访客送去原运营方的线上站点）
+    · `th.jimei.cn`（算力超市，本站自有域名）与第三方工具目录链接不动。
+
+    判定依据是锚文本：城市名只在区域入口上做链接文本出现，
+    导航项（算力超市等）与正文引用不会撞上。
+    """
+    for current in list(walk(node)):
+        kept = []
+        for child in current.children:
+            if isinstance(child, Node) and child.tag == "a":
+                href = child.attrs.get("href", "")
+                label = re.sub(r"\s+", "", child.text)
+                if "opcstore.com" in href and "/bbs" in href:
+                    child.attrs["href"] = "/community"
+                    child.attrs.pop("target", None)
+                    child.attrs.pop("rel", None)
+                elif href.startswith("http") and label in cities and urlsplit(href).netloc not in {"th.jimei.cn"}:
+                    child.attrs["href"] = "/zone?city=" + label
+                    child.attrs.pop("target", None)
+                    child.attrs.pop("rel", None)
+                elif "opcstore.com" in href:
+                    kept.extend(child.children)
+                    continue
+            kept.append(child)
+        current.children = kept
 
 
 def replace_operator_contact(node):
@@ -441,6 +489,34 @@ def inject_brand_mark(tree):
     return tree
 
 
+def beijing_home_region(node):
+    """社区页的区域入口以本站主场城市「北京」领衔。
+
+    原站首城是运营方所在的南京；本站实体社区在北京丰台
+    （《集智AI 网站.docx》：首期 3000+ 平米）。区域入口与说明文案随之改写，
+    「北京」入口指向主站的集智空间页（/empower/space）。
+    ⚠️ 只动区域入口与说明行 —— 城市筛选 chips 与新闻列表**不改**：
+    那是按城市归档的资讯数据（「政策资讯·南京」等真实报道），
+    改名会让筛选落空、也会篡改资讯事实。
+    """
+    for current in walk(node):
+        if "community-sub" in current.classes:
+            current.children = [
+                child.replace("南京 / 上海", "北京 / 上海") if isinstance(child, str) else child
+                for child in current.children
+            ]
+    for link in by_class(node, "oc-region--link"):
+        if re.sub(r"\s+", "", link.text) == "南京":
+            link.attrs["href"] = "/empower/space"
+            link.attrs.pop("target", None)
+            link.attrs.pop("rel", None)
+            for current in walk(link):
+                current.children = [
+                    child.replace("南京", "北京") if isinstance(child, str) else child
+                    for child in current.children
+                ]
+
+
 def replace_home_hero(tree):
     """Replace the reference event photos with the site's own tech-blue artwork.
 
@@ -508,6 +584,8 @@ def safe_url(raw, *, media=False, paths=None, assets=None):
     # 只允许这两个精确路径，避免任意本地路径从源 HTML 穿透。
     if raw in LOCAL_MEDIA:
         return raw
+    if not media and raw in LOCAL_LINKS:
+        return raw
     if not media and raw.startswith("#") and not raw.startswith("#/"):
         return raw if re.fullmatch(r"#[A-Za-z][\w:.-]*", raw) else ""
     if not media and paths:
@@ -568,6 +646,10 @@ def sanitize(node, paths, assets):
     if node.tag == "button":
         attrs["type"] = "button"
     if node.tag == "img":
+        # 原站文章图把图床 URL 写进了 alt（无障碍朗读会整串念出来），
+        # 纯 URL 不是替代文本 —— 置空。
+        if re.match(r"https?://", str(attrs.get("alt", "")).strip()):
+            attrs["alt"] = ""
         attrs.setdefault("alt", "")
         attrs.setdefault("loading", "lazy")
         attrs["decoding"] = "async"
@@ -867,9 +949,11 @@ def generate():
     if set(selected) != paths:
         raise ValueError(f"Missing public pages: {paths - set(selected)}")
     pages = {}
+    cities = set(zone_data["descriptions"])
     for path, page in selected.items():
         tree = parse(page["html"])
         remove_header_login(tree)
+        localize_operator_links(tree, cities)
         complete_lists(tree, path, records)
         if path == "/market":
             complete_market(tree, records)
@@ -880,9 +964,12 @@ def generate():
         inject_brand_mark(tree)
         if path == "/":
             replace_home_hero(tree)
+        elif path == "/community":
+            beijing_home_region(tree)
         pages[path] = {"html": sanitize(tree, paths, assets), "title": rebrand(page["title"]), "path": path}
     shell = parse(detail_template["html"])
     remove_header_login(shell)
+    localize_operator_links(shell, cities)
     set_text(shell, "article-title", "__OPC_TITLE__")
     shell_meta = first(shell, "meta-item")
     if shell_meta:
@@ -909,11 +996,12 @@ def generate():
     for city in zone_data["descriptions"]:
         tree = zone_variant(parse(selected["/zone"]["html"]), city, zone_data)
         remove_header_login(tree)
+        localize_operator_links(tree, cities)
         enhance(tree, "/zone", records, directory)
         replace_operator_contact(tree)
         inject_site_contact(tree)
         rebrand_tree(tree)
-        zones[city] = {"html": sanitize(tree, paths, assets), "path": "/zone", "title": city + "专区 - 集智AI OPC社区平台"}
+        zones[city] = {"html": sanitize(tree, paths, assets), "path": "/zone", "title": city + "专区 - 集智 AI OPC 社区"}
     directory = rebrand_tree_deep(directory)
     for name, value in {"pages": pages, "details": details, "directory": localize_data(directory, assets), "listings": localize_data(listings, assets), "article-shell": {"html": article_shell}, "zone-cities": zones}.items():
         (OUTPUT / f"{name}.json").write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")) + "\n")
