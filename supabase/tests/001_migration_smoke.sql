@@ -1,7 +1,8 @@
 -- 集智 AI OPC 社区 · 迁移冒烟测试
 --
--- 用途：在**真实 PostgreSQL** 上逐字执行 `supabase/migrations/0001_init.sql` 与
--- `0002_rls.sql` 之后，跑这份脚本验证三件事：
+-- 用途：在**真实 PostgreSQL** 上逐字执行 `supabase/migrations/0001_init.sql`、
+-- `0002_rls.sql`、`0003_body_jsonb.sql`、`0004_admin_users.sql` 之后，
+-- 跑这份脚本验证三件事：
 --   1. 迁移脚本本身可执行（无语法错误、列名与策略引用一致）；
 --   2. 表结构与「可见性字段」的差异符合设计（news_posts 用 status，其余用 published）；
 --   3. RLS 的**实际拦截行为**符合约定 —— 尤其「anon 直连写 leads 必被拒」。
@@ -12,6 +13,8 @@
 --   psql -h /tmp/jz_pg/sock -p 55432 -U postgres -d postgres \
 --        -v ON_ERROR_STOP=1 -f supabase/migrations/0001_init.sql \
 --        -v ON_ERROR_STOP=1 -f supabase/migrations/0002_rls.sql \
+--        -v ON_ERROR_STOP=1 -f supabase/migrations/0003_body_jsonb.sql \
+--        -v ON_ERROR_STOP=1 -f supabase/migrations/0004_admin_users.sql \
 --        -v ON_ERROR_STOP=1 -f supabase/tests/001_migration_smoke.sql
 --
 -- 约定：Supabase 内置的三个角色在测试库里需要先手工建好：
@@ -82,17 +85,17 @@ $$;
 
 -- 1. 表数量
 select pg_temp.assert_true(
-  '11 张业务表全部创建',
+  '12 张业务表全部创建（11 张 + 0004 的 admin_users）',
   (select count(*) from information_schema.tables
-    where table_schema = 'public' and table_type = 'BASE TABLE') = 11
+    where table_schema = 'public' and table_type = 'BASE TABLE') = 12
 );
 
 -- 2. RLS 全部开启
 select pg_temp.assert_true(
-  '11 张表全部开启 RLS',
+  '12 张表全部开启 RLS',
   (select count(*) from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
-   where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity) = 11
+   where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity) = 12
 );
 
 -- 3. 公开内容表各有一条 select 策略
@@ -107,6 +110,19 @@ select pg_temp.assert_true(
   'leads 表零策略（anon 直连写必被拒）',
   (select count(*) from pg_policies
     where schemaname = 'public' and tablename = 'leads') = 0
+);
+
+-- 4b. admin_users 表：零策略 + 关键列齐备（密码哈希表绝不允许浏览器直连）
+select pg_temp.assert_true(
+  'admin_users 表零策略（密码哈希仅 service_role 可读）',
+  (select count(*) from pg_policies
+    where schemaname = 'public' and tablename = 'admin_users') = 0
+);
+select pg_temp.assert_true(
+  'admin_users 包含账号体系所需的 7 个列',
+  (select count(*) from information_schema.columns
+    where table_name = 'admin_users'
+      and column_name in ('id','username','display_name','password_hash','is_active','last_login_at','created_at')) = 7
 );
 
 -- 5. 可见性字段的差异（策略不能照抄）
@@ -274,6 +290,34 @@ select pg_temp.assert_raises_as('anon',
 
 revoke insert on leads from anon;
 revoke usage on leads_id_seq from anon;
+
+-- admin_users：密码哈希表，anon 即使被授予 SELECT，RLS 零策略也必须让它一行都读不到。
+-- ⚠️ RLS 零策略对 SELECT 的语义是**静默过滤（0 行）**而不是抛 42501（只有写操作会抛错），
+--    所以这里不能用 assert_raises_as —— 必须先播种一行，再断言 anon 读到 0 行。
+do $$
+declare seeded int; visible int;
+begin
+  perform set_config('role', 'service_role', true);
+  insert into admin_users (username, display_name, password_hash)
+    values ('smoke-admin', '冒烟管理员', 'scrypt:00:00')
+  on conflict (username) do nothing;
+  select count(*) into seeded from admin_users where username = 'smoke-admin';
+  perform set_config('role', 'postgres', true);
+  if seeded < 1 then
+    raise exception '[FAIL] service_role 应能写入 admin_users 播种行';
+  end if;
+
+  grant select on admin_users to anon;
+  perform set_config('role', 'anon', true);
+  select count(*) into visible from admin_users;
+  perform set_config('role', 'postgres', true);
+  revoke select on admin_users from anon;
+
+  if visible <> 0 then
+    raise exception '[FAIL] 授予 SELECT 后 anon 仍读到 % 行 admin_users（RLS 零策略应过滤为 0 行）', visible;
+  end if;
+  raise notice '[PASS] 即使授予 SELECT，anon 读 admin_users 被 RLS 零策略过滤为 0 行（密码哈希不可泄露）';
+end $$;
 
 -- service_role 可写可读
 do $$

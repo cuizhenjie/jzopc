@@ -1,5 +1,6 @@
 import { site } from '@/lib/site/config';
 import { leadTypeLabel } from '@/lib/lead/schema';
+import { WEBHOOK_ENDPOINT } from '@/lib/net/webhook-endpoint';
 
 /**
  * 留资通知：企业 IM webhook + 邮件（两者均可选，失败静默，绝不影响入库）。
@@ -37,10 +38,10 @@ export async function notify(data: LeadNotifyPayload): Promise<void> {
 async function notifyWebhook(data: LeadNotifyPayload): Promise<void> {
   const text = `【集智 AI OPC 新线索】${data.leadType} | ${data.name} | ${data.contact} | ${data.sourcePage}`;
 
-  const webhook = process.env.LEAD_NOTIFY_WEBHOOK;
-  if (webhook) {
+  // WEBHOOK_ENDPOINT 在模块加载时已经 assertSafeOutboundUrl 校验（SSRF 白名单）
+  if (WEBHOOK_ENDPOINT) {
     try {
-      await fetch(webhook, {
+      await fetch(WEBHOOK_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ msgtype: 'text', text: { content: text } }),
@@ -83,7 +84,7 @@ function escapeHtml(value: string): string {
  */
 function leadDetailUrl(): string {
   const base = site.url.replace(/\/+$/, '');
-  return `${base}/ops/leads`;
+  return `${base}/admin/leads`;
 }
 
 /** 邮件通知（发件人可通过 LEAD_NOTIFY_EMAIL_FROM 覆盖） */

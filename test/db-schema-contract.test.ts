@@ -1,5 +1,5 @@
 /**
- * 数据库契约校验：DDL（`supabase/migrations/0001_init.sql`）与应用侧类型必须对齐。
+ * 数据库契约校验：DDL（supabase/migrations/*.sql）与应用侧类型必须对齐。
  *
  * ## 为什么需要这条测试
  *
@@ -22,28 +22,33 @@
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const sql = readFileSync(resolve(repoRoot, 'supabase/migrations/0001_init.sql'), 'utf8');
+// 全量迁移拼接（0001 → 0004…）：后置迁移可以补建新表（如 0004 的 admin_users），
+// 只读 0001 会漏掉它们。列定义以**最后出现的表**为准（后置迁移不 ALTER 既有列，可安全覆盖）。
+const migrationDir = resolve(repoRoot, 'supabase/migrations');
+const sql = readdirSync(migrationDir)
+  .filter((f) => f.endsWith('.sql'))
+  .sort()
+  .map((f) => readFileSync(resolve(migrationDir, f), 'utf8'))
+  .join('\n');
 const seedSrc = readFileSync(resolve(repoRoot, 'src/lib/data/seed.ts'), 'utf8');
 const leadRouteSrc = readFileSync(resolve(repoRoot, 'src/app/api/leads/route.ts'), 'utf8');
 
-/** 从迁移 SQL 解析出「表 → 列集合」 */
+/** 从迁移 SQL 解析出「表 → 列集合」（matchAll 迭代全部建表语句） */
 function parseTables(source: string): Map<string, Set<string>> {
   const tables = new Map<string, Set<string>>();
-  const re = /create table if not exists\s+(\w+)\s*\(([\s\S]*?)\n\);/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(source)) !== null) {
-    const [, table, body] = m;
+  for (const m of source.matchAll(/create table if not exists\s+(\w+)\s*\(([\s\S]*?)\n\);/g)) {
+    const table = m[1];
     const cols = new Set<string>();
-    for (const line of body.split('\n')) {
+    for (const line of m[2].split('\n')) {
       const t = line.trim();
       if (!t || t.startsWith('--') || t.startsWith('unique') || t.startsWith('primary key')) continue;
       // "colname type ..." —— 取第一段标识符
-      const cm = /^([a-z_][a-z0-9_]*)\s+/i.exec(t);
+      const cm = t.match(/^([a-z_][a-z0-9_]*)\s+/i);
       if (cm) cols.add(cm[1]);
     }
     tables.set(table, cols);
@@ -53,12 +58,13 @@ function parseTables(source: string): Map<string, Set<string>> {
 
 /** 从 seed.ts 提取 `export type X = { field: ... }` 的字段集合 */
 function typeFields(typeName: string): Set<string> {
-  const re = new RegExp(`export type ${typeName} = \\{([\\s\\S]*?)\\n\\};`);
-  const m = re.exec(seedSrc);
-  assert.ok(m, `seed.ts 里找不到类型 ${typeName}`);
+  const block = [...seedSrc.matchAll(/export type (\w+) = \{([\s\S]*?)\n\};/g)].find(
+    (m) => m[1] === typeName,
+  );
+  assert.ok(block, `seed.ts 里找不到类型 ${typeName}`);
   const fields = new Set<string>();
-  for (const line of m[1].split('\n')) {
-    const fm = /^\s*([a-z_][a-z0-9_]*)\??\s*:/.exec(line);
+  for (const line of block[2].split('\n')) {
+    const fm = line.match(/^\s*([a-z_][a-z0-9_]*)\??\s*:/);
     if (fm) fields.add(fm[1]);
   }
   return fields;
@@ -67,8 +73,8 @@ function typeFields(typeName: string): Set<string> {
 const tables = parseTables(sql);
 
 describe('数据库 DDL 与应用类型的契约', () => {
-  test('11 张业务表全部在迁移脚本中定义', () => {
-    assert.equal(tables.size, 11, `实际解析到 ${tables.size} 张表`);
+  test('12 张业务表全部在迁移脚本中定义', () => {
+    assert.equal(tables.size, 12, `实际解析到 ${tables.size} 张表`);
   });
 
   // 这张表就是踩过坑的那张：body_md vs body
@@ -115,7 +121,7 @@ describe('数据库 DDL 与应用类型的契约', () => {
     assert.ok(cols, '迁移脚本里没有 leads 表');
 
     // 抓 .from('leads').insert({ ... }) 里的字段名
-    const insertBlock = /from\('leads'\)[\s\S]*?\.insert\(\{([\s\S]*?)\n  \}\)/.exec(leadRouteSrc);
+    const insertBlock = leadRouteSrc.match(/from\('leads'\)[\s\S]*?\.insert\(\{([\s\S]*?)\n  \}\)/);
     assert.ok(insertBlock, 'route.ts 里找不到 leads 的 insert 语句');
 
     const inserted = [...insertBlock[1].matchAll(/^\s{4}([a-z_][a-z0-9_]*)\s*:/gm)].map((m) => m[1]);
@@ -157,11 +163,58 @@ describe('数据库 DDL 与应用类型的契约', () => {
   });
 
   test('leads 表带幂等键的部分唯一索引（route.ts 靠 23505 判重复提交）', () => {
-    assert.ok(
-      /create unique index if not exists leads_idempotency_idx[\s\S]*?where idempotency_key is not null/i.test(
-        sql,
-      ),
+    assert.match(
+      sql,
+      /create unique index if not exists leads_idempotency_idx[\s\S]*?where idempotency_key is not null/i,
       'leads 缺少 idempotency_key 的部分唯一索引',
     );
+  });
+
+  // ── 管理后台（/admin）的写入契约 ──────────────────────────────────────────
+  // 后台新闻 CRUD 与线索 CSV 导出的列名都必须真实存在，否则 insert/update
+  // 会被 Postgres 整条拒绝、导出会得到全空列。与上面 route.ts 的做法一致：
+  // 静态解析源码里的列引用，对照 DDL。
+
+  test('后台 toNewsRow 写入的列在 news_posts 表里全部存在', () => {
+    const cols = tables.get('news_posts');
+    assert.ok(cols, '迁移脚本里没有 news_posts 表');
+    const newsSchemaSrc = readFileSync(resolve(repoRoot, 'src/lib/admin/news-schema.ts'), 'utf8');
+    // toNewsRow 返回对象里的键：`    slug: input.slug,` 形式
+    const rowKeys = [...newsSchemaSrc.matchAll(/^\s{4}([a-z_][a-z0-9_]*)\s*:/gm)].map((m) => m[1]);
+    assert.ok(rowKeys.length >= 8, `没解析出 toNewsRow 的字段（实际 ${rowKeys.length}）`);
+    const missing = rowKeys.filter((c) => !cols.has(c));
+    assert.deepEqual(
+      missing,
+      [],
+      `后台新闻写入引用了 news_posts 不存在的列：${missing.join(', ')}`,
+    );
+  });
+
+  test('后台 CSV 导出列在 leads 表里全部存在', () => {
+    const cols = tables.get('leads');
+    assert.ok(cols, '迁移脚本里没有 leads 表');
+    const dataSrc = readFileSync(resolve(repoRoot, 'src/lib/admin/data.ts'), 'utf8');
+    // LEAD_CSV_COLUMNS 里的键：`{ key: 'id', label: 'ID' },` 形式
+    const keys = [...dataSrc.matchAll(/key:\s*'([a-z_][a-z0-9_]*)'/g)].map((m) => m[1]);
+    assert.ok(keys.length >= 15, `没解析出 CSV 列定义（实际 ${keys.length}）`);
+    const missing = keys.filter((c) => !cols.has(c));
+    assert.deepEqual(
+      missing,
+      [],
+      `CSV 导出引用了 leads 不存在的列：${missing.join(', ')}`,
+    );
+  });
+
+  test('账号体系登录查询的列在 admin_users 表里全部存在', () => {
+    const cols = tables.get('admin_users');
+    assert.ok(cols, '迁移脚本里没有 admin_users 表（缺 0004_admin_users.sql？）');
+
+    const accountsSrc = readFileSync(resolve(repoRoot, 'src/lib/admin/accounts.ts'), 'utf8');
+    const selectMatch = accountsSrc.match(/from\('admin_users'\)[\s\S]*?\.select\('([^']+)'\)/);
+    assert.ok(selectMatch, 'accounts.ts 里找不到 admin_users 的 select 列表');
+    const selected = selectMatch[1].split(',').map((s) => s.trim()).filter(Boolean);
+    const missing = selected.filter((c) => !cols.has(c));
+    assert.deepEqual(missing, [], `登录查询引用了 admin_users 不存在的列：${missing.join(', ')}`);
+    // 建号脚本写入列的契约见 test/admin-accounts.test.ts（import 脚本的 buildInsertPayload 后对照 DDL）
   });
 });
