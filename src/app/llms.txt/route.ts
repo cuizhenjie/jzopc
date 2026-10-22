@@ -1,4 +1,4 @@
-import { buildLlmsTxt } from '@/lib/site/llms-txt';
+import { buildReplicaLlmsTxt } from '@/lib/opc/llms';
 
 /**
  * `/llms.txt` —— 面向 LLM 的站点摘要（llmstxt.org 规范）。
@@ -8,7 +8,7 @@ import { buildLlmsTxt } from '@/lib/site/llms-txt';
 export const dynamic = 'force-static';
 
 export function GET() {
-  return new Response(buildLlmsTxt(), {
+  return new Response(buildReplicaLlmsTxt(), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',

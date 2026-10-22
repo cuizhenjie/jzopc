@@ -1,0 +1,230 @@
+[
+  {
+    "path": "/Agent",
+    "name": "Agent",
+    "file": "Agent-BakPUJBW.js",
+    "title": "智能体",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Agent-C0LGl2Wt.css"
+    ]
+  },
+  {
+    "path": "/Center",
+    "name": "Center",
+    "file": "Center-CuWog8Fp.js",
+    "title": "培训中心",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Center-DpDUucwE.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/Community",
+    "name": "Community",
+    "file": "Community-B0h8LwIo.js",
+    "title": "社区",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Community-B7mJ3m_1.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/",
+    "name": "Opc",
+    "file": "Opc-DnD2MJX8.js",
+    "title": "首页",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Opc-BjyGo3_k.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/StarProject",
+    "name": "StarProject",
+    "file": "StarProject-DTzEdLkL.js",
+    "title": "星计划",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "StarProject-WHhLVe32.css"
+    ]
+  },
+  {
+    "path": "/computingresource",
+    "name": "ComputingResource",
+    "file": "ComputingResource-DIdkhOrT.js",
+    "title": "GPU资源",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "ComputingResource-NaNCttmr.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/Work",
+    "name": "Work",
+    "file": "Work-DB6EICjp.js",
+    "title": "工作平台",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Work-5QqLhA6U.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/Market",
+    "name": "Market",
+    "file": "Market-DsOJBOEW.js",
+    "title": "交易市场",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Market-BUJctYbY.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/OpcLogin",
+    "name": "OpcLogin",
+    "file": "OpcLogin-Cfq4-xOz.js",
+    "title": "登录",
+    "css": [
+      "OpcLogin-Clc6Szfs.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/OpcForgotPassword",
+    "name": "OpcForgotPassword",
+    "file": "OpcForgotPassword-DkyV4ejw.js",
+    "title": "忘记密码",
+    "css": [
+      "OpcForgotPassword-S_wAX9wi.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/OpcRegister",
+    "name": "OpcRegister",
+    "file": "OpcRegister-E2HOxFuZ.js",
+    "title": "注册",
+    "css": [
+      "OpcRegister-De0DcYiN.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/StarJoin",
+    "name": "StarJoin",
+    "file": "StarJoin-DFWEKNzr.js",
+    "title": "加入星计划",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "StarJoin-B6fy3FJC.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/About",
+    "name": "About",
+    "file": "About-CKk1EL2k.js",
+    "title": "关于我们",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "About-IuzPfewE.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/NewsDetail",
+    "name": "NewsDetail",
+    "file": "NewsDetail-DvRRk_VN.js",
+    "title": "详情",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "NewsDetail-Dv5MR42j.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/OpcApply",
+    "name": "OpcApply",
+    "file": "OpcApply-Depina0Y.js",
+    "title": "申请",
+    "css": [
+      "OpcHeader-C1iDSgna.css",
+      "OpcApply-DPA3fhto.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/Zone",
+    "name": "Zone",
+    "file": "Zone-rW68QNJO.js",
+    "title": "专区",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "Zone-B9FVScqK.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/NanjingZone",
+    "name": "NanjingZone",
+    "file": "NanjingZone-BSdVD6GG.js",
+    "title": "南京专区",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "NanjingZone-CI_q58uD.css",
+      "all-DdGN75aA.css"
+    ]
+  },
+  {
+    "path": "/NewsList",
+    "name": "newslist",
+    "file": "NewsList-BMBKsTP4.js",
+    "title": "资讯列表",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "NewsList-BUtAQbqp.css"
+    ]
+  },
+  {
+    "path": "/ActivityList",
+    "name": "activitylist",
+    "file": "ActivityList-Cu_avH4b.js",
+    "title": "活动列表",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "ActivityList-DDivaIU-.css"
+    ]
+  },
+  {
+    "path": "/MyInfo",
+    "name": "myinfo",
+    "file": "MyInfo-DKssLI1v.js",
+    "title": "我的信息",
+    "css": [
+      "OpcBottom-_fXMpX-p.css",
+      "OpcHeader-C1iDSgna.css",
+      "MyInfo-DSJTAHn0.css"
+    ]
+  }
+]

@@ -36,6 +36,10 @@ desktop.ini
 
 # Isolated local UI verification output
 .next-ui/
+.next-opc/
+.next-opc-build/
+.playwright-mcp/
+__pycache__/
 
 # 裸机部署产物（由 pnpm prepare:deploy 生成）
 deploy/

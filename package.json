@@ -20,7 +20,9 @@
     "admin:create": "node scripts/create-admin.mjs",
     "build:deploy": "NEXT_OUTPUT_STANDALONE=1 next build",
     "prepare:deploy": "node scripts/prepare-deploy.mjs",
-    "start:deploy": "node deploy/server.js"
+    "start:deploy": "node deploy/server.js",
+    "opc:content": "python3 scripts/build-opc-content.py",
+    "opc:styles": "node scripts/build-opc-styles.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

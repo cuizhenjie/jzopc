@@ -1,15 +1,7 @@
 /**
- * 供需页关键词搜索（FR-MARKET-07）与「全站同一个搜索原语」的契约校验。
- *
- * 过滤发生在**客户端**（`FilterRoot` 纯 DOM 操作，不触发 React 重渲染），
- * Node 里跑不出渲染结果，所以这里读源码做断言 —— 锁死两件最容易在
- * 后续迭代中被改坏的事：
- *
- *   1. **搜索框只能是共享原语**：`SearchField`。任何页面手写
- *      `<input type="search">` 都会让同一个功能长成三个样子；
- *   2. **列表页保持静态渲染**：不得 `await searchParams`（否则 `<title>`
- *      与 `<meta description>` 会被 flush 到 `</body>` 之后，SEO 与
- *      Lighthouse 都读不到）。
+ * 参考站市场的完整供需、筛选与静态渲染验证。
+ * 其余测试继续覆盖保留的智能体/全局搜索组件与URL工具；
+ * 新市场使用公开快照数据，不再继承旧种子列表的SearchField结构契约。
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,6 +9,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildFilterUrl } from '@/lib/filter/url';
+import { facetMatches } from '@/components/opc/interaction-model';
 import { searchItemText } from '@/lib/search/matcher';
 import { agentToSearchItem, marketToSearchItem } from '@/lib/search/items';
 import { buildSearchIndex } from '@/lib/search';
@@ -50,39 +43,34 @@ function extractBracedExpr(src: string, marker: string): string | null {
 }
 
 const marketSrc = read('src/app/market/page.tsx');
+const marketHtml = JSON.parse(read('src/lib/opc/generated/pages.json'))['/market'].html as string;
+const replicaListings = JSON.parse(read('src/lib/opc/generated/listings.json'));
 const agentsSrc = read('src/app/agents/page.tsx');
 
-describe('供需页 · 关键词搜索（FR-MARKET-07）', () => {
-  test('使用共享搜索原语 SearchField，且按 q 参数驱动', () => {
-    assert.match(
-      marketSrc,
-      /import SearchField from '@\/components\/ui\/SearchField'/,
-      '供需页必须使用共享原语 SearchField',
-    );
-    assert.match(
-      marketSrc,
-      /<SearchField[\s\S]*?param="q"/,
-      'SearchField 必须以 q 作为查询参数名（与 FilterRoot 的 queryParam 对齐）',
-    );
-    assert.match(marketSrc, /basePath="\/market"/, 'SearchField 必须指向 /market');
+describe('参考站市场 · 全量供需与筛选', () => {
+  test('市场入口使用隔离的复现页面，保持服务端静态内容', () => {
+    assert.match(marketSrc, /<ReplicaPage pathname="\/market"/);
+    assert.doesNotMatch(marketSrc, /await\s+searchParams/);
   });
 
-  test('供需卡片仍带可检索文本，关键词才有匹配对象', () => {
-    assert.match(
-      marketSrc,
-      /data-filter-text=/,
-      '供需卡片必须保留 data-filter-text，否则关键词搜索永远 0 结果',
-    );
-    assert.match(
-      marketSrc,
-      /data-filter-key=\{m\.type\}/,
-      '供需卡片必须保留 data-filter-key，否则分类筛选失效',
-    );
+  test('22条公开供需全部带稳定id和类型，分类不是只改按钮颜色', () => {
+    const ids = replicaListings.categories['14'].ids as number[];
+    assert.equal(ids.length, 22);
+    for (const id of ids) assert.ok(marketHtml.includes(`data-opc-id="${id}"`), `缺少供需 ${id}`);
+    assert.match(marketHtml, /data-opc-action="filter-market" data-opc-value="supply"/);
+    assert.match(marketHtml, /data-opc-action="filter-market" data-opc-value="demand"/);
+    const interaction = read('src/components/opc/ReplicaInteractions.tsx');
+    assert.match(interaction, /section\.hidden = demand/);
+    assert.match(interaction, /section\.hidden = !demand/);
   });
 
-  test('结果条数由 data-filter-count 承载（切分类 + 搜词后依然正确）', () => {
-    assert.match(marketSrc, /data-filter-count/, '列表区需要 data-filter-count 元素');
-    assert.match(marketSrc, /data-filter-empty/, '需要保留空态占位元素');
+  test('市场检索规则覆盖新数据，支持组合筛选及空结果', () => {
+    for (const id of replicaListings.categories['14'].ids as number[]) {
+      const item = replicaListings.records[String(id)];
+      assert.ok(facetMatches(item.title, ['供给'], '供给', item.title.trim()));
+      assert.equal(facetMatches(item.title, ['供给'], '需求', item.title.trim()), false);
+      assert.equal(facetMatches(item.title, ['供给'], '全部', '完全不存在的市场关键词xyz'), false);
+    }
   });
 });
 
@@ -118,9 +106,9 @@ describe('智能体页 · 搜索框统一到共享原语', () => {
 
 describe('搜索控件唯一性与静态渲染红线', () => {  test('每个列表页只有一个搜索控件', () => {
     assert.equal(
-      (marketSrc.match(/<SearchField\b/g) ?? []).length,
-      1,
-      '供需页只能有一个搜索控件',
+      (marketHtml.match(/<input[^>]*type="search"/g) ?? []).length,
+      0,
+      '参考站市场没有独立搜索栏，复现不额外注入旧版控件',
     );
     assert.equal(
       (agentsSrc.match(/<SearchField\b/g) ?? []).length,
@@ -160,7 +148,6 @@ describe('搜索控件唯一性与静态渲染红线', () => {  test('每个列�
     // 这里只做**结构**断言，真正的「同源」由下面那条**语义**断言兜住：
     // 结构断言单独用会漏掉「表达式里额外改了语料」这种改法。
     const cases: Array<[string, string, RegExp]> = [
-      ['供需页', marketSrc, /^searchItemText\(\s*marketToSearchItem\(/],
       ['智能体页', agentsSrc, /^searchItemText\(\s*agentToSearchItem\(/],
       // 全局搜索页的条目本身就是转换后的 SearchItem，直接算即可
       ['全局搜索页', read('src/app/search/page.tsx'), /^searchItemText\(\s*item\s*\)/],
@@ -190,13 +177,6 @@ describe('搜索控件唯一性与静态渲染红线', () => {  test('每个列�
       toItem: (item: unknown) => SearchItem;
       seedItems: unknown[];
     }> = [
-      {
-        name: '供需页',
-        src: marketSrc,
-        items: seedMarket,
-        toItem: (item) => marketToSearchItem(item as MarketItem),
-        seedItems: seedMarket,
-      },
       {
         name: '智能体页',
         src: agentsSrc,

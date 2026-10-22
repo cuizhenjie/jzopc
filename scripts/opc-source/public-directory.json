@@ -1,0 +1,3010 @@
+{
+  "agents": [
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/meitu-ai-ppt.jpg",
+      "title": "LivePPT",
+      "text": "美图设计室推出的AI生成高质量PPT工具",
+      "realUrl": "https://ppt.designkit.com/?channel=wzaiopenminds"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aippt-icon.png",
+      "title": "AiPPT",
+      "text": "AI驱动的智能PPT生成工具，一键生成专业演示文稿",
+      "realUrl": "https://www.aippt.cn/"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/json-tools-icon.png",
+      "title": "JSON 工具集",
+      "text": "在线JSON格式化、校验、转换等实用开发工具集",
+      "realUrl": "https://www.sojson.com/"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kpdoat.png",
+      "title": "码上飞 - AI 生成小程序",
+      "text": "免费生成小程序/app/网站等各类应用",
+      "realUrl": "https://www.codeflying.net/?source=site_aiopenminds&source_id=1#/index"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/66ai-icon.png",
+      "title": "66AI 论文",
+      "text": "AI驱动的学术论文辅助写作平台",
+      "realUrl": "https://www.66ai.com/"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://www.recraft.ai/favicons/favicon.ico",
+      "title": "Recraft",
+      "text": "AI 设计神器，生成矢量艺术、3D 图像等",
+      "realUrl": "https://www.recraft.ai/invite/LtNMMOaRtH"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/flowith-icon.png",
+      "title": "Flowith",
+      "text": "节点交互式AI搜索和对话工具",
+      "realUrl": "https://flowith.io/invitation?code=R13MCS"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xunfei-zhiwen-icon.png",
+      "title": "讯飞智文",
+      "text": "科大讯飞推出的免费AI PPT生成工具",
+      "realUrl": "https://zhiwen.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wanzhi-icon.png",
+      "title": "万知",
+      "text": "AI驱动的知识管理与智能问答平台",
+      "realUrl": "https://www.wanzhi.com/"
+    },
+    {
+      "primary": [
+        "热门工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/midjourney-icon.png",
+      "title": "Midjourney",
+      "text": "AI图像和插画生成工具，引领AI艺术创作潮流",
+      "realUrl": "https://www.midjourney.com/home"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/coze-ai-icon.png",
+      "title": "扣子空间",
+      "text": "字节跳动推出的AI智能体创建与交互平台",
+      "realUrl": "https://www.coze.com/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/autoglm-icon.png",
+      "title": "AutoGLM 沉思",
+      "text": "智谱AI推出的自主智能体，具备深度推理与执行能力",
+      "realUrl": "https://chatglm.cn/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/coco-icon.png",
+      "title": "新 CoCo",
+      "text": "新一代AI智能助手，多场景智能交互体验",
+      "realUrl": "https://coco.im/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xunfei-xingchen-agent-logo-1.jpg",
+      "title": "星辰 Agent",
+      "text": "科大讯飞AI智能体开发平台",
+      "realUrl": "https://agent.xfyun.cn/home"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/cric-icon.png",
+      "title": "CRIC 深度智联",
+      "text": "深度智能联动的AI智能体平台",
+      "realUrl": "https://www.cric-ai.com/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/Lovart-logo.png",
+      "title": "Lovart",
+      "text": "专业AI设计智能体，创意设计新体验",
+      "realUrl": "https://www.lovart.ai/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/fellou-icon.png",
+      "title": "Fellou",
+      "text": "AI驱动的智能体协作与自动化平台",
+      "realUrl": "https://fellou.ai/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/MiniMax-logo.png",
+      "title": "MiniMax Agent",
+      "text": "MiniMax通用型AI智能体平台",
+      "realUrl": "https://agent.minimax.io/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/suna-icon.png",
+      "title": "Suna",
+      "text": "新一代AI智能助手，深度理解与自主执行",
+      "realUrl": "https://suna.ai/"
+    },
+    {
+      "primary": [
+        "AI智能体"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/Jaaz-logo.png",
+      "title": "Jaaz",
+      "text": "开源AI设计智能体，Lovart免费替代方案",
+      "realUrl": "https://github.com/11cafe/jaaz"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/meitu-ai-ppt.jpg",
+      "title": "LivePPT",
+      "text": "美图设计室推出的AI生成高质量PPT工具",
+      "realUrl": "https://ppt.designkit.com/?channel=wzaiopenminds"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/gezhe-icon.png",
+      "title": "歌者 AI",
+      "text": "AI驱动的PPT智能生成与美化工具",
+      "realUrl": "https://gezhe.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mindshow-icon.png",
+      "title": "MindShow",
+      "text": "思维导图一键转PPT的智能演示工具",
+      "realUrl": "https://www.mindshow.fun/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/lingganppt-icon.png",
+      "title": "灵感 PPT",
+      "text": "AI创意灵感驱动的智能PPT生成工具",
+      "realUrl": "https://www.lingganppt.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/chatppt-icon.png",
+      "title": "ChatPPT",
+      "text": "对话式AI PPT生成工具，聊天即可创建演示文稿",
+      "realUrl": "https://www.chatppt.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/bigeppt-icon.png",
+      "title": "比格 AI PPT",
+      "text": "AI一键生成精美PPT演示文稿",
+      "realUrl": "https://www.bgppt.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/islide-icon.png",
+      "title": "iSlide AI",
+      "text": "专业的PPT设计插件，AI辅助高效制作演示文稿",
+      "realUrl": "https://www.islide.cc/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xunfei-zhiwen-icon.png",
+      "title": "讯飞智文",
+      "text": "科大讯飞推出的免费AI PPT生成工具",
+      "realUrl": "https://zhiwen.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/qingzhu-icon.png",
+      "title": "轻竹办公",
+      "text": "轻量级AI办公工具，快速生成PPT文档",
+      "realUrl": "https://www.qingzhu.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "幻灯片(PPT)"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wenduo-icon.png",
+      "title": "文多多 AIPPT",
+      "text": "AI智能生成与排版的专业PPT工具",
+      "realUrl": "https://www.wendangduo.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/processon-icon.png",
+      "title": "ProcessOn",
+      "text": "免费在线思维导图与流程图协作平台",
+      "realUrl": "https://www.processon.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mindmaster-icon.png",
+      "title": "亿图脑图",
+      "text": "亿图脑图AI思维导图助手",
+      "realUrl": "https://www.edrawsoft.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/taskade-icon.png",
+      "title": "Taskade",
+      "text": "AI驱动的团队协作思维导图与任务管理平台",
+      "realUrl": "https://www.taskade.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/boardmix-icon.png",
+      "title": "博思 AI 白板",
+      "text": "AI驱动的在线协作白板与思维导图工具",
+      "realUrl": "https://boardmix.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/treemind-icon.png",
+      "title": "TreeMind 树图",
+      "text": "新一代AI思维导图工具，智能生成知识结构",
+      "realUrl": "https://shutu.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiaohuazhuo-icon.png",
+      "title": "小画桌",
+      "text": "在线协作白板工具，支持AI辅助创作",
+      "realUrl": "https://www.xiaohuazhuo.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/zhixi-icon.png",
+      "title": "知犀 AI",
+      "text": "AI智能思维导图制作与知识管理工具",
+      "realUrl": "https://www.zhixi.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xmind-icon.png",
+      "title": "Xmind AI",
+      "text": "全球领先的思维导图软件，AI驱动智能脑图",
+      "realUrl": "https://xmind.ai/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/miaoban-icon.png",
+      "title": "妙办画板",
+      "text": "AI智能办公画板与协作平台",
+      "realUrl": "https://www.miaoban.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "思维导图"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/gitmind-icon.png",
+      "title": "GitMind",
+      "text": "免费在线思维导图与AI智能生成工具",
+      "realUrl": "https://gitmind.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/pmai-icon.png",
+      "title": "PMAI",
+      "text": "AI驱动的项目管理与文档协作平台",
+      "realUrl": "https://www.pmai.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tencent-wj-icon.png",
+      "title": "腾讯问卷",
+      "text": "腾讯推出的免费在线问卷调查平台",
+      "realUrl": "https://wj.qq.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/cubox-icon.png",
+      "title": "Cubox",
+      "text": "AI驱动的信息收集与知识管理工具",
+      "realUrl": "https://cubox.pro/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tencent-doc-icon.png",
+      "title": "腾讯文档智能助手",
+      "text": "腾讯文档内置AI助手，提升文档创作效率",
+      "realUrl": "https://docs.qq.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/youdao-read-icon.png",
+      "title": "有道速读",
+      "text": "有道推出的AI快速阅读理解与摘要工具",
+      "realUrl": "https://read.youdao.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tongyi-zhiwen-icon.png",
+      "title": "通义智文",
+      "text": "阿里通义系列AI文档阅读与智能处理工具",
+      "realUrl": "https://tongyi.aliyun.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/baidu-wenku-icon.png",
+      "title": "百度文库 AI 助手",
+      "text": "百度文库内置AI智能文档处理助手",
+      "realUrl": "https://wenku.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/simayue-icon.png",
+      "title": "司马阅",
+      "text": "AI驱动的智能文档阅读与知识提取平台",
+      "realUrl": "https://www.simayue.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xinghuo-research-icon.png",
+      "title": "星火科研助手",
+      "text": "科大讯飞推出的AI科研文献辅助工具",
+      "realUrl": "https://xinghuo.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "文档工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/yinxiang-icon.png",
+      "title": "印象 AI",
+      "text": "印象笔记内置AI助手，智能记录与知识管理",
+      "realUrl": "https://www.yinxiang.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/vika-icon.png",
+      "title": "维格表格",
+      "text": "新一代AI多维表格与数据库协作工具",
+      "realUrl": "https://vika.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/sensetime-raccoon-icon.png",
+      "title": "办公小浣熊",
+      "text": "商汤科技推出的智能办公数据处理助手",
+      "realUrl": "https://xiaohuanxiong.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/formulabot-icon.png",
+      "title": "Formula bot",
+      "text": "AI自动生成Excel公式与数据分析工具",
+      "realUrl": "https://formulabot.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/sheetgod-icon.png",
+      "title": "SheetGod",
+      "text": "AI驱动的电子表格自动化处理平台",
+      "realUrl": "https://sheetgod.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/beiji-icon.png",
+      "title": "北极九章",
+      "text": "AI驱动的企业级数据智能分析平台",
+      "realUrl": "https://www.beijixf.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/chatexcel-icon.png",
+      "title": "酷表 ChatExcel",
+      "text": "AI Excel数据分析辅助工具，对话式操作表格",
+      "realUrl": "https://www.chatexcel.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/qingyuntu-icon.png",
+      "title": "轻云图",
+      "text": "轻量级AI数据可视化与图表生成工具",
+      "realUrl": "https://www.qingyuntu.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/ajelix-icon.png",
+      "title": "Ajelix",
+      "text": "AI Excel智能助手，自动化表格处理",
+      "realUrl": "https://ajelix.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/formx-icon.png",
+      "title": "FormX.ai",
+      "text": "AI驱动的表格数据提取与智能处理工具",
+      "realUrl": "https://www.formx.ai/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "Excel表格"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/rows-icon.png",
+      "title": "Rows",
+      "text": "新一代AI电子表格与数据分析平台",
+      "realUrl": "https://rows.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/zhidejianli-logo.png",
+      "title": "职徒简历",
+      "text": "在线AI简历生成工具，智能优化求职材料",
+      "realUrl": "https://www.zdjianli.cn/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tinywow-icon.png",
+      "title": "TinyWow",
+      "text": "免费在线AI文件处理工具集，PDF、图片、文档全能",
+      "realUrl": "https://tinywow.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/ima-icon.png",
+      "title": "ima.copilot",
+      "text": "腾讯推出的AI智能工作台与知识库工具",
+      "realUrl": "https://ima.qq.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/glif-icon.png",
+      "title": "Glif",
+      "text": "AI驱动的创意工作流自动化平台",
+      "realUrl": "https://glif.app/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/suchuang-icon.png",
+      "title": "速创猫 AI 简历",
+      "text": "AI快速生成专业简历的智能工具",
+      "realUrl": "https://www.suchuangmao.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/simazhuge-icon.png",
+      "title": "司马诸葛",
+      "text": "AI智能办公助手，提升工作效率",
+      "realUrl": "https://www.simazhuge.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/yoo-icon.png",
+      "title": "YOO 简历",
+      "text": "AI智能简历制作与优化平台",
+      "realUrl": "https://www.yoo-ai.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/landict-icon.png",
+      "title": "蓝字典 AI",
+      "text": "AI知识库管理与智能检索工具",
+      "realUrl": "https://www.landict.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiaowei-icon.png",
+      "title": "小微助手",
+      "text": "腾讯小微AI智能办公助手",
+      "realUrl": "https://xiaowei.qq.com/"
+    },
+    {
+      "primary": [
+        "AI办公工具"
+      ],
+      "secondary": [
+        "效率提升"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/suda-icon.png",
+      "title": "苏打办公",
+      "text": "AI驱动的智能办公效率工具集成平台",
+      "realUrl": "https://www.sudaoffice.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiaoyu-icon.png",
+      "title": "小鱼写作",
+      "text": "AI驱动的智能写作助手，多场景内容创作",
+      "realUrl": "https://www.xiaoyuxiezuo.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/66ai-icon.png",
+      "title": "66AI 论文",
+      "text": "AI驱动的学术论文辅助写作平台",
+      "realUrl": "https://www.66ai.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiaowen-icon.png",
+      "title": "小文 AI 论文",
+      "text": "AI论文辅助写作与润色工具",
+      "realUrl": "https://www.xiaowenai.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mita-icon.png",
+      "title": "秘塔写作猫",
+      "text": "AI智能写作与内容创作平台",
+      "realUrl": "https://xiezuocat.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiaoyutai-icon.png",
+      "title": "晓语台",
+      "text": "先进的点击式文本创作平台，助力内容创作与SEO优化",
+      "realUrl": "https://www.xiaoyutai.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiezuowa-icon.png",
+      "title": "写作蛙",
+      "text": "AI智能写作辅助工具，多场景内容生成",
+      "realUrl": "https://www.xiezuowa.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xinhua-icon.png",
+      "title": "新华妙笔",
+      "text": "新华社AI智能写作平台，专业内容创作",
+      "realUrl": "https://www.xinhuamiaobi.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/guangsu-icon.png",
+      "title": "光速写作",
+      "text": "AI高速写作工具，一键生成高质量文章",
+      "realUrl": "https://www.guangsu.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/baidu-writer-icon.png",
+      "title": "百度作家平台",
+      "text": "百度推出的AI辅助文学创作与写作平台",
+      "realUrl": "https://writers.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI写作工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xinghuo-content-icon.png",
+      "title": "星火内容运营大师",
+      "text": "科大讯飞推出的AI内容创作与运营工具",
+      "realUrl": "https://xinghuo.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/metaso-icon.png",
+      "title": "秘塔 AI 搜索",
+      "text": "新一代AI搜索引擎，精准直达答案",
+      "realUrl": "https://metaso.cn/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/baidu-icon.png",
+      "title": "百度搜索",
+      "text": "全球领先的中文搜索引擎，AI智能检索",
+      "realUrl": "https://www.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/360-ai-search-icon.png",
+      "title": "360AI 搜索",
+      "text": "360推出的新一代AI搜索引擎",
+      "realUrl": "https://www.n.cn/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tiangong-icon.png",
+      "title": "天工 AI 搜索",
+      "text": "昆仑万维推出的AI大模型驱动搜索引擎",
+      "realUrl": "https://www.tiangong.cn/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/devv-icon.png",
+      "title": "Devv",
+      "text": "面向开发者的AI编程搜索引擎",
+      "realUrl": "https://devv.ai/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/bocha-icon.png",
+      "title": "博查 AI 搜索",
+      "text": "AI智能搜索引擎，多源信息聚合",
+      "realUrl": "https://www.bochaai.com/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/thinkany-icon.png",
+      "title": "ThinkAny",
+      "text": "AI智能搜索与深度问答平台",
+      "realUrl": "https://thinkany.ai/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/miku-icon.png",
+      "title": "Miku",
+      "text": "新一代AI搜索与知识发现工具",
+      "realUrl": "https://miku.ai/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/cosmoplat-icon.png",
+      "title": "卡奥斯智能引擎",
+      "text": "海尔卡奥斯推出的工业AI智能搜索引擎",
+      "realUrl": "https://www.cosmoplat.com/"
+    },
+    {
+      "primary": [
+        "AI搜索工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/consensus-icon.png",
+      "title": "Consensus",
+      "text": "AI学术搜索引擎，基于科学文献的智能问答",
+      "realUrl": "https://consensus.app/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/trae-ai-icon.png",
+      "title": "Trae",
+      "text": "字节跳动旗下的免费AI IDE，基于大模型智能编程",
+      "realUrl": "https://www.trae.ai/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/cursor-icon.png",
+      "title": "Cursor",
+      "text": "AI驱动的智能代码编辑器，提升编程效率",
+      "realUrl": "https://cursor.sh/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tongyi-lingma-icon.png",
+      "title": "通义灵码",
+      "text": "阿里云推出的AI智能编码助手",
+      "realUrl": "https://tongyi.aliyun.com/lingma"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/baidu-comate-icon.png",
+      "title": "百度 Comate",
+      "text": "百度推出的AI代码助手，智能生成与补全",
+      "realUrl": "https://comate.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/codegeex-icon.png",
+      "title": "CodeGeeX",
+      "text": "智谱AI推出的免费开源AI编程助手",
+      "realUrl": "https://codegeex.cn/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/iflycode-icon.png",
+      "title": "iFlyCode",
+      "text": "科大讯飞推出的AI智能编程助手",
+      "realUrl": "https://iflycode.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/sensetime-raccoon-code-icon.png",
+      "title": "代码小浣熊",
+      "text": "商汤科技推出的智能AI编程助手",
+      "realUrl": "https://xiaohuanxiong.com/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/fitten-icon.png",
+      "title": "Fitten Code",
+      "text": "AI智能代码补全与生成工具",
+      "realUrl": "https://code.fittentech.com/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/imgcook-icon.png",
+      "title": "Imgcook",
+      "text": "阿里推出的免费设计稿智能生成前端代码",
+      "realUrl": "https://www.imgcook.com/"
+    },
+    {
+      "primary": [
+        "AI编程工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/codearts-icon.png",
+      "title": "CodeArts Snap",
+      "text": "华为云推出的AI智能编程助手",
+      "realUrl": "https://www.huaweicloud.com/product/codeartside/snap.html"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/doubao-icon.png",
+      "title": "豆包",
+      "text": "字节跳动推出的AI智能对话助手",
+      "realUrl": "https://www.doubao.com/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xinghuo-icon.png",
+      "title": "讯飞星火",
+      "text": "科大讯飞推出的认知智能大模型",
+      "realUrl": "https://xinghuo.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wenxin-icon.png",
+      "title": "文心一言",
+      "text": "百度推出的知识增强大语言模型",
+      "realUrl": "https://yiyan.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tongyi-icon.png",
+      "title": "通义千问",
+      "text": "阿里云推出的超大规模语言模型",
+      "realUrl": "https://tongyi.aliyun.com/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/zhipu-ai-chatglm-icon.png",
+      "title": "智谱清言",
+      "text": "智谱AI推出的生成式AI助手，基于ChatGLM",
+      "realUrl": "https://chatglm.cn/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kimi.png",
+      "title": "Kimi",
+      "text": "月之暗面Moonshot AI推出的聊天机器人",
+      "realUrl": "https://www.kimi.com/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/baichuan-icon.png",
+      "title": "百川大模型",
+      "text": "百川智能推出的中文大语言模型",
+      "realUrl": "https://www.baichuan-ai.com/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/zidong-icon.png",
+      "title": "紫东太初",
+      "text": "中科院推出的多模态人工智能大模型",
+      "realUrl": "https://taichu-web.ia.ac.cn/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/hailuoai-icon.png",
+      "title": "海螺问问",
+      "text": "MiniMax推出的免费AI智能聊天助理",
+      "realUrl": "https://hailuoai.com/"
+    },
+    {
+      "primary": [
+        "AI聊天对话"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/dingtalk-icon.png",
+      "title": "钉钉个人版",
+      "text": "钉钉推出的个人AI智能助手",
+      "realUrl": "https://www.dingtalk.com/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/suno-ai-icon.png",
+      "title": "Suno AI",
+      "text": "AI音乐创作平台，让每个人都能制作音乐",
+      "realUrl": "https://suno.com/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/peyin-xunfei-icon.png",
+      "title": "讯飞智作",
+      "text": "科大讯飞推出的AI转语音和配音工具",
+      "realUrl": "https://peiyin.xunfei.cn/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/moyin-icon.png",
+      "title": "魔音工坊",
+      "text": "出门问问推出的AI配音与语音合成平台",
+      "realUrl": "https://www.moyin.com/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wangyi-tianyin-icon.png",
+      "title": "网易天音",
+      "text": "网易推出的AI音乐创作与音频处理平台",
+      "realUrl": "https://tianyin.163.com/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tme-studio-icon.png",
+      "title": "TME Studio",
+      "text": "腾讯音乐推出的AI音乐创作工作室",
+      "realUrl": "https://tme.studio/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/lalal-icon.png",
+      "title": "LALAL.AI",
+      "text": "AI音频分离工具，人声与伴奏精准分离",
+      "realUrl": "https://www.lalal.ai/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kuaizhuan-icon.png",
+      "title": "快转字幕",
+      "text": "AI语音转文字与字幕自动生成工具",
+      "realUrl": "https://www.kuaizhuanziti.com/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aigc-unisound-icon.png",
+      "title": "蓝藻 AI",
+      "text": "云知声旗下的AI配音和声音克隆平台",
+      "realUrl": "https://aigc.unisound.com/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/reecho-icon.png",
+      "title": "Reecho 睿声",
+      "text": "AI语音合成与声音克隆平台",
+      "realUrl": "https://reecho.ai/"
+    },
+    {
+      "primary": [
+        "AI音频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/adobe-podcast-icon.png",
+      "title": "Adobe Podcast",
+      "text": "Adobe推出的AI播客音频处理工具",
+      "realUrl": "https://podcast.adobe.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/runwayml-icon.png",
+      "title": "Runway",
+      "text": "强大的AI视频制作工具，绿幕抠像、视频合成等",
+      "realUrl": "https://runwayml.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kling-icon.png",
+      "title": "可灵 AI",
+      "text": "快手推出的AI视频生成大模型",
+      "realUrl": "https://klingai.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/veed-icon.png",
+      "title": "Veed",
+      "text": "在线AI视频编辑与制作平台",
+      "realUrl": "https://www.veed.io/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aigc-yizhentv-icon.png",
+      "title": "一帧秒创",
+      "text": "简单好用的AI智能视频创作平台",
+      "realUrl": "https://aigc.yizhentv.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/jichuang-icon.png",
+      "title": "即创",
+      "text": "AI智能视频创作与营销内容生成平台",
+      "realUrl": "https://www.jichuangcn.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/dujia-icon.png",
+      "title": "度加创作工具",
+      "text": "百度推出的AI视频创作与剪辑平台",
+      "realUrl": "https://dujia.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/shanjian-icon.png",
+      "title": "闪剪",
+      "text": "AI智能短视频剪辑与创作工具",
+      "realUrl": "https://shanjian.tv/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kuaijianji-icon.png",
+      "title": "快剪辑",
+      "text": "360推出的AI智能视频剪辑工具",
+      "realUrl": "https://www.kuaijianji.com/"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/feishu-icon.png",
+      "title": "飞书妙记",
+      "text": "飞书推出的AI会议记录与转录工具",
+      "realUrl": "https://www.feishu.cn/product/minutes"
+    },
+    {
+      "primary": [
+        "AI视频工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tingwu-icon.png",
+      "title": "通义听悟",
+      "text": "阿里云推出的AI音视频转写与分析工具",
+      "realUrl": "https://tingwu.aliyun.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wenxin-yige-icon.png",
+      "title": "文心一格",
+      "text": "百度推出的AI艺术与创意辅助平台",
+      "realUrl": "https://yige.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tongyi-wanxiang-icon.png",
+      "title": "通义万相",
+      "text": "阿里云推出的AI图像生成模型",
+      "realUrl": "https://tongyi.aliyun.com/wanxiang"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/meitu-text2img-icon.png",
+      "title": "美图 AI 文生图",
+      "text": "美图推出的AI文字生成图片工具",
+      "realUrl": "https://www.meitu.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/duiyou-icon.png",
+      "title": "堆友 AI",
+      "text": "3D素材与AI图像生成设计平台",
+      "realUrl": "https://www.dui.ai/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/miaohua-icon.png",
+      "title": "秒画",
+      "text": "商汤科技推出的AI图像生成工具",
+      "realUrl": "https://miaohua.sensetime.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/hisheai-icon.png",
+      "title": "千图设计室 AI 助手",
+      "text": "AI绘画抠图与设计工具集",
+      "realUrl": "https://hisheai.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/jiandanai-icon.png",
+      "title": "简单 AI",
+      "text": "搜狐推出的AI图像与内容生成工具",
+      "realUrl": "https://www.jiandanai.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/liblib-icon.png",
+      "title": "LiblibAI",
+      "text": "AI绘画模型分享与创作社区",
+      "realUrl": "https://www.liblib.art/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/chuangkit-icon.png",
+      "title": "创客贴 AI 画匠",
+      "text": "创客贴推出的AI在线设计工具",
+      "realUrl": "https://www.chuangkit.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "常用工具"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tuchacha-icon.png",
+      "title": "图查查",
+      "text": "AI图像搜索与识别工具",
+      "realUrl": "https://www.tuchacha.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wantu-icon.png",
+      "title": "顽兔抠图",
+      "text": "阿里推出的免费AI智能抠图工具",
+      "realUrl": "https://www.wantu.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/picwish-icon.png",
+      "title": "PicWish",
+      "text": "AI智能图片处理工具，一键抠图去背景",
+      "realUrl": "https://picwish.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/meitu-koutu-icon.png",
+      "title": "美图抠图",
+      "text": "美图推出的AI智能抠图工具",
+      "realUrl": "https://www.meitu.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/removebg-icon.png",
+      "title": "remove.bg",
+      "text": "全球知名AI在线抠图去背景工具",
+      "realUrl": "https://www.remove.bg/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/clippingmagic-icon.png",
+      "title": "ClippingMagic",
+      "text": "AI智能图片背景移除工具",
+      "realUrl": "https://clippingmagic.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/photoscissors-icon.png",
+      "title": "PhotoScissors",
+      "text": "快速AI图片背景去除工具",
+      "realUrl": "https://photoscissors.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/bgsub-icon.png",
+      "title": "BgSub",
+      "text": "AI智能背景移除与替换工具",
+      "realUrl": "https://bgsub.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/slazzer-icon.png",
+      "title": "Slazzer",
+      "text": "AI自动图片背景去除工具",
+      "realUrl": "https://www.slazzer.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tukeli-icon.png",
+      "title": "图可丽",
+      "text": "AI智能抠图与图片处理工具",
+      "realUrl": "https://www.tukeli.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "背景移除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/booth-icon.png",
+      "title": "Booth.ai",
+      "text": "AI商品图背景生成与替换工具",
+      "realUrl": "https://booth.ai/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/hama-icon.png",
+      "title": "Hama",
+      "text": "AI图片物体与人物智能抹除工具",
+      "realUrl": "https://hama.app/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/bgeraser-icon.png",
+      "title": "Bg Eraser",
+      "text": "AI图片背景与物体擦除工具",
+      "realUrl": "https://bgeraser.com/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/snapedit-icon.png",
+      "title": "SnapEdit",
+      "text": "AI智能照片编辑，一键抹除不需要的内容",
+      "realUrl": "https://snapedit.app/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/cleanuppictures-icon.png",
+      "title": "Cleanup.pictures",
+      "text": "AI图片清理工具，智能移除不需要的物体",
+      "realUrl": "https://cleanup.pictures/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/cutoutpro-icon.png",
+      "title": "Cutout.Pro Retouch",
+      "text": "AI图片处理与智能修复润饰工具",
+      "realUrl": "https://www.cutout.pro/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/magiceraser-icon.png",
+      "title": "Magic Eraser",
+      "text": "AI魔术橡皮擦，一键移除图片不需要内容",
+      "realUrl": "https://magiceraser.io/"
+    },
+    {
+      "primary": [
+        "AI图像工具"
+      ],
+      "secondary": [
+        "人物抹除"
+      ],
+      "image": "https://aoc-aichat-test.raisound.com/nav/watermarkremover-icon.png",
+      "title": "WatermarkRemover",
+      "text": "AI智能水印去除工具",
+      "realUrl": "https://www.watermarkremover.io/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://www.recraft.ai/favicons/favicon.ico",
+      "title": "Recraft",
+      "text": "AI 设计神器，生成矢量艺术、3D 图像等",
+      "realUrl": "https://www.recraft.ai/invite/LtNMMOaRtH"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/135-icon.png",
+      "title": "135 AI 排版",
+      "text": "135编辑器推出的AI智能排版工具",
+      "realUrl": "https://www.135editor.com/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/zhihui-icon.png",
+      "title": "智绘设计",
+      "text": "AI智能绘画与设计创作平台",
+      "realUrl": "https://www.zhihui.com/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/logolivery-icon.png",
+      "title": "LogoliveryAI",
+      "text": "AI智能Logo设计与品牌形象生成工具",
+      "realUrl": "https://www.logolivery.com/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/jishi-icon.png",
+      "title": "即时 AI",
+      "text": "即时设计推出的AI设计工具，在线协作设计",
+      "realUrl": "https://js.design/ai"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/modaiyun-icon.png",
+      "title": "模袋云 AI",
+      "text": "AI建筑设计与可视化平台",
+      "realUrl": "https://www.modaiyun.com/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/meijian-icon.png",
+      "title": "美间 AI",
+      "text": "AI家居设计软装搭配工具",
+      "realUrl": "https://www.meijian.com/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/gaoding-icon.png",
+      "title": "稿 AI",
+      "text": "稿定设计推出的AI智能设计工具",
+      "realUrl": "https://www.gaoding.com/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/canva-icon.png",
+      "title": "Canva（Magic Design）",
+      "text": "Canva推出的AI魔法设计功能",
+      "realUrl": "https://www.canva.cn/"
+    },
+    {
+      "primary": [
+        "AI设计工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kujiale-icon.png",
+      "title": "酷家乐 AI",
+      "text": "AI智能家居设计与3D渲染平台",
+      "realUrl": "https://www.kujiale.com/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/public-prompts-icon.png",
+      "title": "PublicPrompts",
+      "text": "免费高质量的AI Prompts集合",
+      "realUrl": "https://publicprompts.art/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aishort-icon.png",
+      "title": "AI Short",
+      "text": "ChatGPT快捷指令大全，提升AI对话效率",
+      "realUrl": "https://www.aishort.top/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/flowgpt-icon.png",
+      "title": "FlowGPT",
+      "text": "AI提示词社区与分享平台",
+      "realUrl": "https://flowgpt.com/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/snack-prompt-icon.png",
+      "title": "Snack Prompt",
+      "text": "探索最新的ChatGPT语义提示词",
+      "realUrl": "https://snackprompt.com/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mjtool-icon.png",
+      "title": "MJ Tool",
+      "text": "Midjourney提示词工具与参考库",
+      "realUrl": "https://www.mjtool.cn/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/promptbase-icon.png",
+      "title": "PromptBase",
+      "text": "AI Prompts集合交易市场",
+      "realUrl": "https://promptbase.com/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/awesome-chatgpt-icon.png",
+      "title": "Awesome ChatGPT",
+      "text": "ChatGPT优质资源与提示词精选集合",
+      "realUrl": "https://github.com/awesome-chatgpt/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/learning-prompt-icon.png",
+      "title": "提示工程指南",
+      "text": "免费的Prompt Engineering教程（中文开源）",
+      "realUrl": "https://learningprompt.wiki/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/prompthero-icon.png",
+      "title": "PromptHero",
+      "text": "AI图像提示词搜索与分享平台",
+      "realUrl": "https://prompthero.com/"
+    },
+    {
+      "primary": [
+        "AI指令提示"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/huiai-icon.png",
+      "title": "绘 AI",
+      "text": "AI绘画提示词分享与创作社区",
+      "realUrl": "https://www.huiai.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://immersivetranslate.com/favicon.ico",
+      "title": "沉浸式翻译",
+      "text": "全网口碑爆棚的双语对照网页翻译插件，支持PDF、EPUB、视频字幕翻译",
+      "realUrl": "https://immersivetranslate.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xiangji-icon.png",
+      "title": "象寄翻译",
+      "text": "AI驱动的图片翻译与文本翻译平台",
+      "realUrl": "https://www.xiangji-translate.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/deepl-icon.png",
+      "title": "DeepL 翻译",
+      "text": "全球最精准的AI机器翻译工具",
+      "realUrl": "https://www.deepl.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/translate-alibaba-icon.png",
+      "title": "阿里翻译",
+      "text": "阿里巴巴达摩院推出的多领域多语种在线机器翻译",
+      "realUrl": "https://translate.alibaba.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/fanyi-baidu-icon.png",
+      "title": "百度翻译",
+      "text": "200种语言互译，沟通全世界",
+      "realUrl": "https://fanyi.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tencent-fanyi-icon.png",
+      "title": "腾讯翻译君",
+      "text": "腾讯推出的AI翻译助手",
+      "realUrl": "https://fanyi.qq.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/fanyi-xfyun-icon.png",
+      "title": "讯飞智能翻译",
+      "text": "科大讯飞推出的人工智能翻译平台",
+      "realUrl": "https://fanyi.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/sougou-fanyi-icon.png",
+      "title": "搜狗翻译",
+      "text": "搜狗推出的在线AI翻译工具",
+      "realUrl": "https://fanyi.sogou.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/caiyun-icon.png",
+      "title": "彩云小译",
+      "text": "AI驱动的实时翻译工具，边写边译",
+      "realUrl": "https://fanyi.caiyunapp.com/"
+    },
+    {
+      "primary": [
+        "AI翻译工具"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/jinshan-fanyi-icon.png",
+      "title": "金山快译",
+      "text": "金山旗下的AI智能翻译工具",
+      "realUrl": "https://fanyi.iciba.com/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/gptzero-icon.png",
+      "title": "GPTZero",
+      "text": "专业的AI生成内容检测与验证工具",
+      "realUrl": "https://gptzero.me/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/copyleaks-icon.png",
+      "title": "CopyLeaks",
+      "text": "AI内容检测和抄袭检查平台",
+      "realUrl": "https://copyleaks.com/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xdetector-icon.png",
+      "title": "X Detector",
+      "text": "多语言AI内容检测工具",
+      "realUrl": "https://xdetector.ai/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/originality-icon.png",
+      "title": "Originality.AI",
+      "text": "专业的AI内容原创性检测平台",
+      "realUrl": "https://originality.ai/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/winston-icon.png",
+      "title": "Winston AI",
+      "text": "AI内容检测与原创性验证工具",
+      "realUrl": "https://gowinston.ai/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/sapling-icon.png",
+      "title": "Sapling AI",
+      "text": "AI写作辅助与内容检测工具",
+      "realUrl": "https://sapling.ai/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aiseo-icon.png",
+      "title": "AISEO AI Detector",
+      "text": "AI内容检测与SEO优化工具",
+      "realUrl": "https://aiseo.ai/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/writer-icon.png",
+      "title": "Writer",
+      "text": "Writer推出的AI内容检测工具",
+      "realUrl": "https://writer.com/ai-content-detector/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/smodin-icon.png",
+      "title": "Smodin AI Detector",
+      "text": "AI内容检测与学术写作辅助工具",
+      "realUrl": "https://smodin.io/"
+    },
+    {
+      "primary": [
+        "AI内容检测"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/studycorgi-icon.png",
+      "title": "StudyCorgi Detector",
+      "text": "免费的AI内容检测与学术助手",
+      "realUrl": "https://studycorgi.com/"
+    },
+    {
+      "primary": [
+        "AI法律助手"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tongyi-icon.png",
+      "title": "通义法睿",
+      "text": "阿里推出的免费AI法律顾问助手",
+      "realUrl": "https://tongyi.aliyun.com/farui"
+    },
+    {
+      "primary": [
+        "AI法律助手"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/baidu-ai-law-icon.png",
+      "title": "法行宝",
+      "text": "百度推出的免费AI法律助手",
+      "realUrl": "https://ailegal.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI法律助手"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/yoo-ai-contract-icon.png",
+      "title": "合同嗖嗖",
+      "text": "专业的AI法律合同生成工具",
+      "realUrl": "https://contract.yoo-ai.com/"
+    },
+    {
+      "primary": [
+        "AI法律助手"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/delisearch-icon.png",
+      "title": "得理法搜",
+      "text": "AI法律智能检索系统",
+      "realUrl": "https://www.delilegal.com/"
+    },
+    {
+      "primary": [
+        "AI法律助手"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/fazhi-icon.png",
+      "title": "法智",
+      "text": "AI智能法律咨询与知识服务平台",
+      "realUrl": "https://www.fazhi.com/"
+    },
+    {
+      "primary": [
+        "AI法律助手"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/yuandian-icon.png",
+      "title": "元典智库",
+      "text": "AI驱动的法律知识检索与研究平台",
+      "realUrl": "https://www.yuandianzhiku.com/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/deepseek-chat-icon.png",
+      "title": "DeepSeek",
+      "text": "全新体验，DeepSeek-V3在开源模型中位列榜首",
+      "realUrl": "https://github.com/deepseek-ai"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/gemma-icon.png",
+      "title": "Gemma",
+      "text": "Google推出的轻量级开源大语言模型",
+      "realUrl": "https://ai.google.dev/gemma"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/xinghuo-icon.png",
+      "title": "讯飞星火认知大模型",
+      "text": "科大讯飞推出的认知智能大模型",
+      "realUrl": "https://xinghuo.xfyun.cn/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/hunyuan-icon.png",
+      "title": "腾讯混元大模型",
+      "text": "腾讯推出的全链路大语言模型",
+      "realUrl": "https://hunyuan.tencent.com/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/coze-ai-icon.png",
+      "title": "Coze",
+      "text": "字节推出的AI机器人和智能体创建平台",
+      "realUrl": "https://www.coze.com/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/ollama-icon.png",
+      "title": "Ollama",
+      "text": "本地运行大语言模型的免费开源工具",
+      "realUrl": "https://ollama.com/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/wenxin-damo-icon.png",
+      "title": "文心大模型",
+      "text": "百度推出的知识增强大语言模型系列",
+      "realUrl": "https://wenxin.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/modelscope-icon.png",
+      "title": "魔搭社区",
+      "text": "阿里推出的AI模型开源社区与共享平台",
+      "realUrl": "https://modelscope.cn/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/llama-icon.png",
+      "title": "LLaMA",
+      "text": "Meta推出的开源大语言模型系列",
+      "realUrl": "https://llama.meta.com/"
+    },
+    {
+      "primary": [
+        "AI开源模型"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/sensechat-icon.png",
+      "title": "商量 SenseChat",
+      "text": "商汤科技推出的类ChatGPT人工智能大语言模型",
+      "realUrl": "https://chat.sensetime.com/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/fast-ai-icon.png",
+      "title": "fast.ai",
+      "text": "免费开源的深度学习和AI学习网站，让每个人都参与到AI",
+      "realUrl": "https://www.fast.ai/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/coursera-icon.png",
+      "title": "Coursera",
+      "text": "全球领先的在线学习平台，丰富的AI与机器学习课程",
+      "realUrl": "https://www.coursera.org/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/deeplearningai-icon.png",
+      "title": "DeepLearning.AI",
+      "text": "吴恩达创立的深度学习与AI教育平台",
+      "realUrl": "https://www.deeplearning.ai/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/d2l-icon.png",
+      "title": "动手学深度学习",
+      "text": "经典的深度学习教材与在线课程",
+      "realUrl": "https://zh.d2l.ai/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/kaggle-icon.png",
+      "title": "Kaggle",
+      "text": "全球最大的数据科学与机器学习竞赛平台",
+      "realUrl": "https://www.kaggle.com/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/paddle-icon.png",
+      "title": "飞桨 AI Studio",
+      "text": "百度飞桨推出的AI学习与实训平台",
+      "realUrl": "https://aistudio.baidu.com/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aidaxue-icon.png",
+      "title": "AI 大学堂",
+      "text": "科大讯飞推出的AI学习平台",
+      "realUrl": "https://www.aidaxue.com/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/aliyun-ai-icon.png",
+      "title": "阿里云 AI 学习路线",
+      "text": "阿里云推出的AI学习路径与实训平台",
+      "realUrl": "https://developer.aliyun.com/ai/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/udacity-icon.png",
+      "title": "Udacity AI 学院",
+      "text": "知名的硅谷在线AI与机器学习纳米学位课程",
+      "realUrl": "https://www.udacity.com/"
+    },
+    {
+      "primary": [
+        "AI学习网站"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/google-ai-icon.png",
+      "title": "Google AI",
+      "text": "Google推出的AI研究与学习资源平台",
+      "realUrl": "https://ai.google/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/tensorflow-icon.png",
+      "title": "TensorFlow",
+      "text": "Google推出的机器学习和人工智能开源库",
+      "realUrl": "https://www.tensorflow.org/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/pytorch-icon.png",
+      "title": "PyTorch",
+      "text": "Meta推出的深度学习框架，灵活且高效",
+      "realUrl": "https://pytorch.org/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/paddlepaddle-icon.png",
+      "title": "飞桨 PaddlePaddle",
+      "text": "百度推出的开源深度学习平台",
+      "realUrl": "https://www.paddlepaddle.org.cn/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mindspore-icon.png",
+      "title": "昇思 MindSpore",
+      "text": "华为开源自研AI深度学习框架",
+      "realUrl": "https://www.mindspore.cn/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mxnet-icon.png",
+      "title": "Apache MXNet",
+      "text": "Apache开源的高效深度学习框架",
+      "realUrl": "https://mxnet.apache.org/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/scikit-learn-icon.png",
+      "title": "Scikit-learn",
+      "text": "Python机器学习经典库，简单高效",
+      "realUrl": "https://scikit-learn.org/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/mlx-icon.png",
+      "title": "MLX",
+      "text": "苹果推出的开源机器学习框架，专为Apple Silicon设计",
+      "realUrl": "https://github.com/ml-explore/mlx"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/labelstudio-icon.png",
+      "title": "Label Studio",
+      "text": "开源的数据标注平台，支持多种数据类型",
+      "realUrl": "https://labelstud.io/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/keras-icon.png",
+      "title": "Keras",
+      "text": "简单易用的高级深度学习API",
+      "realUrl": "https://keras.io/"
+    },
+    {
+      "primary": [
+        "AI开发框架"
+      ],
+      "secondary": [],
+      "image": "https://aoc-aichat-test.raisound.com/nav/langchain-icon.png",
+      "title": "LangChain",
+      "text": "构建LLM应用的开源开发框架",
+      "realUrl": "https://www.langchain.com/"
+    }
+  ],
+  "nanjingCommunities": [
+    {
+      "name": "南京国家农创中心AI+农业OPC社区",
+      "address": "农创中心5栋4楼",
+      "intro": "农创中心围绕场景应用型、生态服务型两类农业科技OPC主体，打造“农创・OPC”核心IP，形成农创中心差异化的农业科技创业生态标识，持续提升农业领域科技赋能水平",
+      "district": "江北新区"
+    },
+    {
+      "name": "总部大厦A3栋",
+      "address": "浦滨路91号",
+      "intro": "中央商务区首期投入使用载体为中央商务区总部大厦A3栋的1100m2空间，规划设置116个工位，包括共享工位与专属工位两种形态，分别适配创意验证阶段与产品研发阶段的创业需求。",
+      "district": "江北新区"
+    },
+    {
+      "name": "中国气象谷青创湾OPC产业社区",
+      "address": "南京市江北新区龙山北路2号中国气象谷\n2号楼青创湾2层",
+      "intro": "中国气象谷青创湾OPC产业社区以AI+气象为基础，依托南京信息工程大学科技成果，\n为南京市人工智能相关创业者提供酒店式服务的拎包入驻空间，载体内设有会议室10间，多功能报告厅2个，午休仓1个，冥想室4个，定期举办AI培训活动及创业挑战大赛，筛选优质OPC项目做深度扶持。",
+      "district": "江北新区"
+    },
+    {
+      "name": "药智汇OPC社区",
+      "address": "江北新区龙山南路141号生命之光B栋",
+      "intro": "药智汇OPC社区依托南京江北新区生物医药公共服务平台有限公司运营，于2022年入选省级众创空间，拥有完善的市场化机制，成熟的服务体系，提供专业的孵化空间与技术服务内容；同时，药智汇结合产业园区的专业化投融资资源，解决企业的从硬件到资本的全方位需求，创建自身的孵化服务品牌，更高效的培育科技创新企业。",
+      "district": "江北新区"
+    },
+    {
+      "name": "BioMatrix Center OPC社区",
+      "address": "江北新区探秘路73号树屋十六栋13号楼",
+      "intro": "BioMatrix Center OPC社区汇聚各类创新要素，打造独具特色的“多功能场地+多元化服务”运营模式。办公及休闲区域配备现代化的共享工位、多功能报告厅、培训大厅、公共会议室、咖啡厅等多种空间，满足企业发展运营需求的同时，更能增加互动交流机会，增添工作惬意。",
+      "district": "江北新区"
+    },
+    {
+      "name": "BEEPLUS研创OPC社区",
+      "address": "江北新区华创路65号智信大厦B座2-8层",
+      "intro": "BEEPLUS研创产业中心OPC社区是位于江北科学城高新区的产业创新社区，以“AI+产业”为核心，聚焦场景应用、生态服务及技术攻坚。为入驻OPC项目配备一个服务专员、一个智能化管理平台、一个增值服务小站、一个技术训练营、一个交流活动营，为OPC企业提供全流程全方位服务。",
+      "district": "江北新区"
+    },
+    {
+      "name": "骐骥驰骋AIGC 漫剧OPC 基地（拟）",
+      "address": "腾飞大厦C座16楼（过渡）\n数智溪谷7号楼",
+      "intro": "南京骐骥驰骋科技有限公司由南京江北新区科学城与南京炫佳科技合资打造，运营骐骥驰骋AIGC漫剧OPC千人基地，总部设于数智溪谷7号楼，设腾飞大厦过渡分部。公司聚焦AIGC+漫剧+OPC创作模式，以炫佳Kino视界AIGC平台为核心，搭建四大运营中台，为创作者提供实训、算力、培训、版权、IP孵化等一站式服务。主打规模化、标准化AI漫剧/短剧生产，大幅压缩制作周期、降低成本，提升创作效率。目前已有十余OPC完成/待注册、数十准OPC进驻，业务覆盖多元漫剧场景，助力数字视听产业升级与新质生产力发展。",
+      "district": "江北新区"
+    },
+    {
+      "name": "江北新区扬子江数字视听园（AI+文化视听）",
+      "address": "南京江北新区七里桥北路6号",
+      "intro": "北岸OPC U·CAN AI+文化视听社区聚焦“AI+数字视听+文化出海”赛道，创新构建“技术赋能+模式革新+生态支撑”的OPC创业体系。以AI工具“七星智能体”为技术核心，首创“消费者-智能体-生产者”产业范式，构建覆盖版权保障、AI工具赋能、一键分发的全周期培育生态，将视频制作效率提升20倍以上，投流成本降低90%。社区建成3400㎡实景影棚及30个高频拍摄场景，联动外部场景100余个，集聚百川、智影、迦视等核心企业70余家，形成全产业链布局，年产短剧500余部，爆款率达50%，总产值破5亿元。园区获批省广电局AIGC视频生成技术应用实验室，通过专项政策、算力支撑及专属产业基金，构建全方位扶持体系。",
+      "district": "江北新区"
+    },
+    {
+      "name": "“AI+新材料”OPC社区",
+      "address": "宁六路606号新材料国际创新社区一区D栋一楼",
+      "intro": "社区定位专注于“一人创业+AI赋能”的前沿材料研发生态，旨在通过高度集约化的共享空间与智能化云服务平台，彻底突破传统研发对大型团队和重型资产的依赖。社区聚焦半导体关键材料、高端光学材料、高分子材料等战略领域，为入驻的顶尖科学家、青年创业家和微型技术团队，提供从实验验证到中试转化的全流程、低成本、高效率赋能。",
+      "district": "江北新区"
+    },
+    {
+      "name": "AI+数字游戏OPC社区",
+      "address": "南京市江北新区浦东北路7号扬子江数字广告产业园",
+      "intro": "本社区立足于江苏省数字广告集聚区，打造北岸UCAN·AI+数字广告、数字游戏OPC社区",
+      "district": "江北新区"
+    },
+    {
+      "name": "鹏为“AI+数字内容”OPC社区",
+      "address": "南京江北新区研创园团结路110号鹏为大厦18-22层",
+      "intro": "鹏为长三角 “AI + 数字内容”OPC 社区打造的 AI 数字内容专属孵化平台，聚焦直播、短视频、AI 设计、漫剧、跨境数字营销赛道，提供 AI 实训、订单对接、工商财税、投融资全链条创业服务，兼顾高校产教实训与个体创作者孵化，助力 “一人 + AI” 轻量化创业，构建长三角数字内容创意生态集聚高地。",
+      "district": "江北新区"
+    },
+    {
+      "name": "麒智原OPC社区",
+      "address": "人工智能产业园B区",
+      "intro": "聚焦智能计算、产业智能、硬件融合、数字文化四大赛道，涵盖AI算法、芯片设计、工业质检AI、车载AI、数字内容创作等细分领域，提供科研赋能、算力支撑、场景对接、政务服务、金融投资、人才培育、生态链接七大全链条服务。",
+      "district": "江宁区"
+    },
+    {
+      "name": "英智原OPC社区",
+      "address": "人工智能产业园B区8号楼7层",
+      "intro": "聚焦工业智能落地与具身智能场景应用，覆盖工业智能改造方案、设备预测性维护、具身智能实训设备开发三大细分领域，同时具有短剧制作平台",
+      "district": "江宁区"
+    },
+    {
+      "name": "启智原OPC社区",
+      "address": "启迪科技城立业园1栋",
+      "intro": "聚焦 AI+应用领域的早期项目孵化，为创业者提供一站式落地服务、创业辅导与升级培训、算力与 AI 工具、启迪之星微股权投资与启迪产业资本对接，并依托启迪全球创新网络，提供从产品验证到规模化增长的全方位赋能，支持 OPC 创新孵化生态加速发展。",
+      "district": "江宁区"
+    },
+    {
+      "name": "江宁高新区人工智能OPC社区",
+      "address": "南京市江宁区龙眠大道768号活力智岛二期T1幢10楼",
+      "intro": "江宁高新区人工智能OPC社区位于活力智岛二期T1幢10楼，地处江宁大学城核心区域（龙眠大道768号），紧邻地铁1号线，周边高校聚集，人才资源丰富。社区以打造“要素聚合、服务精准、生态繁荣”的高质量OPC集聚空间为目标，为入驻项目提供全方位创业保障：\n1.低成本创业空间：入驻高品质办公载体，配备精装修独立工位，提供路演报告厅、共享会议室、地下停车场、公共餐厅等设施，创业者可实现“拎包入驻”。\n2.全要素服务体系：提供AI开发工具包、线上线下培训辅导、商业实战营等创业关键要素，链接投融资机构、产业链龙头企业和专业服务机构，拓宽产品销售和出海渠道。\n3.活跃的社群氛围：定期举办技术沙龙、创业路演、场景对接会、行业交流会等活动，构建“上下楼就是上下游”的产业协同生态。",
+      "district": "江宁区"
+    },
+    {
+      "name": "中科智原OPC产业生态创新中心",
+      "address": "人工智能产业园A区4号楼3层",
+      "intro": "立足顶尖科研根基，依托中科系前沿技术，锚定产业痛点，整合具身智能全栈技术与AI-OPC轻量化赋能，建设开放式、集成化、全链条的技术型产业化平台——“中科・智原OPC产业生态创新中心”，打造国内首个技术驱动型OPC产业加速器和生态圈，共同建设具身智能与人工智能融合发展的全国领先新高地。",
+      "district": "江宁区"
+    },
+    {
+      "name": "紫金星辰·OPC社区",
+      "address": "江宁开发区紫金山科技城",
+      "intro": "在人工智能技术浪潮推动下，OPC正成为数字经济时代的新型创业形态。2025年底，紫金星辰·OPC社区在江宁开发区紫金山科技城正式揭牌，标志着以“单人成军、全链闭环”为特征的AI创业新生态全面启航。社区规划首期建设一万平方米复合型创新空间，并配套全方位创业服务，致力于成为垂直应用型OPC创业的首选区和人工智能赋能产业的示范区。",
+      "district": "江宁区"
+    },
+    {
+      "name": "智梦OPC社区（算数空间)",
+      "address": "鼓楼区古平岗4号智梦园B座5楼北侧",
+      "intro": "作为矩阵核心，该社区为鼓楼区OPC矩阵的集中展示区和开放性孵化载体，定位为前沿技术探索与产业应用的“连接器”与“反应堆”、鼓楼区人工智能产业创新生态的旗舰展示窗口和核心策源地。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "云知学院OPC社区",
+      "address": "鼓楼区清江南路18号鼓楼创新广场A座15-16楼",
+      "intro": "该社区依托云知声自主研发的\"山海\"大模型及在智慧医疗、智能物联等领域的深厚行业积淀，聚焦AIGC等前沿方向，培养既掌握大模型等前沿技术、又具备垂直行业洞察能力的复合型人才。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "一盏神灯OPC社区",
+      "address": "鼓楼区集慧路18号联创大厦B座5楼",
+      "intro": "该社区依托自研的“阿拉丁企业邦”智能体系统、与明德蓝鹰等专业机构的深度协作，提供从战略定位、商业计划梳理、资源对接到融资推动的“AI+”赋能服务。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "同橙OPC社区",
+      "address": "鼓楼区古平岗4号智梦园B座5楼南侧",
+      "intro": "该社区利用同橙科创集团自研的AI智能体、对主流AI工具的深度集成提供技术平台支撑，通过设立发现独角兽星计OPC专项创投基金、旗下管理的多支新兴产业基金提供阶梯式、全周期的金融支持，帮助OPC创业者链接400余家中国潜在独角兽企业。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "启航港OPC社区",
+      "address": "鼓楼区北京西路5号三楼",
+      "intro": "该社区聚焦环南大知识经济圈建设，发挥“双高协同”试点优势，培养具备“AI+”跨学科融合能力、创新精神和创业实战力的复合型人才，推动教育链、人才链与创新链、产业链有机衔接。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "悦星球OPC社区",
+      "address": "鼓楼区清江南路18号鼓楼创新广场E座5-9楼",
+      "intro": "该社区聚焦生命健康赛道，发挥悦星球数字医疗创新中心专业化空间、一站式服务、生态社群、校地融合四大核心优势，构建“技术赋能－场景落地－产业集聚”的创新生态，打造贯通医学数字科技的产学研投用全要素的垂直赛道类OPC社区。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "Flowary OPC社区",
+      "address": "鼓楼区龙江路28号深业漫埠",
+      "intro": "社区以鼓楼滨江岸线独特的“长江流动”为设计灵感，将自然景观、历史风貌与办公需求、生活配套相结合，为OPC创业者打造理想的人居与创业环境。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "文心开源OPC社区",
+      "address": "鼓楼区清江南路18号鼓楼创新广场A座12楼",
+      "intro": "社区依托百度飞桨（南京）人工智能产业赋能中心建设，以百度文心大模型和飞桨平台为核心，将百度生态资源导入创业前端，积极引培AI生态资源进驻，推动人工智能企业、飞桨平台开发者和广大创业者在OPC社区集聚。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "开放OPC社区",
+      "address": "鼓楼区江东北路399号江苏开放大学\n（暂以智梦OPC社区作为线下载体支撑）",
+      "intro": "社区依托江苏开放大学培训体系，面向开放大学学生、社会面创业者、数字化转型的中小企业主等，举办“双高协同·智创未来”等OPC创业训练营，培养选拔优秀项目并匹配“高校+行业”双导师、为期1年的陪伴式辅导。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "火山引擎线上OPC社区",
+      "address": "",
+      "intro": "该社区依托字节跳动建设的“鼓楼区人工智能产业创新平台”，通过提供一站式的Agent培训、研发、订阅和交易建设线上OPC社区，打造鼓楼特色的线上OPC社区样板。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "TOKEN工坊・OPC社区",
+      "address": "鼓楼区新模范马路5号南京科技广场",
+      "intro": "社区聚焦文创数字、跨境电商、生命健康三大核心赛道，联动多家生态伙伴，打造“AI技术底座+全周期服务+全链条赋能”的创业支撑体系，助力OPC实现“单人成军、聚力成链”。",
+      "district": "鼓楼区"
+    },
+    {
+      "name": "OPC超级梦工厂",
+      "address": "江苏国际数据港",
+      "intro": "江苏国际数据港依托玄武区产业优势、数据港省级公共服务平台的核心功能，叠加玄武大模型工厂的技术赋能优势，启动国际OPC社区——OPC超级梦工厂建设。梦工厂立足长三角、链接全球，聚焦OPC技术的跨境协同、产业赋能与生态共建，围绕“工具、数据、场景、配套、生态”5大支柱，打造首个本土主导的国际OPC社区，构建全球创新资源聚合枢纽与人工智能赋能核心载体。",
+      "district": "玄武区"
+    },
+    {
+      "name": "玄武·模数师学院OPC社区",
+      "address": "南京市玄武区珠江路498号未来城B座2层",
+      "intro": "玄武·模数师学院OPC社区定位为长三角“训创一体”AI超级个体孵化基地，以“学院+社区”双轮驱动，构建“学习→实践→创业→产业→反哺”闭环生态。支持“单人+AI即公司”轻量化创业模式，学院结业学员可直接入驻，实现“结业即入驻、创业即启航”。社区提供灵活工位、真实订单对接、普惠算力、法财税绿色通道、政策申报及资本对接等一站式服务，政企协同、零成本启动，让每一位学员从学习者无缝成长为价值创造者。",
+      "district": "玄武区"
+    },
+    {
+      "name": "“数智”苏豪新街口OPC社区",
+      "address": "苏豪大厦\n南京市中山南路8号",
+      "intro": "聚焦人工智能、大数据、数字内容产业，打造集办公、算力服务、成果转化、产业孵化于一体的高端OPC社区，依托新街口区位优势，集聚数字经济创业者与创新企业。\n在苏豪大厦，打造一个复合型功能空间：共享路演厅让创意有地方“亮出来”，共享直播间让产品有渠道“走出去”，共享AI体验中心让技术不再“高不可攀”，胶囊工作室让创业者拥有属于自己的“一亩三分地”。",
+      "district": "秦淮区"
+    },
+    {
+      "name": "质能·工坊 OPC社区",
+      "address": "南京市雨花台区软件大道178号汇智城C/D栋4F",
+      "intro": "质能·工坊OPC社区是软件谷打造的全市首个人工智能OPC创业孵化社区，聚焦 AI 领域早期创新与加速，专注于培育AI原生OPC创业者。\n社区通过 AI 技术深度赋能，让创业者可独立完成从产品设计、研发、生产到市场投放、用户运营与客服响应的全链路业务闭环，打破传统创业对团队规模、资金体量的硬性要求，实现 \"单人 + AI 即公司\" 甚至 \"单人 + AI 即独角兽\" 的新型产业形态。\n社区首批14 家入驻OPC企业/团队，涵盖 \"AI + 产业发展\"\"AI + 消费提质 \"\"AI + 民生福祉\" 等多个赛道。",
+      "district": "雨花台区"
+    },
+    {
+      "name": "栖智.睿力OPC社区",
+      "address": "南京经济技术开发区智芯路1号红枫科技园C4栋3楼东侧",
+      "intro": "栖智.睿力OPC社区位于红枫科技园C4栋3楼东侧，面积1478㎡。社区为创业者提供5间20人的独立办公室，共100个工位可供使用，配套共享会议室、茶水间、洽谈区等公共区域。",
+      "district": "栖霞区"
+    },
+    {
+      "name": "栖智柚力OPC社区",
+      "address": "栖霞区恒园路1号龙港科技园B1栋8楼",
+      "intro": "栖智柚力OPC社区是由南京南邮信息产业技术研究院有限公司建设运营，规划建设面积1500平方，可容纳OPC企业100家,依托建设单位科创载体平台及股东资源优势，将为入驻企业提供一站式服务。",
+      "district": "栖霞区"
+    },
+    {
+      "name": "栖智·元力OPC社区",
+      "address": "南京市栖霞区紫东路2号",
+      "intro": "当前，以人工智能为核心的新一轮科技革命与产业变革加速演进，新质生产力已成为区域高质量发展的核心引擎。为破解科技成果转化壁垒、青年创业痛点、产业升级瓶颈，栖霞高新区立足得天独厚的科教资源与产业基础，重磅推出栖智·元力OPC社区，以“激活青年算力、共筑超级个体\"为核心使命，实行房租水电物业网络全免鼓励机制，构建布局优化、支撑有力、生态完备的创新高地，为区域发展注入澎湃动能。",
+      "district": "栖霞区"
+    },
+    {
+      "name": "南京经开区OPC社区",
+      "address": "恒广路101号",
+      "intro": "计划以经开国资总部基地及创新中心2号楼为核心，打造数智心理健康+OPC社区，依托中科院心理实验室、北师大、南师大心理学院，建设数字心理健康产品展厅和评估中心建设，提供心理健康智能产品展示空间和心理咨询与评测中心，着力打造心理健康特色空间；积极打造契合园区发展需求、具备实际应用场景、突显区域产业特色的OPC社区。",
+      "district": "栖霞区"
+    },
+    {
+      "name": "创翼港湾（暂定）",
+      "address": "金尧路6号",
+      "intro": "在金尧花园社区3楼，打造街道“企业服务站”，引入、链接多家专业的第三方、社会组织，为企业的提供：初创企业支持、政策宣讲、高校资源对接、跨境电商、企业资质申报、无人机培训、就业招聘等专业服务，提供联合办公、导师指导、产业链对接等",
+      "district": "栖霞区"
+    },
+    {
+      "name": "栖霞区脑机接口OPC社区",
+      "address": "南京市栖霞区纬地路9号，江苏生命科技园A3栋三层，国家脑机接口共性创新与产业服务平台",
+      "intro": "    脑机接口是生命科学与信息技术融合的前沿领域，2026年政府工作报告首次将其明确为培育发展的未来产业。江苏省已印发《脑机接口产业创新发展行动方案》，提出到2030年打造2-3家具有国内外影响力的领军企业，产业综合竞争力位居全国前列。与此同时，以OpenClaw（“龙虾”）为代表的AI智能体技术正在重塑工作方式，让一人公司（OPC）成为可能。对于脑机接口领域的创业者而言，团队规模小、研发任务重、文档工作繁琐是普遍痛点——一个人既要搞硬件、跑算法，又要写文档、报资质，分身乏术。\n        栖霞区拥有全国最完整的脑机接口产业生态：江苏脑机接口研究院已揭牌运营，15家核心理事单位涵盖从研发、制造、临床到审批的全链条关键角色；江苏脑机接口创新产业园已吸引11家企业入驻；总规模50亿元的产业发展母基金同步设立。在此基础上，我们结合近期发布的“龙虾十条”，制定本专项政策，打造全国首个面向脑机接口领域的一人公司（OPC）创业社区。",
+      "district": "栖霞区"
+    },
+    {
+      "name": "栖智·智力OPC社区",
+      "address": "南京经济技术开发区兴智路6号兴智科技园A座11层",
+      "intro": "社区紧邻地铁6号线兴智路站，总面积1700平方米，内设20间独立办公间以及共享工位区（共144个工位），配套免费共享会议室、洽谈区、健身休闲区。社区依托栖霞区人工智能全产业链集聚优势，融入栖霞AI产业生态，依托栖智OPC社区云平台，打造集办公、科研、资源对接于一体的专业化人工智能创业载体。（原有孵化器转型的OPC社区，有体量较大的原有AI企业基础，由于暂时没有OPC的规范标准，并未清退企业）",
+      "district": "栖霞区"
+    },
+    {
+      "name": "高淳区河蟹产业新农人OPC社区",
+      "address": "南京市高淳区淳溪街道汶溪路26号 南京固城湖螃蟹市场三楼",
+      "intro": "全国首个聚焦河蟹产业的“一人公司”（OPC）创业社区。依托高淳区完整的河蟹产业链（苗种、养殖、加工、冷链、品牌）及“固城湖螃蟹”国家地理标志，为个体新农人提供零成本创业平台。核心特色：①“工位即公司”——每个工位可注册为一家合法的一人公司，免费入驻；②全栈赋能——共享供应链（提供冷链仓储、统一发货等服务）、品牌背书（固城湖品牌授权）、AI工具对接；③社群共生——80个一人公司形成业务协作网络，无股权合作；④成长路径——从“一人公司”孵化至“一人品牌”，达标后推荐至更大产业平台。社区面积6000余平方米，包含创客孵化区（营销类、深加工类）、公共孵化区、路演厅、技术展厅、共享直播间、会议室、图书馆、农产品展厅等。",
+      "district": "高淳区"
+    },
+    {
+      "name": "河西中央科创区亲橙OPC社区",
+      "address": "永初路8号南京阿里中心T5栋",
+      "intro": "河西中央科创区亲橙OPC社区是阿里巴巴旗下首个OPC社区，由建邺河西中央科创区与阿里巴巴合作打造。社区由阿里巴巴南京团队负责载体日常运营，阿里巴巴集团将深度融入，不仅提供物理空间，更将开放其强大的技术平台、丰富的应用场景和成熟的产业生态。河西中央科创区提供精准的政策供给、高效的政务服务和优越的产业环境，形成“技术研发-场景验证-产业落地”的全链转化体系。",
+      "district": "建邺区"
+    },
+    {
+      "name": "模法学院OPC社区",
+      "address": "建邺区梦都大街1号江苏数字科创园数智城片区，C3栋10-11F、C4栋2-4F",
+      "intro": "模法学院OPC社区位于建邺区梦都大街1号数智城C片区，由国有资本为主导，规划了超3万平米的OPC社区专属空间，陆续提供超2000个精装工位。平台致力于让每一位怀揣梦想的超级个体都能在此扎根沃土、向阳生长、单人成军，目前已落地超20个创业项目。平台重点聚焦人工智能、数据产业初创期项目，围绕AI+医疗、AI+金融、AI+交通、AI+教育等领域，以“育苗池”模式构建“养锦鲤、育龙头”的产业生态，同时打造“模、金、数、算、用、社”六大特色支撑体系，为创业项目提供全维度、全周期的孵化培育与发展赋能。",
+      "district": "建邺区"
+    },
+    {
+      "name": "极客码头OPC社区",
+      "address": "建邺区嘉陵江东街18号3栋1003室",
+      "intro": "极客码头OPC社区以构建产业协同发展生态联盟为核心目标，依托“要素赋能、生态联动、院校共创、政策支撑、场景营造、全程护航”六大核心支撑体系，整合全产业链资源，为入驻社区的一人创业者和大学生提供精准服务，助力数字文娱产业高质量发展。",
+      "district": "建邺区"
+    },
+    {
+      "name": "江岛ROBOT OPC社区",
+      "address": "建邺区生态科技岛仁恒置地广场C栋4楼",
+      "intro": "由生态科技岛与南京晟迅信息科技、坚米智能等核心企业联合打造，以“具身智能”为鲜明特色的OPC创新生态基地。",
+      "district": "建邺区"
+    }
+  ],
+  "communities": [
+    {
+      "name": "同橙OPC社区",
+      "city": "南京",
+      "desc": "同橙OPC的起点与总部样板，汇聚首批超级个体与早期共建者，提供从办公、算力到资本对接的一站式创新创业支持。"
+    },
+    {
+      "name": "艺术金陵·同橙OPC社区",
+      "city": "南京",
+      "desc": "落地南京文化地标艺术金陵，聚焦文创、设计与数字艺术领域的超级个体，打造艺术与科技融合的共创空间。"
+    },
+    {
+      "name": "虹桥汇·同橙OPC社区",
+      "city": "上海",
+      "desc": "位于上海虹桥国际开放枢纽，面向出海与跨境协作，链接全球资源，服务国际化超级个体与创业团队。"
+    },
+    {
+      "name": "罗普特·同橙OPC社区",
+      "city": "上海",
+      "desc": "携手罗普特共建，深耕智能感知与 AI 安全产业，为硬科技创业者提供场景、算力与产业落地通道。"
+    },
+    {
+      "name": "松江大学城科创源·同橙OPC社区",
+      "city": "上海",
+      "desc": "扎根松江大学城，依托高校科研与人才优势，孵化青年科创项目，构建产学研一体的创新策源地。"
+    },
+    {
+      "name": "西山·同橙OPC社区",
+      "city": "昆明",
+      "desc": "坐拥昆明西山生态与气候优势，聚焦绿色经济与文旅康养，为西南超级个体提供低成本创业栖息地。"
+    },
+    {
+      "name": "常州高新区·同橙OPC社区",
+      "city": "常州",
+      "desc": "依托常州国家高新区先进制造集群，聚焦智能制造与新能源，助力硬核创业者加速成长。"
+    },
+    {
+      "name": "扬州文峰·同橙OPC社区",
+      "city": "扬州",
+      "desc": "立足扬州文峰文化底蕴，融合传统与数字产业，营造小而美、慢而精的创新创业微生态。"
+    }
+  ],
+  "gpu": {
+    "0": [
+      {
+        "value": "500",
+        "unit": "+",
+        "label": "GPU 卡数"
+      },
+      {
+        "value": "1000",
+        "unit": "+",
+        "label": "TFLOPS 总算力"
+      },
+      {
+        "value": "99.9",
+        "unit": "%",
+        "label": "服务可用性"
+      },
+      {
+        "value": "<5",
+        "unit": "ms",
+        "label": "网络延迟"
+      }
+    ],
+    "1": [
+      {
+        "name": "AMD Radeon PRO W7900D×1",
+        "icon": "fas fa-microchip",
+        "compute": "350P",
+        "prices": {
+          "hourly": "1.68",
+          "monthly": "929",
+          "yearly": "10039"
+        }
+      },
+      {
+        "name": "AMD Radeon PRO W7900D×2",
+        "icon": "fas fa-microchip",
+        "compute": "350P",
+        "prices": {
+          "hourly": "3.35",
+          "monthly": "1853",
+          "yearly": "20017"
+        }
+      },
+      {
+        "name": "AMD Radeon PRO W7900D×4",
+        "icon": "fas fa-microchip",
+        "compute": "350P",
+        "prices": {
+          "hourly": "6.68",
+          "monthly": "3072",
+          "yearly": "39986"
+        }
+      },
+      {
+        "name": "AMD Radeon PRO W7900D×8",
+        "icon": "fas fa-microchip",
+        "compute": "350P",
+        "prices": {
+          "hourly": "13.36",
+          "monthly": "7400",
+          "yearly": "79920"
+        }
+      },
+      {
+        "name": "AMD Radeon PRO W7900D×8裸金属",
+        "icon": "fas fa-server",
+        "compute": "350P",
+        "prices": {
+          "monthly": "7500",
+          "yearly": "81000"
+        }
+      },
+      {
+        "name": "NVIDIA H20×8-裸金属",
+        "icon": "fas fa-server",
+        "compute": "20.55P",
+        "prices": {
+          "monthly": "37099",
+          "yearly": "421899"
+        }
+      },
+      {
+        "name": "NVIDIA L20×8-裸金属",
+        "icon": "fas fa-server",
+        "compute": "20.55P",
+        "prices": {
+          "monthly": "14899",
+          "yearly": "169699"
+        }
+      },
+      {
+        "name": "NVIDIA RTX4090×8-裸金属",
+        "icon": "fas fa-server",
+        "compute": "20.55P",
+        "prices": {
+          "monthly": "7399",
+          "yearly": "83699"
+        }
+      }
+    ],
+    "2": [
+      {
+        "name": "NVIDIA A100",
+        "icon": "fas fa-microchip",
+        "memory": "80GB HBM2e",
+        "count": "200+ 张",
+        "tflops": "312 TFLOPS",
+        "desc": "旗舰级数据中心GPU，支持大规模分布式训练与高性能推理"
+      },
+      {
+        "name": "NVIDIA H100",
+        "icon": "fas fa-server",
+        "memory": "80GB HBM3",
+        "count": "100+ 张",
+        "tflops": "756 TFLOPS",
+        "desc": "新一代Hopper架构，专为大模型训练优化，支持FP8加速"
+      },
+      {
+        "name": "NVIDIA A40",
+        "icon": "fas fa-desktop",
+        "memory": "48GB GDDR6",
+        "count": "100+ 张",
+        "tflops": "150 TFLOPS",
+        "desc": "视觉计算与AI推理一站式方案，性价比极高的推理节点"
+      },
+      {
+        "name": "NVIDIA 4090",
+        "icon": "fas fa-bolt",
+        "memory": "24GB GDDR6X",
+        "count": "100+ 张",
+        "tflops": "83 TFLOPS",
+        "desc": "桌面级高性价比GPU，适合中小模型微调与开发调试"
+      }
+    ],
+    "3": [
+      {
+        "title": "弹性伸缩",
+        "desc": "支持按需申请GPU资源，训练任务结束后自动释放，资源利用率最大化",
+        "icon": "fas fa-expand-arrows-alt"
+      },
+      {
+        "title": "高速网络",
+        "desc": "InfiniBand 高速互联，多卡训练通信延迟<5ms，线性加速比>90%",
+        "icon": "fas fa-network-wired"
+      },
+      {
+        "title": "数据安全",
+        "desc": "独立VPC网络隔离，数据落盘加密，满足企业级安全合规要求",
+        "icon": "fas fa-shield-alt"
+      },
+      {
+        "title": "低成本",
+        "desc": "按卡时计费，多档价格灵活选择，闲置时段享受折扣优惠",
+        "icon": "fas fa-coins"
+      },
+      {
+        "title": "全栈工具",
+        "desc": "预置主流深度学习框架与CUDA环境，开箱即用，分钟级部署上线",
+        "icon": "fas fa-toolbox"
+      },
+      {
+        "title": "技术支持",
+        "desc": "7×24小时专业运维团队，协助环境配置、性能调优与故障排查",
+        "icon": "fas fa-headset"
+      }
+    ],
+    "4": [
+      {
+        "title": "大模型训练",
+        "desc": "支持千亿参数大语言模型的分布式预训练与微调，提供多机多卡训练环境",
+        "icon": "fas fa-brain",
+        "tags": [
+          "LLaMA",
+          "ChatGLM",
+          "Baichuan",
+          "DeepSeek"
+        ]
+      },
+      {
+        "title": "AI 推理部署",
+        "desc": "高吞吐、低延迟的模型推理服务，支持批量推理与实时API部署",
+        "icon": "fas fa-rocket",
+        "tags": [
+          "vLLM",
+          "TensorRT",
+          "Triton",
+          "ONNX Runtime"
+        ]
+      },
+      {
+        "title": "科学计算",
+        "desc": "适用于分子动力学、气象模拟、流体力学等高性能计算场景",
+        "icon": "fas fa-flask",
+        "tags": [
+          "CUDA",
+          "PyTorch",
+          "JAX",
+          "GROMACS"
+        ]
+      },
+      {
+        "title": "图像与视频",
+        "desc": "支持Stable Diffusion、视频超分、3D渲染等图像视频类AI任务",
+        "icon": "fas fa-image",
+        "tags": [
+          "SDXL",
+          "ControlNet",
+          "AnimateDiff",
+          "NeRF"
+        ]
+      }
+    ]
+  }
+}

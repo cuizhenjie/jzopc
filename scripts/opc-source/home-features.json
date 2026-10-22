@@ -1,0 +1,50 @@
+[
+  {
+    "icon": "fas fa-robot",
+    "title": "智能体中心",
+    "description": "丰富的AI智能体应用商店，提供各类功能智能体，助力业务流程自动化和智能化。",
+    "page": "agent"
+  },
+  {
+    "icon": "fas fa-hands-helping",
+    "title": "交易市场",
+    "description": "连接创业者，整合服务、需求对接的创业服务平台，构建生态、助力成长",
+    "page": "market"
+  },
+  {
+    "icon": "fas fa-graduation-cap",
+    "title": "同橙 AI 学院",
+    "description": "系统化的创业技能学习平台，提供各类实用技能课程，提升创业者核心竞争力。",
+    "page": "center"
+  },
+  {
+    "icon": "fas fa-star",
+    "title": "发现独角兽星计划",
+    "description": "发现和培育独角兽企业的星计划，提供专业指导和资源对接，助力企业快速成长。",
+    "page": "starproject"
+  },
+  {
+    "icon": "fas fa-users",
+    "title": "社区载体",
+    "description": "连接创业者与投资人、服务商的桥梁，提供专业的资源匹配和对接服务。",
+    "page": "community"
+  },
+  {
+    "icon": "fas fa-tools",
+    "title": "工作平台",
+    "description": "整合各类AI工具的工作平台，提供一站式AI应用体验，提高工作效率和创新能力。",
+    "page": "work"
+  },
+  {
+    "icon": "fas fa-server",
+    "title": "算力超市",
+    "description": "一个接口，驾驭全部 AI 大模型，兼容 OpenAI 标准协议，无缝调用 DeepSeek、Kimi、MiniMax、豆包、千问、智谱等顶尖模型，一次集成，永久受益。",
+    "page": "computing"
+  },
+  {
+    "icon": "fas fa-microchip",
+    "title": "GPU资源",
+    "description": "汇聚NVIDIA A100/H100等高性能GPU算力集群，提供弹性租赁方案，覆盖模型训练、推理部署全场景需求，按需使用、灵活调度。",
+    "page": "computingresource"
+  }
+]

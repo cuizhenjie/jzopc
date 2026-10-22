@@ -113,7 +113,9 @@ describe('品牌色板约束', () => {
     // 中性阶梯：logo.svg 只提供一个中性灰 #4D5153，但正文/分割线/底色需要更多层级，
     // 这几档是设计中性色，不属于品牌色，故单列白名单。
     const NEUTRAL = new Set(['1a2333', '4d5153', '5f6878', 'e3e9f2', 'eef4fa', 'f6f9fc', 'ffffff']);
-    const ALLOWED = new Set([...BRAND_PALETTE, ...NEUTRAL]);
+    // 错误提示需保持可读的语义红色；不作为品牌或装饰配色。
+    const SEMANTIC = new Set(['b42318']);
+    const ALLOWED = new Set([...BRAND_PALETTE, ...NEUTRAL, ...SEMANTIC]);
     const offenders: string[] = [];
     for (const file of collectFiles(srcDir)) {
       const src = readFileSync(file, 'utf8');

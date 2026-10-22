@@ -1,62 +1,21 @@
 import type { MetadataRoute } from 'next';
 import { site } from '@/lib/site/config';
-import { getAgents, getCourses, getMarketItems, getNewsPosts } from '@/lib/queries';
-import { empowerDetails } from '@/lib/data/empower';
+import { replicaPaths } from '@/lib/opc/routes';
+import listings from '@/lib/opc/generated/listings.json' with { type: 'json' };
 
-export const revalidate = 3600;
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default function sitemap(): MetadataRoute.Sitemap {
   const base = site.url.replace(/\/$/, '');
-
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${base}/`, changeFrequency: 'daily', priority: 1 },
-    { url: `${base}/about`, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/about/history`, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${base}/about/audience`, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${base}/about/partners`, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${base}/agents`, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${base}/market`, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${base}/academy`, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${base}/traffic`, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/news`, changeFrequency: 'daily', priority: 0.8 },
-    { url: `${base}/search`, changeFrequency: 'weekly', priority: 0.5 },
-    { url: `${base}/apply`, changeFrequency: 'monthly', priority: 0.9 },
-    ...empowerDetails.map((m) => ({
-      url: `${base}/empower/${m.slug}`,
+  const account = new Set(['/opclogin', '/opcregister', '/opcforgotpassword', '/myinfo', '/opcapply', '/newsdetail']);
+  return [
+    ...replicaPaths.filter(path => !account.has(path)).map(path => ({
+      url: `${base}${path}`,
+      changeFrequency: 'weekly' as const,
+      priority: path === '/' ? 1 : 0.8,
+    })),
+    ...Object.keys(listings.records).map(id => ({
+      url: `${base}/newsdetail?id=${id}`,
       changeFrequency: 'monthly' as const,
-      priority: 0.7,
+      priority: 0.6,
     })),
   ];
-
-  const [agents, market, courses, news] = await Promise.all([
-    getAgents(),
-    getMarketItems(),
-    getCourses(),
-    getNewsPosts(),
-  ]);
-
-  const dynamicRoutes: MetadataRoute.Sitemap = [
-    ...agents.map((a) => ({
-      url: `${base}/agents/${a.slug}`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
-    ...market.map((m) => ({
-      url: `${base}/market/${m.slug}`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
-    ...courses.map((c) => ({
-      url: `${base}/academy/courses/${c.slug}`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
-    ...news.map((n) => ({
-      url: `${base}/news/${n.slug}`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    })),
-  ];
-
-  return [...staticRoutes, ...dynamicRoutes];
 }

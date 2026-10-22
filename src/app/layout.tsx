@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import JsonLd from '@/components/ui/JsonLd';
+import SiteChrome from '@/components/layout/SiteChrome';
 import { site } from '@/lib/site/config';
 
 export const metadata: Metadata = {
@@ -79,8 +77,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN">
       <head>
-        <JsonLd data={organizationJsonLd} />
-        <JsonLd data={websiteJsonLd} />
         {/* 面向 LLM 的站点摘要（llmstxt.org）：告诉 AI 助手「这个站是什么、有哪些入口」 */}
         <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM 站点摘要" />
       </head>
@@ -91,9 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           跳转到主要内容
         </a>
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
+        <SiteChrome legacyEntities={[organizationJsonLd, websiteJsonLd]}>{children}</SiteChrome>
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-import { buildLlmsTxt } from '@/lib/site/llms-txt';
+import { buildReplicaLlmsTxt } from '@/lib/opc/llms';
 
 /**
  * `/llm.txt` —— `/llms.txt` 的别名。
@@ -9,7 +9,7 @@ import { buildLlmsTxt } from '@/lib/site/llms-txt';
 export const dynamic = 'force-static';
 
 export function GET() {
-  return new Response(buildLlmsTxt(), {
+  return new Response(buildReplicaLlmsTxt(), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',
