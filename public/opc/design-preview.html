@@ -1,0 +1,353 @@
+<!doctype html>
+<!--
+  OD web-prototype seed.
+
+  Copy this file to <project>/index.html, then fill `<main id="content">` by
+  pasting blocks from `references/layouts.md`. Every class referenced in
+  layouts.md is defined here — DO NOT remove unused ones unless you also
+  remove their callers, and DO NOT invent new global classes (use inline
+  style="…" for one-off tweaks).
+
+  Theme tokens at the top of `<style>` are the *only* place to set palette
+  and type. They map cleanly onto a DESIGN.md — when an active design system
+  is injected, swap these six variables and everything reflows.
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>集智AI · 视觉样板</title>
+  <style>
+    /* ─── tokens ─────────────────────────────────────────────────────────
+       Six variables. Bind them to the active DESIGN.md and stop.
+       Do not introduce raw hex anywhere else in this file. */
+    :root {
+      --bg:      #f6f9fc;   /* page background — never #fff */
+      --surface: #ffffff;   /* cards, modals, raised areas */
+      --fg:      #1a2333;   /* primary text — never #000 */
+      --muted:   #5f6878;   /* secondary text, captions */
+      --border:  #e3e9f2;   /* hairlines, dividers */
+      --accent:  #0968ab;   /* one accent — used at most 2× per screen */
+
+      /* derived — do not change */
+      --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+
+      /* type — display = serif (default), body = sans, mono for numerics */
+      --font-display: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono:    ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+      /* scale — clamp() so it works at 1280, 1440, 1920 without media queries */
+      --fs-h1: clamp(44px, 6vw, 76px);
+      --fs-h2: clamp(32px, 4vw, 48px);
+      --fs-h3: 22px;
+      --fs-lead: 19px;
+      --fs-body: 16px;
+      --fs-meta: 13px;
+
+      /* spacing — 8-point grid */
+      --gap-xs: 8px;
+      --gap-sm: 12px;
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: 96px;
+      --container: 1120px;
+      --gutter: 32px;
+
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+
+    /* ─── reset & base ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+
+    /* ─── layout primitives ─────────────────────────────────────────── */
+    .container {
+      max-width: var(--container);
+      margin-inline: auto;
+      padding-inline: var(--gutter);
+    }
+    .section {
+      padding-block: clamp(48px, 8vw, var(--gap-2xl));
+    }
+    .section + .section { border-top: 1px solid var(--border); }
+    .stack { display: flex; flex-direction: column; }
+    .stack > * + * { margin-top: var(--gap-md); }
+    .row { display: flex; align-items: center; gap: var(--gap-md); }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap-lg); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap-lg); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-md); }
+    .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: var(--gap-xl); align-items: start; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: var(--gap-xl); align-items: start; }
+    @media (max-width: 920px) {
+      .grid-2, .grid-3, .grid-4, .grid-2-1, .grid-1-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ─── type ──────────────────────────────────────────────────────── */
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); line-height: 1.04; letter-spacing: -0.02em; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); line-height: 1.1; letter-spacing: -0.015em; margin: 0; }
+    .h3, h3 { font-size: var(--fs-h3); font-weight: 600; line-height: 1.3; letter-spacing: -0.005em; margin: 0; }
+    .lead   { font-size: var(--fs-lead); line-height: 1.55; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 var(--gap-md);
+    }
+    .meta { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--muted); }
+    .num  { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── chrome: nav + footer ──────────────────────────────────────── */
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in oklch, var(--bg) 92%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 14px; }
+    .topnav .logo { font-family: var(--font-display); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+    .topnav nav { display: flex; gap: var(--gap-lg); }
+    .topnav nav a { font-size: 14px; color: var(--muted); }
+    .topnav nav a:hover { color: var(--fg); }
+    .pagefoot { padding-block: var(--gap-xl); color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+    .pagefoot .row-between { flex-wrap: wrap; gap: var(--gap-md); }
+
+    /* ─── buttons ───────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 20px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+    .btn-primary:hover { background: color-mix(in oklch, var(--accent) 88%, black); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--fg); }
+    .btn-ghost { background: transparent; color: var(--fg); border-color: transparent; padding-inline: 8px; }
+    .btn-ghost:hover { color: var(--accent); }
+    .btn-arrow::after { content: '→'; transition: transform 0.15s ease; }
+    .btn-arrow:hover::after { transform: translateX(2px); }
+
+    /* ─── card / surface ────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+    .card-flat { background: transparent; border: 0; padding: 0; }
+    .card-rule { background: transparent; border: 0; border-top: 1px solid var(--fg); padding: 24px 0 0; border-radius: 0; }
+
+    /* ─── feature cell (icon + h3 + p) ──────────────────────────────── */
+    .feature .feature-mark {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent);
+      margin-bottom: var(--gap-md);
+    }
+    .feature .feature-mark svg { width: 18px; height: 18px; }
+    .feature h3 { margin-bottom: 6px; }
+    .feature p  { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* ─── stat (big number + label) ─────────────────────────────────── */
+    .stat .stat-num {
+      font-family: var(--font-display);
+      font-size: clamp(56px, 8vw, 96px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .stat .stat-label { color: var(--muted); font-size: 14px; margin-top: 8px; max-width: 24ch; }
+    .stat .stat-unit  { font-size: 0.5em; opacity: 0.7; margin-left: 2px; }
+
+    /* ─── quote / testimonial ───────────────────────────────────────── */
+    .quote {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 2.6vw, 32px);
+      line-height: 1.32;
+      letter-spacing: -0.01em;
+      max-width: 28ch;
+    }
+    .quote-author { color: var(--muted); font-size: 14px; margin-top: var(--gap-md); }
+    .quote-mark   {
+      font-family: var(--font-display);
+      font-size: 140px; line-height: 0.7;
+      color: var(--accent); opacity: 0.18;
+      margin-bottom: -28px;
+    }
+
+    /* ─── pill / badge / tag ────────────────────────────────────────── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .tag {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    /* ─── form field ────────────────────────────────────────────────── */
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13px; color: var(--muted); }
+    .input, .textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--fg);
+      font: inherit;
+      font-size: 15px;
+    }
+    .input:focus, .textarea:focus {
+      outline: 2px solid var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .textarea { min-height: 96px; resize: vertical; line-height: 1.55; }
+
+    /* ─── table (data-style, no chrome) ─────────────────────────────── */
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ds-table th, .ds-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    .ds-table th { color: var(--muted); font-weight: 500; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .ds-table tbody tr:hover { background: var(--fg-soft); }
+    .ds-table .num-col { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+    /* ─── image placeholder (DS-tinted block, never broken <img>) ──── */
+    .ph-img {
+      background:
+        linear-gradient(135deg, var(--accent-soft), var(--fg-soft)),
+        var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      aspect-ratio: 16 / 10;
+      display: grid; place-items: center;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+    .ph-img.square    { aspect-ratio: 1 / 1; }
+    .ph-img.portrait  { aspect-ratio: 3 / 4; }
+    .ph-img.wide      { aspect-ratio: 16 / 9; }
+
+    /* ─── divider ───────────────────────────────────────────────────── */
+    .rule  { border: 0; border-top: 1px solid var(--border); margin: 0; }
+    .rule-strong { border: 0; border-top: 1px solid var(--fg); margin: 0; }
+
+    /* ─── hero variants used by layouts.md ──────────────────────────── */
+    .hero          { padding-block: clamp(80px, 12vw, 160px); }
+    .hero-center   { text-align: center; max-width: 32ch; margin-inline: auto; }
+    .hero h1       { margin-bottom: var(--gap-md); }
+    .hero .lead    { margin-bottom: var(--gap-lg); }
+    .hero-cta      { display: inline-flex; gap: var(--gap-sm); flex-wrap: wrap; }
+    .hero-center .hero-cta { justify-content: center; }
+    .hero-split    { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-2xl); align-items: center; }
+    @media (max-width: 920px) { .hero-split { grid-template-columns: 1fr; } }
+
+    /* ─── log row (newsletter, blog list, changelog) ────────────────── */
+    .log-row { display: grid; grid-template-columns: 120px 1fr 100px; gap: var(--gap-lg); padding: 22px 0; border-top: 1px solid var(--border); align-items: baseline; }
+    .log-row .meta { color: var(--muted); }
+    .log-row h3 { font-size: 19px; }
+    .log-row .pull { text-align: right; }
+  
+    /* Real local artwork and Chinese sans follow this project's brief. */
+    .scene { background: var(--fg); color: var(--surface); }
+    .scene .lead { color: color-mix(in srgb, var(--surface) 88%, transparent); }
+    .scene .eyebrow { color: var(--surface); }
+    .scene img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--radius-lg); }
+    .feature-mark img { width: 56px; height: 56px; }
+    .feature .feature-mark { width: 56px; height: 56px; border: 0; }
+    .photos img { width: 100%; aspect-ratio: 3/2; object-fit: cover; border-radius: var(--radius); }
+    .photos figure { margin: 0; }
+    .photos figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); }
+    .logos { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+    .logos img { width: 100%; height: 80px; object-fit: contain; padding: 16px; background: var(--surface); }
+    .btn:focus-visible,a:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    @media(max-width: 920px) { .topnav nav { display:none; } .logos { grid-template-columns:repeat(2,1fr); } :root { --gutter:24px; --fs-h1:40px; } }
+  </style>
+</head>
+<body>
+  <header class="topnav" data-od-id="topnav"><div class="container topnav-inner">
+    <a class="logo row" href="/"><img src="/logo-mark.svg" alt="" width="32" height="32">集智AI</a>
+    <nav aria-label="主导航"><a href="/agent">智能体中心</a><a href="/center">集智AI学院</a><a href="/community">OPC社区</a></nav>
+    <a class="btn btn-primary" href="/opcapply?formType=community">加入社区</a>
+  </div></header>
+  <main id="content">
+    <section class="section scene" data-od-id="hero-split"><div class="container hero-split">
+      <div><p class="eyebrow">JIZHI AI · OPC COMMUNITY</p><h1>集智 AI<br>OPC 社区</h1>
+      <p class="lead" style="margin-top:24px">线上虚拟平台与线下实体空间，为 OPC 创业者提供全生命周期服务。</p>
+      <div class="hero-cta" style="margin-top:32px"><a class="btn btn-primary" href="/agent">探索智能体</a><a class="btn btn-secondary" style="color:var(--surface)" href="/community">发现社区 →</a></div></div>
+      <img src="/opc/visual/computing-banner-1920.webp" alt="" width="1942" height="809">
+    </div></section>
+    <section class="section" data-od-id="features"><div class="container stack" style="gap:48px">
+      <div><p class="eyebrow">FROM IDEAS TO ACTION</p><h2>为创业者提供全方位支持</h2></div>
+      <div class="grid-3">
+        <div class="feature card-flat"><div class="feature-mark"><img src="/opc/visual/icon-agent.svg" alt=""></div><h3>智能体中心</h3><p>丰富的AI智能体应用商店，助力业务流程自动化和智能化。</p></div>
+        <div class="feature card-flat"><div class="feature-mark"><img src="/opc/visual/icon-academy.svg" alt=""></div><h3>集智AI学院</h3><p>系统化的创业技能学习平台，提供实用技能课程。</p></div>
+        <div class="feature card-flat"><div class="feature-mark"><img src="/opc/visual/icon-community.svg" alt=""></div><h3>OPC社区</h3><p>连接创业者、投资人与服务商，支持资源匹配与交流。</p></div>
+      </div>
+    </div></section>
+    <section class="section" data-od-id="learning"><div class="container">
+      <div class="row-between" style="margin-bottom:32px"><div><p class="eyebrow">LEARN · CONNECT · CREATE</p><h2>学习与交流</h2></div><a class="btn btn-ghost btn-arrow" href="/center">探索学院</a></div>
+      <div class="grid-3 photos">
+        <figure><img src="/opc/visual/activity-animation-960.webp" width="960" height="580" alt="AI漫剧培训合影" loading="lazy"><figcaption>AI 漫剧培训</figcaption></figure>
+        <figure><img src="/opc/visual/activity-training-2-960.webp" width="960" height="582" alt="培训现场分享与交流" loading="lazy"><figcaption>技能培训与交流</figcaption></figure>
+        <figure><img src="/opc/visual/activity-study-2-960.webp" width="960" height="436" alt="机器人场景研学" loading="lazy"><figcaption>走进产业场景</figcaption></figure>
+      </div>
+    </div></section>
+    <section class="section" data-od-id="ecosystem"><div class="container">
+      <p class="eyebrow">AI ECOSYSTEM</p><h2 style="margin-bottom:32px">连接开放的 AI 生态</h2>
+      <div class="logos">
+        <img src="/opc/visual/logo-02.webp" alt="火山引擎" width="550" height="191" loading="lazy">
+        <img src="/opc/visual/logo-04.webp" alt="DeepSeek" width="535" height="170" loading="lazy">
+        <img src="/opc/visual/logo-08.webp" alt="阿里云" width="500" height="184" loading="lazy">
+        <img src="/opc/visual/logo-09.webp" alt="Unitree宇树" width="549" height="180" loading="lazy">
+      </div>
+    </div></section>
+    <section class="section" data-od-id="cta-strip" style="text-align:center"><div class="container" style="max-width:640px">
+      <h2>开启您的 AI 创业之旅</h2><p class="lead" style="margin:16px auto 32px">加入集智 AI OPC 社区，获取AI工具、创业资源和专业支持。</p><a class="btn btn-primary" href="/opcapply?formType=community">申请加入社区</a>
+    </div></section>
+  </main>
+  <footer class="pagefoot" data-od-id="footer"><div class="container row-between"><span>集智AI · 北京集美科技有限公司</span><a href="/">返回首页 →</a></div></footer>
+</body></html>

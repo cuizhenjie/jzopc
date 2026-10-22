@@ -4,6 +4,7 @@ import { createElement, useEffect, useRef, useState, type ReactNode } from 'reac
 import { useRouter } from 'next/navigation';
 import { resolveReferenceLocation } from '@/lib/opc/routes';
 import { facetMatches, parseCategories, validateReplicaFields } from './interaction-model';
+import { mountVisualMotion } from './visual-motion';
 // ⚠️ 设计层放在**客户端组件**里，而不是 Root Layout —— 两个原因：
 //  1. Next.js 只允许全局 CSS 在根布局 import；Server Component 里 import
 //     会被静默丢弃（实测设计层整层没进产物）。
@@ -14,7 +15,9 @@ import { facetMatches, parseCategories, validateReplicaFields } from './interact
 // 导入顺序即层内顺序：token 先于组件，组件先于交互态。
 import '@/styles/opc-tokens.css';
 import '@/styles/opc-components.css';
+import '@/styles/opc-visual.css';
 import '@/styles/opc-interactions.css';
+import '@/styles/opc-visual-motion.css';
 
 type Props = { route: string; rootId?: string };
 type Modal = { title: string; content: ReactNode; articleId?: string; loading?: boolean };
@@ -345,7 +348,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       const target = event.target instanceof HTMLElement ? event.target : null;
       if (target?.matches('[data-opc-action],[data-opc-route]') && !target.matches('a,button,input,textarea,select')) { event.preventDefault(); target.click(); }
     };
-    const onResize = () => { if (window.innerWidth >= 1100) closeMenu(); };
+    const onResize = () => { if (window.innerWidth >= 1280) closeMenu(); };
     const onPopState = () => { filters = readFilters(); root.querySelectorAll<HTMLInputElement>('[data-opc-search],.hero-search-input').forEach(input => { input.value = filters.query; }); renderLists(); };
     const onBackdrop = () => closeMenu(true);
     root.querySelectorAll<HTMLInputElement>('[data-opc-search],.hero-search-input').forEach(input => { input.value = filters.query; input.setAttribute('aria-label', input.getAttribute('placeholder') || '搜索内容'); });
@@ -353,72 +356,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
     root.addEventListener('keydown', onKeyDown); window.addEventListener('resize', onResize); window.addEventListener('popstate', onPopState); window.addEventListener('scroll', onScroll, { passive: true });
     backdrop?.addEventListener('click', onBackdrop);
 
-    /* ── 首页主视觉轮播 ──
-     * 原站的 `el-carousel` 是 Vue 组件：SSR 静态 HTML 里每个 `.el-carousel__item`
-     * 的 `transform` 是**写死的内联值**（translateX(1440px) 等），
-     * 没有 Vue 运行时就不会切换 —— 4 张主视觉永远只显示第一张。
-     * 原站 CSS 把 item 定位成 `position:absolute` 叠放，
-     * 所以这里用 **opacity + z-index** 做淡入淡出（见 opc-components.css）。
-     * 指示器由本函数注入，类名属于「运行期注入类」。 */
-    const heroCarousel = path === '/' ? root.querySelector<HTMLElement>('.hero-carousel') : null;
-    if (heroCarousel) {
-      const slides = Array.from(heroCarousel.querySelectorAll<HTMLElement>('.el-carousel__item'));
-      if (slides.length > 1) {
-        const dots = document.createElement('div');
-        dots.className = 'opc-carousel-dots';
-        dots.setAttribute('role', 'tablist');
-        dots.setAttribute('aria-label', '主视觉轮播');
-        const dotButtons = slides.map((_, index) => {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.className = 'opc-carousel-dot';
-          button.setAttribute('role', 'tab');
-          button.setAttribute('aria-label', `第 ${index + 1} 张主视觉`);
-          button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-          dots.appendChild(button);
-          return button;
-        });
-        heroCarousel.appendChild(dots);
-
-        let current = 0;
-        let timer: number | undefined;
-        // 尊重「减少动态效果」的系统偏好：只手动切换，不自动播放
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const show = (index: number) => {
-          current = (index + slides.length) % slides.length;
-          slides.forEach((slide, i) => slide.classList.toggle('is-active', i === current));
-          dotButtons.forEach((dot, i) => {
-            dot.classList.toggle('is-active', i === current);
-            dot.setAttribute('aria-selected', i === current ? 'true' : 'false');
-          });
-        };
-        const stop = () => { if (timer !== undefined) { window.clearInterval(timer); timer = undefined; } };
-        const start = () => {
-          stop();
-          if (reducedMotion || slides.length < 2) return;
-          timer = window.setInterval(() => show(current + 1), 5600);
-        };
-        dotButtons.forEach((dot, index) => {
-          dot.addEventListener('click', () => { show(index); start(); });
-        });
-        heroCarousel.addEventListener('mouseenter', stop);
-        heroCarousel.addEventListener('mouseleave', start);
-        // 触摸滑动（移动端）
-        let touchX = 0;
-        heroCarousel.addEventListener('touchstart', (event) => {
-          touchX = event.touches[0]?.clientX ?? 0;
-          stop();
-        }, { passive: true });
-        heroCarousel.addEventListener('touchend', (event) => {
-          const delta = (event.changedTouches[0]?.clientX ?? 0) - touchX;
-          if (Math.abs(delta) > 40) show(current + (delta < 0 ? 1 : -1));
-          start();
-        }, { passive: true });
-        show(0);
-        start();
-        cleanups.push(() => { stop(); dots.remove(); });
-      }
-    }
+    cleanups.push(mountVisualMotion(root));
 
     renderLists(); onScroll();
     return () => {

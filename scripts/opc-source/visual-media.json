@@ -1,0 +1,1228 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "hero-city-11",
+      "source": "webimages/大图参考素材/11.png",
+      "sourceType": "user-provided",
+      "kind": "hero",
+      "alt": "科技AI城市横幅一",
+      "slots": [
+        "hero.ai-city-flow"
+      ],
+      "usageNote": "作为第二轮播及智能体/工作平台内页科技视觉；AI字形在左，不要镜像翻转",
+      "original": {
+        "sha256": "2dc0e3f894330771146fdf8d0d5fafbc9eb1955f039c1176a7ca3d3c5ca1fd4d",
+        "width": 6720,
+        "height": 2880,
+        "bytes": 11879458
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/hero-city-11-960.webp",
+          "width": 960,
+          "height": 411,
+          "bytes": 41810,
+          "sha256": "e9d3bf6bc7149be0609db52d78ee70a0e876d14f1605ab2fd39bb6fdc32870de"
+        },
+        {
+          "url": "/opc/visual/hero-city-11-1920.webp",
+          "width": 1920,
+          "height": 823,
+          "bytes": 112520,
+          "sha256": "354acc2d18dec900d947b3ce9c68a567bfa29e4b8af0d0fd31914b7fc8eb889d"
+        }
+      ]
+    },
+    {
+      "id": "hero-city-12",
+      "source": "webimages/大图参考素材/12.png",
+      "sourceType": "user-provided",
+      "kind": "hero",
+      "alt": "科技AI城市横幅二",
+      "slots": [
+        "hero.ai-city-primary"
+      ],
+      "usageNote": "首页第一轮播；1920×823 WebP q80约119610字节",
+      "original": {
+        "sha256": "69e30006b53fbb74b57a22b3045ab6f6cf502e0a944e89e86c4af8ef8c1dd435",
+        "width": 6720,
+        "height": 2880,
+        "bytes": 12080011
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/hero-city-12-960.webp",
+          "width": 960,
+          "height": 411,
+          "bytes": 42504,
+          "sha256": "ee06947f757cfa33d641553d758792734318fc82183a4a332383e945eb35fb85"
+        },
+        {
+          "url": "/opc/visual/hero-city-12-1920.webp",
+          "width": 1920,
+          "height": 823,
+          "bytes": 118024,
+          "sha256": "14dda6c725f9424d8cb029a6a9ef69512dd7e44b96897378265bbe2edbd635b7"
+        }
+      ]
+    },
+    {
+      "id": "hero-city-13",
+      "source": "webimages/大图参考素材/13.png",
+      "sourceType": "user-provided",
+      "kind": "hero",
+      "alt": "科技AI城市横幅三",
+      "slots": [
+        "hero.ai-city-horizon"
+      ],
+      "usageNote": "第三轮播、算力/交易/账号品牌面板；不要把AI字样放在正文下方",
+      "original": {
+        "sha256": "1d4b0a57f90fb2aac58521e0468b7effab1a526cb5b74ee2a70f4b401250d17e",
+        "width": 6720,
+        "height": 2880,
+        "bytes": 11628801
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/hero-city-13-960.webp",
+          "width": 960,
+          "height": 411,
+          "bytes": 37012,
+          "sha256": "fb79464a26d10f529701b74ae715ffa1f35085169f83231f6406f4364cde5724"
+        },
+        {
+          "url": "/opc/visual/hero-city-13-1920.webp",
+          "width": 1920,
+          "height": 823,
+          "bytes": 100944,
+          "sha256": "e266c86d9f9b64483257f9b368677fb9678c862e83a705b193e2b1d2b872e81b"
+        }
+      ]
+    },
+    {
+      "id": "reference-city-night",
+      "source": "webimages/大图参考素材/14da1b7242a3259280d3b8580863c2b5.jpeg",
+      "sourceType": "user-provided",
+      "kind": "reference",
+      "alt": "城市夜景照片",
+      "slots": [
+        "reference.city-night"
+      ],
+      "usageNote": "1280宽，可用次级城市生态图，不作为本站空间实景证据",
+      "original": {
+        "sha256": "8d236f308f6b14fa2a7f72a2adf44b8bc2f7e942a157f4f372f2705d12becd75",
+        "width": 1280,
+        "height": 853,
+        "bytes": 151912
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/reference-city-night.webp",
+          "width": 960,
+          "height": 640,
+          "bytes": 67870,
+          "sha256": "04a383e99e3123114a769b09c286117fc3f484be3104f354c20976c9499e4ba7"
+        }
+      ]
+    },
+    {
+      "id": "reference-building-one",
+      "source": "webimages/大图参考素材/ab31330c3d57af41448995b90133be44.jpeg",
+      "sourceType": "user-provided",
+      "kind": "reference",
+      "alt": "建筑外观参考",
+      "slots": [
+        "reference.building-one"
+      ],
+      "usageNote": "800宽，参考用途；未证实为集智场地，不标注为本站实景",
+      "original": {
+        "sha256": "878bc7f1b22a661907c77c282122a463746672dc6d5100550fcb032b2c6cdd9b",
+        "width": 800,
+        "height": 507,
+        "bytes": 58379
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/reference-building-one.webp",
+          "width": 800,
+          "height": 507,
+          "bytes": 45464,
+          "sha256": "cd58e6954493faca94b91c1a6947b704c68dba7d96b07406d5986bf3d946cc41"
+        }
+      ]
+    },
+    {
+      "id": "reference-city-blue",
+      "source": "webimages/大图参考素材/u=2420042102,3108515115&fm=253&fmt=auto&app=138&f=JPEG.webp",
+      "sourceType": "user-provided",
+      "kind": "reference",
+      "alt": "蓝调城市夜景",
+      "slots": [
+        "banner.community-city"
+      ],
+      "usageNote": "915宽，适合窄版社区/区域横幅；大幅铺屏会软",
+      "original": {
+        "sha256": "ec6fe83c48828486c1a1154783eebca5a1bfbafeced80de3ff79751e64ccafdf",
+        "width": 915,
+        "height": 500,
+        "bytes": 35322
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/reference-city-blue.webp",
+          "width": 915,
+          "height": 500,
+          "bytes": 40678,
+          "sha256": "7e9b77f630ea5cdfa87d4bb92693d5b04b0a26022bc1f8f7e8e3bf3e21b09b4f"
+        }
+      ]
+    },
+    {
+      "id": "reference-city-window",
+      "source": "webimages/大图参考素材/u=2482032397,481338156&fm=253&fmt=auto&app=138&f=JPEG.webp",
+      "sourceType": "user-provided",
+      "kind": "reference",
+      "alt": "窗外城市景观",
+      "slots": [
+        "reference.city-window"
+      ],
+      "usageNote": "759宽，卡片/侧图，避免放大成全屏banner",
+      "original": {
+        "sha256": "9bb3a99f48743339ae744f0499d5579919399f95115906a416a6a016179463a5",
+        "width": 759,
+        "height": 384,
+        "bytes": 28648
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/reference-city-window.webp",
+          "width": 759,
+          "height": 384,
+          "bytes": 35190,
+          "sha256": "96946438b9ed555485ddf043b19b1185c3b56cad4c27525e83e406ab2be46fd9"
+        }
+      ]
+    },
+    {
+      "id": "reference-city-dusk",
+      "source": "webimages/大图参考素材/u=461453043,505441505&fm=253&fmt=auto&app=138&f=JPEG.webp",
+      "sourceType": "user-provided",
+      "kind": "reference",
+      "alt": "城市天际线暮色",
+      "slots": [
+        "banner.about-city"
+      ],
+      "usageNote": "889宽，关于页次级横幅/侧图",
+      "original": {
+        "sha256": "a2d270d1d6437b749704911532679d832cb5458cccde061fb7046e9713cf5280",
+        "width": 889,
+        "height": 500,
+        "bytes": 31008
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/reference-city-dusk.webp",
+          "width": 889,
+          "height": 500,
+          "bytes": 36694,
+          "sha256": "f314a667284e6f17f1d5b15978639955f5d19d2dd96fcf9c1c4a7ffa52c9efd9"
+        }
+      ]
+    },
+    {
+      "id": "reference-building-two",
+      "source": "webimages/大图参考素材/u=935905905,1729467282&fm=253&fmt=auto&app=120&f=JPEG.webp",
+      "sourceType": "user-provided",
+      "kind": "reference",
+      "alt": "商业建筑参考",
+      "slots": [
+        "reference.building-two"
+      ],
+      "usageNote": "946宽，参考用途；没有本站实景归属信息",
+      "original": {
+        "sha256": "2f1beda57d54b163d093673de9ab746b8ef835aad44e648d8c289d04aec95df4",
+        "width": 946,
+        "height": 500,
+        "bytes": 37306
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/reference-building-two.webp",
+          "width": 946,
+          "height": 500,
+          "bytes": 49016,
+          "sha256": "d8ff20ac16521317c238012908b1b29f9eca02067886cf04ef43448181a135fc"
+        }
+      ]
+    },
+    {
+      "id": "activity-ai-drama",
+      "source": "webimages/活动照片/AI漫剧培训.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "AI漫剧培训合影",
+      "slots": [
+        "activities.ai-comics"
+      ],
+      "usageNote": "首页/活动第一封面；整组人像不裁头，建议16:10",
+      "original": {
+        "sha256": "1bb4fa9ddfa9f2072ca2a8cf227e6c3b9225afd9e2729a8eb9ff453a6b46b760",
+        "width": 1443,
+        "height": 871,
+        "bytes": 1918899
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-ai-drama.webp",
+          "width": 960,
+          "height": 579,
+          "bytes": 83194,
+          "sha256": "3be7a57bd28bae17deeb74911d7ca6ee4d2233fc72a90512d4567baaa5bffca0"
+        }
+      ]
+    },
+    {
+      "id": "activity-audience",
+      "source": "webimages/活动照片/ScreenShot_2026-10-22_181836_737.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "听讲学员现场",
+      "slots": [
+        "activities.lecture-audience"
+      ],
+      "usageNote": "活动补充/相册；源截图人脸较软，适合中小图",
+      "original": {
+        "sha256": "6c0fa236a24c2626ab821ab74b0fde3b816fed3d8a2d85d080aae66b867840d8",
+        "width": 1121,
+        "height": 780,
+        "bytes": 1231108
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-audience.webp",
+          "width": 960,
+          "height": 668,
+          "bytes": 63216,
+          "sha256": "4fce3372acb4f3959dd126970387eaa050233e5950044f8b434116e262810e66"
+        }
+      ]
+    },
+    {
+      "id": "activity-classroom-one",
+      "source": "webimages/活动照片/ScreenShot_2026-10-22_181853_780.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "课堂授课现场",
+      "slots": [
+        "activities.classroom-lecture"
+      ],
+      "usageNote": "学院课程场景/相册",
+      "original": {
+        "sha256": "a2d87f1345203f37d3c68ad8611eedb520085b824b1ff9f15cc4543eb73967cc",
+        "width": 1021,
+        "height": 706,
+        "bytes": 1103680
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-classroom-one.webp",
+          "width": 960,
+          "height": 664,
+          "bytes": 82938,
+          "sha256": "c7b27c352b17aa602826307e785dcf56fded872451512c7e384a40b9edf3ec07"
+        }
+      ]
+    },
+    {
+      "id": "activity-classroom-two",
+      "source": "webimages/活动照片/ScreenShot_2026-10-22_181903_757.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "大型课堂研讨",
+      "slots": [
+        "activities.classroom-wide"
+      ],
+      "usageNote": "学院活动补充图/相册",
+      "original": {
+        "sha256": "307d3dec34fbd7706357cc7ff63dfedfb88c794217abf8d3dba0a4761c413247",
+        "width": 1019,
+        "height": 701,
+        "bytes": 935936
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-classroom-two.webp",
+          "width": 960,
+          "height": 660,
+          "bytes": 59704,
+          "sha256": "461e013adfc3289cfb89d509b7cb0ce37cb2b4f4b7672034ff95769b59b3bf47"
+        }
+      ]
+    },
+    {
+      "id": "activity-group",
+      "source": "webimages/活动照片/ScreenShot_2026-10-22_182004_797.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "大会学员合影",
+      "slots": [
+        "activities.group-wide"
+      ],
+      "usageNote": "1560×699宽合影，不强行裁成方图",
+      "original": {
+        "sha256": "295b45e862257351782dff352d95a9bfbffb8f9cbd2ee1c6c3054ef9a6941215",
+        "width": 1560,
+        "height": 699,
+        "bytes": 1504691
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-group.webp",
+          "width": 960,
+          "height": 430,
+          "bytes": 61302,
+          "sha256": "c140f17a07646adcdf1f10669857e25be77fc15098f4ce6be53194371202d69d"
+        }
+      ]
+    },
+    {
+      "id": "activity-market-research",
+      "source": "webimages/活动照片/上市公司数智化转型市场调研.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "企业数智化调研会议",
+      "slots": [
+        "cases.enterprise-digital-research"
+      ],
+      "usageNote": "企业服务/案例图；没有公司、日期、结果的附加事实",
+      "original": {
+        "sha256": "a6b58d97633ddd3b9d832ac0407a82f3e98ab51219e82ea84a9c206ec4b2f3f0",
+        "width": 1164,
+        "height": 530,
+        "bytes": 652699
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-market-research.webp",
+          "width": 960,
+          "height": 437,
+          "bytes": 35764,
+          "sha256": "fe5c89b1288460dbe2297472dde3186445d7a0e4db3a03fb739f112b711eeb49"
+        }
+      ]
+    },
+    {
+      "id": "activity-training-1",
+      "source": "webimages/活动照片/培训1.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "AI培训实操课堂",
+      "slots": [
+        "academy.workshop-practice"
+      ],
+      "usageNote": "学院实操、关于社区内容侧图、六活动之一",
+      "original": {
+        "sha256": "ad17638a449f411075be9194cdde1c686341f12a4a5fc5c96d9b01a770e22e19",
+        "width": 1443,
+        "height": 871,
+        "bytes": 1941088
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-training-1.webp",
+          "width": 960,
+          "height": 579,
+          "bytes": 75866,
+          "sha256": "c69e49bbbfa57b2ab9213dc0285d950e3599ce4f9293106d738f97b58ec91275"
+        }
+      ]
+    },
+    {
+      "id": "activity-training-2",
+      "source": "webimages/活动照片/培训2.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "AI培训讲师授课",
+      "slots": [
+        "academy.workshop-lecture"
+      ],
+      "usageNote": "学院讲师授课、六活动之一",
+      "original": {
+        "sha256": "e9bc786a6bbe0008e0526e3c6bae2c07a050ed74c9da393ea273442f33f007a6",
+        "width": 1309,
+        "height": 794,
+        "bytes": 1524933
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-training-2.webp",
+          "width": 960,
+          "height": 582,
+          "bytes": 83838,
+          "sha256": "8542fea8ee0b5747f02ef084594da4fa97a8897758d54b10fe465635501bbc77"
+        }
+      ]
+    },
+    {
+      "id": "activity-training-3",
+      "source": "webimages/活动照片/培训3.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "AI培训协作实践",
+      "slots": [
+        "academy.workshop-collaboration"
+      ],
+      "usageNote": "学院主图/社区侧图、六活动之一；画面清晰、互动强",
+      "original": {
+        "sha256": "2c75c2c28d9fd6e51c54a18a6fbd37d252f29802b3a1cdc493398c7fd1a0aaf1",
+        "width": 1310,
+        "height": 790,
+        "bytes": 1476650
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-training-3.webp",
+          "width": 960,
+          "height": 579,
+          "bytes": 60308,
+          "sha256": "38d703193b30ccd204aa6cd1f6d57ed03917b6cef60d9ecb75292201dc8268a2"
+        }
+      ]
+    },
+    {
+      "id": "activity-student-work",
+      "source": "webimages/活动照片/学员作品.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "学员AI漫剧作品",
+      "slots": [
+        "academy.student-showcase"
+      ],
+      "usageNote": "成果展示，不标成现场活动实拍",
+      "original": {
+        "sha256": "0b23ff6b2ae5a3ac019958bb767b7483dc62c902b257a6a212f316c5379e5934",
+        "width": 1349,
+        "height": 768,
+        "bytes": 1592662
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-student-work.webp",
+          "width": 960,
+          "height": 547,
+          "bytes": 83548,
+          "sha256": "65a8c8bd9d3c1bc84333eb5f6e6fae3a5ff577805cd70f0c4a029762024f6166"
+        }
+      ]
+    },
+    {
+      "id": "activity-video-research",
+      "source": "webimages/活动照片/深度合作-AI视频调研.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "AI视频合作调研拼图",
+      "slots": [
+        "cases.ai-video-research"
+      ],
+      "usageNote": "项目案例卡；拼图不适合full-bleed hero",
+      "original": {
+        "sha256": "7d21e9f5b6389e46e829155c5842c0b0946fbac5e02580f69b2cc3836a3fada6",
+        "width": 965,
+        "height": 436,
+        "bytes": 595105
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-video-research.webp",
+          "width": 960,
+          "height": 434,
+          "bytes": 52226,
+          "sha256": "8ef72a943e5025897168da13e6c87089b5b1256c414daf0bdb5ac806e04cb536"
+        }
+      ]
+    },
+    {
+      "id": "activity-driving-research",
+      "source": "webimages/活动照片/深度合作-AI自动驾驶项目.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "AI自动驾驶合作调研拼图",
+      "slots": [
+        "cases.ai-driving-research"
+      ],
+      "usageNote": "项目案例卡；涉及论文/人物说明，不扩写未提供成果",
+      "original": {
+        "sha256": "10926e959cbc3f2b2d4a3eeccb5efb3528194be358bf76ecc6117006674999c9",
+        "width": 1425,
+        "height": 638,
+        "bytes": 1164574
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-driving-research.webp",
+          "width": 960,
+          "height": 430,
+          "bytes": 66694,
+          "sha256": "de8296638e5cbb93bb0ae4edb119f6a33217f04f3f6df21d2207c476c74fa1f8"
+        }
+      ]
+    },
+    {
+      "id": "activity-study-alibaba",
+      "source": "webimages/活动照片/研学-阿里.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "阿里园区研学照片",
+      "slots": [
+        "academy.visit-alibaba"
+      ],
+      "usageNote": "研学专区/生态展示，755宽，适合卡片",
+      "original": {
+        "sha256": "bbef3aa25a60239976ec8bfb0d326b6160d021768ca66791c8fe7674cd905a11",
+        "width": 755,
+        "height": 535,
+        "bytes": 551624
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-study-alibaba.webp",
+          "width": 755,
+          "height": 535,
+          "bytes": 71272,
+          "sha256": "a175fe52ad0cce9e730898ef2f5e922eefdcf3af00879da2a01c5aec17c83845"
+        }
+      ]
+    },
+    {
+      "id": "activity-study-unitree",
+      "source": "webimages/活动照片/研学2.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "机器人产业研学照片",
+      "slots": [
+        "academy.visit-unitree"
+      ],
+      "usageNote": "六活动之一，1168×530横图",
+      "original": {
+        "sha256": "39ea49bb2ac30c2f83592b89bfeb34843d4cddba4ce71315963ac08b1c182726",
+        "width": 1168,
+        "height": 530,
+        "bytes": 631998
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-study-unitree.webp",
+          "width": 960,
+          "height": 436,
+          "bytes": 30048,
+          "sha256": "915b520a3668ee1e782ce9971fba447bf29b6cfed37a93b74f02268bba2f4603"
+        }
+      ]
+    },
+    {
+      "id": "activity-study-brainco",
+      "source": "webimages/活动照片/研学3.png",
+      "sourceType": "user-provided",
+      "kind": "photo",
+      "alt": "强脑科技研学照片",
+      "slots": [
+        "academy.visit-brainco"
+      ],
+      "usageNote": "六活动之一，912×513，可原尺寸使用",
+      "original": {
+        "sha256": "fd4becc4fb564fa63446e7af8fddc3bd8945c96bd5c7a0c23dfa374eae129718",
+        "width": 912,
+        "height": 513,
+        "bytes": 329889
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/activity-study-brainco.webp",
+          "width": 912,
+          "height": 513,
+          "bytes": 22196,
+          "sha256": "056f8f4853dd724d4afc76e61a8c43a6c9dae1cb910db97a4e46a5efb2559b42"
+        }
+      ]
+    },
+    {
+      "id": "logo-01",
+      "source": "webimages/合作生态 logo/1.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "北京各省市京地合作商务联合会",
+      "slots": [
+        "ecosystem.beijing-commerce-alliance"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "ab2b05cc28e1f52deffc56288cd3cac78032bd02aa24d4d94a8adb56a14630dd",
+        "width": 424,
+        "height": 160,
+        "bytes": 41619
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-01.webp",
+          "width": 424,
+          "height": 160,
+          "bytes": 30554,
+          "sha256": "71c0ec2070e0e24889377cfe911a4e08122cfdd66f9d3b6721f4170d93737970"
+        }
+      ]
+    },
+    {
+      "id": "logo-02",
+      "source": "webimages/合作生态 logo/2.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "火山引擎",
+      "slots": [
+        "ecosystem.volcano-engine"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "cfd7c93d333d2f98ec8bbd9dc5b6d731e87e5c3c60e42ff5335a5a79117bad1f",
+        "width": 550,
+        "height": 191,
+        "bytes": 22435
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-02.webp",
+          "width": 550,
+          "height": 191,
+          "bytes": 14022,
+          "sha256": "ca5dbb75d55e62e681f3778233c5a28241b08ddf6b81c41a6d34a459e7c95132"
+        }
+      ]
+    },
+    {
+      "id": "logo-03",
+      "source": "webimages/合作生态 logo/3.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "即梦AI",
+      "slots": [
+        "ecosystem.jimeng-ai"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "2de0728bc411c57a1254807cc9db9649169963f5b5a15ffa1614a98b6cd11f20",
+        "width": 495,
+        "height": 175,
+        "bytes": 25507
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-03.webp",
+          "width": 495,
+          "height": 175,
+          "bytes": 16288,
+          "sha256": "62078a175efb4da8b5cb123c6688a0aa83e8ce33b204b6a6807cd7931d9f5648"
+        }
+      ]
+    },
+    {
+      "id": "logo-04",
+      "source": "webimages/合作生态 logo/4.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "DeepSeek",
+      "slots": [
+        "ecosystem.deepseek"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "f4a7d47995b9b3b80c1aa0218eabb19d7ccdf5ec4ca0a0426b7b4d2e632a2d0c",
+        "width": 535,
+        "height": 170,
+        "bytes": 25754
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-04.webp",
+          "width": 535,
+          "height": 170,
+          "bytes": 15828,
+          "sha256": "000de6f0d29d4d4f45ead6a8ff409bf6d8e5cea9853a37b2beb50ba4369a2725"
+        }
+      ]
+    },
+    {
+      "id": "logo-05",
+      "source": "webimages/合作生态 logo/5.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "浙江大学教育学院",
+      "slots": [
+        "ecosystem.zju-education"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "57a2438b61d0b820b1940a9dd3353fed7797225236c05a38694d625ac0421f72",
+        "width": 544,
+        "height": 190,
+        "bytes": 64352
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-05.webp",
+          "width": 544,
+          "height": 190,
+          "bytes": 54254,
+          "sha256": "ef141b78bea617bd273c8729a90ebb08c880765bcc25cd36dbaececce80c7e84"
+        }
+      ]
+    },
+    {
+      "id": "logo-06",
+      "source": "webimages/合作生态 logo/6.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "中国电子商会人工智能委员会",
+      "slots": [
+        "ecosystem.cecc-ai-committee"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "2a40b50d335337fe415ed6419bc1fdd615d4127c5a0b126da6046fd7d87d1651",
+        "width": 540,
+        "height": 173,
+        "bytes": 44174
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-06.webp",
+          "width": 540,
+          "height": 173,
+          "bytes": 32274,
+          "sha256": "e653a3743893348e18f6e97a1848cf5c27e8f1df25f5f3e506471cc6160a4f01"
+        }
+      ]
+    },
+    {
+      "id": "logo-07",
+      "source": "webimages/合作生态 logo/7.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "豆包",
+      "slots": [
+        "ecosystem.doubao"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "a0473f9e973ab8a2c80adb8693192273f5fa8523bf16965fa73661dc3c0a440a",
+        "width": 520,
+        "height": 205,
+        "bytes": 23064
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-07.webp",
+          "width": 520,
+          "height": 205,
+          "bytes": 14816,
+          "sha256": "928e923d8623284bf59e7c3afb41a9d68297583f08369f37f8422462755f0466"
+        }
+      ]
+    },
+    {
+      "id": "logo-08",
+      "source": "webimages/合作生态 logo/8.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "阿里云",
+      "slots": [
+        "ecosystem.aliyun"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "58c217415bedc13885f2b39adef1c7ee878b29f40a29dcb7958c194b9f7c0de2",
+        "width": 500,
+        "height": 184,
+        "bytes": 10684
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-08.webp",
+          "width": 500,
+          "height": 184,
+          "bytes": 6950,
+          "sha256": "8095c4a761f5b7cbde3edd19d2ba7caf2a835bc8d490f4ff162959d552e47b80"
+        }
+      ]
+    },
+    {
+      "id": "logo-09",
+      "source": "webimages/合作生态 logo/9.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "Unitree 宇树科技",
+      "slots": [
+        "ecosystem.unitree"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "a24fc74981771412d22562e4240f16c9325015fe635d6f3499daf6bea074b0ec",
+        "width": 549,
+        "height": 180,
+        "bytes": 11012
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-09.webp",
+          "width": 549,
+          "height": 180,
+          "bytes": 4658,
+          "sha256": "bb9943b180d46ac3611d35242f77685d9747be8ff024004aa27d88adb50d8658"
+        }
+      ]
+    },
+    {
+      "id": "logo-10",
+      "source": "webimages/合作生态 logo/10.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "BrainCo 强脑科技",
+      "slots": [
+        "ecosystem.brainco"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "4eb7ab74399ac2f5487710d7f1e4d9111ab00f4fc6b2d4d4aafa06a31af6727d",
+        "width": 548,
+        "height": 195,
+        "bytes": 33316
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-10.webp",
+          "width": 548,
+          "height": 195,
+          "bytes": 20420,
+          "sha256": "8ff8645c83bd04cb4b6c628a52139af09fd6382d2ff83829e136a5b0776f33d9"
+        }
+      ]
+    },
+    {
+      "id": "logo-11",
+      "source": "webimages/合作生态 logo/11.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "百度",
+      "slots": [
+        "ecosystem.baidu"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "36fadfef400bda7abd30dfe2ec663fe734e63bfa1fb27755c751aefb9d512209",
+        "width": 500,
+        "height": 215,
+        "bytes": 35340
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-11.webp",
+          "width": 500,
+          "height": 215,
+          "bytes": 26302,
+          "sha256": "fd519b6f2c322ba7566c1bad7585e12ccf94e34fb84c27eb5d71b29acdebe6a8"
+        }
+      ]
+    },
+    {
+      "id": "logo-12",
+      "source": "webimages/合作生态 logo/12.png",
+      "sourceType": "user-provided",
+      "kind": "logo",
+      "alt": "ChatGPT",
+      "slots": [
+        "ecosystem.chatgpt"
+      ],
+      "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
+      "original": {
+        "sha256": "de85c13e573fad5d5324f82d1f3f45b306bd3bdb2b8e7e48a4fb2d800ed7ff04",
+        "width": 545,
+        "height": 195,
+        "bytes": 39183
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/logo-12.webp",
+          "width": 545,
+          "height": 195,
+          "bytes": 21142,
+          "sha256": "289400d472167cd345055423c170895f45dddacdeaa27e404e93bfcda9e1aa11"
+        }
+      ]
+    },
+    {
+      "id": "computing-banner",
+      "source": "scripts/opc-source/visual-originals/computing-banner.png",
+      "sourceType": "generated",
+      "tool": "image_gen",
+      "kind": "hero",
+      "alt": "科技蓝算力主题视觉",
+      "slots": [
+        "home.hero.4",
+        "computing.hero",
+        "gpu.hero",
+        "work.hero"
+      ],
+      "usageNote": "装饰图；标题与操作保持独立文本，不表示真实机房。",
+      "original": {
+        "sha256": "06be47819521a966754befc133f73c99a55450327301a690eb7da31014778a17",
+        "width": 1942,
+        "height": 809,
+        "bytes": 2198432
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/computing-banner-960.webp",
+          "width": 960,
+          "height": 400,
+          "bytes": 53110,
+          "sha256": "c7913bdf9135ef22d9cca2d4a195019eab88902ad005416cdeebf295b3e82096"
+        },
+        {
+          "url": "/opc/visual/computing-banner-1920.webp",
+          "width": 1920,
+          "height": 800,
+          "bytes": 163566,
+          "sha256": "66e0bd815100f8edce172cf5120eceb6af6ceb15a14e1f60216876bf97a5d287"
+        }
+      ]
+    },
+    {
+      "id": "icon-agent",
+      "source": "public/opc/visual/icon-agent.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.agent"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "1b63afbd4dcd5c6091a1b4526358eeddfdd64cf04e1f4080d25c64cc55102253",
+        "width": 64,
+        "height": 64,
+        "bytes": 351
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-agent.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 351,
+          "sha256": "1b63afbd4dcd5c6091a1b4526358eeddfdd64cf04e1f4080d25c64cc55102253"
+        }
+      ]
+    },
+    {
+      "id": "icon-market",
+      "source": "public/opc/visual/icon-market.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.market"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "626d78da6d3fa2e993cf3558f4bf97e2c63154ca7f886facc853b698b36f305d",
+        "width": 64,
+        "height": 64,
+        "bytes": 388
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-market.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 388,
+          "sha256": "626d78da6d3fa2e993cf3558f4bf97e2c63154ca7f886facc853b698b36f305d"
+        }
+      ]
+    },
+    {
+      "id": "icon-academy",
+      "source": "public/opc/visual/icon-academy.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.academy"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "03b8220e2d563c5c10e3e387909674d5aa467657bb4adfd83f966216c5c61c9b",
+        "width": 64,
+        "height": 64,
+        "bytes": 346
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-academy.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 346,
+          "sha256": "03b8220e2d563c5c10e3e387909674d5aa467657bb4adfd83f966216c5c61c9b"
+        }
+      ]
+    },
+    {
+      "id": "icon-star",
+      "source": "public/opc/visual/icon-star.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.star"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "240eac2b11029feb63418d8a9a043508b2332cc186b03d379779a8aeeb62538d",
+        "width": 64,
+        "height": 64,
+        "bytes": 324
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-star.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 324,
+          "sha256": "240eac2b11029feb63418d8a9a043508b2332cc186b03d379779a8aeeb62538d"
+        }
+      ]
+    },
+    {
+      "id": "icon-community",
+      "source": "public/opc/visual/icon-community.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.community"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "cf5e82bfb6687862e21498fad8f35bfd75f0b46cea952357940a2053dc099e32",
+        "width": 64,
+        "height": 64,
+        "bytes": 402
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-community.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 402,
+          "sha256": "cf5e82bfb6687862e21498fad8f35bfd75f0b46cea952357940a2053dc099e32"
+        }
+      ]
+    },
+    {
+      "id": "icon-work",
+      "source": "public/opc/visual/icon-work.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.work"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "6689ffc6be217289270feba0040d8c977885220ad20d6071a3344309918374b1",
+        "width": 64,
+        "height": 64,
+        "bytes": 356
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-work.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 356,
+          "sha256": "6689ffc6be217289270feba0040d8c977885220ad20d6071a3344309918374b1"
+        }
+      ]
+    },
+    {
+      "id": "icon-computing",
+      "source": "public/opc/visual/icon-computing.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.computing"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "dcb37a5145755e7af42e97d93dc764e91a8ba83c1f364000e086ca09bfcdaec3",
+        "width": 64,
+        "height": 64,
+        "bytes": 435
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-computing.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 435,
+          "sha256": "dcb37a5145755e7af42e97d93dc764e91a8ba83c1f364000e086ca09bfcdaec3"
+        }
+      ]
+    },
+    {
+      "id": "icon-gpu",
+      "source": "public/opc/visual/icon-gpu.svg",
+      "sourceType": "generated",
+      "tool": "build-opc-icons.mjs",
+      "kind": "icon",
+      "alt": "",
+      "slots": [
+        "home.service.gpu"
+      ],
+      "usageNote": "装饰性服务图标；语义由相邻标题提供。",
+      "original": {
+        "sha256": "3ef29fb95b04fba3000fed4b9eb0932d15056b40b46a3369c07ab8b09cd0be19",
+        "width": 64,
+        "height": 64,
+        "bytes": 428
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/icon-gpu.svg",
+          "width": 64,
+          "height": 64,
+          "bytes": 428,
+          "sha256": "3ef29fb95b04fba3000fed4b9eb0932d15056b40b46a3369c07ab8b09cd0be19"
+        }
+      ]
+    }
+  ],
+  "pipeline": {
+    "version": 1,
+    "sharp": "0.35.5",
+    "vips": "8.18.7",
+    "webp": "1.6.0",
+    "photographicQuality": 80,
+    "maxPhotoWidth": 960,
+    "heroWidths": [
+      960,
+      1920
+    ],
+    "logoEncoding": "lossless; original dimensions"
+  }
+}

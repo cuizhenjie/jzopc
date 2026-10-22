@@ -1,0 +1,147 @@
+/* Local imagery slots. Existing components keep their own tokens and typography. */
+.opc-replica.opc-replica .opc-visual-hero {
+  position: relative !important;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--opc-surface-2) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero > :not(.opc-visual-hero-art) {
+  position: relative;
+  z-index: 1;
+}
+.opc-replica.opc-replica .opc-visual-hero-art {
+  position: absolute !important;
+  inset: 0 0 0 auto;
+  width: 48%;
+  z-index: 0;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 30%);
+}
+.opc-replica.opc-replica .opc-visual-hero-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 68% 50%;
+  opacity: .88;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-desc,
+.opc-replica.opc-replica .opc-visual-hero.page-header > p {
+  max-width: min(620px, 55%) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark {
+  background: var(--opc-navy) !important;
+}
+.opc-replica.opc-replica .opc-visual-service-icon {
+  display: block;
+  width: 54px !important;
+  height: 54px !important;
+  object-fit: contain;
+  border-radius: var(--opc-radius-panel) !important;
+}
+.opc-replica.opc-replica .opc-visual-gallery {
+  background: var(--opc-white) !important;
+}
+.opc-replica.opc-replica .opc-visual-section-head {
+  text-align: left !important;
+  max-width: none !important;
+  margin-bottom: var(--opc-space-8) !important;
+}
+.opc-replica.opc-replica .opc-visual-section-head h2 {
+  margin: 0 0 var(--opc-space-3) !important;
+}
+.opc-replica.opc-replica .opc-visual-section-head p {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--opc-ink-3) !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--opc-space-8) var(--opc-space-6);
+}
+.opc-replica.opc-replica .opc-visual-photo-card {
+  min-width: 0;
+  margin: 0;
+}
+.opc-replica.opc-replica .opc-visual-photo-media {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--opc-radius-panel);
+  background: var(--opc-surface-2);
+}
+.opc-replica.opc-replica .opc-visual-photo-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-card figcaption {
+  padding-top: var(--opc-space-4);
+  border-bottom: 1px solid var(--opc-line);
+  padding-bottom: var(--opc-space-4);
+}
+.opc-replica.opc-replica .opc-visual-photo-tag {
+  display: block;
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-xs) !important;
+  letter-spacing: .06em;
+  margin-bottom: var(--opc-space-2);
+}
+.opc-replica.opc-replica .opc-visual-photo-card h3 {
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-card p {
+  margin: var(--opc-space-2) 0 0;
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-3) !important;
+}
+.opc-replica.opc-replica [data-opc-gallery='scene'] .opc-visual-photo-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.opc-replica.opc-replica .opc-visual-ecosystem {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica .opc-visual-logo-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  margin: var(--opc-space-8) 0 0;
+  list-style: none;
+  background: var(--opc-line);
+  border: 1px solid var(--opc-line);
+  border-radius: var(--opc-radius-panel);
+  overflow: hidden;
+}
+.opc-replica.opc-replica .opc-visual-logo-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 100px;
+  padding: var(--opc-space-4);
+  background: var(--opc-white);
+}
+.opc-replica.opc-replica .opc-visual-logo-card img {
+  display: block;
+  width: 100%;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 0 !important;
+}
+@media (max-width: 1023px) {
+  .opc-replica.opc-replica .opc-visual-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opc-replica.opc-replica .opc-visual-logo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica .opc-visual-hero-art { width: 100%; opacity: .12; mask-image: linear-gradient(90deg, transparent, #000); }
+  .opc-replica.opc-replica .opc-visual-hero .hero-desc,
+  .opc-replica.opc-replica .opc-visual-hero.page-header > p { max-width: 100% !important; }
+  .opc-replica.opc-replica .opc-visual-photo-grid,
+  .opc-replica.opc-replica [data-opc-gallery='scene'] .opc-visual-photo-grid { grid-template-columns: 1fr; gap: var(--opc-space-8); }
+  .opc-replica.opc-replica .opc-visual-logo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opc-replica.opc-replica .opc-visual-logo-card { height: 88px; }
+}

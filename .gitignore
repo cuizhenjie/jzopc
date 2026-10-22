@@ -38,6 +38,7 @@ desktop.ini
 .next-ui/
 .next-opc/
 .next-opc-build/
+.next-opc-visual/
 .playwright-mcp/
 __pycache__/
 
