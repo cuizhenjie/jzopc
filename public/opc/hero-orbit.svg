@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="集智AI OPC社区主视觉">
+    <defs>
+      <linearGradient id="o-deep" x1="0.2" y1="0" x2="0.8" y2="1">
+        <stop offset="0" stop-color="#0a2a52"/><stop offset="0.6" stop-color="#142f59"/><stop offset="1" stop-color="#0e3769"/>
+      </linearGradient>
+      <radialGradient id="o-core" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="#64c4d9" stop-opacity="0.5"/>
+        <stop offset="0.4" stop-color="#1aa8d3" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="#0968ab" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1920" height="1080" fill="url(#o-deep)"/>
+    <!-- 轨道系统 -->
+    <g transform="translate(1400 520)" fill="none">
+      <ellipse rx="430" ry="430" stroke="#1aa8d3" stroke-opacity="0.2" stroke-width="1.4"/>
+      <ellipse rx="430" ry="168" stroke="#64c4d9" stroke-opacity="0.16" stroke-width="1.2"/>
+      <ellipse rx="300" ry="300" stroke="#1aa8d3" stroke-opacity="0.14" stroke-width="1.2" transform="rotate(28)"/>
+      <ellipse rx="300" ry="120" stroke="#57b6a5" stroke-opacity="0.14" stroke-width="1" transform="rotate(-18)"/>
+      <circle r="120" fill="url(#o-core)"/>
+      <circle r="52" fill="#0968ab" fill-opacity="0.5" stroke="#64c4d9" stroke-opacity="0.4"/>
+      <circle r="26" fill="#1aa8d3" fill-opacity="0.6"/>
+      <!-- 轨道上的粒子 -->
+      <circle cx="430" cy="0" r="9" fill="#64c4d9" fill-opacity="0.8"/>
+      <circle cx="-215" cy="84" r="7" fill="#1aa8d3" fill-opacity="0.7"/>
+      <circle cx="240" cy="-180" r="6" fill="#57b6a5" fill-opacity="0.7"/>
+      <circle cx="-120" cy="-270" r="8" fill="#64c4d9" fill-opacity="0.55"/>
+    </g>
+    <!-- 左侧的科技网格 -->
+    <g opacity="0.5">
+      <rect x="0" y="0" width="820" height="1080" fill="url(#p-grid-o)"/>
+    </g>
+    <defs>
+      <pattern id="p-grid-o" width="56" height="56" patternUnits="userSpaceOnUse">
+        <path d="M56 0H0V56" fill="none" stroke="#1aa8d3" stroke-opacity="0.1" stroke-width="1"/>
+      </pattern>
+    </defs></svg>

@@ -1,0 +1,224 @@
+/**
+ * OPC 复刻站 · 设计 Token（2026-10-22 重设计轮）
+ *
+ * ## 这份文件解决什么
+ *
+ * 上一轮的「科技蓝复现」是把原站 CSS 机器改色生成的产物（`public/opc/reference-blue.css`，
+ * 390KB），色相换对了，但**设计体系没有建立**：
+ *
+ * | 维度 | 复现态实测 | 本轮目标 |
+ * |---|---|---|
+ * | 字号档位 | 32 档（11 → 130px） | 8 档 |
+ * | 字重档位 | 6 档（400/500/600/700/800/900） | 3 档 |
+ * | 字体家族 | 3 族（PingFang SC / SF Mono / DIN Alternate） | 2 族 |
+ * | 文字色 | 24 档 | 5 档 |
+ * | 背景色 | 11 档 | 4 档 |
+ * | padding 组合 | 38 种 | 6 档间距阶 |
+ * | 圆角 | 11 档 | 4 档 |
+ * | 阴影样式 | 14 种 | 2 档 |
+ *
+ * 数值由 `scripts/opc-design-audit.mjs` 实测得出，可复跑复核。
+ *
+ * ## 为什么要独立于 globals.css
+ *
+ * `globals.css` 服务于主站（`src/app/**` 的原生 React 页面），用 Tailwind v4 的
+ * `@theme`。而 OPC 复刻页是**原站 DOM 的净化产物**，结构与主站完全不同，
+ * 两套体系共享 token 会让任一侧改动波及另一侧。
+ *
+ * 因此这里用普通 CSS 自定义属性定义一套 `.opc-replica` 作用域的 token，
+ * 与 `globals.css` 同源但互不干扰：同一套品牌色，不同的落地节奏。
+ *
+ * ## 品牌色来源
+ *
+ * 全部取自项目根目录 `logo.svg` 实测值（与 `globals.css` 一致），**不得臆造新色**。
+ * 浅底小字统一用 `--opc-blue-deep`（白底 5.87:1，达标 AA）；
+ * `--opc-blue` 只用于边框、图标与 ≥24px 大字（白底 4.38:1，大字阈值 3:1）。
+ *//* ═══════════════════════════════════════════════════════════════════
+   一、色彩系统
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  /* ── 品牌主色 ── */
+  --opc-blue: #1d7fba;          /* 边框 / 图标 / 大字强调 / 渐变端点 */
+  --opc-blue-deep: #0968ab;     /* 浅底可读蓝：小字链接 / 填充按钮 / 编号 */
+  --opc-blue-dark: #0e3769;     /* 深色渐层底 / 深底强调 */
+  --opc-navy: #142f59;          /* 深色区块底 / 标题 */
+  --opc-navy-soft: #152e56;
+  --opc-cyan: #1aa8d3;          /* 深底高亮 / 渐变端 */
+  --opc-teal: #57b6a5;          /* 点缀（仅深底） */
+
+  /* 品牌渐变：白字承载时端点必须 ≥4.5:1 */
+  --opc-gradient: linear-gradient(135deg, #0968ab 0%, #0e3769 100%);
+  --opc-gradient-soft: linear-gradient(135deg, #0968ab 0%, #1aa8d3 100%);
+
+  /* ── 中性文字阶（5 档，替换复现态的 24 档）── */
+  --opc-ink: #1a2333;           /* 正文 / 标题主色（logo.svg 实测中性色）13.2:1 */
+  --opc-ink-2: #4d5153;         /* 次级正文 8.2:1 */
+  --opc-ink-3: #5f6878;         /* 辅助信息 5.3:1 */
+  --opc-ink-muted: #5f6878;     /* 占位符 / 禁用态 5.6:1（白底） */
+  --opc-ink-inverse: #ffffff;
+
+  /* ── 背景阶（4 档）── */
+  --opc-surface: #f6f9fc;       /* 页面底 */
+  --opc-surface-2: #eef4fa;     /* 次级区块底 */
+  --opc-surface-blue: #eef4fa;  /* 品牌浅底（选中态 / 提示条） */
+  --opc-white: #ffffff;
+
+  /* ── 线条与描边 ── */
+  --opc-line: #e3e9f2;          /* 分割线 / 卡片描边 */
+  --opc-line-strong: #e3e9f2;   /* 强调描边 / 输入框聚焦 */
+  --opc-line-blue: #1d7fba;     /* 蓝色系描边（聚焦态 / hover 边框） */
+
+  /* ── 语义色 ──
+     语义色不属于品牌配色，且全仓只允许一个可读的语义红（见 test/brand-palette.test.ts
+     的 SEMANTIC 白名单）。成功/警告色当前没有使用点，先不声明，
+     避免引入无依据的色值。 */
+  --opc-danger: #b42318;
+
+  /* ── 焦点环 ── */
+  --opc-focus: #1aa8d3;
+}/* ═══════════════════════════════════════════════════════════════════
+   二、排版体系
+   8 档字号 · 3 档字重 · 2 族字体
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  --opc-font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Source Han Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --opc-font-mono: "SF Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+
+  /* 字号阶：8 档，比例接近 1.25，但中文正文用小一档的对比 */
+  --opc-fs-display: 40px;   /* 首页主标题 */
+  --opc-fs-h1: 32px;        /* 页面主标题 */
+  --opc-fs-h2: 24px;        /* 区块标题 */
+  --opc-fs-h3: 19px;        /* 卡片标题 */
+  --opc-fs-body: 15px;      /* 正文 */
+  --opc-fs-sm: 13px;        /* 次级信息 / 标签 */
+  --opc-fs-xs: 12px;        /* 辅助信息 / 计数 */
+  --opc-fs-num: 34px;       /* 指标数字 */
+
+  /* 行高：标题紧，正文松 */
+  --opc-lh-tight: 1.25;
+  --opc-lh-heading: 1.35;
+  --opc-lh-body: 1.8;
+
+  /* 字重：3 档（替换复现态的 6 档） */
+  --opc-fw-normal: 400;
+  --opc-fw-medium: 500;
+  --opc-fw-bold: 700;
+
+  /* 字间距 */
+  --opc-tracking-wide: 0.12em;   /* eyebrow 小标 */
+  --opc-tracking-tight: -0.01em; /* 大标题 */
+}/* ═══════════════════════════════════════════════════════════════════
+   三、间距栅格
+   4px 基准 · 6 档 · 容器最大 1280px
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  --opc-space-1: 4px;
+  --opc-space-2: 8px;
+  --opc-space-3: 12px;
+  --opc-space-4: 16px;
+  --opc-space-6: 24px;
+  --opc-space-8: 32px;
+  --opc-space-12: 48px;
+  --opc-space-16: 64px;
+
+  --opc-container: 1280px;
+  --opc-gutter: 24px;          /* 水平 padding */
+  --opc-section-pad: 72px;     /* 区块上下内边距（原站各 section 不统一：0 / 80 / 90 / 100 / 110） */
+}/* ═══════════════════════════════════════════════════════════════════
+   四、圆角与阴影
+   4 档圆角 · 2 档阴影（默认描边，阴影是奖励不是标配）
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  --opc-radius-tag: 4px;       /* 标签 / 输入框 */
+  --opc-radius-control: 8px;   /* 按钮 / 导航 */
+  --opc-radius-panel: 12px;    /* 卡片 / 面板 */
+  --opc-radius-card: 16px;     /* 主卡 / 区块容器 */
+
+  --opc-shadow-lift: 0 2px 4px rgb(20 47 89 / 6%), 0 18px 40px -12px rgb(20 47 89 / 18%);
+  --opc-shadow-overlay: 0 12px 32px -12px rgb(20 47 89 / 22%);
+}/* ═══════════════════════════════════════════════════════════════════
+   五、基础排版落地
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  font-family: var(--opc-font-sans);
+  font-size: var(--opc-fs-body);
+  line-height: var(--opc-lh-body);
+  color: var(--opc-ink);
+  background: var(--opc-surface);
+  font-variant-numeric: tabular-nums;
+}/* 所有文本节点统一继承中文字体与正文字色。
+   复现态的 24 档文字色由原站内联样式带入，这里用 `!important` 收口到 5 档。
+   语义色与白字区除外（在下方组件层单独处理）。 */.opc-replica.opc-replica h1,
+.opc-replica.opc-replica h2,
+.opc-replica.opc-replica h3,
+.opc-replica.opc-replica h4,
+.opc-replica.opc-replica h5,
+.opc-replica.opc-replica h6,
+.opc-replica.opc-replica p,
+.opc-replica.opc-replica span,
+.opc-replica.opc-replica div,
+.opc-replica.opc-replica li,
+.opc-replica.opc-replica dd,
+.opc-replica.opc-replica dt,
+.opc-replica.opc-replica td,
+.opc-replica.opc-replica th,
+.opc-replica.opc-replica label,
+.opc-replica.opc-replica small,
+.opc-replica.opc-replica strong,
+.opc-replica.opc-replica em,
+.opc-replica.opc-replica b {
+  font-family: var(--opc-font-sans);
+}/* 标题层级：收口到 8 档字号阶 */.opc-replica.opc-replica h1 {
+  font-size: var(--opc-fs-h1) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  letter-spacing: var(--opc-tracking-tight);
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica h2 {
+  font-size: var(--opc-fs-h2) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica h3 {
+  font-size: var(--opc-fs-h3) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica h4,
+.opc-replica.opc-replica h5,
+.opc-replica.opc-replica h6 {
+  font-size: var(--opc-fs-body) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica p,
+.opc-replica.opc-replica li,
+.opc-replica.opc-replica dd {
+  font-size: var(--opc-fs-body) !important;
+  line-height: var(--opc-lh-body) !important;
+  color: var(--opc-ink-2) !important;
+}/* 指标数字：等宽字体 + 数字排版，视觉重量与正文拉开。
+ *
+ * ⚠️ 这里**只声明字体属性，不声明颜色**。
+ * 颜色的归属取决于该指标处于浅底还是深底：
+ * 浅底的 `.njz-stat-*` 用 ink-3，深底的 `.hero-stat-*` 用白色。
+ * 在 token 层统一给色会让深底 hero 的白字被 ink-3 反压（实测已发生），
+ * 因此颜色统一交给组件层按容器上下文决定。
+ *
+ * ⚠️ 特异性必须与组件层一致（双层 .opc-replica），否则会被原站
+ * `data-v-*` 限定的同权重规则按加载顺序反向压过。 */.opc-replica.opc-replica .hero-stat-num,
+.opc-replica.opc-replica .njz-stat-num {
+  font-family: var(--opc-font-mono) !important;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--opc-fw-bold) !important;
+  letter-spacing: -0.02em;
+}/* 数字与单位分色（浅底场景；深底场景由组件层覆盖） *//* 焦点环：统一到品牌青，键盘可达 */.opc-replica.opc-replica a:focus-visible,
+.opc-replica.opc-replica button:focus-visible,
+.opc-replica.opc-replica input:focus-visible,
+.opc-replica.opc-replica select:focus-visible,
+.opc-replica.opc-replica textarea:focus-visible,
+.opc-replica.opc-replica [tabindex]:focus-visible {
+  outline: 2px solid var(--opc-focus);
+  outline-offset: 3px;
+  border-radius: var(--opc-radius-tag);
+}/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-components.css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+

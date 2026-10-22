@@ -43,7 +43,7 @@ export default function Hero() {
           <span className="hero-art-caption">JIZHI / COLLECTIVE INTELLIGENCE</span>
         </div>
         <dl className="hero-facts">
-          <div><dt>社区坐标</dt><dd>北京 · 丰台大红门</dd></div>
+          <div><dt>社区坐标</dt><dd>北京 · 丰台西马场</dd></div>
           <div><dt>首期空间</dt><dd>{site.area}</dd></div>
           <div><dt>启动运营</dt><dd>{site.launch}</dd></div>
         </dl>

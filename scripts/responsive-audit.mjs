@@ -92,10 +92,23 @@ function connect(url) {
 
 /* ── 页面内测量脚本 ───────────────────────────────────────────────────── */
 const MEASURE = `(() => {
+  // ⚠️ 屏蔽 Next.js 的开发指示器浮层（dev-only，生产不存在）。
+  // 它是深色小徽章，会盖在页面上，既污染像素采样，也可能被算成横向溢出。
+  if (!document.getElementById('opc-audit-hide-devtools')) {
+    const style = document.createElement('style');
+    style.id = 'opc-audit-hide-devtools';
+    style.textContent = 'nextjs-portal,next-route-announcer{display:none !important}';
+    document.head.appendChild(style);
+  }
   const de = document.documentElement;
-  const vw = window.innerWidth;
+  // ⚠️ 视口宽必须用 clientWidth（不含垂直滚动条），不能用 window.innerWidth。
+  // innerWidth **包含**滚动条宽度，用它当阈值会整体放宽 ~15px，
+  // 把真实溢出漏掉 —— 2026-10-22 实测：768 平板首页容器宽 788px，
+  // 真实溢出 20px，但因为阈值取 innerWidth 被判成 0。
+  const vw = de.clientWidth;
   const out = {
     vw,
+    innerWidth: window.innerWidth,
     scrollWidth: de.scrollWidth,
     clientWidth: de.clientWidth,
     overflow: de.scrollWidth - de.clientWidth,

@@ -26,6 +26,17 @@ const pages = pagesSource as Record<string, ReplicaPageContent>;
 const details = detailsSource as Record<string, ArticleRecord>;
 const zonePages = zonePagesSource as Record<string, ReplicaPageContent>;
 
+/**
+ * 复刻站对外的站点名。
+ *
+ * ⚠️ 这里**必须**与生成期的品牌替换保持一致。
+ * 原站的「同橙OPC社区平台」是运营方品牌，`scripts/build-opc-content.py`
+ * 只替换**生成产物**里的文本，碰不到运行期拼出来的标题 ——
+ * 实测新闻详情页 <title> 曾漏出「同橙OPC社区平台」。
+ * 站点名收敛到这一个常量，避免各处各写一份。
+ */
+export const REPLICA_SITE_NAME = '集智AI OPC社区平台';
+
 function escapeText(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 }
@@ -53,7 +64,7 @@ export function getReplicaPage(pathname: string, query: Query = {}): ReplicaPage
     return {
       path,
       id: article.id,
-      title: `${article.title} - 同橙OPC社区平台`,
+      title: `${article.title} - ${REPLICA_SITE_NAME}`,
       html: articleShell.html
         .replace('__OPC_TITLE__', escapeText(article.title))
         .replace('__OPC_DATE__', escapeText(record.date))

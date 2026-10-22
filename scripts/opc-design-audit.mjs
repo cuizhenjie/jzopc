@@ -25,7 +25,7 @@ const PAGES = [
   { path: '/about', label: '关于' },
   { path: '/agent', label: '智能体中心' },
   { path: '/market', label: '交易市场' },
-  { path: '/center', label: '同橙AI学院' },
+  { path: '/center', label: '集智AI 学院' },
   { path: '/starproject', label: '星计划' },
   { path: '/community', label: 'OPC社区' },
   { path: '/work', label: '工作平台' },
@@ -234,6 +234,40 @@ const sizes = new Map();
 for (const r of ok) for (const t of r.textNodes) sizes.set(t.fontSize, (sizes.get(t.fontSize) || 0) + 1);
 console.log('\n【字体体系】字号档位分布（档位越多，层级越碎）');
 console.log('  档位数:', sizes.size, '| 分布:', [...sizes.entries()].sort((a,b)=>a[0]-b[0]).map(([s,n])=>`${s}px×${n}`).join(' '));
+
+// 字号阶之外的元素 —— 只给数字没法收口，必须点名是谁。
+const SCALE = new Set([12, 13, 15, 19, 24, 32, 40, 48]);
+const tail = new Map();
+for (const r of ok) for (const t of r.textNodes) {
+  if (SCALE.has(t.fontSize)) continue;
+  const first = (t.cls || '(无类名)').split(/\s+/)[0];
+  const key = `${String(t.fontSize).padStart(5)}px  ${t.tag}.${first}`;
+  tail.set(key, (tail.get(key) || 0) + 1);
+}
+console.log('  字号阶之外（Top 15，按出现次数）:');
+for (const [k, n] of [...tail.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15)) {
+  console.log(`    ${String(n).padStart(4)}×  ${k}`);
+}
+
+// 尾巴元素多且分散时，光看「tag.class」还是定位不到 —— 补上样例文本与出现页面。
+const tailDetail = new Map();
+for (const r of ok) for (const t of r.textNodes) {
+  if (SCALE.has(t.fontSize)) continue;
+  const first = (t.cls || '(无类名)').split(/\s+/)[0];
+  const key = `${String(t.fontSize).padStart(5)}px  ${t.tag}.${first}`;
+  if (!tailDetail.has(key)) tailDetail.set(key, { n: 0, pages: new Map(), samples: [] });
+  const d = tailDetail.get(key);
+  d.n++;
+  d.pages.set(r.label || r.path, (d.pages.get(r.label || r.path) || 0) + 1);
+  if (d.samples.length < 2 && t.text) d.samples.push(t.text.slice(0, 18));
+}
+console.log('\n  尾巴元素明细（页数 / 样例文本）:');
+for (const [k, n] of [...tail.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10)) {
+  const d = tailDetail.get(k);
+  const pages = [...d.pages.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
+    .map(([p, c]) => `${p}(${c})`).join(' ');
+  console.log(`    ${k}\n        出现于 ${d.pages.size} 页：${pages}\n        样例：${d.samples.join(' / ')}`);
+}
 
 const weights = new Map();
 for (const r of ok) for (const t of r.textNodes) weights.set(t.fontWeight, (weights.get(t.fontWeight) || 0) + 1);

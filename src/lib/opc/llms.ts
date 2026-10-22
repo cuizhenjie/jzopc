@@ -1,12 +1,12 @@
 import { site } from '@/lib/site/config';
-import { getReplicaPage } from './content';
+import { getReplicaPage, REPLICA_SITE_NAME } from './content';
 import { replicaPaths } from './routes';
 
 export function buildReplicaLlmsTxt(): string {
   const base = site.url.replace(/\/$/, '');
   const account = new Set(['/opclogin', '/opcregister', '/opcforgotpassword', '/myinfo', '/opcapply', '/newsdetail']);
   return [
-    '# OPC Store · 同橙OPC社区',
+    `# ${REPLICA_SITE_NAME}`,
     '',
     '> 线上虚拟平台与线下实体空间，为OPC创业者提供全生命周期服务。',
     '',
@@ -17,7 +17,7 @@ export function buildReplicaLlmsTxt(): string {
     '## 页面',
     ...replicaPaths.filter(path => !account.has(path)).map(path => {
       const page = getReplicaPage(path)!;
-      return `- [${page.title.replace(' - 同橙OPC社区平台', '')}](${base}${path})`;
+      return `- [${page.title.replace(` - ${REPLICA_SITE_NAME}`, '')}](${base}${path})`;
     }),
     '',
     `## 站点地图\n\n- [站点地图](${base}/sitemap.xml)`,

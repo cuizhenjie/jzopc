@@ -22,7 +22,13 @@
     "prepare:deploy": "node scripts/prepare-deploy.mjs",
     "start:deploy": "node deploy/server.js",
     "opc:content": "python3 scripts/build-opc-content.py",
-    "opc:styles": "node scripts/build-opc-styles.mjs"
+    "opc:styles": "node scripts/build-opc-styles.mjs",
+    "opc:hero": "node scripts/build-opc-hero.mjs",
+    "opc:audit:design": "node scripts/opc-design-audit.mjs",
+    "opc:audit:style": "node scripts/opc-style-conflict.mjs",
+    "opc:audit:contrast": "node scripts/opc-contrast.mjs",
+    "opc:audit:brand": "node scripts/opc-brand-audit.mjs",
+    "opc:audit:responsive": "node scripts/responsive-audit.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

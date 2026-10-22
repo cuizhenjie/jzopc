@@ -29,6 +29,8 @@ ATTRS = set("id class title role tabindex alt width height viewbox preserveaspec
 CSS = set("color background background-color font-size font-weight font-family font-style line-height letter-spacing text-align text-decoration vertical-align white-space word-break width min-width max-width height min-height max-height margin margin-top margin-right margin-bottom margin-left padding padding-top padding-right padding-bottom padding-left border border-top border-right border-bottom border-left border-radius border-color border-width border-style box-shadow text-shadow display visibility opacity overflow overflow-x overflow-y object-fit object-position transform transform-origin transition-delay animation-delay animation-duration animation-play-state position top right bottom left z-index flex flex-grow flex-shrink flex-basis align-items justify-content gap grid-template-columns aspect-ratio".split())
 FORM_TYPES = {"community", "contact", "training", "star", "partner", "demand", "computing", "opc"}
 QUERY_KEYS = {"id", "formType", "city", "tab", "category", "q", "page", "serverName", "serverCompute", "serverPrice", "rentalType"}
+# 本站自有媒体（品牌标记 / 科技蓝主视觉）：来自 public/，不从原站下载，需在净化器中显式放行。
+LOCAL_MEDIA = {"/logo-mark.svg", "/logo-mark-inverse.svg"} | {f"/opc/hero-{name}.svg" for name in ("grid", "flow", "orbit", "waves")}
 
 
 @dataclass
@@ -118,6 +120,362 @@ def safe_style(value):
     return ";".join(output)
 
 
+# ── 品牌替换 ────────────────────────────────────────────────────────────
+# 原站运营方品牌「同橙」与站点名「OPC Store」必须整体换成本站品牌「集智AI」。
+#
+# 关键原则：**OPC 是业务概念词**（One Person Company / 一人公司），
+# 与品牌名无关，**不得**被替换。只替换「同橙」与「OPC Store / OPCStore」。
+#
+# 规则按「长 → 短」排列，先命中更具体的组合，避免「同橙」先被吃掉
+# 导致「同橙OPC社区」被拆成不一致的碎片结果。
+# 覆盖情况由 scripts/opc-brand-audit.mjs 实测统计并可复跑复核。
+
+# 本站自身的站点信息 —— 与 `src/lib/site/config.ts` 的 `site` 常量保持一致。
+# 2026-10-22 业务方已提供电话 / 邮箱 / 地址 / 域名，因此联系位照常渲染。
+# ⚠️ **备案号业务方未提供**，所以页脚与关于页一律不渲染备案号 ——
+# 原运营方的「苏ICP备2026012874号」已整项删除，不顶替、不编造。
+SITE_URL = "https://www.jizhiai.net.cn"
+SITE_DOMAIN = "www.jizhiai.net.cn"
+SITE_ADDRESS = "北京市丰台区西马场甲14号"
+SITE_PHONE = "400-006-5858"
+SITE_EMAIL = "developer@jimei.com.cn"
+
+# 原运营方（同橙）的联系信息。这些值出现在页脚「联系我们」与备案行里，
+# 它们属于**同橙的公司身份**，不是本站的。
+OPERATOR_CONTACT_TOKENS = ("025-86551126", "hr@tongcheng.ai")
+OPERATOR_ADDRESS = "南京市鼓楼区古平岗4号"
+OPERATOR_ADDRESS_LONG = "南京市鼓楼区古平岗4号智梦园B座"
+OPERATOR_ICP = "苏ICP备2026012874号"
+
+BRAND_RULES = [
+    ("同橙OPC社区平台", "集智AI OPC社区平台"),
+    ("同橙 OPC 社区平台", "集智AI OPC 社区平台"),
+    ("同橙OPC社区", "集智AI OPC社区"),
+    ("同橙 OPC 社区", "集智AI OPC 社区"),
+    ("同橙OPC", "集智AI OPC"),
+    ("同橙 AI 学院", "集智AI 学院"),
+    ("同橙AI学院", "集智AI学院"),
+    ("同橙科创产业发展集团", "集智AI 产业发展集团"),
+    ("同橙科创产业板块", "集智AI 产业板块"),
+    ("同橙", "集智AI"),
+    ("OPC Store", "集智AI"),
+    ("OPCStore", "集智AI"),
+    # 原站域名（tongcc = 同橙）。页面文字与 href 都要换，
+    # 否则「联系我们」里的链接会把访客带回原站。
+    # 原运营方的邮箱域名（tongcheng.ai）→ 本站域名。
+    # 文章正文里的「邮箱：opc@tongcheng.ai」是联系信息，
+    # 品牌已整体换成集智AI，域名必须一起换，否则自相矛盾。
+    ("tongcheng.ai", SITE_DOMAIN),
+    # 原运营方总部地址（长 → 短，避免留下「…智梦园B座」这种拼接残渣）
+    ("南京市鼓楼区古平岗4号智梦园B座", SITE_ADDRESS),
+    ("南京市鼓楼区古平岗4号", SITE_ADDRESS),
+    ("https://www.tongcc.com", SITE_URL),
+    ("http://www.tongcc.com", SITE_URL),
+    ("www.tongcc.com", SITE_DOMAIN),
+    ("tongcc.com", SITE_DOMAIN),
+    # 原运营方的另一个站点域名：页脚「联系我们」的链接与关于页「集团官网」
+    # 都在用它，同样属于原运营方资产 → 换成本站域名。
+    ("https://t.3cool.cc", SITE_URL),
+    ("http://t.3cool.cc", SITE_URL),
+    ("t.3cool.cc", SITE_DOMAIN),
+    # 「算力超市」外链：原站指向 ai.opcstore.com → 本站。
+    # ⚠️ `shanghai.opcstore.com` 等社区链接**不含**本串，不会被误伤。
+    ("https://ai.opcstore.com", "https://th.jimei.cn"),
+    ("http://ai.opcstore.com", "https://th.jimei.cn"),
+    ("ai.opcstore.com", "th.jimei.cn"),
+]
+
+# 需要品牌替换的标记（`rebrand()` 的短路条件）
+BRAND_MARKERS = (
+    "同橙", "OPC Store", "OPCStore", "tongcc", "tongcheng",
+    "南京市鼓楼区古平岗4号", "t.3cool.cc", "ai.opcstore.com",
+)
+
+# 媒体地址属性：不做品牌替换（见 rebrand_tree 的说明）
+MEDIA_URL_ATTRS = {"src", "srcset", "poster", "data-src", "data-original"}
+
+
+def rebrand(text):
+    """Replace the reference operator brand with this site's brand."""
+    if not text or not any(marker in text for marker in BRAND_MARKERS):
+        return text
+    for source, target in BRAND_RULES:
+        if source in text:
+            text = text.replace(source, target)
+    return text
+
+
+def rebrand_tree(node):
+    """Apply the brand mapping to every text node and to brand-bearing attributes.
+
+    属性同样需要替换：原站把品牌名写进了 `alt="同橙AI"`、`data-opc-category="同橙OPC社区"`
+    这类属性值里，只改文本节点会留下可见的品牌残留（alt 会作为无障碍名称读出来）。
+    """
+    for current in walk(node):
+        current.children = [rebrand(child) if isinstance(child, str) else child for child in current.children]
+        for key, value in list(current.attrs.items()):
+            # ⚠️ **媒体 URL 不做品牌替换** —— 图片的原始地址就在原站域名下
+            # （`asset-map.json` 的键是 `https://www.tongcc.com/uploads/...`），
+            # 品牌规则若先改了 src，本地化就查不到映射，图片会变成指向
+            # 本站不存在路径的远程链接（实测 `t.3cool.cc/uploads/...`）。
+            # 媒体地址由 sanitize() 统一改写成本地素材路径。
+            if key in MEDIA_URL_ATTRS:
+                continue
+            if isinstance(value, str) and any(marker in value for marker in BRAND_MARKERS):
+                current.attrs[key] = rebrand(value)
+    return node
+
+
+def rebrand_tree_deep(value):
+    """Apply the brand mapping to a plain JSON structure (strings, lists, dicts)."""
+    if isinstance(value, str):
+        return rebrand(value)
+    if isinstance(value, list):
+        return [rebrand_tree_deep(item) for item in value]
+    if isinstance(value, dict):
+        return {key: rebrand_tree_deep(item) for key, item in value.items()}
+    return value
+
+
+def remove_matching(node, predicate):
+    """递归删除满足 predicate 的子节点。
+
+    `Node` 不持有 parent 引用，因此用「自顶向下重写 children」的方式删除。
+    """
+    kept = []
+    for child in node.children:
+        if isinstance(child, Node):
+            if predicate(child):
+                continue
+            remove_matching(child, predicate)
+        kept.append(child)
+    node.children = kept
+    return node
+
+
+def remove_header_login(node):
+    """删除页头右上角的登录入口。
+
+    · 桌面端：导航链接里的 `li.loginli`（「登录」文字链）
+    · 移动端：`.user-area` 容器（里面只有一枚 el-button 造型的登录按钮）
+
+    ⚠️ 只删页头这两处 —— `/opclogin` 表单里的**提交按钮**也叫 `login-btn`
+    （无 `el-button` 类、不带 data-opc-action），不能误伤；登录 / 注册 /
+    忘记密码三页之间的文字互链（「立即登录」「返回登录」等）也全部保留。
+    本站暂无登录能力，先撤页头入口；`/opclogin` 路由本身保留。
+    """
+    remove_matching(
+        node,
+        lambda n: (n.tag == "li" and "loginli" in n.classes) or "user-area" in n.classes,
+    )
+
+
+def replace_operator_contact(node):
+    """把页脚「联系我们」里的原运营方身份信息换成本站信息。
+
+    ⚠️ 电话 / 邮箱 / 备案号：**整条删除**，不拿原站信息顶替 ——
+    本站尚未取得这些信息（`src/lib/site/config.ts` 的 `site.contact` 为空，
+    注释里写明「不得臆造」），而以集智AI 名义展示同橙的电话与备案号属于误导。
+    业务方补齐后由主站页脚渲染。
+
+    地址换成本站地址；域名由 `rebrand()` 的规则换成本站域名。
+    """
+    # 先把元素列表固化下来，避免边遍历边改 children 漏掉节点
+    for current in list(walk(node)):
+        kept = []
+        for child in current.children:
+            if isinstance(child, Node):
+                if child.tag == "li" and any(
+                    token in child.text for token in OPERATOR_CONTACT_TOKENS
+                ):
+                    continue
+                if child.tag == "a" and OPERATOR_ICP in child.text:
+                    continue
+            kept.append(child)
+        current.children = kept
+
+    # 本站自己的联系卡（申请页 `.contact-item`）：
+    # 电话与邮箱业务方未提供 → **整项删除**（与主站页脚「有值才渲染」一致），
+    # 不用原站信息顶替，也不编造本站邮箱。
+    # ⚠️ 必须在 `rebrand_tree()` **之前**执行 —— 否则邮箱域名先被换成本站域名，
+    # 这里就认不出「这是原运营方的邮箱」了。
+    remove_matching(
+        node,
+        lambda n: "contact-item" in n.classes
+        and any(token in n.text for token in OPERATOR_CONTACT_TOKENS),
+    )
+
+    # 地址替换**只限本站自己的联系位** —— 文章正文里提到原运营方的地址是历史事实，
+    # 不该被改成本站地址。
+    for footer in by_class(node, "opcbottom") or by_class(node, "footer-item"):
+        for current in list(walk(footer)):
+            current.children = [
+                # ⚠️ 长串先替换 —— 否则「…古平岗4号」先命中，
+                # 会留下「北京市丰台区大红门智梦园B座」这种拼接残渣。
+                child.replace(OPERATOR_ADDRESS_LONG, SITE_ADDRESS).replace(OPERATOR_ADDRESS, SITE_ADDRESS)
+                if isinstance(child, str) else child
+                for child in current.children
+            ]
+    for block in by_class(node, "contact-details"):
+        for current in list(walk(block)):
+            current.children = [
+                # ⚠️ 长串先替换 —— 否则「…古平岗4号」先命中，
+                # 会留下「北京市丰台区大红门智梦园B座」这种拼接残渣。
+                child.replace(OPERATOR_ADDRESS_LONG, SITE_ADDRESS).replace(OPERATOR_ADDRESS, SITE_ADDRESS)
+                if isinstance(child, str) else child
+                for child in current.children
+            ]
+    return node
+
+
+def _clone_with(node, icon=None, title=None, value=None, href=None):
+    """深拷贝一个参考节点，并按需替换图标 / 标题 / 值 / 链接。
+
+    ⚠️ 必须**克隆**而不是手写新节点：原站 CSS 的选择器带
+    `data-v-<scope>` 属性限定（如 `.contact-item[data-v-010c94e4]`），
+    手写节点缺这个属性 → 选择器不匹配 → **整块样式失效**
+    （实测：关于页新插入的「联系电话」没有卡片框、图标块，样式全丢）。
+
+    克隆同时保证了结构与 scope 属性与同级节点完全一致。
+    """
+    clone = copy.deepcopy(node)
+    if icon:
+        for n in walk(clone):
+            if n.tag == "i":
+                n.attrs["class"] = icon
+                break
+    if title:
+        for n in walk(clone):
+            if n.tag == "h4":
+                n.children = [title]
+                break
+    if value is not None:
+        # 三种承载形态，按优先级取一种，避免文字重复：
+        #   <p>值</p>（关于页 contact-item） → 直接子文本（页脚地址那条）
+        #   → <a>文本</a>（页脚域名那条，由 href 分支负责）
+        replaced = False
+        for n in walk(clone):
+            if n.tag == "p":
+                n.children = [value]
+                replaced = True
+                break
+        if not replaced and not any(n.tag == "a" for n in walk(clone)):
+            clone.children = [c for c in clone.children if not isinstance(c, str)] + [value]
+    if href:
+        for n in walk(clone):
+            if n.tag == "a":
+                n.attrs["href"] = href
+                n.children = [value if value is not None else n.text]
+                break
+    return clone
+
+
+def inject_site_contact(tree):
+    """把本站的电话与邮箱写进联系位（原运营方的对应项已整项删除）。
+
+    业务方 2026-10-22 提供：
+      电话 400-006-5858 / 邮箱 developer@jimei.com.cn
+    备案号**未提供** → 一律不渲染（原运营方的「苏ICP备2026012874号」已删除，
+    不顶替、不编造）。
+    """
+    # 页脚「联系我们」：<div class="footer-item"> 里的 <ul>
+    for item in by_class(tree, "footer-item"):
+        heading = next((n for n in walk(item) if n.tag == "h4"), None)
+        if heading is None or "联系我们" not in heading.text:
+            continue
+        ul = next((n for n in walk(item) if n.tag == "ul"), None)
+        if ul is None:
+            continue
+        rows = [n for n in walk(ul) if n.tag == "li"]
+        if any(SITE_PHONE in row.text for row in rows):
+            continue
+        # 纯文本条目（地址那条）当电话模板，带 <a> 的条目（域名那条）当邮箱模板
+        plain = next((r for r in rows if not any(n.tag == "a" for n in walk(r))), None)
+        linked = next((r for r in rows if any(n.tag == "a" for n in walk(r))), None)
+        additions = []
+        if plain is not None:
+            additions.append(_clone_with(plain, icon="fas fa-phone", value=f" {SITE_PHONE}"))
+        if linked is not None:
+            additions.append(
+                _clone_with(linked, icon="fas fa-envelope", value=SITE_EMAIL,
+                            href=f"mailto:{SITE_EMAIL}")
+            )
+        if additions:
+            ul.children = list(ul.children) + additions
+
+    # 关于页「联系我们」：<div class="contact-info"> 里的 .contact-item
+    for info in by_class(tree, "contact-info"):
+        cards = [n for n in walk(info) if n.tag == "div" and "contact-item" in n.classes]
+        if any(SITE_PHONE in card.text for card in cards):
+            continue
+        if not cards:
+            continue
+        info.children = list(info.children) + [
+            _clone_with(cards[0], icon="fas fa-phone", title="联系电话", value=SITE_PHONE),
+            _clone_with(cards[0], icon="fas fa-envelope", title="商务邮箱", value=SITE_EMAIL),
+        ]
+    return tree
+
+
+def inject_brand_mark(tree):
+    """Replace the text-only site logo with the 集智AI brand mark.
+
+    原站 logo 是一段纯文字（「OPC Store」），与本站的品牌图形不一致。
+    这里在 `.logo` 容器内插入 `public/logo-mark.svg` 的 `<img>`，
+    保留原有 `<a>` 的 href 与可访问名（`alt` 留空，名称由相邻文字提供）。
+
+    深底反白版通过 CSS 切换（首页页头浮在深色主视觉上），
+    因此两张图都注入，用 `data-opc-mark` 区分。
+    """
+    for logo in by_class(tree, "logo"):
+        anchor = next((n for n in walk(logo) if n.tag == "a"), None)
+        if anchor is None:
+            continue
+        # 已有标记则不重复注入
+        if any(n.tag == "img" for n in walk(logo)):
+            continue
+        anchor.children = [
+            Node("img", {"class": "opc-brand-mark", "src": "/logo-mark.svg", "alt": "", "loading": "eager", "decoding": "async", "data-opc-mark": "light"}),
+            Node("img", {"class": "opc-brand-mark opc-brand-mark--inverse", "src": "/logo-mark-inverse.svg", "alt": "", "loading": "eager", "decoding": "async", "data-opc-mark": "dark"}),
+        ] + [n for n in anchor.children if isinstance(n, Node) and n.tag == "span"]
+    return tree
+
+
+def replace_home_hero(tree):
+    """Replace the reference event photos with the site's own tech-blue artwork.
+
+    复刻态首页首屏是 2026 OPC 创新发展大会的合影，舞台背板上写着原站运营方
+    「同橙OPC社区」的大字招牌 —— 作为集智AI 站点的首屏是最刺眼的品牌冲突。
+
+    这里把轮播的 4 张大会照片换成 `public/opc/hero-*.svg`（本站自有科技蓝抽象主视觉，
+    由 `scripts/build-opc-hero.mjs` 生成），并把 hero 区里那张原站 logo 图
+    换成集智AI 品牌标记。
+
+    轮播的 DOM 结构、切换行为与全部样式类**保持不变**，只换图片地址。
+    """
+    if not by_class(tree, "hero"):
+        return tree
+    hero_variants = ["grid", "flow", "orbit", "waves"]
+    carousel_images = []
+    for carousel in by_class(tree, "hero-carousel"):
+        for item in by_class(carousel, "el-carousel__item"):
+            image = next((n for n in walk(item) if n.tag == "img"), None)
+            if image is not None:
+                carousel_images.append(image)
+    for index, image in enumerate(carousel_images[:len(hero_variants)]):
+        image.attrs["src"] = f"/opc/hero-{hero_variants[index]}.svg"
+        image.attrs["alt"] = ""
+        image.attrs["loading"] = "eager" if index == 0 else "lazy"
+    # hero 区原站 logo 图 → 集智AI 品牌标记
+    for logo_node in by_class(tree, "hero-logo"):
+        image = next((n for n in walk(logo_node) if n.tag == "img"), None)
+        if image is not None:
+            image.attrs["src"] = "/logo-mark-inverse.svg"
+            image.attrs["alt"] = ""
+            image.attrs["loading"] = "eager"
+    return tree
+
+
 def local_location(raw, paths):
     raw = html.unescape(raw).strip()
     if re.search(r"[\x00-\x20\\]", raw):
@@ -146,6 +504,10 @@ def safe_url(raw, *, media=False, paths=None, assets=None):
     raw = html.unescape(raw).strip()
     if not raw or re.search(r"[\x00-\x20\\]", raw):
         return ""
+    # 本站自有的品牌标记由 public/ 提供，不来自原站，必须显式放行。
+    # 只允许这两个精确路径，避免任意本地路径从源 HTML 穿透。
+    if raw in LOCAL_MEDIA:
+        return raw
     if not media and raw.startswith("#") and not raw.startswith("#/"):
         return raw if re.fullmatch(r"#[A-Za-z][\w:.-]*", raw) else ""
     if not media and paths:
@@ -507,12 +869,20 @@ def generate():
     pages = {}
     for path, page in selected.items():
         tree = parse(page["html"])
+        remove_header_login(tree)
         complete_lists(tree, path, records)
         if path == "/market":
             complete_market(tree, records)
         enhance(tree, path, records, directory)
-        pages[path] = {"html": sanitize(tree, paths, assets), "title": page["title"], "path": path}
+        replace_operator_contact(tree)
+        inject_site_contact(tree)
+        rebrand_tree(tree)
+        inject_brand_mark(tree)
+        if path == "/":
+            replace_home_hero(tree)
+        pages[path] = {"html": sanitize(tree, paths, assets), "title": rebrand(page["title"]), "path": path}
     shell = parse(detail_template["html"])
+    remove_header_login(shell)
     set_text(shell, "article-title", "__OPC_TITLE__")
     shell_meta = first(shell, "meta-item")
     if shell_meta:
@@ -523,19 +893,28 @@ def generate():
     shell_article.children = ["__OPC_ARTICLE__"]
     shell_article.attrs["data-opc-article"] = ""
     enhance(shell, "/newsdetail", records, directory)
+    replace_operator_contact(shell)
+    inject_site_contact(shell)
+    rebrand_tree(shell)
     article_shell = sanitize(shell, paths, assets)
     details = {}
     for record in records:
         content = "".join(x["content"] for x in sorted(record["content"], key=lambda x: x["sort"]) if x["sort"] != -1)
         if not content.strip():
             content = "<p>" + html.escape(sub(record, 1) or record["title"]) + "</p>"
-        details[str(record["id"])] = {"html": sanitize(parse(content), paths, assets), "title": record["title"], "date": date_for(record), "id": record["id"]}
+        details[str(record["id"])] = {"html": sanitize(rebrand_tree(parse(content)), paths, assets), "title": rebrand(record["title"]), "date": date_for(record), "id": record["id"]}
     listings = {"categories": public["categories"], "records": {k: {name: value for name, value in r.items() if name not in {"content", "images"}} for k, r in public["records"].items()}}
+    listings = rebrand_tree_deep(listings)
     zones = {}
     for city in zone_data["descriptions"]:
         tree = zone_variant(parse(selected["/zone"]["html"]), city, zone_data)
+        remove_header_login(tree)
         enhance(tree, "/zone", records, directory)
-        zones[city] = {"html": sanitize(tree, paths, assets), "path": "/zone", "title": city + "专区 - 同橙OPC社区平台"}
+        replace_operator_contact(tree)
+        inject_site_contact(tree)
+        rebrand_tree(tree)
+        zones[city] = {"html": sanitize(tree, paths, assets), "path": "/zone", "title": city + "专区 - 集智AI OPC社区平台"}
+    directory = rebrand_tree_deep(directory)
     for name, value in {"pages": pages, "details": details, "directory": localize_data(directory, assets), "listings": localize_data(listings, assets), "article-shell": {"html": article_shell}, "zone-cities": zones}.items():
         (OUTPUT / f"{name}.json").write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")) + "\n")
     manifest = {"source": BASE + "#/", "capturedAt": "2026-10-22", "pageCount": len(pages), "detailCount": len(details), "tools": len(directory["agents"]), "nanjingCommunities": len(directory["nanjingCommunities"]), "categories": {k: v["total"] for k, v in public["categories"].items()}}
