@@ -233,6 +233,13 @@
   cursor: pointer !important;
   transition: background-color 0.2s var(--ease-out-soft, ease),
     border-color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica :is(.hero-btn--primary, .hero-btn--ghost, .rental-btn, .btn-cta, .submit-btn) :is(span, i) {
+  color: inherit !important;
+}.opc-replica.opc-replica .sc-contact {
+  color: var(--opc-white) !important;
+  background: var(--opc-blue-deep) !important;
+}.opc-replica.opc-replica .sc-contact:hover {
+  background: var(--opc-blue-dark) !important;
 }.opc-replica.opc-replica .hero-btn--primary:hover,
 .opc-replica.opc-replica .btn-cta:hover,
 .opc-replica.opc-replica .submit-btn:hover,
@@ -1151,6 +1158,9 @@
   margin-inline: 0 !important;
 }.opc-replica.opc-replica .hero-body::before {
   margin-left: 0 !important;
+}@media (max-width: 767px) {
+  .opc-replica.opc-replica .hero .hero-logo { display: none !important; }
+  .opc-replica.opc-replica .hero .hero-title { font-size: clamp(28px, 8vw, 32px) !important; }
 }/* ═══════════════════════════════════════════════════════════════════
    内页 hero（浅底）—— 统一版式
    ═══════════════════════════════════════════════════════════════════

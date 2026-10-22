@@ -295,10 +295,11 @@
     .scene { background: var(--fg); color: var(--surface); }
     .scene .lead { color: color-mix(in srgb, var(--surface) 88%, transparent); }
     .scene .eyebrow { color: var(--surface); }
-    .scene img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--radius-lg); }
+    .scene img { width: 100%; height: auto; object-position: 80% 50%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--radius-lg); }
     .feature-mark img { width: 56px; height: 56px; }
     .feature .feature-mark { width: 56px; height: 56px; border: 0; }
-    .photos img { width: 100%; aspect-ratio: 3/2; object-fit: cover; border-radius: var(--radius); }
+    .photos img { width: 100%; height: auto; aspect-ratio: 3/2; object-fit: cover; border-radius: var(--radius); }
+    .photos img[src$='/activity-study-unitree.webp'] { object-position: left center; }
     .photos figure { margin: 0; }
     .photos figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); }
     .logos { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
@@ -331,9 +332,9 @@
     <section class="section" data-od-id="learning"><div class="container">
       <div class="row-between" style="margin-bottom:32px"><div><p class="eyebrow">LEARN · CONNECT · CREATE</p><h2>学习与交流</h2></div><a class="btn btn-ghost btn-arrow" href="/center">探索学院</a></div>
       <div class="grid-3 photos">
-        <figure><img src="/opc/visual/activity-animation-960.webp" width="960" height="580" alt="AI漫剧培训合影" loading="lazy"><figcaption>AI 漫剧培训</figcaption></figure>
-        <figure><img src="/opc/visual/activity-training-2-960.webp" width="960" height="582" alt="培训现场分享与交流" loading="lazy"><figcaption>技能培训与交流</figcaption></figure>
-        <figure><img src="/opc/visual/activity-study-2-960.webp" width="960" height="436" alt="机器人场景研学" loading="lazy"><figcaption>走进产业场景</figcaption></figure>
+        <figure><img src="/opc/visual/activity-ai-drama.webp" width="960" height="580" alt="AI漫剧培训合影" loading="lazy"><figcaption>AI 漫剧培训</figcaption></figure>
+        <figure><img src="/opc/visual/activity-training-2.webp" width="960" height="582" alt="培训现场分享与交流" loading="lazy"><figcaption>技能培训与交流</figcaption></figure>
+        <figure><img src="/opc/visual/activity-study-unitree.webp" width="960" height="436" alt="机器人场景研学" loading="lazy"><figcaption>走进产业场景</figcaption></figure>
       </div>
     </div></section>
     <section class="section" data-od-id="ecosystem"><div class="container">

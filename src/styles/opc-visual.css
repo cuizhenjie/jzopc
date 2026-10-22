@@ -31,6 +31,59 @@
 }
 .opc-replica.opc-replica .opc-visual-hero.has-visual-dark {
   background: var(--opc-navy) !important;
+  color: var(--opc-white) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .container {
+  text-align: left !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark :is(h1, h2, .sec-eyebrow) {
+  color: var(--opc-white) !important;
+  -webkit-text-fill-color: var(--opc-white) !important;
+  text-align: left !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark h1 {
+  display: block !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark h1 > span {
+  font-size: inherit !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .container > p {
+  max-width: min(620px, 55%) !important;
+  margin-inline: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-divider {
+  margin-left: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-desc {
+  color: rgb(255 255 255 / 94%) !important;
+  text-align: left !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark :is(p, .stat-label, .stat-value, .stat-num, .stat-unit) {
+  color: var(--opc-white) !important;
+  -webkit-text-fill-color: var(--opc-white) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .container > p {
+  max-width: min(620px, 55%) !important;
+  margin-inline: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-stats {
+  background: var(--opc-navy) !important;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: var(--opc-radius-panel);
+  padding: var(--opc-space-6) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-divider {
+  margin-left: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-actions {
+  justify-content: flex-start !important;
+}
+/* Metrics span the hero width, so they need a solid reading surface. */
+.opc-replica.opc-replica .opc-visual-hero:not(.has-visual-dark) .hero-stats {
+  background: var(--opc-surface) !important;
+  border: 1px solid var(--opc-line);
+  border-radius: var(--opc-radius-panel);
+  padding: var(--opc-space-6) !important;
 }
 .opc-replica.opc-replica .opc-visual-service-icon {
   display: block;
@@ -76,6 +129,9 @@
   display: block;
   object-fit: cover;
   border-radius: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-media img[src$='/activity-study-unitree.webp'] {
+  object-position: left center;
 }
 .opc-replica.opc-replica .opc-visual-photo-card figcaption {
   padding-top: var(--opc-space-4);
@@ -139,6 +195,8 @@
 @media (max-width: 767px) {
   .opc-replica.opc-replica .opc-visual-hero-art { width: 100%; opacity: .12; mask-image: linear-gradient(90deg, transparent, #000); }
   .opc-replica.opc-replica .opc-visual-hero .hero-desc,
+  .opc-replica.opc-replica .opc-visual-hero .container > p,
+  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark .container > p,
   .opc-replica.opc-replica .opc-visual-hero.page-header > p { max-width: 100% !important; }
   .opc-replica.opc-replica .opc-visual-photo-grid,
   .opc-replica.opc-replica [data-opc-gallery='scene'] .opc-visual-photo-grid { grid-template-columns: 1fr; gap: var(--opc-space-8); }

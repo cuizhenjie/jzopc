@@ -1,8 +1,8 @@
 /** Progressive enhancement for the captured public pages. No source-site runtime is used. */
 const REVEAL_TARGETS = [
-  '.ftr-item', '.eco-hub', '.strength-col', '.news-card', '.tool-card', '.course-card',
+  '.sec-head', '.ftr-node', '.eco-node', '.strength-block', '.news-card', '.tool-card', '.course-card',
   '.opc-card', '.njz-card', '.rental-card', '.supply-card', '.demand-card', '.activity-item',
-  '.opc-visual-block', '.opc-feature-media',
+  '.opc-visual-section-head', '.opc-visual-photo-card', '.opc-visual-logo-grid',
 ].join(',');
 const PERIOD = 5600;
 
@@ -154,8 +154,59 @@ export function mountVisualMotion(root: HTMLElement): () => void {
     let timer: number | undefined;
     let hovered = false;
     let focused = hero.contains(document.activeElement);
+    let focusOverride = false;
+    let hoverOverride = false;
+    let pointerRotationIntent: 'play' | 'pause' | undefined;
     let touching = false;
     let userPaused = false;
+    let preloadFor = -1;
+    let preloadTimer: number | undefined;
+    let cancelImageWait = () => {};
+    let preloadGeneration = 0;
+    const images = slides.map(slide => slide.querySelector<HTMLImageElement>('img'));
+    images.forEach(image => { if (image) remember(image, ['loading']); });
+
+    const cancelPreload = () => {
+      preloadGeneration++;
+      preloadFor = -1;
+      cancelImageWait();
+      cancelImageWait = () => {};
+      if (preloadTimer !== undefined) window.clearTimeout(preloadTimer);
+      preloadTimer = undefined;
+    };
+    // Let the visible image finish decoding before warming the next frame.
+    // Initial enhancement must not promote a second large image ahead of LCP.
+    const warmNextImage = () => {
+      if (preloadFor === current) return;
+      cancelPreload();
+      const image = images[current];
+      if (!image) return;
+      preloadFor = current;
+      const generation = preloadGeneration;
+      const ready = async () => {
+        cancelImageWait();
+        cancelImageWait = () => {};
+        try { await image.decode(); } catch { /* A failed image must not block navigation. */ }
+        if (!alive || generation !== preloadGeneration) return;
+        preloadTimer = window.setTimeout(() => {
+          preloadTimer = undefined;
+          if (!alive || generation !== preloadGeneration || document.hidden || !carouselVisible || reduced) return;
+          const nextImage = images[(current + 1) % images.length];
+          if (nextImage) nextImage.loading = 'eager';
+        }, 1000);
+      };
+      if (image.complete) void ready();
+      else {
+        const onReady = () => { void ready(); };
+        image.addEventListener('load', onReady, { once: true });
+        image.addEventListener('error', onReady, { once: true });
+        cancelImageWait = () => {
+          image.removeEventListener('load', onReady);
+          image.removeEventListener('error', onReady);
+        };
+      }
+    };
+    cleanup.push(cancelPreload);
 
     const show = (index: number) => {
       current = (index + slides.length) % slides.length;
@@ -169,15 +220,15 @@ export function mountVisualMotion(root: HTMLElement): () => void {
         buttons[position].tabIndex = active ? 0 : -1;
       });
       carousel.dataset.opcSlide = String(current + 1);
-      const nextImage = slides[(current + 1) % slides.length].querySelector<HTMLImageElement>('img');
-      if (nextImage) nextImage.loading = 'eager';
+      const activeImage = images[current];
+      if (activeImage) activeImage.loading = 'eager';
     };
     const stop = () => {
       if (timer !== undefined) { window.clearTimeout(timer); timer = undefined; }
     };
     const reasons = () => [
       document.hidden && 'background', !carouselVisible && 'offscreen', reduced && 'reduced-motion',
-      hovered && 'hover', focused && 'focus', touching && 'touch', userPaused && 'user',
+      hovered && !hoverOverride && 'hover', focused && !focusOverride && 'focus', touching && 'touch', userPaused && 'user',
     ].filter(Boolean) as string[];
     const sync = () => {
       stop();
@@ -185,9 +236,11 @@ export function mountVisualMotion(root: HTMLElement): () => void {
       carousel.dataset.opcAutoplay = String(paused.length === 0);
       carousel.dataset.opcPauseReason = paused.join(',');
       toggle.disabled = reduced;
-      toggle.textContent = reduced ? '静态' : userPaused ? '播放' : '暂停';
-      toggle.setAttribute('aria-label', reduced ? '系统已设置减少动态效果' : userPaused ? '继续自动切换主视觉' : '暂停自动切换主视觉');
-      toggle.setAttribute('aria-pressed', String(userPaused));
+      toggle.textContent = reduced ? '静态' : paused.length ? '播放' : '暂停';
+      toggle.setAttribute('aria-label', reduced ? '系统已设置减少动态效果' : paused.length ? '继续自动切换主视觉' : '暂停自动切换主视觉');
+      toggle.setAttribute('aria-pressed', String(paused.length > 0));
+      if (document.hidden || !carouselVisible || reduced) cancelPreload();
+      else warmNextImage();
       if (!alive || paused.length) return;
       timer = window.setTimeout(() => {
         timer = undefined;
@@ -198,7 +251,30 @@ export function mountVisualMotion(root: HTMLElement): () => void {
     reconcileCarousel = sync;
     cleanup.push(stop);
     buttons.forEach((button, index) => listen(button, 'click', () => { show(index); sync(); }));
-    listen(toggle, 'click', () => { userPaused = !userPaused; sync(); });
+    listen(toggle, 'pointerdown', () => {
+      // Touch contact/focus pauses the hero before click. Preserve the action
+      // the user saw when starting the gesture instead of reversing that intent.
+      pointerRotationIntent = reasons().length ? 'play' : 'pause';
+    });
+    listen(toggle, 'pointercancel', () => { pointerRotationIntent = undefined; });
+    listen(toggle, 'keydown', () => { pointerRotationIntent = undefined; });
+    listen(toggle, 'click', event => {
+      // An explicit rotation request may resume while this control retains focus
+      // (common on touch devices). A new focus/pointer entry pauses it again.
+      const intent = (event as MouseEvent).detail > 0 ? pointerRotationIntent : undefined;
+      pointerRotationIntent = undefined;
+      const resume = intent ? intent === 'play' : userPaused || focused && !focusOverride || hovered && !hoverOverride;
+      if (resume) {
+        userPaused = false;
+        focusOverride = focused;
+        hoverOverride = hovered;
+      } else {
+        userPaused = true;
+        focusOverride = false;
+        hoverOverride = false;
+      }
+      sync();
+    });
     listen(dots, 'keydown', event => {
       const keyboard = event as KeyboardEvent;
       const position = buttons.indexOf(event.target as HTMLButtonElement);
@@ -212,12 +288,13 @@ export function mountVisualMotion(root: HTMLElement): () => void {
       sync();
     });
     listen(hero, 'pointerenter', event => {
-      if ((event as PointerEvent).pointerType === 'mouse') { hovered = true; sync(); }
+      if ((event as PointerEvent).pointerType === 'mouse') { hovered = true; hoverOverride = false; sync(); }
     });
-    listen(hero, 'pointerleave', () => { hovered = false; sync(); });
-    listen(hero, 'focusin', () => { focused = true; sync(); });
+    listen(hero, 'pointerleave', () => { hovered = false; hoverOverride = false; sync(); });
+    listen(hero, 'focusin', () => { focused = true; focusOverride = false; sync(); });
     listen(hero, 'focusout', event => {
       focused = (event as FocusEvent).relatedTarget instanceof Node && hero.contains((event as FocusEvent).relatedTarget as Node);
+      if (!focused) focusOverride = false;
       sync();
     });
     let touchX = 0;

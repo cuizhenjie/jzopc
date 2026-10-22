@@ -72,9 +72,13 @@
     justify-content: center;
     min-width: 44px;
     min-height: 44px;
-    color: inherit !important;
+    color: var(--opc-ink, #142f59) !important;
     z-index: 101;
   }
+  .opc-replica.opc-replica .opcheader .container nav.is-home:not(.scrolled) .mobile-menu {
+    color: #fff !important;
+  }
+  .opc-replica.opc-replica .opcheader .container nav .mobile-menu i { color: inherit !important; }
   .opc-replica.opc-replica .opcheader .container nav .user-area { display: none !important; }
   .opc-replica.opc-replica .opcheader .container nav .nav-links {
     display: none !important;
@@ -104,6 +108,10 @@
     color: #fff !important;
   }
   .opc-replica.opc-replica .opcheader .container nav .nav-links a.active::after { display: none !important; }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links a:is(:hover, :focus-visible, .active) {
+    color: #fff !important;
+    background: rgb(255 255 255 / 12%) !important;
+  }
   .opc-replica.opc-replica .opcheader .container nav .nav-links .loginli { display: block !important; }
   .opc-replica.opc-replica .opcheader.opc-menu-open .menu-backdrop {
     display: block !important;
@@ -137,5 +145,8 @@
   .opc-replica.opc-replica *,
   .opc-replica.opc-replica *::before,
   .opc-replica.opc-replica *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .opc-replica.opc-replica .hero-carousel .el-carousel__item,
+  .opc-replica.opc-replica [data-opc-reveal='pending'],
+  .opc-replica.opc-replica [data-opc-reveal='shown'] { transition: none !important; transition-delay: 0s !important; }
   .opc-replica.opc-replica [data-opc-reveal] { opacity: 1 !important; transform: none !important; }
 }

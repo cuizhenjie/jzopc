@@ -8,7 +8,8 @@
       "kind": "hero",
       "alt": "科技AI城市横幅一",
       "slots": [
-        "hero.ai-city-flow"
+        "home.hero.2",
+        "agent.hero"
       ],
       "usageNote": "作为第二轮播及智能体/工作平台内页科技视觉；AI字形在左，不要镜像翻转",
       "original": {
@@ -41,9 +42,17 @@
       "kind": "hero",
       "alt": "科技AI城市横幅二",
       "slots": [
-        "hero.ai-city-primary"
+        "home.hero.1",
+        "academy.hero",
+        "starproject.hero",
+        "nanjingzone.hero",
+        "community.hero",
+        "newslist.hero",
+        "activitylist.hero",
+        "starjoin.hero",
+        "zone.hero"
       ],
-      "usageNote": "首页第一轮播；1920×823 WebP q80约119610字节",
+      "usageNote": "首页首帧及浅底内页装饰；保留原图，不把装饰画面描述为真实场地。",
       "original": {
         "sha256": "69e30006b53fbb74b57a22b3045ab6f6cf502e0a944e89e86c4af8ef8c1dd435",
         "width": 6720,
@@ -74,9 +83,10 @@
       "kind": "hero",
       "alt": "科技AI城市横幅三",
       "slots": [
-        "hero.ai-city-horizon"
+        "home.hero.3",
+        "market.hero"
       ],
-      "usageNote": "第三轮播、算力/交易/账号品牌面板；不要把AI字样放在正文下方",
+      "usageNote": "首页第三帧与交易市场内页装饰；保持画面方向，不镜像 AI 字形。",
       "original": {
         "sha256": "1d4b0a57f90fb2aac58521e0468b7effab1a526cb5b74ee2a70f4b401250d17e",
         "width": 6720,
@@ -107,7 +117,7 @@
       "kind": "reference",
       "alt": "城市夜景照片",
       "slots": [
-        "reference.city-night"
+        "library.reference.reference-city-night"
       ],
       "usageNote": "1280宽，可用次级城市生态图，不作为本站空间实景证据",
       "original": {
@@ -133,7 +143,7 @@
       "kind": "reference",
       "alt": "建筑外观参考",
       "slots": [
-        "reference.building-one"
+        "library.reference.reference-building-one"
       ],
       "usageNote": "800宽，参考用途；未证实为集智场地，不标注为本站实景",
       "original": {
@@ -159,7 +169,7 @@
       "kind": "reference",
       "alt": "蓝调城市夜景",
       "slots": [
-        "banner.community-city"
+        "library.reference.reference-city-blue"
       ],
       "usageNote": "915宽，适合窄版社区/区域横幅；大幅铺屏会软",
       "original": {
@@ -185,7 +195,7 @@
       "kind": "reference",
       "alt": "窗外城市景观",
       "slots": [
-        "reference.city-window"
+        "library.reference.reference-city-window"
       ],
       "usageNote": "759宽，卡片/侧图，避免放大成全屏banner",
       "original": {
@@ -211,7 +221,7 @@
       "kind": "reference",
       "alt": "城市天际线暮色",
       "slots": [
-        "banner.about-city"
+        "library.reference.reference-city-dusk"
       ],
       "usageNote": "889宽，关于页次级横幅/侧图",
       "original": {
@@ -237,7 +247,7 @@
       "kind": "reference",
       "alt": "商业建筑参考",
       "slots": [
-        "reference.building-two"
+        "library.reference.reference-building-two"
       ],
       "usageNote": "946宽，参考用途；没有本站实景归属信息",
       "original": {
@@ -263,7 +273,7 @@
       "kind": "photo",
       "alt": "AI漫剧培训合影",
       "slots": [
-        "activities.ai-comics"
+        "home.learning.1"
       ],
       "usageNote": "首页/活动第一封面；整组人像不裁头，建议16:10",
       "original": {
@@ -289,7 +299,7 @@
       "kind": "photo",
       "alt": "听讲学员现场",
       "slots": [
-        "activities.lecture-audience"
+        "library.reference.activity-audience"
       ],
       "usageNote": "活动补充/相册；源截图人脸较软，适合中小图",
       "original": {
@@ -315,7 +325,7 @@
       "kind": "photo",
       "alt": "课堂授课现场",
       "slots": [
-        "activities.classroom-lecture"
+        "library.reference.activity-classroom-one"
       ],
       "usageNote": "学院课程场景/相册",
       "original": {
@@ -341,7 +351,7 @@
       "kind": "photo",
       "alt": "大型课堂研讨",
       "slots": [
-        "activities.classroom-wide"
+        "library.reference.activity-classroom-two"
       ],
       "usageNote": "学院活动补充图/相册",
       "original": {
@@ -367,7 +377,7 @@
       "kind": "photo",
       "alt": "大会学员合影",
       "slots": [
-        "activities.group-wide"
+        "library.reference.activity-group"
       ],
       "usageNote": "1560×699宽合影，不强行裁成方图",
       "original": {
@@ -393,7 +403,7 @@
       "kind": "photo",
       "alt": "企业数智化调研会议",
       "slots": [
-        "cases.enterprise-digital-research"
+        "library.reference.activity-market-research"
       ],
       "usageNote": "企业服务/案例图；没有公司、日期、结果的附加事实",
       "original": {
@@ -419,7 +429,10 @@
       "kind": "photo",
       "alt": "AI培训实操课堂",
       "slots": [
-        "academy.workshop-practice"
+        "home.learning.2",
+        "academy.practice.1",
+        "about.scene.1",
+        "community.scene.1"
       ],
       "usageNote": "学院实操、关于社区内容侧图、六活动之一",
       "original": {
@@ -445,7 +458,8 @@
       "kind": "photo",
       "alt": "AI培训讲师授课",
       "slots": [
-        "academy.workshop-lecture"
+        "home.learning.3",
+        "academy.practice.2"
       ],
       "usageNote": "学院讲师授课、六活动之一",
       "original": {
@@ -471,7 +485,10 @@
       "kind": "photo",
       "alt": "AI培训协作实践",
       "slots": [
-        "academy.workshop-collaboration"
+        "home.learning.4",
+        "academy.practice.3",
+        "about.scene.2",
+        "community.scene.2"
       ],
       "usageNote": "学院主图/社区侧图、六活动之一；画面清晰、互动强",
       "original": {
@@ -497,7 +514,7 @@
       "kind": "photo",
       "alt": "学员AI漫剧作品",
       "slots": [
-        "academy.student-showcase"
+        "library.reference.activity-student-work"
       ],
       "usageNote": "成果展示，不标成现场活动实拍",
       "original": {
@@ -523,7 +540,7 @@
       "kind": "photo",
       "alt": "AI视频合作调研拼图",
       "slots": [
-        "cases.ai-video-research"
+        "library.reference.activity-video-research"
       ],
       "usageNote": "项目案例卡；拼图不适合full-bleed hero",
       "original": {
@@ -549,7 +566,7 @@
       "kind": "photo",
       "alt": "AI自动驾驶合作调研拼图",
       "slots": [
-        "cases.ai-driving-research"
+        "library.reference.activity-driving-research"
       ],
       "usageNote": "项目案例卡；涉及论文/人物说明，不扩写未提供成果",
       "original": {
@@ -575,7 +592,7 @@
       "kind": "photo",
       "alt": "阿里园区研学照片",
       "slots": [
-        "academy.visit-alibaba"
+        "library.reference.activity-study-alibaba"
       ],
       "usageNote": "研学专区/生态展示，755宽，适合卡片",
       "original": {
@@ -601,7 +618,7 @@
       "kind": "photo",
       "alt": "机器人产业研学照片",
       "slots": [
-        "academy.visit-unitree"
+        "home.learning.5"
       ],
       "usageNote": "六活动之一，1168×530横图",
       "original": {
@@ -627,7 +644,7 @@
       "kind": "photo",
       "alt": "强脑科技研学照片",
       "slots": [
-        "academy.visit-brainco"
+        "home.learning.6"
       ],
       "usageNote": "六活动之一，912×513，可原尺寸使用",
       "original": {
@@ -653,7 +670,8 @@
       "kind": "logo",
       "alt": "北京各省市京地合作商务联合会",
       "slots": [
-        "ecosystem.beijing-commerce-alliance"
+        "home.ecosystem.logo-01",
+        "work.ecosystem.logo-01"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -679,7 +697,8 @@
       "kind": "logo",
       "alt": "火山引擎",
       "slots": [
-        "ecosystem.volcano-engine"
+        "home.ecosystem.logo-02",
+        "work.ecosystem.logo-02"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -705,7 +724,8 @@
       "kind": "logo",
       "alt": "即梦AI",
       "slots": [
-        "ecosystem.jimeng-ai"
+        "home.ecosystem.logo-03",
+        "work.ecosystem.logo-03"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -731,7 +751,8 @@
       "kind": "logo",
       "alt": "DeepSeek",
       "slots": [
-        "ecosystem.deepseek"
+        "home.ecosystem.logo-04",
+        "work.ecosystem.logo-04"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -757,7 +778,8 @@
       "kind": "logo",
       "alt": "浙江大学教育学院",
       "slots": [
-        "ecosystem.zju-education"
+        "home.ecosystem.logo-05",
+        "work.ecosystem.logo-05"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -783,7 +805,8 @@
       "kind": "logo",
       "alt": "中国电子商会人工智能委员会",
       "slots": [
-        "ecosystem.cecc-ai-committee"
+        "home.ecosystem.logo-06",
+        "work.ecosystem.logo-06"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -809,7 +832,8 @@
       "kind": "logo",
       "alt": "豆包",
       "slots": [
-        "ecosystem.doubao"
+        "home.ecosystem.logo-07",
+        "work.ecosystem.logo-07"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -835,7 +859,8 @@
       "kind": "logo",
       "alt": "阿里云",
       "slots": [
-        "ecosystem.aliyun"
+        "home.ecosystem.logo-08",
+        "work.ecosystem.logo-08"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -861,7 +886,8 @@
       "kind": "logo",
       "alt": "Unitree 宇树科技",
       "slots": [
-        "ecosystem.unitree"
+        "home.ecosystem.logo-09",
+        "work.ecosystem.logo-09"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -887,7 +913,8 @@
       "kind": "logo",
       "alt": "BrainCo 强脑科技",
       "slots": [
-        "ecosystem.brainco"
+        "home.ecosystem.logo-10",
+        "work.ecosystem.logo-10"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -913,7 +940,8 @@
       "kind": "logo",
       "alt": "百度",
       "slots": [
-        "ecosystem.baidu"
+        "home.ecosystem.logo-11",
+        "work.ecosystem.logo-11"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -939,7 +967,8 @@
       "kind": "logo",
       "alt": "ChatGPT",
       "slots": [
-        "ecosystem.chatgpt"
+        "home.ecosystem.logo-12",
+        "work.ecosystem.logo-12"
       ],
       "usageNote": "RGB白底位图，使用contain及统一视觉高，不拉伸、不改品牌色",
       "original": {
@@ -967,9 +996,8 @@
       "alt": "科技蓝算力主题视觉",
       "slots": [
         "home.hero.4",
-        "computing.hero",
-        "gpu.hero",
-        "work.hero"
+        "work.hero",
+        "computingresource.hero"
       ],
       "usageNote": "装饰图；标题与操作保持独立文本，不表示真实机房。",
       "original": {

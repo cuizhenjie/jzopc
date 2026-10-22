@@ -4,11 +4,11 @@ import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mkdir, readFile, realpath, rename, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, readFile, realpath, rename, writeFile } from 'node:fs/promises';
 
 const require = createRequire(import.meta.url);
 const sharp = require(require.resolve('sharp', { paths: [dirname(require.resolve('next/package.json'))] }));
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const root = await realpath(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
 const manifestPath = resolve(root, 'scripts/opc-source/visual-media.json');
 const outputRoot = resolve(root, 'public/opc/visual');
 const checkOnly = process.argv.includes('--check');
@@ -17,6 +17,30 @@ const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.assets)) throw new Error('Unsupported visual media manifest');
 const ids = new Set();
 const urls = new Set();
+
+/** Never follow an output ancestor symlink, including while creating directories. */
+async function verifyDirectory(directory, create = false) {
+  const inside = relative(root, directory);
+  if (inside === '..' || inside.startsWith(`..${sep}`)) throw new Error(`Output directory escapes repository: ${directory}`);
+  let current = root;
+  for (const part of inside.split(sep).filter(Boolean)) {
+    const candidate = resolve(current, part);
+    let info;
+    try { info = await lstat(candidate); }
+    catch (error) {
+      if (error.code !== 'ENOENT' || !create) throw error;
+      // Recheck the existing parent before mkdir; recursive mkdir could follow it.
+      await verifyDirectory(current);
+      try { await mkdir(candidate); }
+      catch (creationError) { if (creationError.code !== 'EEXIST') throw creationError; }
+      info = await lstat(candidate);
+    }
+    if (info.isSymbolicLink() || !info.isDirectory() || await realpath(candidate) !== candidate) {
+      throw new Error(`Output directory must be a canonical repository directory: ${candidate}`);
+    }
+    current = candidate;
+  }
+}
 
 async function localFile(source) {
   if (typeof source !== 'string' || source.startsWith('/') || source.split('/').includes('..') || /[\\\x00-\x1f]/.test(source)) throw new Error(`Invalid source: ${source}`);
@@ -27,12 +51,14 @@ async function localFile(source) {
 }
 
 async function atomicWrite(path, value) {
+  await verifyDirectory(dirname(path));
   const temp = `${path}.${process.pid}.tmp`;
-  await writeFile(temp, value);
+  await writeFile(temp, value, { flag: 'wx' });
+  await verifyDirectory(dirname(path));
   await rename(temp, path);
 }
 
-await mkdir(outputRoot, { recursive: true });
+await verifyDirectory(outputRoot, !checkOnly);
 for (const asset of manifest.assets) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(asset.id) || ids.has(asset.id)) throw new Error(`Invalid or duplicate asset id: ${asset.id}`);
   ids.add(asset.id);

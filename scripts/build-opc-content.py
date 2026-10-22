@@ -8,6 +8,7 @@ Run again after updating scripts/opc-source/asset-map.json to localize media.
 from __future__ import annotations
 
 import copy
+import hashlib
 import html
 import json
 import re
@@ -31,6 +32,8 @@ FORM_TYPES = {"community", "contact", "training", "star", "partner", "demand", "
 QUERY_KEYS = {"id", "formType", "city", "tab", "category", "q", "page", "serverName", "serverCompute", "serverPrice", "rentalType"}
 # 本站自有媒体（品牌标记 / 科技蓝主视觉）：来自 public/，不从原站下载，需在净化器中显式放行。
 LOCAL_MEDIA = {"/logo-mark.svg", "/logo-mark-inverse.svg"} | {f"/opc/hero-{name}.svg" for name in ("grid", "flow", "orbit", "waves")}
+VISUAL_ASSETS = {}
+VISUAL_VARIANTS = {}
 # 本站主站路由（不在复刻路由集 paths 里）：复刻页链接到主站页面时放行，
 # 否则 safe_url 会按原站 BASE 把它们拼成绝对地址。
 LOCAL_LINKS = {"/empower/space"}
@@ -303,7 +306,9 @@ def localize_operator_links(node, cities):
             if isinstance(child, Node) and child.tag == "a":
                 href = child.attrs.get("href", "")
                 label = re.sub(r"\s+", "", child.text)
-                if "opcstore.com" in href and "/bbs" in href:
+                if urlsplit(href).hostname == "ai.opcstore.com":
+                    child.attrs.update(href="https://th.jimei.cn", target="_blank")
+                elif "opcstore.com" in href and "/bbs" in href:
                     child.attrs["href"] = "/community"
                     child.attrs.pop("target", None)
                     child.attrs.pop("rel", None)
@@ -518,20 +523,10 @@ def beijing_home_region(node):
 
 
 def replace_home_hero(tree):
-    """Replace the reference event photos with the site's own tech-blue artwork.
-
-    复刻态首页首屏是 2026 OPC 创新发展大会的合影，舞台背板上写着原站运营方
-    「同橙OPC社区」的大字招牌 —— 作为集智AI 站点的首屏是最刺眼的品牌冲突。
-
-    这里把轮播的 4 张大会照片换成 `public/opc/hero-*.svg`（本站自有科技蓝抽象主视觉，
-    由 `scripts/build-opc-hero.mjs` 生成），并把 hero 区里那张原站 logo 图
-    换成集智AI 品牌标记。
-
-    轮播的 DOM 结构、切换行为与全部样式类**保持不变**，只换图片地址。
-    """
+    """Keep the reference carousel structure; use local, responsive brand imagery."""
     if not by_class(tree, "hero"):
         return tree
-    hero_variants = ["grid", "flow", "orbit", "waves"]
+    hero_variants = ["hero-city-12", "hero-city-11", "hero-city-13", "computing-banner"]
     carousel_images = []
     for carousel in by_class(tree, "hero-carousel"):
         for item in by_class(carousel, "el-carousel__item"):
@@ -539,9 +534,7 @@ def replace_home_hero(tree):
             if image is not None:
                 carousel_images.append(image)
     for index, image in enumerate(carousel_images[:len(hero_variants)]):
-        image.attrs["src"] = f"/opc/hero-{hero_variants[index]}.svg"
-        image.attrs["alt"] = ""
-        image.attrs["loading"] = "eager" if index == 0 else "lazy"
+        image.attrs.update(visual_image(hero_variants[index], decorative=True, first=index == 0, sizes="100vw").attrs)
     # hero 区原站 logo 图 → 集智AI 品牌标记
     for logo_node in by_class(tree, "hero-logo"):
         image = next((n for n in walk(logo_node) if n.tag == "img"), None)
@@ -549,6 +542,123 @@ def replace_home_hero(tree):
             image.attrs["src"] = "/logo-mark-inverse.svg"
             image.attrs["alt"] = ""
             image.attrs["loading"] = "eager"
+    return tree
+
+
+def load_visual_media():
+    """Exact, verified public paths only. Validation happens once at build time."""
+    manifest = json.loads((SOURCE / "visual-media.json").read_text())
+    LOCAL_MEDIA.difference_update(VISUAL_VARIANTS)
+    VISUAL_ASSETS.clear()
+    VISUAL_VARIANTS.clear()
+    if manifest.get("schemaVersion") != 1:
+        raise ValueError("Unsupported visual media manifest")
+    visual_root = (ROOT / "public/opc/visual").resolve()
+    for asset in manifest["assets"]:
+        if asset["id"] in VISUAL_ASSETS:
+            raise ValueError("Duplicate visual asset: " + asset["id"])
+        VISUAL_ASSETS[asset["id"]] = asset
+        for variant in asset["variants"]:
+            url = variant["url"]
+            if not re.fullmatch(r"/opc/visual/[a-z0-9]+(?:-[a-z0-9]+)*\.(?:webp|svg)", url):
+                raise ValueError("Invalid visual URL: " + url)
+            path = (ROOT / "public" / url.lstrip("/")).resolve(strict=True)
+            if path.parent != visual_root or not path.is_file():
+                raise ValueError("Visual media outside public directory: " + url)
+            if url in VISUAL_VARIANTS or not all(isinstance(variant[k], int) and variant[k] > 0 for k in ("width", "height", "bytes")):
+                raise ValueError("Invalid visual metadata: " + url)
+            content = path.read_bytes()
+            if len(content) != variant["bytes"] or hashlib.sha256(content).hexdigest() != variant["sha256"]:
+                raise ValueError("Visual media changed; run opc:media: " + url)
+            VISUAL_VARIANTS[url] = variant
+    LOCAL_MEDIA.update(VISUAL_VARIANTS)
+
+
+def visual_image(asset_id, *, decorative=False, first=False, sizes="(max-width: 767px) 100vw, 33vw", class_name=""):
+    asset = VISUAL_ASSETS[asset_id]
+    variants = sorted(asset["variants"], key=lambda v: v["width"])
+    largest = variants[-1]
+    attrs = {"src": largest["url"], "width": str(largest["width"]), "height": str(largest["height"]), "alt": "" if decorative else asset["alt"], "loading": "eager" if first else "lazy", "decoding": "async", "fetchpriority": "high" if first else "auto"}
+    if len(variants) > 1:
+        attrs.update(srcset=", ".join(f'{v["url"]} {v["width"]}w' for v in variants), sizes=sizes)
+    if class_name:
+        attrs["class"] = class_name
+    return Node("img", attrs)
+
+
+def safe_srcset(value):
+    """A width descriptor must match a verified local derivative's actual width."""
+    candidates, widths = [], set()
+    for candidate in value.split(","):
+        match = re.fullmatch(r"\s*(/opc/visual/[a-z0-9-]+\.(?:webp|svg))\s+([1-9]\d*)w\s*", candidate)
+        if not match:
+            return ""
+        url, width = match[1], int(match[2])
+        if url not in VISUAL_VARIANTS or VISUAL_VARIANTS[url]["width"] != width or width in widths:
+            return ""
+        widths.add(width)
+        candidates.append(f"{url} {width}w")
+    return ", ".join(candidates)
+
+
+def insert_before_class(tree, class_name, addition):
+    for parent in walk(tree):
+        for index, child in enumerate(parent.children):
+            if isinstance(child, Node) and class_name in child.classes:
+                parent.children.insert(index, addition)
+                return
+    raise ValueError("Missing visual insertion target: " + class_name)
+
+
+def visual_gallery(kind, title, description, items):
+    cards = []
+    for asset_id, tag, caption in items:
+        cards.append(Node("figure", {"class": "opc-visual-photo-card"}, [
+            Node("div", {"class": "opc-visual-photo-media"}, [visual_image(asset_id)]),
+            Node("figcaption", {}, [Node("span", {"class": "opc-visual-photo-tag"}, [tag]), Node("h3", {}, [caption])]),
+        ]))
+    return Node("section", {"class": "section opc-visual-gallery", "data-opc-gallery": kind}, [Node("div", {"class": "container"}, [
+        Node("div", {"class": "sec-head opc-visual-section-head"}, [Node("span", {"class": "sec-eyebrow"}, ["LEARN · CONNECT · CREATE"]), Node("h2", {}, [title]), Node("p", {}, [description])]),
+        Node("div", {"class": "opc-visual-photo-grid"}, cards),
+    ])])
+
+
+def visual_ecosystem():
+    return Node("section", {"class": "section opc-visual-ecosystem"}, [Node("div", {"class": "container"}, [
+        Node("div", {"class": "sec-head opc-visual-section-head"}, [Node("span", {"class": "sec-eyebrow"}, ["AI ECOSYSTEM"]), Node("h2", {}, ["AI生态"]), Node("p", {}, ["关注模型、工具、产业与教育，让多元视角连接 AI 应用。"])]),
+        Node("ul", {"class": "opc-visual-logo-grid", "aria-label": "AI生态标识"}, [Node("li", {"class": "opc-visual-logo-card"}, [visual_image(f"logo-{index:02}")]) for index in range(1, 13)]),
+    ])])
+
+
+def inject_visual_media(tree, path):
+    training = [("activity-training-1", "技能实训", "在实践中理解 AI"), ("activity-training-2", "主题分享", "从方法到应用"), ("activity-training-3", "交流共创", "让想法相互启发")]
+    if path == "/":
+        replace_home_hero(tree)
+        icons = ["agent", "market", "academy", "star", "community", "work", "computing", "gpu"]
+        for feature, icon in zip(by_class(tree, "ftr-node"), icons):
+            core = first(feature, "ftr-hub-core")
+            if core:
+                core.children = [visual_image("icon-" + icon, decorative=True, class_name="opc-visual-service-icon")]
+        learning = [("activity-ai-drama", "AI内容创作", "一起探索 AI 漫剧")] + training + [("activity-study-unitree", "产业研学", "走近机器人应用"), ("activity-study-brainco", "技术交流", "看见新的应用可能")]
+        insert_before_class(tree, "news-sec", visual_gallery("learning", "学习与交流", "从课堂实训到产业研学，在真实的交流中拓展 AI 视野。", learning))
+        insert_before_class(tree, "cta-sec", visual_ecosystem())
+    elif path == "/center":
+        insert_before_class(tree, "path-sec", visual_gallery("academy", "在实践中学习", "把方法带进课堂，把想法带入创作与交流。", training))
+    elif path in {"/about", "/community"}:
+        scene = visual_gallery("scene", "实践与共创", "学习、分享与协作，让 AI 创作走进日常。", [training[0], training[2]])
+        insert_before_class(tree, "contact-section" if path == "/about" else "join-section", scene)
+    elif path == "/work":
+        for parent in walk(tree):
+            for index, child in enumerate(parent.children):
+                if isinstance(child, Node) and "partners-section" in child.classes:
+                    parent.children[index] = visual_ecosystem()
+    hero_classes = {"/agent": "hero-agent", "/market": "hero-market", "/center": "hero-center", "/starproject": "hero-sp", "/nanjingzone": "njz-hero", "/work": "hero", "/computingresource": "hero"}
+    hero = first(tree, hero_classes.get(path, "page-header")) if path != "/" else None
+    if hero:
+        dark = path in {"/work", "/computingresource"}
+        hero.attrs["class"] = hero.attrs.get("class", "") + " opc-visual-hero has-visual" + (" has-visual-dark" if dark else "")
+        asset_id = "computing-banner" if dark else "hero-city-13" if path == "/market" else "hero-city-11" if path == "/agent" else "hero-city-12"
+        hero.children.insert(0, Node("div", {"class": "opc-visual-hero-art", "aria-hidden": "true"}, [visual_image(asset_id, decorative=True, sizes="(max-width: 767px) 100vw, 48vw", class_name="opc-visual-hero-image")]))
     return tree
 
 
@@ -584,6 +694,9 @@ def safe_url(raw, *, media=False, paths=None, assets=None):
     # 只允许这两个精确路径，避免任意本地路径从源 HTML 穿透。
     if raw in LOCAL_MEDIA:
         return raw
+    if raw.startswith("/opc/visual/"):
+        # A misspelled / unverified derivative must not turn into a source-site URL.
+        return ""
     if not media and raw in LOCAL_LINKS:
         return raw
     if not media and raw.startswith("#") and not raw.startswith("#/"):
@@ -613,7 +726,14 @@ def sanitize(node, paths, assets):
     for key, value in node.attrs.items():
         if key.startswith("on"):
             continue
-        if key in {"href", "xlink:href", "src"}:
+        if key == "srcset" and node.tag == "img":
+            clean = safe_srcset(value)
+            if clean:
+                attrs[key] = clean
+        elif key == "sizes" and node.tag == "img":
+            if "srcset" in node.attrs and safe_srcset(node.attrs["srcset"]) and re.fullmatch(r"[\w\s().,:-]+", value):
+                attrs[key] = value
+        elif key in {"href", "xlink:href", "src"}:
             if key in {"href", "xlink:href"} and node.tag == "use":
                 clean = value if re.fullmatch(r"#[A-Za-z][\w:.-]*", value) else ""
             else:
@@ -922,6 +1042,7 @@ def localize_data(value, assets):
 
 def generate():
     OUTPUT.mkdir(parents=True, exist_ok=True)
+    load_visual_media()
     source_pages = json.loads((SOURCE / "pages.json").read_text())
     public = json.loads((SOURCE / "public-content.json").read_text())
     directory = json.loads((SOURCE / "public-directory.json").read_text())
@@ -962,9 +1083,8 @@ def generate():
         inject_site_contact(tree)
         rebrand_tree(tree)
         inject_brand_mark(tree)
-        if path == "/":
-            replace_home_hero(tree)
-        elif path == "/community":
+        inject_visual_media(tree, path)
+        if path == "/community":
             beijing_home_region(tree)
         pages[path] = {"html": sanitize(tree, paths, assets), "title": rebrand(page["title"]), "path": path}
     shell = parse(detail_template["html"])
@@ -1001,6 +1121,7 @@ def generate():
         replace_operator_contact(tree)
         inject_site_contact(tree)
         rebrand_tree(tree)
+        inject_visual_media(tree, "/zone")
         zones[city] = {"html": sanitize(tree, paths, assets), "path": "/zone", "title": city + "专区 - 集智 AI OPC 社区"}
     directory = rebrand_tree_deep(directory)
     for name, value in {"pages": pages, "details": details, "directory": localize_data(directory, assets), "listings": localize_data(listings, assets), "article-shell": {"html": article_shell}, "zone-cities": zones}.items():

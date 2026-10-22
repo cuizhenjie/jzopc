@@ -137,11 +137,13 @@ test('every generated page and article image resolves to a present local asset',
   // 本站自有媒体（品牌标记与科技蓝主视觉）来自 public/ 根目录，
   // 其余素材来自原站镜像，统一落在 public/opc/assets/。
   const localRoots = ['/opc/assets/', '/logo-mark', '/opc/hero-'];
+  const visualManifest = JSON.parse(readFileSync('scripts/opc-source/visual-media.json', 'utf8'));
+  const visualPaths = new Set(visualManifest.assets.flatMap((asset: { variants: { url: string }[] }) => asset.variants.map(variant => variant.url)));
   for (const name of ['pages', 'details', 'zone-cities']) {
     const records = JSON.parse(readFileSync(`src/lib/opc/generated/${name}.json`, 'utf8')) as Record<string, { html: string }>;
     for (const record of Object.values(records)) {
       for (const match of record.html.matchAll(/\ssrc="([^"]+)"/g)) {
-        assert.ok(localRoots.some((root) => match[1].startsWith(root)), match[1]);
+        assert.ok(visualPaths.has(match[1]) || localRoots.some((root) => match[1].startsWith(root)), match[1]);
         assert.ok(existsSync(`public${match[1]}`), match[1]);
         images += 1;
       }
