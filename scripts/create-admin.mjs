@@ -20,6 +20,9 @@ import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { stdin as input, stdout as output } from 'node:process';
 import readline from 'node:readline/promises';
+// 独立脚本不会自动读 .env（那是 next dev/start 的行为），这里手动加载，
+// 免得配了 .env 仍报「缺少数据库连接」。
+import './lib/load-env.mjs';
 
 const require = createRequire(import.meta.url);
 const { createClient } = require('@supabase/supabase-js');

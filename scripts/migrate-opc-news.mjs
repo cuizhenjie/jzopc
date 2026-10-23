@@ -41,6 +41,9 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+// 独立脚本不会自动读 .env（那是 next dev/start 的行为），这里手动加载，
+// 免得配了 .env 仍连不上库。
+import './lib/load-env.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const SOURCE_PATH = resolve(repoRoot, 'scripts/opc-source/public-content.json');
