@@ -22,6 +22,21 @@ from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urldefrag
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "scripts/opc-source"
 OUTPUT = ROOT / "src/lib/opc/generated"
+
+# 工具卡图标清单（scripts/fetch-tool-icons.mjs 生成，域 → 本地路径或 null）。
+# 图标按 aidh.ai 同款机制（gstatic faviconV2）在构建期抓取并本地化，
+# 运行期不请求任何第三方域名。
+TOOL_ICON_MAP = json.loads((SOURCE / "tool-icons.json").read_text()) if (SOURCE / "tool-icons.json").exists() else {}
+TOOL_ICON_PATHS = {value for value in TOOL_ICON_MAP.values() if value}
+
+
+def tool_icon_for(real_url):
+    """工具 realUrl → 本地图标路径（无匹配/抓取失败返回 None）。"""
+    try:
+        host = urlsplit(real_url).hostname or ""
+    except ValueError:
+        return None
+    return TOOL_ICON_MAP.get(host) or TOOL_ICON_MAP.get(host.removeprefix("www."))
 BASE = "https://opcstore.com/webNew/index.html"
 TAGS = set("a abbr article aside b blockquote br button caption circle code col colgroup dd defs del details div dl dt em figcaption figure footer form g h1 h2 h3 h4 h5 h6 header hr i img input label legend li line lineargradient main mark nav ol option p path polygon polyline pre rect section select small span stop strong sub summary sup svg table tbody td textarea th thead time tr u ul use".split())
 VOID = {"br", "hr", "img", "input", "col"}
@@ -161,6 +176,10 @@ BRAND_RULES = [
     ("同橙OPC社区", "集智 AI OPC 社区"),
     ("同橙 OPC 社区", "集智 AI OPC 社区"),
     ("同橙OPC", "集智 AI OPC"),
+    # 原运营方资质表述（江苏口径）→ 本站口径（中关村）。
+    # ⚠️ 只匹配带「江苏省」前缀的完整词组 —— 新闻正文里作为政策
+    # 概念引用的「瞪羚企业」（梯度培育、独角兽征集等）不在此列，保持原样。
+    ("江苏省瞪羚企业", "中关村高新"),
     ("同橙 AI 学院", "集智AI 学院"),
     ("同橙AI学院", "集智AI学院"),
     ("同橙科创产业发展集团", "集智AI 产业发展集团"),
@@ -205,7 +224,7 @@ BRAND_RULES = [
 BRAND_MARKERS = (
     "同橙", "OPC Store", "OPCStore", "tongcc", "tongcheng",
     "南京市鼓楼区古平岗4号", "t.3cool.cc", "ai.opcstore.com",
-    "nanjing.opcstore.com", "shanghai.opcstore.com",
+    "nanjing.opcstore.com", "shanghai.opcstore.com", "江苏省瞪羚企业",
 )
 
 # 媒体地址属性：不做品牌替换（见 rebrand_tree 的说明）
@@ -271,19 +290,35 @@ def remove_matching(node, predicate):
 
 
 def remove_header_login(node):
-    """删除页头右上角的登录入口。
+    """删除页头右上角的登录入口，以及「GPU资源」导航项。
 
     · 桌面端：导航链接里的 `li.loginli`（「登录」文字链）
     · 移动端：`.user-area` 容器（里面只有一枚 el-button 造型的登录按钮）
+    · GPU资源：`/computingresource` 页面已整体下线（2026-10 按需求），
+      导航里的入口 `li` 一并删除，避免指向 404。
 
-    ⚠️ 只删页头这两处 —— `/opclogin` 表单里的**提交按钮**也叫 `login-btn`
+    ⚠️ 只删页头这几处 —— `/opclogin` 表单里的**提交按钮**也叫 `login-btn`
     （无 `el-button` 类、不带 data-opc-action），不能误伤；登录 / 注册 /
     忘记密码三页之间的文字互链（「立即登录」「返回登录」等）也全部保留。
     本站暂无登录能力，先撤页头入口；`/opclogin` 路由本身保留。
     """
+    def is_gpu_nav_item(n):
+        return n.tag == "li" and any(
+            a.attrs.get("href", "").rstrip("/").endswith("/computingresource")
+            for a in walk(n) if a.tag == "a"
+        )
+
+    # 认证表单输入框左侧的装饰图标（fas fa-lock / fa-shield-alt）：原站把它
+    # 绝对定位在输入框内，压住了 placeholder 文字（2026-10 按需求删除）。
     remove_matching(
         node,
-        lambda n: (n.tag == "li" and "loginli" in n.classes) or "user-area" in n.classes,
+        lambda n: n.tag == "i" and "icon-left" in n.classes,
+    )
+    remove_matching(
+        node,
+        lambda n: (n.tag == "li" and "loginli" in n.classes)
+        or "user-area" in n.classes
+        or is_gpu_nav_item(n),
     )
 
 
@@ -526,7 +561,7 @@ def replace_home_hero(tree):
     """Keep the reference carousel structure; use local, responsive brand imagery."""
     if not by_class(tree, "hero"):
         return tree
-    hero_variants = ["hero-city-12", "hero-city-11", "hero-city-13", "computing-banner"]
+    hero_variants = ["computing-banner", "hero-city-12", "hero-city-11", "hero-city-13"]
     carousel_images = []
     for carousel in by_class(tree, "hero-carousel"):
         for item in by_class(carousel, "el-carousel__item"):
@@ -586,6 +621,26 @@ def visual_image(asset_id, *, decorative=False, first=False, sizes="(max-width: 
     return Node("img", attrs)
 
 
+def replace_home_about_background(tree):
+    """Replace only the captured homepage's decorative about image."""
+    target = tree
+    for class_name in ("about-sec", "about-bg-img", "about-bg-el"):
+        matches = by_class(target, class_name)
+        if len(matches) != 1:
+            raise ValueError(f"Expected one homepage about background target: .{class_name}; found {len(matches)}")
+        target = matches[0]
+        if class_name == "about-bg-img":
+            target.attrs["aria-hidden"] = "true"
+    images = [node for node in walk(target) if node.tag == "img"]
+    if len(images) != 1:
+        raise ValueError(f"Expected one homepage about background image; found {len(images)}")
+    image = images[0]
+    # A stale responsive source would take precedence over the replacement src.
+    for attr in ("srcset", "sizes"):
+        image.attrs.pop(attr, None)
+    image.attrs.update(visual_image("reference-city-blue", decorative=True).attrs)
+
+
 def safe_srcset(value):
     """A width descriptor must match a verified local derivative's actual width."""
     candidates, widths = [], set()
@@ -634,6 +689,7 @@ def inject_visual_media(tree, path):
     training = [("activity-training-1", "技能实训", "在实践中理解 AI"), ("activity-training-2", "主题分享", "从方法到应用"), ("activity-training-3", "交流共创", "让想法相互启发")]
     if path == "/":
         replace_home_hero(tree)
+        replace_home_about_background(tree)
         icons = ["agent", "market", "academy", "star", "community", "work", "computing", "gpu"]
         for feature, icon in zip(by_class(tree, "ftr-node"), icons):
             core = first(feature, "ftr-hub-core")
@@ -652,10 +708,10 @@ def inject_visual_media(tree, path):
             for index, child in enumerate(parent.children):
                 if isinstance(child, Node) and "partners-section" in child.classes:
                     parent.children[index] = visual_ecosystem()
-    hero_classes = {"/agent": "hero-agent", "/market": "hero-market", "/center": "hero-center", "/starproject": "hero-sp", "/work": "hero", "/computingresource": "hero"}
+    hero_classes = {"/agent": "hero-agent", "/market": "hero-market", "/center": "hero-center", "/starproject": "hero-sp", "/work": "hero"}
     hero = first(tree, hero_classes.get(path, "page-header")) if path != "/" else None
     if hero:
-        dark = path in {"/work", "/computingresource"}
+        dark = path == "/work"
         hero.attrs["class"] = hero.attrs.get("class", "") + " opc-visual-hero has-visual" + (" has-visual-dark" if dark else "")
         asset_id = "computing-banner" if dark else "hero-city-13" if path == "/market" else "hero-city-11" if path == "/agent" else "hero-city-12"
         hero.children.insert(0, Node("div", {"class": "opc-visual-hero-art", "aria-hidden": "true"}, [visual_image(asset_id, decorative=True, sizes="(max-width: 767px) 100vw, 48vw", class_name="opc-visual-hero-image")]))
@@ -693,6 +749,8 @@ def safe_url(raw, *, media=False, paths=None, assets=None):
     # 本站自有的品牌标记由 public/ 提供，不来自原站，必须显式放行。
     # 只允许这两个精确路径，避免任意本地路径从源 HTML 穿透。
     if raw in LOCAL_MEDIA:
+        return raw
+    if raw in TOOL_ICON_PATHS:
         return raw
     if raw.startswith("/opc/visual/"):
         # A misspelled / unverified derivative must not turn into a source-site URL.
@@ -818,7 +876,12 @@ def enhance(root, path, records, directory):
         remove_matching(root, lambda node: "njz-sec" in node.classes)
         for node, value in zip(by_class(root, "hero-stat-num"), ["500+", "1,000+", "200+", "50+"]):
             node.children = [value]
-        features = json.loads((SOURCE / "home-features.json").read_text())
+        # GPU资源特性卡随 /computingresource 页面一并下线；
+        # 接线后仍是 div（无 feature）的 ftr-node 整张移除，网格自动回流。
+        features = [
+            item for item in json.loads((SOURCE / "home-features.json").read_text())
+            if item["page"] != "computingresource"
+        ]
         for node in by_class(root, "ftr-node"):
             label = first(node, "ftr-tag")
             feature = next((item for item in features if label and item["title"] == label.text), None)
@@ -828,6 +891,7 @@ def enhance(root, path, records, directory):
                     node.attrs.update(href="https://ai.opcstore.com", target="_blank")
                 else:
                     node.attrs["href"] = "/" + feature["page"]
+        remove_matching(root, lambda node: "ftr-node" in node.classes and node.tag != "a")
     for node in walk(root):
         classes, text = node.classes, node.text
         if node.tag == "a" and node.attrs.get("href", "") in {"", "#"}:
@@ -885,6 +949,14 @@ def enhance(root, path, records, directory):
             if tool:
                 node.attrs["data-opc-categories"] = json.dumps(tool["primary"], ensure_ascii=False)
                 node.attrs["data-opc-search-text"] = tool["title"] + " " + tool["text"]
+                # 工具图标（aidh.ai 同款 gstatic faviconV2 机制，构建期本地化）：
+                # tc-body 里没有图标位 —— 注入为第一个子节点，标题/描述布局不变。
+                icon = tool_icon_for(tool["realUrl"])
+                card_body = first(node, "tc-body")
+                if icon and card_body and not any(
+                    isinstance(child, Node) and "tc-icon" in child.classes for child in card_body.children
+                ):
+                    card_body.children.insert(0, Node("img", {"class": "tc-icon", "src": icon, "alt": "", "loading": "lazy"}))
         if "opc-card" in classes:
             item = next((x for x in sorted(directory["communities"], key=lambda x: -len(x["name"])) if x["name"] in text), None)
             if item:
@@ -905,21 +977,6 @@ def enhance(root, path, records, directory):
                     node.attrs["data-opc-category"] = sub(record, 2)
         if "article-content" in classes:
             node.attrs["data-opc-article"] = ""
-    if path == "/computingresource":
-        offers = directory["gpu"]["1"]
-        for card in by_class(root, "rental-card"):
-            title = next((n for n in walk(card) if n.tag == "h3"), None)
-            offer = next((item for item in offers if title and item["name"] == title.text), None)
-            button = first(card, "rental-btn")
-            if not offer or not button:
-                continue
-            prices = offer["prices"]
-            price_parts = []
-            if prices.get("hourly"):
-                price_parts.append(f'卡时租赁：{prices["hourly"]}元/时')
-            price_parts.extend([f'包月租赁：{prices["monthly"]}元/月', f'包年租赁：{prices["yearly"]}元/年'])
-            query = urlencode({"formType": "computing", "serverName": offer["name"], "serverCompute": offer["compute"], "serverPrice": "，".join(price_parts)})
-            action(button, "apply", "computing", "/opcapply?" + query)
 
 
 def complete_lists(root, path, records):
@@ -1040,7 +1097,8 @@ def generate():
     public = json.loads((SOURCE / "public-content.json").read_text())
     directory = json.loads((SOURCE / "public-directory.json").read_text())
     route_meta = json.loads((SOURCE / "routes.json").read_text())
-    paths = {r["path"].lower() for r in route_meta}
+    # GPU资源页已下线：路由集合排除后，selected 因 `path in paths` 自然跳过。
+    paths = {r["path"].lower() for r in route_meta} - {"/computingresource"}
     assets_path = SOURCE / "asset-map.json"
     if not assets_path.exists():
         raise FileNotFoundError("Run the asset compiler first; scripts/opc-source/asset-map.json is required")

@@ -8,10 +8,10 @@
       "kind": "hero",
       "alt": "科技AI城市横幅一",
       "slots": [
-        "home.hero.2",
+        "home.hero.3",
         "agent.hero"
       ],
-      "usageNote": "作为第二轮播及智能体/工作平台内页科技视觉；AI字形在左，不要镜像翻转",
+      "usageNote": "作为第三轮播及智能体内页科技视觉；AI字形在左，不要镜像翻转",
       "original": {
         "sha256": "2dc0e3f894330771146fdf8d0d5fafbc9eb1955f039c1176a7ca3d3c5ca1fd4d",
         "width": 6720,
@@ -42,7 +42,7 @@
       "kind": "hero",
       "alt": "科技AI城市横幅二",
       "slots": [
-        "home.hero.1",
+        "home.hero.2",
         "academy.hero",
         "starproject.hero",
         "community.hero",
@@ -51,7 +51,7 @@
         "starjoin.hero",
         "zone.hero"
       ],
-      "usageNote": "首页首帧及浅底内页装饰；保留原图，不把装饰画面描述为真实场地。",
+      "usageNote": "首页第二帧及浅底内页装饰；保留原图，不把装饰画面描述为真实场地。",
       "original": {
         "sha256": "69e30006b53fbb74b57a22b3045ab6f6cf502e0a944e89e86c4af8ef8c1dd435",
         "width": 6720,
@@ -82,10 +82,10 @@
       "kind": "hero",
       "alt": "科技AI城市横幅三",
       "slots": [
-        "home.hero.3",
+        "home.hero.4",
         "market.hero"
       ],
-      "usageNote": "首页第三帧与交易市场内页装饰；保持画面方向，不镜像 AI 字形。",
+      "usageNote": "首页第四帧与交易市场内页装饰；保持画面方向，不镜像 AI 字形。",
       "original": {
         "sha256": "1d4b0a57f90fb2aac58521e0468b7effab1a526cb5b74ee2a70f4b401250d17e",
         "width": 6720,
@@ -168,9 +168,10 @@
       "kind": "reference",
       "alt": "蓝调城市夜景",
       "slots": [
-        "library.reference.reference-city-blue"
+        "library.reference.reference-city-blue",
+        "home.about.background"
       ],
-      "usageNote": "915宽，适合窄版社区/区域横幅；大幅铺屏会软",
+      "usageNote": "915宽，用作首页关于区装饰背景；保留自然尺寸并以蒙版衬托文字，不作为本站场地实景证据。",
       "original": {
         "sha256": "ec6fe83c48828486c1a1154783eebca5a1bfbafeced80de3ff79751e64ccafdf",
         "width": 915,
@@ -994,11 +995,11 @@
       "kind": "hero",
       "alt": "科技蓝算力主题视觉",
       "slots": [
-        "home.hero.4",
+        "home.hero.1",
         "work.hero",
         "computingresource.hero"
       ],
-      "usageNote": "装饰图；标题与操作保持独立文本，不表示真实机房。",
+      "usageNote": "首页首帧及算力内页装饰图；标题与操作保持独立文本，不表示真实机房。",
       "original": {
         "sha256": "06be47819521a966754befc133f73c99a55450327301a690eb7da31014778a17",
         "width": 1942,

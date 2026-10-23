@@ -1,7 +1,8 @@
-/** Public OPC navigation only. Backend, account data and third-party sub-sites are excluded. */
+/** Public OPC navigation only. Backend, account data and third-party sub-sites are excluded.
+ * `/computingresource`（GPU资源）已于 2026-10 下线：菜单、特性卡与页面一并移除。 */
 export const replicaPaths = [
   '/', '/agent', '/market', '/center', '/starproject', '/community', '/work',
-  '/computingresource', '/about', '/newslist', '/activitylist', '/newsdetail',
+  '/about', '/newslist', '/activitylist', '/newsdetail',
   '/zone', '/starjoin', '/opcapply', '/opclogin', '/opcregister',
   '/opcforgotpassword', '/myinfo',
 ] as const;

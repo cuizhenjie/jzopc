@@ -213,8 +213,7 @@
    三档：主行动（实心）/ 次级（描边）/ 文字链
    ═══════════════════════════════════════════════════════════════════ *//* 主行动：品牌蓝实心 */.opc-replica.opc-replica .hero-btn--primary,
 .opc-replica.opc-replica .btn-cta,
-.opc-replica.opc-replica .submit-btn,
-.opc-replica.opc-replica .rental-btn {
+.opc-replica.opc-replica .submit-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -233,7 +232,7 @@
   cursor: pointer !important;
   transition: background-color 0.2s var(--ease-out-soft, ease),
     border-color 0.2s var(--ease-out-soft, ease) !important;
-}.opc-replica.opc-replica :is(.hero-btn--primary, .hero-btn--ghost, .rental-btn, .btn-cta, .submit-btn) :is(span, i) {
+}.opc-replica.opc-replica :is(.hero-btn--primary, .hero-btn--ghost, .btn-cta, .submit-btn) :is(span, i) {
   color: inherit !important;
 }.opc-replica.opc-replica .sc-contact {
   color: var(--opc-white) !important;
@@ -242,8 +241,7 @@
   background: var(--opc-blue-dark) !important;
 }.opc-replica.opc-replica .hero-btn--primary:hover,
 .opc-replica.opc-replica .btn-cta:hover,
-.opc-replica.opc-replica .submit-btn:hover,
-.opc-replica.opc-replica .rental-btn:hover {
+.opc-replica.opc-replica .submit-btn:hover {
   background: var(--opc-blue-dark) !important;
   border-color: var(--opc-blue-dark) !important;
   transform: none !important;
@@ -365,7 +363,6 @@
 .opc-replica.opc-replica .opc-card,
 .opc-replica.opc-replica .supply-card,
 .opc-replica.opc-replica .demand-card,
-.opc-replica.opc-replica .rental-card,
 .opc-replica.opc-replica .activity-item {
   background: var(--opc-white) !important;
   border: 1px solid var(--opc-line) !important;
@@ -381,7 +378,6 @@
 .opc-replica.opc-replica .opc-card:hover,
 .opc-replica.opc-replica .supply-card:hover,
 .opc-replica.opc-replica .demand-card:hover,
-.opc-replica.opc-replica .rental-card:hover,
 .opc-replica.opc-replica .activity-item:hover {
   border-color: var(--opc-line-blue) !important;
   box-shadow: var(--opc-shadow-lift) !important;
@@ -397,6 +393,26 @@
 .opc-replica.opc-replica .course-card:hover img,
 .opc-replica.opc-replica .opc-card:hover img {
   transform: scale(1.04) !important;
+}/* ── 工具卡图标（aidh.ai 同款 gstatic faviconV2，构建期本地化）──
+   tc-body 变两列网格：图标定宽，文字列维持原有块级流。
+   未命中图标的卡片没有 .tc-icon，网格不生效、布局不变。 */
+.opc-replica.opc-replica .tc-body:has(> .tc-icon) {
+  display: grid !important;
+  grid-template-columns: 44px 1fr !important;
+  column-gap: var(--opc-space-4) !important;
+  align-items: start !important;
+}.opc-replica.opc-replica .tc-icon {
+  grid-row: 1 !important;
+  grid-column: 1 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  object-fit: contain !important;
+  background: var(--opc-white) !important;
+  border: 1px solid var(--opc-line) !important;
+  padding: 6px !important;
+}.opc-replica.opc-replica .tc-body:has(> .tc-icon) > :not(.tc-icon) {
+  grid-column: 2 !important;
 }/* 卡片正文 */.opc-replica.opc-replica .nc-body {
   padding: var(--opc-space-4) var(--opc-space-6) var(--opc-space-6) !important;
 }.opc-replica.opc-replica .tc-title {
@@ -525,6 +541,11 @@
   font-size: var(--opc-fs-sm) !important;
   color: rgb(255 255 255 / 70%) !important;
   line-height: var(--opc-lh-body) !important;
+}.opc-replica.opc-replica .opcbottom .footer-item ul li {
+  /* ⚠️ 裸 li（地址 / 电话这类非链接行）必须显式声明颜色：
+     通用基线会给中间容器落 ink-2 墨灰，li 靠继承拿到灰字
+     压在 --opc-navy 上只有 ~1.4:1（实测不可见）。 */
+  color: rgb(255 255 255 / 70%) !important;
 }.opc-replica.opc-replica .opcbottom .footer-item ul li,
 .opc-replica.opc-replica .opcbottom .footer-item ul li a {
   font-size: var(--opc-fs-sm) !important;
@@ -794,14 +815,19 @@
   border-color: var(--opc-blue-deep) !important;
   color: #fff !important;
 }/* ── 品牌蓝小字：链接、按钮文字、区域名 ──
-   `--opc-blue` 在白底 4.38:1，差一点到 AA；统一改用 `--opc-blue-deep`。 */.opc-replica.opc-replica .cc-detail-btn,
-.opc-replica.opc-replica .cc-enroll,
+   `--opc-blue` 在白底 4.38:1，差一点到 AA；统一改用 `--opc-blue-deep`。
+   ⚠️ `.cc-enroll` 不在本组 —— 它是课程卡底部的**整宽按钮**（原站橙底白字，
+   蓝主题映射后是品牌蓝底），蓝字压蓝底只有 ~1.6:1；它的白字处理见下方按钮组。 */.opc-replica.opc-replica .cc-detail-btn,
 .opc-replica.opc-replica .oc-region,
 .opc-replica.opc-replica .oc-region.oc-region--link,
 .opc-replica.opc-replica .business-subtitle,
 .opc-replica.opc-replica .login-link,
 .opc-replica.opc-replica .forgot-link {
   color: var(--opc-blue-deep) !important;
+}/* 课程卡「立即报名」按钮：品牌蓝填充 + 白字（5.87:1） */.opc-replica.opc-replica .cc-enroll {
+  background: var(--opc-blue-deep) !important;
+  border-color: var(--opc-blue-deep) !important;
+  color: #fff !important;
 }/* ── 深底上的白字：提到 92% ──
    原站的 70% 白在深蓝上只有 3.5:1；78% 是 3.8:1，仍不达标。
    92% 白在品牌深蓝上约 5.4:1。 */.opc-replica.opc-replica .hero-badge,
@@ -1004,24 +1030,7 @@
 }/* 「返回首页」这类次要返回链接：品牌蓝但不加下划线也可以，
    关键是不能用 #999（实测 2.85:1）。 */.opc-replica.opc-replica .back-home {
   margin-top: var(--opc-space-4) !important;
-}/* ── 算力价格：数值主色、单位弱化但仍需可读 ── */.opc-replica.opc-replica .price-value {
-  color: var(--opc-ink) !important;
-}.opc-replica.opc-replica .price-value small,
-.opc-replica.opc-replica .rental-prices small {
-  color: var(--opc-ink-3) !important;
-  font-size: var(--opc-fs-xs) !important;
-}.opc-replica.opc-replica .price-label {
-  color: var(--opc-ink-3) !important;
-  font-size: var(--opc-fs-xs) !important;
-}.opc-replica.opc-replica .meta-label,
-.opc-replica.opc-replica .meta-value {
-  font-size: var(--opc-fs-xs) !important;
-}.opc-replica.opc-replica .meta-label {
-  color: var(--opc-ink-3) !important;
-}.opc-replica.opc-replica .meta-value {
-  color: var(--opc-ink) !important;
-  font-family: var(--opc-font-mono) !important;
-}/* ═══════════════════════════════════════════════════════════════════
+}/* GPU 租赁卡专属类（price/rental/spec/meta）已随 /computingresource 下线，规则整段移除。 *//* ═══════════════════════════════════════════════════════════════════
    十六、通用排版收口
    ═══════════════════════════════════════════════════════════════════ *//* ⚠️ 特异性说明（实测踩坑，务必保留）
  *
@@ -1345,14 +1354,10 @@
    **原站用类名精确定位，优先级高于 token 层的标签级规则**，所以没被收口。
 
    审计脚本现在会点名每一个阶外元素（页数 + 样例文本），
-   这组规则就是按那份名单逐条补的 —— 补完重跑，档位数应显著下降。 *//* 规格标签：原站 11px —— **低于本站 12px 字号下限**，必须提上来 */.opc-replica.opc-replica .spec-label {
-  font-size: var(--opc-fs-xs) !important;
-}/* 活动徽标：原站 11px —— 同样低于下限 */.opc-replica.opc-replica .ec-badge {
+   这组规则就是按那份名单逐条补的 —— 补完重跑，档位数应显著下降。 *//* 活动徽标：原站 11px —— 同样低于下限 */.opc-replica.opc-replica .ec-badge {
   font-size: var(--opc-fs-xs) !important;
 }/* 新闻日期：14px → 13px（次级信息档） */.opc-replica.opc-replica .news-date {
   font-size: var(--opc-fs-sm) !important;
-}/* 算力价格：16px → 19px（价格是卡片的主信息，不该比正文还小） */.opc-replica.opc-replica .price-value {
-  font-size: var(--opc-fs-h3) !important;
 }/* 课程 meta 值（评分/课时）：18px → 15px（它是标签不是标题） */.opc-replica.opc-replica .cc-meta-val {
   font-size: var(--opc-fs-body) !important;
 }/* 统计标签：14px → 13px */.opc-replica.opc-replica .stat-label,

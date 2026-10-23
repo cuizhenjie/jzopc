@@ -3,8 +3,14 @@ import { notFound } from 'next/navigation';
 import { getReplicaPage } from '@/lib/opc/content';
 import ReplicaInteractions from './ReplicaInteractions';
 import HashRouteBridge from './HashRouteBridge';
+import WaveField from '@/components/three/WaveField';
 // 设计层（opc-tokens.css / opc-components.css）在 Root Layout 导入 ——
 // Next.js 只允许全局 CSS 在根布局里 import。
+
+/** 登录 / 注册 / 忘记密码三页共用一套认证壳：
+ * 波海背景层（openhex wave-grid 呼吸海面）挂在这些路由上，
+ * 表单卡改为浮在波海上的玻璃卡（见 opc-components.css 的 [data-opc-wave] 组）。 */
+const WAVE_AUTH_PATHS = new Set(['/opclogin', '/opcregister', '/opcforgotpassword']);
 
 export type ReplicaQuery = Record<string, string | string[] | undefined>;
 
@@ -32,10 +38,11 @@ export default function ReplicaPage({ pathname, query = {} }: { pathname: string
         与单层 .opc-replica X 相同；两表都带 !important 时会按加载顺序决胜，
         而加载顺序不受 import 语句控制。双类名把设计层抬到 0,3,0，
         使设计层始终胜出，不依赖样式表注入顺序。 */}
-    <div className="opc-replica opc-replica" data-opc-replica>
+    <div className="opc-replica opc-replica" data-opc-replica data-opc-wave={WAVE_AUTH_PATHS.has(page.path) ? '' : undefined}>
       <div id="opc-page-content" data-opc-page={page.path} dangerouslySetInnerHTML={{ __html: page.html }} />
       <ReplicaInteractions key={page.path + JSON.stringify(query)} route={page.path} />
       <HashRouteBridge />
     </div>
+    {WAVE_AUTH_PATHS.has(page.path) && <WaveField />}
   </>;
 }

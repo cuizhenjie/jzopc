@@ -7,7 +7,7 @@ import { getReplicaArticle, getReplicaPage } from '@/lib/opc/content';
 import { replicaPaths } from '@/lib/opc/routes';
 
 test('every public route has a substantive local page and preserves original scoped layout', () => {
-  assert.equal(replicaPaths.length, 19);
+  assert.equal(replicaPaths.length, 18); // GPU资源页已下线
   for (const path of replicaPaths) {
     const page = getReplicaPage(path);
     assert.ok(page, path);
@@ -104,27 +104,16 @@ test('appended supply cards use their own dates, authors and avatar initials', (
   }
 });
 
-test('all eight homepage feature entries have native links matching the public source', () => {
+test('all homepage feature entries have native links matching the public source', () => {
   const home = getReplicaPage('/')!.html;
   const entries = [...home.matchAll(/<a\b([^>]*class="ftr-node[^>]*)>([\s\S]*?)<\/a>/g)];
-  assert.equal(entries.length, 8);
+  // GPU资源特性卡已随 /computingresource 页面下线（2026-10），7 张卡自动回流
+  assert.equal(entries.length, 7);
   const destinations = entries.map(match => match[1].match(/href="([^"]+)"/)?.[1]);
-  assert.deepEqual(destinations, ['/agent', '/market', '/center', '/starproject', '/community', '/work', 'https://th.jimei.cn', '/computingresource']);
+  assert.deepEqual(destinations, ['/agent', '/market', '/center', '/starproject', '/community', '/work', 'https://th.jimei.cn']);
   const external = entries.find(match => match[1].includes('https://th.jimei.cn'))!;
   assert.match(external[1], /target="_blank"/);
   assert.match(external[1], /rel="noopener noreferrer"/);
-});
-
-test('GPU rental actions retain each source offer context', () => {
-  const page = getReplicaPage('/computingresource')!.html;
-  const routes = [...page.matchAll(/data-opc-route="(\/opcapply\?[^\"]+)"/g)].map(match => new URL(match[1].replaceAll('&amp;', '&'), 'http://localhost'));
-  assert.equal(routes.length, 8);
-  assert.equal(new Set(routes.map(url => url.searchParams.get('serverName'))).size, 8);
-  for (const url of routes) {
-    assert.equal(url.searchParams.get('formType'), 'computing');
-    assert.ok(url.searchParams.get('serverCompute'));
-    assert.match(url.searchParams.get('serverPrice') ?? '', /包月租赁.+包年租赁/);
-  }
 });
 
 test('HTML compiler rejects adversarial elements, attributes, CSS and URLs', () => {

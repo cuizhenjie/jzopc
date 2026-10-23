@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { isReplicaPath, replicaPaths, resolveReferenceLocation } from '@/lib/opc/routes';
 
-test('OPC routes cover the nineteen reference templates and both observed casings', () => {
-  assert.equal(replicaPaths.length, 19);
-  assert.equal(new Set(replicaPaths).size, 19);
+test('OPC routes cover the reference templates and both observed casings', () => {
+  assert.equal(replicaPaths.length, 18); // GPU资源页已下线（原 19）
+  assert.equal(new Set(replicaPaths).size, 18);
   for (const path of replicaPaths) {
     assert.ok(isReplicaPath(path.toUpperCase()));
     assert.equal(resolveReferenceLocation(`#${path}`), path);

@@ -83,9 +83,18 @@ test('homepage carousel uses four responsive local images with a single high pri
   const home = getReplicaPage('/')!.html;
   const slides = [...home.matchAll(/<img\b[^>]*src="(\/opc\/visual\/(?:hero-city-\d+|computing-banner)-1920.webp)"[^>]*>/g)].map(match => match[0]);
   assert.equal(slides.length, 4);
-  assert.deepEqual(slides.map(slide => slide.match(/src="([^"]+)"/)![1]), ['hero-city-12', 'hero-city-11', 'hero-city-13', 'computing-banner'].map(name => `/opc/visual/${name}-1920.webp`));
+  const order = ['computing-banner', 'hero-city-12', 'hero-city-11', 'hero-city-13'];
+  assert.deepEqual(slides.map(slide => slide.match(/src="([^"]+)"/)![1]), order.map(name => `/opc/visual/${name}-1920.webp`));
+  for (const [index, id] of order.entries()) {
+    assert.ok(manifest.assets.find(asset => asset.id === id)!.slots.includes(`home.hero.${index + 1}`));
+  }
   assert.equal(slides.filter(slide => slide.includes('fetchpriority="high"')).length, 1);
+  assert.match(slides[0], /fetchpriority="high"/);
   assert.match(slides[0], /loading="eager"/);
+  for (const slide of slides.slice(1)) {
+    assert.match(slide, /loading="lazy"/);
+    assert.match(slide, /fetchpriority="auto"/);
+  }
   for (const slide of slides) {
     assert.match(slide, /alt=""/);
     assert.match(slide, /width="1920"/);
@@ -97,6 +106,27 @@ test('homepage carousel uses four responsive local images with a single high pri
   }
   const fullHeroBytes = ['hero-city-12', 'hero-city-11', 'hero-city-13'].reduce((sum, id) => sum + manifest.assets.find(asset => asset.id === id)!.variants.at(-1)!.bytes, 0);
   assert.ok(fullHeroBytes < 400_000);
+});
+
+test('homepage about background uses the provided blue city image as a decorative replacement', () => {
+  const home = getReplicaPage('/')!.html;
+  const asset = manifest.assets.find(asset => asset.id === 'reference-city-blue')!;
+  assert.ok(asset.slots.includes('home.about.background'));
+  assert.equal(asset.source, 'webimages/大图参考素材/u=2420042102,3108515115&fm=253&fmt=auto&app=138&f=JPEG.webp');
+  const images = [...home.matchAll(/<div\b[^>]*class="[^\"]*\babout-bg-el\b[^\"]*"[^>]*>\s*(<img\b[^>]*>)/g)];
+  assert.equal(images.length, 1);
+  const image = images[0][1];
+  assert.match(image, /src="\/opc\/visual\/reference-city-blue.webp"/);
+  assert.match(image, /class="el-image__inner"/);
+  assert.match(image, /width="915"/);
+  assert.match(image, /height="500"/);
+  assert.match(image, /alt=""/);
+  assert.match(image, /loading="lazy"/);
+  assert.match(image, /decoding="async"/);
+  assert.doesNotMatch(image, /srcset=|sizes=/);
+  assert.match(home, /class="about-bg-img"[^>]*aria-hidden="true"/);
+  assert.ok(!home.includes('/opc/assets/4d1f526a0478fe30.webp'));
+  assert.equal([...home.matchAll(/fetchpriority="high"/g)].length, 1);
 });
 
 test('native calculator market navigation is reachable in every public header', () => {
@@ -134,7 +164,7 @@ test('learning photos are independent of factual articles; ecosystem logos keep 
     }
   }
   const icons = [...home.matchAll(/<img\b[^>]*class="opc-visual-service-icon"[^>]*>/g)];
-  assert.equal(icons.length, 8);
+  assert.equal(icons.length, 7); // GPU资源特性卡已下线，服务图标 8→7
   assert.ok(icons.every(icon => icon[0].includes('alt=""')));
 });
 
