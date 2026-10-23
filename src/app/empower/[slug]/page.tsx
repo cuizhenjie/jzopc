@@ -50,7 +50,7 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
           { label: m.title },
         ]}
       >
-        <p className="flex max-w-2xl items-start gap-2.5 rounded-xl border border-white/12 bg-white/[0.06] px-4 py-3 text-[14px] text-white/80 backdrop-blur">
+        <p className="page-hero-note">
           <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-brand-cyan)]" />
           {m.tagline}
         </p>
@@ -172,9 +172,9 @@ export default async function EmpowerPage({ params }: { params: Promise<{ slug: 
                   <ButtonLink
                     href={
                       m.slug === 'agents'
-                        ? '/agents'
+                        ? '/agent'
                         : m.slug === 'academy'
-                          ? '/academy'
+                          ? '/center'
                           : m.slug === 'market'
                             ? '/market'
                             : '/apply'

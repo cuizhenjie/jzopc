@@ -60,7 +60,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         desc={course.summary}
         crumbs={[
           { label: '首页', href: '/' },
-          { label: '集智商学院', href: '/academy' },
+          { label: '集智商学院', href: '/center' },
           { label: course.title },
         ]}
       />

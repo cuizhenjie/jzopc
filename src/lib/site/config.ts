@@ -1,4 +1,7 @@
-/** 站点常量与导航结构。文案以 docx 原文为准，见 docs/01-需求文档.md §6.2。 */
+/** 站点常量。文案以已确认内容为准，公开导航从轻量模块共享。 */
+import aboutCopy from './about-copy.json' with { type: 'json' };
+import { publicNavigation } from '@/lib/site/navigation';
+export type { NavChild, NavItem } from '@/lib/site/navigation';
 
 export const site = {
   name: '集智 AI OPC 社区',
@@ -47,74 +50,17 @@ export const brandArray = [
   brand.cyan,
 ] as const;
 
-export type NavChild = { label: string; href: string };
-export type NavItem = {
-  label: string;
-  href: string;
-  children?: NavChild[];
-  /** 是否主按钮样式 */
-  cta?: boolean;
-};
-
-/**
- * 导航项的内容就绪度（**数据表驱动，不是 Header 里硬编码**）。
- *
- * 规则见 PRD FR-ABOUT-05：「发展历程 / 服务对象」在**内容为空时从导航下拉中隐藏**，
- * 而不是展示一个空页。当前这两页只有 `Placeholder` 占位（内容缺口 G6 / G7），
- * 因此标记为未就绪；业务方补齐内容后把这里改成 `true` 即可，导航会自动出现。
- *
- * 未来接 Supabase `site_contents` 表时，把这张表换成按 section 查询即可，
- * Header 侧的过滤逻辑无需改动。
- */
+/** 历史内容就绪标记。公开菜单按 agent 全量契约展示，不再依此过滤。 */
 export const contentReady: Record<string, boolean> = {
   '/about/history': false,
   '/about/audience': false,
 };
 
-export const nav: NavItem[] = [
-  {
-    label: '关于集智',
-    href: '/about',
-    children: [
-      { label: '集智简介', href: '/about' },
-      { label: '发展历程', href: '/about/history' },
-      { label: '服务对象', href: '/about/audience' },
-      { label: '生态伙伴', href: '/about/partners' },
-    ],
-  },
-  {
-    label: '八大赋能',
-    href: '/empower/space',
-    children: [
-      { label: '集智空间', href: '/empower/space' },
-      { label: '智能体', href: '/empower/agents' },
-      { label: '算力超市', href: '/empower/compute' },
-      { label: '集智学院', href: '/empower/academy' },
-      { label: '企服超市', href: '/empower/enterprise' },
-      { label: '供需市场', href: '/empower/market' },
-      { label: '流量赋能', href: '/empower/traffic' },
-      { label: '资本政策', href: '/empower/capital' },
-    ],
-  },
-  { label: '智能体', href: '/agents' },
-  { label: '供需市场', href: '/market' },
-  { label: '流量超市', href: '/traffic' },
-  { label: '集智商学院', href: '/academy' },
-  { label: '社区动态', href: '/news' },
-  { label: '申请入驻', href: '/apply', cta: true },
-];
+/** 与 React 公共头部共用的规范导航；不再维护第二套链接。 */
+export const nav = publicNavigation;
 
-/** 三大版简介（docx 原文） */
-export const intros = {
-  v1: '集美科技旗下，面向 AI 创业团队的一站式 AI 应用综合赋能平台。',
-  // 概要版（v2）：契约 §2 Req3 逐字两行，用 \n 分隔（两行文字顺序即渲染顺序）。
-  v2: '北京集美科技有限公司 · 2026 年 10 月启动运营\n集美科技旗下的一站式 AI 应用综合赋能平台，位于北京丰台大红门，首期占地超 3000 平米。平台以集智空间、智能体、算力超市、集智商学院、企服超市、订单市场、流量赋能、资本政策八大赋能体系为核心，整合产业资源，赋能 AI 创业团队，构建 AI 产业生态。',
-  v3: [
-    '集智 AI OPC 社区由北京集美科技有限公司打造，位于北京丰台大红门，首期占地超 3000 平方米，是面向 AI 创业团队与「一人公司」的一站式赋能平台，2026 年 10 月正式启动运营。',
-    '社区把 AI 创业需要的八件事铺成一条链：3000 ㎡ 实体空间提供工位、独立办公室、会议室、路演厅与直播影棚，拎包入驻；算力超市让 GPU 按需取用、对接算力券；智能体把大模型封装成可直接上岗的数字员工；集智商学院用实战课程与 AIGC 认证把人补齐；企服超市承接人事、财税、法务与知产，丰台区人力资源服务中心与青创会已驻场空间，办事窗口就在楼里；订单市场把社区能力与外部 1000+ 家企业需求放在同一张桌子上；流量赋能依托已入驻社区的 AIGC 流量生产基地，让产品先被看见；资本政策对接创投机构、协助申报 AI OPC 相关政策。',
-    '我们相信，AI 时代一个人也能是一家公司。社区要做的，是把这家公司缺的每一环提前铺好——让创业者只管把产品做好。',
-  ],
-} as const;
+/** 已确认的三版简介，与关于页生成器共用一份数据。 */
+export const intros = aboutCopy.intros;
 
 /** 首页指标 */
 export const stats = [
@@ -169,7 +115,7 @@ export const empowerModules = [
   {
     slug: 'market',
     index: '06',
-    title: '订单市场',
+    title: '供需市场',
     tagline: '社区内撮合，外部接 1000+ 家企业需求，把能力直接变成收入。',
     href: '/empower/market',
     leadType: null,
@@ -192,21 +138,9 @@ export const empowerModules = [
   },
 ] as const;
 
-/** 平台优势 4 条（docx 原文） */
-export const advantages = [
-  '八大赋能一体贯通，需求不出社区',
-  '订单与流量双入口，做完就能卖',
-  '人才、财税、法务在场，后台不出楼',
-  '集团四十余年产业背书，起点不是零',
-] as const;
-
-/** 愿景 4 条（docx 原文） */
-export const visions = [
-  '让每一个 AI 项目在此落地生长',
-  '让团队先拿到订单，再谈规模',
-  '把社区跑成可复制的样板',
-  '让丰台成为 AI 应用落地的一线阵地',
-] as const;
+/** 与关于页共用的优势与愿景；保留普通业务语义中的「订单」。 */
+export const advantages = aboutCopy.advantages;
+export const visions = aboutCopy.visions;
 
 /** 供需市场 4 步（docx 原文） */
 export const marketSteps = [
@@ -280,10 +214,10 @@ export const footerNav = [
   {
     title: '社区',
     links: [
-      { label: '智能体', href: '/agents' },
+      { label: '智能体', href: '/agent' },
       { label: '供需市场', href: '/market' },
-      { label: '集智商学院', href: '/academy' },
-      { label: '社区动态', href: '/news' },
+      { label: '集智商学院', href: '/center' },
+      { label: '社区动态', href: '/newslist' },
       // 全局搜索（FR-SITE-08）：一个入口覆盖上面四类内容
       { label: '站内搜索', href: '/search' },
     ],

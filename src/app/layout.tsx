@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
+import '@/styles/public-chrome.css';
 // ⚠️ OPC 复刻页的设计层（token + 组件）**不在这里导入**。
 //
 // 原因有二：

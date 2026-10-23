@@ -49,8 +49,8 @@ function matchSegments(actual: string[], target: string[]): boolean {
     return true; // optional catch-all：可匹配任意段数
   }
   if (head.startsWith('[...') && head.endsWith(']')) {
-    if (rest.length === 0) return false; // catch-all 至少吃 1 段
-    return tRest.length === 0 || matchSegments(rest, tRest);
+    if (rest.length === 0) return target.length >= 1; // trailing catch-all consumes every remaining segment
+    return tRest.length > 0 && matchSegments(rest, tRest);
   }
   if (head.startsWith('[') && head.endsWith(']')) {
     return matchSegments(rest, tRest);

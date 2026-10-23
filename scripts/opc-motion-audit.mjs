@@ -135,7 +135,7 @@ try {
   const focusPaused = (await state()).index;
   await sleep(5850);
   assert.equal((await state()).index, focusPaused);
-  await evaluate("document.querySelector('.opcheader a').focus()");
+  await evaluate("document.querySelector('[data-public-header] a').focus()");
   await until("!document.querySelector('.hero-carousel').dataset.opcPauseReason.includes('focus')", 'Leaving hero focus did not resume autoplay');
   check('hero focus keeps autoplay paused through a full period and leaving resumes it');
 
@@ -200,49 +200,64 @@ try {
   for (const width of [375, 768, 1024, 1100, 1200, 1279, 1280, 1440]) {
     await S('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
     await sleep(180);
-    const navigation = await evaluate(`(() => {const nav=document.querySelector('.nav-links'),menu=document.querySelector('.mobile-menu');return{display:getComputedStyle(nav).display,direction:getComputedStyle(nav).flexDirection,menu:getComputedStyle(menu).display,iconColor:getComputedStyle(menu.querySelector('i')).color,overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+    const navigation = await evaluate(`(() => {const nav=document.querySelector('[data-public-header] .desktop-nav'),menu=document.querySelector('[data-public-header] .menu-button');return{headers:document.querySelectorAll('[data-public-header]').length,legacy:document.querySelectorAll('.opcheader').length,display:getComputedStyle(nav).display,direction:getComputedStyle(nav).flexDirection,menu:getComputedStyle(menu).display,iconColor:getComputedStyle(menu.querySelector('svg')).color,overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+    assert.equal(navigation.headers, 1, 'One shared public header is required');
+    assert.equal(navigation.legacy, 0, 'Captured header must be removed at generation time');
     assert.equal(navigation.overflow, 0, `Horizontal overflow at ${width}`);
     if (width < 1280) {
-      assert.equal(navigation.display, 'none', `Menu was expanded at ${width}`); assert.notEqual(navigation.menu, 'none');
+      assert.equal(navigation.display, 'none', `Desktop menu was expanded at ${width}`); assert.notEqual(navigation.menu, 'none');
       assert.equal(navigation.iconColor, 'rgb(255, 255, 255)', `Homepage hamburger contrast at ${width}`);
-      await evaluate("document.querySelector('.mobile-menu').click()");
-      await until("document.querySelector('.mobile-menu').getAttribute('aria-expanded')==='true'", 'Menu did not open');
-      assert.equal(await evaluate("getComputedStyle(document.querySelector('.nav-links')).display"), 'flex');
+      await evaluate("document.querySelector('[data-public-header] .menu-button').click()");
+      await until("document.querySelector('[data-public-header] .menu-button').getAttribute('aria-expanded')==='true'&&!document.querySelector('#mobile-navigation').hidden", 'Menu did not open');
+      assert.equal(await evaluate("document.body.style.overflow"), 'hidden');
+      assert.equal(await evaluate("document.querySelector('#main').inert"), true);
+      assert.equal(await evaluate("document.querySelector('#mobile-navigation').contains(document.activeElement)"), true);
+      await evaluate("document.querySelector('#mobile-navigation .mobile-apply').focus()");
+      await S('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab' });
+      assert.equal(await evaluate("document.activeElement===document.querySelector('[data-public-header] .menu-button')"), true);
+      await S('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', modifiers: 8 });
+      assert.equal(await evaluate("document.activeElement===document.querySelector('#mobile-navigation .mobile-apply')"), true);
       await S('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
-      assert.equal(await evaluate("getComputedStyle(document.querySelector('.nav-links')).display"), 'none');
+      await until("document.querySelector('#mobile-navigation').hidden&&!document.querySelector('#main').inert", 'Escape did not close the drawer or unlock content');
+      assert.equal(await evaluate("document.body.style.overflow"), '');
+      assert.equal(await evaluate("document.activeElement===document.querySelector('[data-public-header] .menu-button')"), true);
     } else { assert.equal(navigation.display, 'flex'); assert.equal(navigation.direction, 'row'); assert.equal(navigation.menu, 'none'); }
     check(`navigation breakpoint ${width}px`, navigation);
   }
 
   await S('Emulation.setDeviceMetricsOverride', { width: 1200, height: 900, deviceScaleFactor: 1, mobile: false });
   await evaluate('window.scrollTo(0,300)');
-  await until("document.querySelector('.opcheader nav').classList.contains('scrolled')", 'Header did not adopt its scrolled state');
-  await until("getComputedStyle(document.querySelector('.mobile-menu i')).color==='rgb(26, 35, 51)'", 'Scrolled hamburger did not transition to ink');
-  await evaluate("document.querySelector('.mobile-menu').click()");
-  const linkPoint = await evaluate("(()=>{const r=document.querySelector('.nav-links a[href=\"/agent\"]').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()");
+  await until("document.querySelector('[data-public-header]').classList.contains('header-solid')", 'Header did not adopt its scrolled state');
+  await until("getComputedStyle(document.querySelector('[data-public-header] .menu-button svg')).color==='rgb(20, 47, 89)'", 'Scrolled hamburger did not transition to brand ink');
+  await evaluate("document.querySelector('[data-public-header] .menu-button').click()");
+  await until("!document.querySelector('#mobile-navigation').hidden", 'Scrolled drawer did not open');
+  const linkPoint = await evaluate("(()=>{const r=document.querySelector('#mobile-navigation a[href=\"/agent\"]').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()");
   await S('Input.dispatchMouseEvent', { type: 'mouseMoved', ...linkPoint });
   await sleep(350);
-  const hoverColor = await evaluate("(()=>{const s=getComputedStyle(document.querySelector('.nav-links a[href=\"/agent\"]'));return {color:s.color,background:s.backgroundColor}})()");
-  assert.equal(hoverColor.color, 'rgb(255, 255, 255)');
-  assert.equal(hoverColor.background, 'rgba(255, 255, 255, 0.12)');
+  const hoverColor = await evaluate("(()=>{const s=getComputedStyle(document.querySelector('#mobile-navigation a[href=\"/agent\"]'));return {color:s.color,background:s.backgroundColor}})()");
+  assert.equal(hoverColor.color, 'rgb(9, 104, 171)');
+  assert.equal(hoverColor.background, 'rgb(237, 244, 252)');
   await S('Input.dispatchMouseEvent', { type: 'mouseMoved', x: -10, y: -10 });
   await S('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
-  check('1200px expanded navigation retains white text over a translucent dark-menu hover', hoverColor);
+  await until("document.querySelector('#mobile-navigation').hidden", 'Scrolled drawer did not close');
+  check('1200px expanded navigation retains readable blue text on pale hover', hoverColor);
   await S('Emulation.setDeviceMetricsOverride', { width: 375, height: 900, deviceScaleFactor: 1, mobile: false });
   await evaluate('window.scrollTo(0,0)');
-  await until("!document.querySelector('.opcheader nav').classList.contains('scrolled')", 'Header did not recover its hero state');
-  await until("getComputedStyle(document.querySelector('.mobile-menu i')).color==='rgb(255, 255, 255)'", 'Homepage hamburger did not recover its white color');
+  await until("document.querySelector('[data-public-header]').classList.contains('header-on-dark')", 'Header did not recover its hero state');
+  await until("getComputedStyle(document.querySelector('[data-public-header] .menu-button svg')).color==='rgb(255, 255, 255)'", 'Homepage hamburger did not recover its white color');
   check('mobile hamburger remains visible against both dark and scrolled light headers');
 
-  await evaluate("window.__detachedCarousel=document.querySelector('.hero-carousel');document.querySelector('.mobile-menu').click();document.querySelector('.nav-links a[href=\"/agent\"]').click()");
-  await until("location.pathname==='/agent'&&document.querySelector('.tool-card')&&!document.querySelector('.opc-carousel-controls')", 'Client navigation did not finish');
-  await until("getComputedStyle(document.querySelector('.mobile-menu i')).color==='rgb(26, 35, 51)'", 'Inner-page hamburger did not transition to ink');
+  // Public header links use normal navigation. Captured body links still exercise
+  // the SPA cleanup path, so retain the detached-node timer regression check.
+  await evaluate("window.__detachedCarousel=document.querySelector('.hero-carousel');document.querySelector('#opc-page-content a[href=\"/agent\"]').click()");
+  await until("location.pathname==='/agent'&&document.querySelector('.tool-card')&&!document.querySelector('.opc-carousel-controls')", 'Client body navigation did not finish');
+  await until("getComputedStyle(document.querySelector('[data-public-header] .menu-button svg')).color==='rgb(20, 47, 89)'", 'Inner-page hamburger did not transition to brand ink');
   assert.equal(await evaluate('window.__detachedCarousel.isConnected'), false);
   const detachedIndex = await evaluate('window.__detachedCarousel.dataset.opcSlide');
   await sleep(5850);
   assert.equal(await evaluate('window.__detachedCarousel.dataset.opcSlide'), detachedIndex);
   assert.equal(await evaluate("document.querySelectorAll('.opc-carousel-controls').length"), 0);
-  check('client route change removes carousel enhancement and stops its timer; inner-page hamburger uses ink');
+  check('client body route change removes carousel enhancement and stops its timer; inner-page header uses ink');
 
   // Disable page scripts before navigation: the document must remain complete.
   await S('Emulation.setScriptExecutionDisabled', { value: true });

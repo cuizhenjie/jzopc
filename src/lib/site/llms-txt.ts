@@ -95,7 +95,7 @@ export function buildLlmsTxt(): string {
   );
   L.push('');
   L.push('- [智能体列表](https://opcstore.com/webNew/index.html#/agent)：参考对标站点（本站智能体目录的对标原型）');
-  L.push(`- [本站智能体目录](${abs('/agents')})：当前展示为**示例目录**，正式清单待按 opcstore 的分类采集后替换`);
+  L.push(`- [本站智能体目录](${abs('/agent')})：当前展示为**示例目录**，正式清单待按 opcstore 的分类采集后替换`);
   L.push('');
 
   // ── 供需市场 ──
@@ -111,7 +111,7 @@ export function buildLlmsTxt(): string {
   L.push('');
   L.push(`标签：${academy.tags.join('、')}。`);
   L.push('');
-  for (const t of academy.tracks) L.push(`- [${t.name}](${abs('/academy')})：${t.desc}`);
+  for (const t of academy.tracks) L.push(`- [${t.name}](${abs('/center')})：${t.desc}`);
   L.push('');
 
   // ── 平台优势与愿景 ──

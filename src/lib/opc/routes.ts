@@ -36,6 +36,8 @@ export function resolveReferenceLocation(input: string): string | null {
   try { pathname = decodeURIComponent(rawPath).toLowerCase().replace(/\/$/, '') || '/'; }
   catch { return null; }
   if (/[\s%?#:\\]/.test(pathname) || pathname.split('/').some(p => p === '.' || p === '..')) return null;
+  // Retire only the exact old list; never alias details or carry obsolete filters.
+  if (pathname === '/news') return '/newslist';
   if (!isReplicaPath(pathname)) return null;
   const source = new URLSearchParams(question < 0 ? '' : candidate.slice(question + 1));
   const query = new URLSearchParams();

@@ -5,6 +5,7 @@ import { extname } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { getReplicaArticle, getReplicaPage } from '@/lib/opc/content';
 import { replicaPaths } from '@/lib/opc/routes';
+import { intros, advantages, visions, empowerModules } from '@/lib/site/config';
 
 test('every public route has a substantive local page and preserves original scoped layout', () => {
   assert.equal(replicaPaths.length, 18); // GPU资源页已下线
@@ -127,30 +128,76 @@ test('all homepage feature entries have native links matching the public source'
   assert.match(external[1], /rel="noopener noreferrer"/);
 });
 
-test('rebuilt navigation carries the eight contract entries with pure local hrefs', () => {
-  // 2026-10-23 契约 docs/15 §2.Req1：导航重建为 8 项 + 三个下拉。
-  // DOM 契约：纯 <a href>，无 data-opc-action；申请入驻 li 带 nav-item--cta。
-  const home = getReplicaPage('/')!.html;
-  const nav = home.slice(home.indexOf('class="nav-links"'), home.indexOf('class="mobile-menu"'));
-  const topItems: [string, string][] = [
-    ['关于集智', '/about'], ['八大赋能', '/empower/space'], ['智能体', '/agent'],
-    ['供需市场', '/market'], ['流量超市', '/traffic'], ['集智商学院', '/center'],
-    ['社区动态', '/newslist'], ['申请入驻', '/apply'],
-  ];
-  for (const [label, href] of topItems) {
-    assert.ok(nav.includes(`href="${href}"`) && nav.includes(`${label}<`), `${label} → ${href}`);
+test('generated public bodies, article shell and city variants contain no second navigation', () => {
+  for (const name of ['pages', 'zone-cities', 'article-shell']) {
+    const raw = JSON.parse(readFileSync(`src/lib/opc/generated/${name}.json`, 'utf8'));
+    const records = name === 'article-shell' ? [raw] : Object.values(raw) as { html: string }[];
+    for (const record of records) {
+      assert.doesNotMatch(record.html, /class="[^"]*\b(?:opcheader|menu-backdrop|nav-links|mobile-menu)\b/);
+      assert.doesNotMatch(record.html, /data-opc-action="menu"/);
+    }
   }
-  assert.match(nav, /nav-item--dropdown/g);
-  assert.match(nav, /nav-item--cta/);
-  assert.ok(nav.includes('href="/about/history"') && nav.includes('发展历程'));
-  assert.ok(nav.includes('href="/empower/capital"') && nav.includes('资本政策'));
-  assert.ok(nav.includes('href="/activitylist"') && nav.includes('活动资讯'));
-  assert.ok(nav.includes('aria-haspopup="true"'));
-  // 纯 href 导航：导航区不得携带交互动作属性（复刻路径由 ReplicaInteractions 拦截）
-  assert.doesNotMatch(nav, /data-opc-action/);
-  // 旧导航项与原站绝对链接不得残留
-  for (const legacy of ['智能体中心', '交易市场', '星计划', '工作平台', 'https://opcstore.com']) {
-    assert.ok(!nav.includes(legacy), legacy);
+  const compiler = readFileSync('scripts/build-opc-content.py', 'utf8');
+  assert.doesNotMatch(compiler, /def rebuild_nav|NAV_ABOUT_ITEMS|NAV_EMPOWER_ITEMS|NAV_COMMUNITY_ITEMS/);
+});
+
+test('about follows the reference composition while every company claim stays in approved Jizhi copy', () => {
+  const page = getReplicaPage('/about')!;
+  const html = page.html;
+  const shared = JSON.parse(readFileSync('src/lib/site/about-copy.json', 'utf8'));
+  assert.deepEqual(shared.intros, intros);
+  assert.deepEqual(shared.advantages, advantages);
+  assert.deepEqual(shared.visions, visions);
+  assert.equal(page.title, '关于集智 - 集智 AI OPC 社区');
+  assert.match(html, /data-opc-about-page/);
+  assert.equal([...html.matchAll(/<h1\b/g)].length, 1);
+  assert.equal([...html.matchAll(/class="hero-section opc-visual-hero has-visual"/g)].length, 1);
+  assert.equal([...html.matchAll(/class="opcbottom"/g)].length, 1);
+  for (const copy of [...intros.v3, ...advantages, ...visions]) assert.ok(html.includes(copy), copy);
+  for (const forbidden of ['江苏', '南京', '研究院', '成果转化项目', '基金直投企业', '订单市场']) {
+    assert.ok(!html.includes(forbidden), forbidden);
+  }
+  const sections = ['opc-about-overview', 'opc-about-drivers', 'opc-about-enablers', 'opc-about-journey', 'opc-about-vision', 'opcbottom'];
+  const positions = sections.map(name => html.indexOf(name));
+  assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
+  assert.equal([...html.matchAll(/class="opc-about-driver"/g)].length, 3);
+  const enablers = html.match(/<ul\b[^>]*class="opc-about-enabler-list"[^>]*>([\s\S]*?)<\/ul>/)?.[1];
+  assert.ok(enablers);
+  assert.equal([...enablers.matchAll(/<a\b/g)].length, 8);
+  for (const module of empowerModules) {
+    assert.ok(enablers.includes(`href="${module.href}"`), module.href);
+    assert.ok(enablers.includes(module.title), module.title);
+  }
+  assert.deepEqual([...html.matchAll(/<time\b[^>]*datetime="([^"]+)"/g)].map(match => match[1]), ['2026-10']);
+  assert.match(html, /更多发展节点持续整理中/);
+  assert.match(html, /窗外城市景观/);
+  assert.doesNotMatch(html, /集智(?:园区|空间)实景/);
+  for (const paragraph of intros.v2.split('\n')) assert.ok(getReplicaPage('/')!.html.includes(paragraph));
+  assert.doesNotMatch(getReplicaPage('/')!.html, /订单市场/);
+});
+
+test('agent layout preserves every tool and filter action in SSR, academy courses lead directly into employment', () => {
+  const agent = getReplicaPage('/agent')!.html;
+  for (const marker of ['data-opc-agent-layout', 'data-opc-agent-sidebar', 'data-opc-agent-results', 'data-opc-agent-status']) {
+    assert.equal([...agent.matchAll(new RegExp(`\\s${marker}(?:=|\\s|>)`, 'g'))].length, 1, marker);
+  }
+  assert.equal([...agent.matchAll(/class="tool-card[^"]*"/g)].length, 233);
+  assert.equal([...agent.matchAll(/data-opc-agent-group="/g)].length, 18);
+  assert.equal([...agent.matchAll(/data-opc-action="filter-tools"/g)].length, 19);
+  assert.match(agent, /data-opc-agent-status=""[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(agent, /共 233 个智能体/);
+  assert.match(agent, /data-opc-search="tools"/);
+  assert.doesNotMatch(agent, /data-opc-action="filter-category"/);
+  const center = getReplicaPage('/center')!.html;
+  assert.match(center, /data-opc-academy-layout/);
+  assert.equal([...center.matchAll(/class="opc-academy-course-card"/g)].length, 5);
+  assert.equal([...center.matchAll(/class="opc-employ-num"/g)].length, 6);
+  const courses = center.indexOf('class="opc-academy-course-grid"');
+  const employment = center.indexOf('class="opc-employ-steps"');
+  const gallery = center.indexOf('data-opc-gallery="academy"');
+  assert.ok(courses > 0 && employment > courses && gallery > employment);
+  for (const name of ['AI电商', 'AIGC', 'AI漫剧', '大数据工程师', '短视频运营', '职业测评', '技能培训', '项目实战', '求职面试', '就业推荐', '入职跟踪']) {
+    assert.ok(center.includes(name), name);
   }
 });
 

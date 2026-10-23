@@ -1,34 +1,19 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { nav, contentReady, type NavItem } from '@/lib/site/config';
+import { navigationMatchesPath, publicNavigation } from '@/lib/site/navigation';
 import BrandMark from '@/components/ui/BrandMark';
 
-const navigation = nav.filter((item) => !item.cta);
-function visibleChildren(item: NavItem) {
-  return (item.children ?? []).filter((child) => contentReady[child.href] !== false);
-}
+const navigation = publicNavigation.filter(item => !item.cta);
+const apply = publicNavigation.find(item => item.cta)!;
 
-function Logo() {
-  return (
-    <Link href="/" className="header-brand">
-      <BrandMark className="header-mark-default" />
-      <BrandMark light className="header-mark-on-dark" />
-      <span><span className="header-brand-name">集智 AI</span><span className="header-brand-latin">JIZHI · AI OPC</span></span>
-      <span className="sr-only">首页</span>
-    </Link>
-  );
-}
-
-export default function Header() {
+/** One public header for native and captured pages; links also work before hydration. */
+export default function Header({ home = false }: { home?: boolean }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [darkTop, setDarkTop] = useState(true);
   const menuButton = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
 
@@ -39,137 +24,98 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  /**
-   * ⌘K / Ctrl+K → 站内搜索。
-   *
-   * 页面上已经有搜索框时优先聚焦它（/search、/agents、/market），
-   * 否则跳到 /search。**输入框里不劫持快捷键** —— 用户正在打字时按 ⌘K
-   * 应该是插入字符，而不是把页面跳走。
-   */
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey)) return;
-      if (event.key.toLowerCase() !== 'k') return;
-      const target = event.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
-      ) {
-        return;
-      }
-      event.preventDefault();
-      const field = document.querySelector<HTMLInputElement>('[data-search-field="true"]');
-      if (field) {
-        field.focus();
-        return;
-      }
-      router.push('/search');
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [router]);
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   useEffect(() => {
-    setOpen(false);
-    setDarkTop(document.querySelector('[data-nav-theme]')?.getAttribute('data-nav-theme') === 'dark');
-  }, [pathname]);
+    const onSearch = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.matches('input,textarea,select') || target.isContentEditable)) return;
+      event.preventDefault();
+      const field = document.querySelector<HTMLInputElement>('[data-search-field="true"],[data-opc-search],.hero-search-input');
+      if (!open && field) field.focus();
+      else window.location.assign('/search');
+    };
+    document.addEventListener('keydown', onSearch);
+    return () => document.removeEventListener('keydown', onSearch);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    const previousOverflow = document.body.style.overflow;
+    const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const firstLink = drawer.current?.querySelector<HTMLAnchorElement>('a');
-    firstLink?.focus();
+    const background = Array.from(document.querySelectorAll<HTMLElement>('main#main,body > footer'));
+    const priorInert = background.map(element => element.inert);
+    background.forEach(element => { element.inert = true; });
+    drawer.current?.querySelector<HTMLAnchorElement>('a[href]')?.focus();
+
+    const close = () => { setOpen(false); menuButton.current?.focus(); };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        setOpen(false);
-        menuButton.current?.focus();
-      }
+      if (event.key === 'Escape') { event.preventDefault(); close(); return; }
       if (event.key !== 'Tab') return;
-      const links = Array.from(drawer.current?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []);
-      const first = menuButton.current;
-      const last = links.at(-1);
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
+      const items = [menuButton.current, ...Array.from(drawer.current?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? [])]
+        .filter((item): item is HTMLButtonElement | HTMLAnchorElement => !!item);
+      const first = items[0];
+      const last = items.at(-1);
+      const outside = !items.some(item => item === document.activeElement);
+      if ((event.shiftKey && document.activeElement === first) || (outside && event.shiftKey)) {
+        event.preventDefault(); last?.focus();
+      } else if ((!event.shiftKey && document.activeElement === last) || outside) {
+        event.preventDefault(); first?.focus();
       }
     };
-    const onResize = () => {
-      if (window.innerWidth >= 1024) setOpen(false);
-    };
+    const onResize = () => { if (window.innerWidth >= 1280) close(); };
     document.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', onResize, { passive: true });
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = overflow;
+      background.forEach((element, index) => { element.inert = priorInert[index]; });
       document.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);
     };
   }, [open]);
 
-  const closeMenu = (href?: string) => {
-    setOpen(false);
-    if (href === pathname || href?.startsWith('#')) menuButton.current?.focus();
-  };
-
-  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
-  const onDark = !scrolled && darkTop && !open;
-
+  const onDark = home && !scrolled && !open;
   return (
-    <header className={clsx('site-header', onDark && 'header-on-dark', (scrolled || open) && 'header-solid')}>
+    <header data-public-header="" className={clsx('site-header', onDark ? 'header-on-dark' : 'header-solid')}>
       <div className="site-container header-inner">
-        <Logo />
+        <a href="/" className="header-brand" aria-label="集智 AI 首页">
+          <BrandMark className="header-mark-default" />
+          <BrandMark light className="header-mark-on-dark" />
+          <span><span className="header-brand-name">集智 AI</span><span className="header-brand-latin">JIZHI · AI OPC</span></span>
+        </a>
         <nav className="desktop-nav" aria-label="主导航">
-          {navigation.map((item) => {
-            const children = visibleChildren(item);
-            return (
-              <div key={item.label} className="nav-group">
-                <Link href={item.href} className={clsx('nav-link', isActive(item.href) && 'is-active')} aria-current={pathname === item.href ? 'page' : undefined}>
-                  {item.label}
-                  {children.length > 0 && <svg viewBox="0 0 12 12" className="nav-chevron" fill="none" aria-hidden="true"><path d="m3 4.5 3 3 3-3" stroke="currentColor" strokeWidth="1.3" /></svg>}
-                </Link>
-                {children.length > 0 && <div className="nav-dropdown"><div>{children.map((child) => <Link key={child.href} href={child.href} aria-current={pathname === child.href ? 'page' : undefined}>{child.label}</Link>)}</div></div>}
-              </div>
-            );
+          {navigation.map(item => {
+            const active = navigationMatchesPath(pathname, item.href) || item.children?.some(child => navigationMatchesPath(pathname, child.href));
+            return <div className="nav-group" key={item.href}>
+              <a href={item.href} className={clsx('nav-link', active && 'is-active')} aria-current={pathname === item.href ? 'page' : undefined}>
+                {item.label}
+                {!!item.children?.length && <svg className="nav-chevron" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m3 4.5 3 3 3-3" stroke="currentColor" strokeWidth="1.3" /></svg>}
+              </a>
+              {!!item.children?.length && <div className="nav-dropdown"><div>{item.children.map(child => <a href={child.href} key={child.href} aria-current={pathname === child.href ? 'page' : undefined}>{child.label}</a>)}</div></div>}
+            </div>;
           })}
         </nav>
         <div className="header-actions">
-          {/* 全局搜索入口。
-              颜色用 currentColor 跟随页头：浅色页头是品牌深蓝，深色页头是白色
-              （globals.css 里 .site-header / .header-on-dark 决定 color），
-              描边用 color-mix 取 30% 透明度 —— 深色页头下等价于
-              .header-on-dark .menu-button 的半透明白描边，不需要改 globals.css。 */}
-          <Link
-            href="/search"
-            aria-label="站内搜索"
-            title="站内搜索"
-            className="hidden h-11 w-11 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,currentColor_30%,transparent)] text-current transition-colors hover:bg-[color:color-mix(in_srgb,currentColor_8%,transparent)] lg:inline-flex"
-          >
-            <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
-              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M12.8 12.8 17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </Link>
-          <Link href="/apply" className="header-apply">申请入驻 <span aria-hidden="true">↗</span></Link>
-          <button ref={menuButton} type="button" className="menu-button" onClick={() => setOpen((value) => !value)} aria-label={open ? '关闭菜单' : '打开菜单'} aria-expanded={open} aria-controls="mobile-navigation">
+          <a href="/search" className="header-search" aria-label="站内搜索" title="站内搜索">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5" /><path d="m12.8 12.8 4.2 4.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+          </a>
+          <a href={apply.href} className="header-apply">{apply.label}<span aria-hidden="true">↗</span></a>
+          <button ref={menuButton} type="button" className="menu-button" aria-controls="mobile-navigation" aria-expanded={open} aria-label={open ? '关闭菜单' : '打开菜单'} onClick={() => setOpen(value => !value)}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">{open ? <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.7" /> : <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" />}</svg>
           </button>
         </div>
       </div>
       <div ref={drawer} id="mobile-navigation" className="mobile-drawer" hidden={!open} inert={!open}>
-        <nav className="site-container" aria-label="移动端导航" onClick={(event) => { const link = (event.target as HTMLElement).closest('a'); if (link) closeMenu(link.getAttribute('href') ?? undefined); }}>
-          {navigation.map((item) => <div className="mobile-nav-group" key={item.label}>
-            <Link href={item.href} className={clsx('mobile-nav-parent', isActive(item.href) && 'is-active')}>{item.label}<span aria-hidden="true">↗</span></Link>
-            {visibleChildren(item).length > 0 && <div className="mobile-nav-children">{visibleChildren(item).map((child) => <Link href={child.href} key={child.href}>{child.label}</Link>)}</div>}
+        <nav className="site-container" aria-label="移动端导航" onClick={event => {
+          if ((event.target as Element).closest('a')) { setOpen(false); menuButton.current?.focus(); }
+        }}>
+          {navigation.map(item => <div className="mobile-nav-group" key={item.href}>
+            <a href={item.href} className={clsx('mobile-nav-parent', navigationMatchesPath(pathname, item.href) && 'is-active')}>{item.label}<span aria-hidden="true">↗</span></a>
+            {!!item.children?.length && <div className="mobile-nav-children">{item.children.map(child => <a href={child.href} key={child.href} aria-current={pathname === child.href ? 'page' : undefined}>{child.label}</a>)}</div>}
           </div>)}
-          {/* 移动端搜索入口：复用抽屉里已有的分组与条目样式，不新增 CSS */}
-          <div className="mobile-nav-group">
-            <Link href="/search" className={clsx('mobile-nav-parent', isActive('/search') && 'is-active')}>站内搜索<span aria-hidden="true">↗</span></Link>
-          </div>
-          <Link href="/apply" className="mobile-apply">申请入驻 <span aria-hidden="true">↗</span></Link>
+          <div className="mobile-nav-group"><a href="/search" className="mobile-nav-parent">站内搜索<span aria-hidden="true">↗</span></a></div>
+          <a href={apply.href} className="mobile-apply">{apply.label}<span aria-hidden="true">↗</span></a>
         </nav>
       </div>
     </header>

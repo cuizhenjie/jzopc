@@ -70,7 +70,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
         desc={post.summary}
         crumbs={[
           { label: '首页', href: '/' },
-          { label: '社区动态', href: '/news' },
+          { label: '社区动态', href: '/newslist' },
           { label: post.title },
         ]}
       />

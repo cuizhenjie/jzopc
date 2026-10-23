@@ -22,6 +22,7 @@ from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urldefrag
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "scripts/opc-source"
 OUTPUT = ROOT / "src/lib/opc/generated"
+ABOUT_COPY = json.loads((ROOT / "src/lib/site/about-copy.json").read_text())
 
 # 工具卡图标清单（scripts/fetch-tool-icons.mjs 生成，域 → 本地路径或 null）。
 # 图标按 aidh.ai 同款机制（gstatic faviconV2）在构建期抓取并本地化，
@@ -297,101 +298,20 @@ def remove_matching(node, predicate):
     return node
 
 
-def remove_header_login(node):
-    """删除页头右上角的登录入口，以及「GPU资源」导航项。
-
-    · 桌面端：导航链接里的 `li.loginli`（「登录」文字链）
-    · 移动端：`.user-area` 容器（里面只有一枚 el-button 造型的登录按钮）
-    · GPU资源：`/computingresource` 页面已整体下线（2026-10 按需求），
-      导航里的入口 `li` 一并删除，避免指向 404。
-
-    ⚠️ 只删页头这几处 —— `/opclogin` 表单里的**提交按钮**也叫 `login-btn`
-    （无 `el-button` 类、不带 data-opc-action），不能误伤；登录 / 注册 /
-    忘记密码三页之间的文字互链（「立即登录」「返回登录」等）也全部保留。
-    本站暂无登录能力，先撤页头入口；`/opclogin` 路由本身保留。
-    """
-    def is_gpu_nav_item(n):
-        return n.tag == "li" and any(
-            a.attrs.get("href", "").rstrip("/").endswith("/computingresource")
-            for a in walk(n) if a.tag == "a"
-        )
-
-    # 认证表单输入框左侧的装饰图标（fas fa-lock / fa-shield-alt）：原站把它
-    # 绝对定位在输入框内，压住了 placeholder 文字（2026-10 按需求删除）。
-    remove_matching(
-        node,
-        lambda n: n.tag == "i" and "icon-left" in n.classes,
-    )
-    remove_matching(
-        node,
-        lambda n: (n.tag == "li" and "loginli" in n.classes)
-        or "user-area" in n.classes
-        or is_gpu_nav_item(n),
-    )
+# Shared navigation is rendered once by the React public shell. Generated bodies
+# contain no captured header/backdrop or independent navigation data.
+AUTH_BODY_PATHS = {"/opclogin", "/opcregister", "/opcforgotpassword", "/myinfo", "/opcapply"}
 
 
-# ── 导航重建（2026-10-23 文案菜单对齐契约 §2.Req1）─────────────────────
-# 8 个顶层项 + 三个下拉（关于集智 / 八大赋能 / 社区动态）。子项名「集智学院 /
-# 供需市场」是导航展示名；赋能页本身的标题不改（契约明确）。
-# DOM 契约：纯 <a href>（无 data-opc-action）；下拉结构为
-#   <li class="nav-item nav-item--dropdown"><a>…</a><ul class="nav-dropdown">…</ul></li>
-# 「申请入驻」li 带 nav-item--cta（CTA 按钮态，样式在 opc-components.css）。
-# 顶层 href：社区动态按契约指 /newslist；关于集智/八大赋能契约未指明顶层
-# 目标，取首个子项目的落地页（/about、/empower/space —— 原生 /empower 无
-# 索引路由，指 /empower 会 404）。
-NAV_ABOUT_ITEMS = [
-    ("集智简介", "/about"), ("发展历程", "/about/history"),
-    ("服务对象", "/about/audience"), ("生态伙伴", "/about/partners"),
-]
-NAV_EMPOWER_ITEMS = [
-    ("集智空间", "/empower/space"), ("智能体", "/empower/agents"),
-    ("算力超市", "/empower/compute"), ("集智学院", "/empower/academy"),
-    ("企服超市", "/empower/enterprise"), ("供需市场", "/empower/market"),
-    ("流量赋能", "/empower/traffic"), ("资本政策", "/empower/capital"),
-]
-NAV_COMMUNITY_ITEMS = [("沙龙", "/newslist"), ("活动资讯", "/activitylist")]
-
-
-def _nav_anchor(href, label, has_popup=False):
-    attrs = {"href": href}
-    if has_popup:
-        attrs["aria-haspopup"] = "true"
-    return Node("a", attrs, [label])
-
-
-def _nav_dropdown_item(label, href, items):
-    children = [
-        _nav_anchor(href, label, has_popup=True),
-        Node("ul", {"class": "nav-dropdown"}, [
-            Node("li", {}, [_nav_anchor(link, text)]) for text, link in items
-        ]),
-    ]
-    return Node("li", {"class": "nav-item nav-item--dropdown"}, children)
-
-
-def _nav_plain_item(label, href, extra_class=""):
-    classes = ("nav-item " + extra_class).strip()
-    return Node("li", {"class": classes}, [_nav_anchor(href, label)])
-
-
-def rebuild_nav(root):
-    """整树替换 header 内 .nav-links 的 children 为契约 §2.Req1 的 8 项结构。
-
-    在 remove_header_login 之后执行：旧导航项（登录 / GPU资源 / 原站 8 项）
-    随整树替换一并清除，无需逐项删除。所有页面（含 newsdetail 壳与城市
-    变体）都经过这里，导航全站一致。
-    """
-    for nav in by_class(root, "nav-links"):
-        nav.children = [
-            _nav_dropdown_item("关于集智", "/about", NAV_ABOUT_ITEMS),
-            _nav_dropdown_item("八大赋能", "/empower/space", NAV_EMPOWER_ITEMS),
-            _nav_plain_item("智能体", "/agent"),
-            _nav_plain_item("供需市场", "/market"),
-            _nav_plain_item("流量超市", "/traffic"),
-            _nav_plain_item("集智商学院", "/center"),
-            _nav_dropdown_item("社区动态", "/newslist", NAV_COMMUNITY_ITEMS),
-            _nav_plain_item("申请入驻", "/apply", extra_class="nav-item--cta"),
-        ]
+def remove_captured_header(root, path):
+    expected = 0 if path in AUTH_BODY_PATHS else 1
+    for class_name in ("opcheader", "menu-backdrop"):
+        matches = by_class(root, class_name)
+        if len(matches) != expected:
+            raise ValueError(f"Expected {expected} captured .{class_name} on {path}; found {len(matches)}")
+    remove_matching(root, lambda node: bool(node.classes & {"opcheader", "menu-backdrop"}))
+    # Preserve the independent auth layouts' existing unobstructed form fields.
+    remove_matching(root, lambda node: node.tag == "i" and "icon-left" in node.classes)
     return root
 
 
@@ -650,30 +570,6 @@ def redirect_apply_ctas(tree):
     return tree
 
 
-def inject_brand_mark(tree):
-    """Replace the text-only site logo with the 集智AI brand mark.
-
-    原站 logo 是一段纯文字（「OPC Store」），与本站的品牌图形不一致。
-    这里在 `.logo` 容器内插入 `public/logo-mark.svg` 的 `<img>`，
-    保留原有 `<a>` 的 href 与可访问名（`alt` 留空，名称由相邻文字提供）。
-
-    深底反白版通过 CSS 切换（首页页头浮在深色主视觉上），
-    因此两张图都注入，用 `data-opc-mark` 区分。
-    """
-    for logo in by_class(tree, "logo"):
-        anchor = next((n for n in walk(logo) if n.tag == "a"), None)
-        if anchor is None:
-            continue
-        # 已有标记则不重复注入
-        if any(n.tag == "img" for n in walk(logo)):
-            continue
-        anchor.children = [
-            Node("img", {"class": "opc-brand-mark", "src": "/logo-mark.svg", "alt": "", "loading": "eager", "decoding": "async", "data-opc-mark": "light"}),
-            Node("img", {"class": "opc-brand-mark opc-brand-mark--inverse", "src": "/logo-mark-inverse.svg", "alt": "", "loading": "eager", "decoding": "async", "data-opc-mark": "dark"}),
-        ] + [n for n in anchor.children if isinstance(n, Node) and n.tag == "span"]
-    return tree
-
-
 def beijing_home_region(node):
     """社区页的区域入口以本站主场城市「北京」领衔。
 
@@ -718,17 +614,10 @@ def apply_word_about_copy(root):
             heading.children = ["集众智之力，启 AI 未来"]
         intro = next((n for n in walk(about) if n.tag == "p"), None)
         if intro:
-            # 契约 §2.Req3 概要版（v2）：首行「北京集美科技有限公司 · 2026 年 10 月
-            # 启动运营」并入段首（<br> 分行呈现，与 Word 两行口径一致，不增删字符）；
-            # 地址口径「北京丰台大红门」。八大列表保留「订单市场」（用户原文如此）。
-            intro.children = [
-                "北京集美科技有限公司 · 2026 年 10 月启动运营",
-                Node("br"),
-                "集美科技旗下的一站式 AI 应用综合赋能平台，位于北京丰台大红门，"
-                "首期占地超 3000 平米。平台以集智空间、智能体、算力超市、集智商学院、"
-                "企服超市、订单市场、流量赋能、资本政策八大赋能体系为核心，整合产业资源，"
-                "赋能 AI 创业团队，构建 AI 产业生态。",
-            ]
+            # Keep the Word overview identical to config.intros.v2; the latest
+            # module label is 供需市场. Preserve its explicit two-line structure.
+            lines = ABOUT_COPY["intros"]["v2"].split("\n")
+            intro.children = [lines[0], Node("br"), *lines[1:]]
         drive_items = [
             ("八大赋能", "一体贯通，需求不出社区"),
             ("订单流量", "双入口，做完就能卖"),
@@ -760,6 +649,167 @@ def apply_agent_hero_title(root):
     for node in walk(root):
         if node.tag == "h1" and node.text == "探索 AI 的无限可能":
             node.children = ["集智·探索 AI 的无限可能"]
+
+
+def prepare_agent_layout(root, expected_count):
+    """Reparent existing tool groups without rebuilding or duplicating any card.
+
+    The source's filter-tools action and all 233 links remain intact. The client
+    controls only visibility/status; all categories and cards are present in SSR.
+    """
+    stores = by_class(root, "agent-store")
+    filters = by_class(root, "filter-scroll")
+    groups = by_class(root, "category-sec")
+    if len(stores) != 1 or len(filters) != 1 or not groups:
+        raise ValueError("Expected one agent store/filter and nonempty tool groups")
+    store, filter_bar = stores[0], filters[0]
+    chips = [node for node in walk(filter_bar) if node.attrs.get("data-opc-action") == "filter-tools"]
+    if not chips or len(chips) != len(groups) + 1:
+        raise ValueError("Agent category controls do not match the captured groups")
+    for chip in chips:
+        chip.attrs["aria-pressed"] = "true" if chip.attrs.get("data-opc-value") == "全部" else "false"
+    for index, group in enumerate(groups):
+        title = next((node for node in walk(group) if node.tag == "h2"), None)
+        label = first(group, "sec-eyebrow")
+        if title is None or label is None or label.text != chips[index + 1].attrs.get("data-opc-value"):
+            raise ValueError("Agent category heading/control mismatch")
+        group.attrs["data-opc-agent-group"] = label.text
+        group.attrs["aria-labelledby"] = f"agent-category-{index + 1}"
+        title.attrs["id"] = f"agent-category-{index + 1}"
+    # Keep only one category strip. The old filter-stats counter is superseded
+    # by a single SSR/live status in the results column.
+    for child in list(store.children):
+        if isinstance(child, Node) and ("filter-sec" in child.classes or "category-sec" in child.classes):
+            store.children.remove(child)
+    count = sum(len(by_class(group, "tool-card")) for group in groups)
+    if count != expected_count:
+        raise ValueError(f"Expected {expected_count} tool cards; found {count}")
+    layout = Node("section", {"class": "opc-agent-directory", "aria-label": "智能体工具目录"}, [
+        Node("div", {"class": "container", "data-opc-agent-layout": ""}, [
+            Node("aside", {"class": "opc-agent-sidebar", "data-opc-agent-sidebar": "", "aria-label": "工具分类"}, [
+                Node("h2", {"class": "opc-agent-sidebar-title"}, ["浏览分类"]),
+                filter_bar,
+            ]),
+            Node("div", {"class": "opc-agent-results", "data-opc-agent-results": ""}, [
+                Node("p", {"class": "opc-agent-status", "data-opc-agent-status": "", "role": "status", "aria-live": "polite", "aria-atomic": "true"}, [f"共 {count} 个智能体"]),
+                *groups,
+            ]),
+        ]),
+    ])
+    hero = first(store, "hero-agent")
+    if hero is None or hero not in store.children:
+        raise ValueError("Expected direct agent hero before directory")
+    store.children.insert(store.children.index(hero) + 1, layout)
+
+
+def apply_about_page(root):
+    """Nanjing's overview/drivers/journey/vision composition, Jizhi facts only.
+
+    Replace the captured operator body before media injection. Keep its existing
+    local footer; the public shell adds the only header outside this body.
+    """
+    targets = by_class(root, "aboutus")
+    if len(targets) != 1:
+        raise ValueError(f"Expected one /about content root; found {len(targets)}")
+    target = targets[0]
+    footers = [child for child in target.children if isinstance(child, Node) and "opcbottom" in child.classes]
+    if len(footers) != 1:
+        raise ValueError("Expected one existing /about footer")
+    intro = ABOUT_COPY["intros"]
+    advantages = ABOUT_COPY["advantages"]
+    visions = ABOUT_COPY["visions"]
+    if len(intro["v3"]) != 3 or len(advantages) != 4 or len(visions) != 4:
+        raise ValueError("About copy must preserve the approved three paragraphs/four advantages/four visions")
+
+    def heading(eyebrow, title, identifier):
+        return Node("div", {"class": "opc-about-heading"}, [
+            Node("span", {"class": "opc-about-eyebrow"}, [eyebrow]),
+            Node("h2", {"id": identifier}, [title]),
+        ])
+
+    overview = Node("section", {"class": "opc-about-section opc-about-overview", "aria-labelledby": "about-overview-title"}, [
+        Node("div", {"class": "container opc-about-overview-grid"}, [
+            Node("div", {"class": "opc-about-overview-copy"}, [
+                heading("ABOUT JIZHI", "社区概况", "about-overview-title"),
+                Node("p", {}, [intro["v3"][0]]),
+                Node("p", {}, [intro["v3"][2]]),
+                Node("p", {"class": "opc-about-backing"}, [advantages[3]]),
+            ]),
+            Node("figure", {"class": "opc-about-overview-media"}, [
+                visual_image("reference-city-window", sizes="(max-width: 900px) 100vw, 44vw"),
+                Node("figcaption", {}, ["连接城市与产业，让 AI 创业在此生长"]),
+            ]),
+        ]),
+    ])
+    driver_descriptions = [
+        "场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区。",
+        "供需市场把社区能力与外部 1000+ 家企业需求放在同一张桌子上；流量赋能依托已入驻社区的 AIGC 流量生产基地，让产品先被看见。",
+        "企服超市承接人事、财税、法务与知产，丰台区人力资源服务中心与青创会已驻场空间，办事窗口就在楼里。",
+    ]
+    drivers = Node("section", {"class": "opc-about-section opc-about-drivers", "aria-labelledby": "about-drivers-title"}, [
+        Node("div", {"class": "container"}, [
+            heading("THREE DRIVERS", "让创业所需，在社区内连接", "about-drivers-title"),
+            Node("div", {"class": "opc-about-driver-grid"}, [
+                Node("article", {"class": "opc-about-driver"}, [
+                    Node("span", {"class": "opc-about-driver-number", "aria-hidden": "true"}, [f"0{index + 1}"]),
+                    Node("div", {"class": "opc-about-driver-icon", "aria-hidden": "true"}, [visual_image(icon, decorative=True)]),
+                    Node("h3", {}, [title]),
+                    Node("p", {}, [description]),
+                ]) for index, (title, description, icon) in enumerate(zip(advantages[:3], driver_descriptions, ["icon-community", "icon-market", "icon-work"]))
+            ]),
+        ]),
+    ])
+    # Names/links are guarded against config.empowerModules by the content test.
+    empower = [
+        ("space", "集智空间"), ("agents", "智能体"), ("compute", "算力超市"),
+        ("academy", "集智商学院"), ("enterprise", "企服超市"), ("market", "供需市场"),
+        ("traffic", "流量赋能"), ("capital", "资本政策"),
+    ]
+    enablers = Node("section", {"class": "opc-about-section opc-about-enablers", "aria-labelledby": "about-enablers-title"}, [
+        Node("div", {"class": "container"}, [
+            heading("EIGHT ENABLERS", "八大赋能，一站连接", "about-enablers-title"),
+            Node("p", {"class": "opc-about-enablers-intro"}, [intro["v3"][1]]),
+            Node("ul", {"class": "opc-about-enabler-list"}, [
+                Node("li", {}, [Node("a", {"href": f"/empower/{slug}"}, [
+                    Node("span", {"class": "opc-about-enabler-index", "aria-hidden": "true"}, [f"0{index + 1}"]),
+                    Node("span", {}, [title]),
+                    Node("span", {"class": "opc-about-enabler-arrow", "aria-hidden": "true"}, ["↗"]),
+                ])]) for index, (slug, title) in enumerate(empower)
+            ]),
+        ]),
+    ])
+    history = Node("section", {"class": "opc-about-section opc-about-journey", "aria-labelledby": "about-journey-title"}, [
+        Node("div", {"class": "container"}, [
+            heading("OUR JOURNEY", "发展历程", "about-journey-title"),
+            Node("ol", {"class": "opc-about-timeline"}, [
+                Node("li", {"class": "opc-about-milestone"}, [
+                    Node("time", {"datetime": "2026-10"}, ["2026 年 10 月"]),
+                    Node("div", {"class": "opc-about-milestone-card"}, [
+                        Node("h3", {}, ["集智 AI OPC 社区启动运营"]),
+                        Node("p", {}, [intro["v3"][0]]),
+                    ]),
+                ]),
+            ]),
+            Node("p", {"class": "opc-about-journey-note"}, ["更多发展节点持续整理中。", Node("a", {"href": "/about/history"}, ["查看发展历程", Node("span", {"aria-hidden": "true"}, [" →"])])]),
+        ]),
+    ])
+    vision = Node("section", {"class": "opc-about-vision", "aria-labelledby": "about-vision-title"}, [
+        Node("div", {"class": "container"}, [
+            Node("span", {"class": "opc-about-eyebrow"}, ["OUR VISION"]),
+            Node("h2", {"id": "about-vision-title"}, [visions[0]]),
+            Node("ul", {"class": "opc-about-vision-list"}, [Node("li", {}, [line]) for line in visions[1:]]),
+            Node("a", {"class": "opc-about-vision-link", "href": "/apply"}, ["加入集智社区", Node("span", {"aria-hidden": "true"}, [" ↗"])]),
+        ]),
+    ])
+    target.attrs["data-opc-about-page"] = ""
+    target.children = [
+        Node("section", {"class": "hero-section"}, [Node("div", {"class": "container"}, [
+            Node("span", {"class": "sec-eyebrow"}, ["ABOUT JIZHI"]),
+            Node("h1", {}, ["关于集智"]),
+            Node("p", {"class": "hero-desc"}, [intro["v1"]]),
+        ])]),
+        overview, drivers, enablers, history, vision, footers[0],
+    ]
 
 
 # /market 加入区四步（契约 §2.Req7，与 config.ts marketSteps 逐字一致）。
@@ -850,8 +900,12 @@ def apply_academy_page(root):
     · courses-sec：整体重建为「培训课程体系」5 卡，移除分类 tab 条与旧
       course-grid（course-detail 弹窗交互随节点移除，新卡不带 data-opc-action）。
     · path-sec：整体重建为「一站式就业服务」6 步（替换原 4 步学习路径）。
-      保留 section 类名（path-sec），inject_visual_media 的相册插在该节前。
+      保留 section 类名（path-sec），辅助相册位于该节之后。
     """
+    academy = first(root, "center")
+    if academy is None:
+        raise ValueError("Missing /center layout root")
+    academy.attrs["data-opc-academy-layout"] = ""
     scope = {"data-v-" + ACADEMY_SCOPE: ""}
 
     def scoped(tag, attrs=None, children=None):
@@ -866,7 +920,7 @@ def apply_academy_page(root):
         if hero_container:
             eyebrow = next((n for n in walk(hero_container) if "sec-eyebrow" in n.classes), None)
             if eyebrow:
-                eyebrow.children = ["集智商学院"]
+                eyebrow.children = ["AI EDUCATION"]
             h1 = next((n for n in walk(hero_container) if n.tag == "h1"), None)
             if h1:
                 h1.children = ["集智商学院"]
@@ -1066,6 +1120,15 @@ def insert_before_class(tree, class_name, addition):
     raise ValueError("Missing visual insertion target: " + class_name)
 
 
+def insert_after_class(tree, class_name, addition):
+    targets = [(parent, index) for parent in walk(tree) for index, child in enumerate(parent.children)
+               if isinstance(child, Node) and class_name in child.classes]
+    if len(targets) != 1:
+        raise ValueError(f"Expected one visual insertion target .{class_name}; found {len(targets)}")
+    parent, index = targets[0]
+    parent.children.insert(index + 1, addition)
+
+
 def visual_gallery(kind, title, description, items):
     cards = []
     for asset_id, tag, caption in items:
@@ -1124,10 +1187,10 @@ def inject_visual_media(tree, path):
         insert_before_class(tree, "news-sec", visual_gallery("learning", "学习与交流", "从课堂实训到产业研学，在真实的交流中拓展 AI 视野。", learning))
         insert_before_class(tree, "cta-sec", visual_ecosystem())
     elif path == "/center":
-        insert_before_class(tree, "path-sec", visual_gallery("academy", "在实践中学习", "把方法带进课堂，把想法带入创作与交流。", training))
-    elif path in {"/about", "/community"}:
+        insert_after_class(tree, "path-sec", visual_gallery("academy", "在实践中学习", "把方法带进课堂，把想法带入创作与交流。", training))
+    elif path == "/community":
         scene = visual_gallery("scene", "实践与共创", "学习、分享与协作，让 AI 创作走进日常。", [training[0], training[2]])
-        insert_before_class(tree, "contact-section" if path == "/about" else "join-section", scene)
+        insert_before_class(tree, "join-section", scene)
     elif path == "/work":
         for parent in walk(tree):
             for index, child in enumerate(parent.children):
@@ -1610,8 +1673,9 @@ def generate():
     cities = set(zone_data["descriptions"])
     for path, page in selected.items():
         tree = parse(page["html"])
-        remove_header_login(tree)
-        rebuild_nav(tree)
+        remove_captured_header(tree, path)
+        if path == "/about":
+            apply_about_page(tree)
         localize_operator_links(tree, cities)
         complete_lists(tree, path, records)
         if path == "/market":
@@ -1622,12 +1686,12 @@ def generate():
         align_footer_links(tree)
         redirect_apply_ctas(tree)
         rebrand_tree(tree)
-        inject_brand_mark(tree)
         inject_visual_media(tree, path)
         if path == "/":
             apply_word_about_copy(tree)
         elif path == "/agent":
             apply_agent_hero_title(tree)
+            prepare_agent_layout(tree, len(directory["agents"]))
         elif path == "/market":
             apply_market_join_copy(tree)
         elif path == "/center":
@@ -1639,10 +1703,9 @@ def generate():
             # 让 pages.json 与 list-cards.json 在同一次构建里产出。
             channel = LIST_PLACEHOLDERS[path][2]
             list_cards[channel] = extract_list_cards(tree, path, paths, assets)
-        pages[path] = {"html": sanitize(tree, paths, assets), "title": rebrand(page["title"]), "path": path}
+        pages[path] = {"html": sanitize(tree, paths, assets), "title": "关于集智 - 集智 AI OPC 社区" if path == "/about" else rebrand(page["title"]), "path": path}
     shell = parse(detail_template["html"])
-    remove_header_login(shell)
-    rebuild_nav(shell)
+    remove_captured_header(shell, "/newsdetail")
     localize_operator_links(shell, cities)
     set_text(shell, "article-title", "__OPC_TITLE__")
     shell_meta = first(shell, "meta-item")
@@ -1659,9 +1722,6 @@ def generate():
     align_footer_links(shell)
     redirect_apply_ctas(shell)
     rebrand_tree(shell)
-    # 详情壳与整页同源：补品牌标记（双 logo 图 + 文字），否则 /newsdetail?id=N
-    # 页头只剩纯文字「集智AI」，与全站页头不一致。
-    inject_brand_mark(shell)
     article_shell = sanitize(shell, paths, assets)
     details = {}
     for record in records:
@@ -1674,8 +1734,7 @@ def generate():
     zones = {}
     for city in zone_data["descriptions"]:
         tree = zone_variant(parse(selected["/zone"]["html"]), city, zone_data)
-        remove_header_login(tree)
-        rebuild_nav(tree)
+        remove_captured_header(tree, "/zone")
         localize_operator_links(tree, cities)
         enhance(tree, "/zone", records, directory)
         replace_operator_contact(tree)

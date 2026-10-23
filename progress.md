@@ -1,5 +1,14 @@
 # OPC Store 全站科技蓝复现进度（2026-10-23）
 
+## 关于页、导航与布局统一跟进
+
+- 本轮从`0e8a588`干净工作区开始。用户确认将八大赋能文案「订单市场」统一为「供需市场」，覆盖关于文案与配置源，后续生成不能回退旧名称。
+- 菜单分叉已定位：ReplicaPage内嵌采集头部；empower等原生页由SiteChrome渲染独立Header，导航还分叉到/agents、/academy、/news。将以agent公共菜单和Banner统一，独立/news列表改为兼容跳转/newslist，保留新闻详情、API及后台。
+- 南京参考about已通过实际浏览器打开，研究代理正在整理桌面/375布局与截图；另一只读代理执行Codex需求方案和unified diff原型。实施前先取得原型，再由executor独立重写，root负责集成与验收。
+- 参考研究已完成：实际区块为概况双栏、三驱动卡、纵向发展节点、品牌愿景；详细尺寸/DOM/截图在`/private/tmp/jizhi-layout-refresh/about-reference-report.md`。about现有原运营方江苏背景未被首页Word替换函数覆盖，需按集智事实重建；时间轴仅使用已确认2026年10月节点。
+- 当前314/314基线测试通过。3000曾指向Trash内的旧manual release并出现静态资源400，随后已无监听；不据此判断源码。当前源码独立开发预览已启动在3134、构建目录`.next-layout-refresh`，后续完成后统一生产入口；启动需本机监听权限，自动审查已允许。
+- Codex只读方案及41KB unified diff原型已取得，session `01a16842-3a5f-7a11-9189-ec14450b3e4f`。独立审查发现原型client指令位置错误、filter-category与真实filter-tools不符、空状态和容器边界等12项风险，已与Codex逐项质疑；原型不直接应用。两位executor正在按互斥文件域独立重写，共享about-copy源减少事实副本。
+
 ## 首页 Banner 反馈跟进
 
 - 最终关闭：3000已切换到`.next-opc-visual`修复构建，BUILD_ID `MNpeJVaU23Tpk0_X3EHXu`；3133候选服务已停止。保留当前18模板、158篇正文、10城市变体及并发关于文案/认证页/社区改动。旧`.next`产物保留以便回退，本轮最新两文件修复尚未另行提交或推送。

@@ -24,3 +24,14 @@ test('unknown, malformed and external redirects never become local destinations'
     assert.equal(resolveReferenceLocation(value), null, value);
   }
 });
+
+test('only the retired exact news list aliases to the community feed', () => {
+  assert.equal(resolveReferenceLocation('#/news'), '/newslist');
+  assert.equal(resolveReferenceLocation('/News/?category=%E6%B4%BB%E5%8A%A8&page=5'), '/newslist');
+  assert.equal(resolveReferenceLocation('https://opcstore.com/webNew/index.html#/news?category=old'), '/newslist');
+  assert.equal(resolveReferenceLocation('#/news/anything'), null);
+  assert.equal(resolveReferenceLocation('#/newsletter'), null);
+  assert.equal(resolveReferenceLocation('#/news/../agent'), null);
+  assert.equal(resolveReferenceLocation('https://evil.example/#/news'), null);
+  assert.equal(resolveReferenceLocation('#/newsdetail?id=392'), '/newsdetail?id=392');
+});

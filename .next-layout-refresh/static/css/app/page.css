@@ -1,0 +1,3056 @@
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-tokens.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * OPC 复刻站 · 设计 Token（2026-10-22 重设计轮）
+ *
+ * ## 这份文件解决什么
+ *
+ * 上一轮的「科技蓝复现」是把原站 CSS 机器改色生成的产物（`public/opc/reference-blue.css`，
+ * 390KB），色相换对了，但**设计体系没有建立**：
+ *
+ * | 维度 | 复现态实测 | 本轮目标 |
+ * |---|---|---|
+ * | 字号档位 | 32 档（11 → 130px） | 8 档 |
+ * | 字重档位 | 6 档（400/500/600/700/800/900） | 3 档 |
+ * | 字体家族 | 3 族（PingFang SC / SF Mono / DIN Alternate） | 2 族 |
+ * | 文字色 | 24 档 | 5 档 |
+ * | 背景色 | 11 档 | 4 档 |
+ * | padding 组合 | 38 种 | 6 档间距阶 |
+ * | 圆角 | 11 档 | 4 档 |
+ * | 阴影样式 | 14 种 | 2 档 |
+ *
+ * 数值由 `scripts/opc-design-audit.mjs` 实测得出，可复跑复核。
+ *
+ * ## 为什么要独立于 globals.css
+ *
+ * `globals.css` 服务于主站（`src/app/**` 的原生 React 页面），用 Tailwind v4 的
+ * `@theme`。而 OPC 复刻页是**原站 DOM 的净化产物**，结构与主站完全不同，
+ * 两套体系共享 token 会让任一侧改动波及另一侧。
+ *
+ * 因此这里用普通 CSS 自定义属性定义一套 `.opc-replica` 作用域的 token，
+ * 与 `globals.css` 同源但互不干扰：同一套品牌色，不同的落地节奏。
+ *
+ * ## 品牌色来源
+ *
+ * 全部取自项目根目录 `logo.svg` 实测值（与 `globals.css` 一致），**不得臆造新色**。
+ * 浅底小字统一用 `--opc-blue-deep`（白底 5.87:1，达标 AA）；
+ * `--opc-blue` 只用于边框、图标与 ≥24px 大字（白底 4.38:1，大字阈值 3:1）。
+ *//* ═══════════════════════════════════════════════════════════════════
+   一、色彩系统
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  /* ── 品牌主色 ── */
+  --opc-blue: #1d7fba;          /* 边框 / 图标 / 大字强调 / 渐变端点 */
+  --opc-blue-deep: #0968ab;     /* 浅底可读蓝：小字链接 / 填充按钮 / 编号 */
+  --opc-blue-dark: #0e3769;     /* 深色渐层底 / 深底强调 */
+  --opc-navy: #142f59;          /* 深色区块底 / 标题 */
+  --opc-navy-soft: #152e56;
+  --opc-cyan: #1aa8d3;          /* 深底高亮 / 渐变端 */
+  --opc-teal: #57b6a5;          /* 点缀（仅深底） */
+
+  /* 品牌渐变：白字承载时端点必须 ≥4.5:1 */
+  --opc-gradient: linear-gradient(135deg, #0968ab 0%, #0e3769 100%);
+  --opc-gradient-soft: linear-gradient(135deg, #0968ab 0%, #1aa8d3 100%);
+
+  /* ── 中性文字阶（5 档，替换复现态的 24 档）── */
+  --opc-ink: #1a2333;           /* 正文 / 标题主色（logo.svg 实测中性色）13.2:1 */
+  --opc-ink-2: #4d5153;         /* 次级正文 8.2:1 */
+  --opc-ink-3: #5f6878;         /* 辅助信息 5.3:1 */
+  --opc-ink-muted: #5f6878;     /* 占位符 / 禁用态 5.6:1（白底） */
+  --opc-ink-inverse: #ffffff;
+
+  /* ── 背景阶（4 档）── */
+  --opc-surface: #f6f9fc;       /* 页面底 */
+  --opc-surface-2: #eef4fa;     /* 次级区块底 */
+  --opc-surface-blue: #eef4fa;  /* 品牌浅底（选中态 / 提示条） */
+  --opc-white: #ffffff;
+
+  /* ── 线条与描边 ── */
+  --opc-line: #e3e9f2;          /* 分割线 / 卡片描边 */
+  --opc-line-strong: #e3e9f2;   /* 强调描边 / 输入框聚焦 */
+  --opc-line-blue: #1d7fba;     /* 蓝色系描边（聚焦态 / hover 边框） */
+
+  /* ── 语义色 ──
+     语义色不属于品牌配色，且全仓只允许一个可读的语义红（见 test/brand-palette.test.ts
+     的 SEMANTIC 白名单）。成功/警告色当前没有使用点，先不声明，
+     避免引入无依据的色值。 */
+  --opc-danger: #b42318;
+
+  /* ── 焦点环 ── */
+  --opc-focus: #1aa8d3;
+}/* ═══════════════════════════════════════════════════════════════════
+   二、排版体系
+   8 档字号 · 3 档字重 · 2 族字体
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  --opc-font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Source Han Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --opc-font-mono: "SF Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+
+  /* 字号阶：8 档，比例接近 1.25，但中文正文用小一档的对比 */
+  --opc-fs-display: 40px;   /* 首页主标题 */
+  --opc-fs-h1: 32px;        /* 页面主标题 */
+  --opc-fs-h2: 24px;        /* 区块标题 */
+  --opc-fs-h3: 19px;        /* 卡片标题 */
+  --opc-fs-body: 15px;      /* 正文 */
+  --opc-fs-sm: 13px;        /* 次级信息 / 标签 */
+  --opc-fs-xs: 12px;        /* 辅助信息 / 计数 */
+  --opc-fs-num: 34px;       /* 指标数字 */
+
+  /* 行高：标题紧，正文松 */
+  --opc-lh-tight: 1.25;
+  --opc-lh-heading: 1.35;
+  --opc-lh-body: 1.8;
+
+  /* 字重：3 档（替换复现态的 6 档） */
+  --opc-fw-normal: 400;
+  --opc-fw-medium: 500;
+  --opc-fw-bold: 700;
+
+  /* 字间距 */
+  --opc-tracking-wide: 0.12em;   /* eyebrow 小标 */
+  --opc-tracking-tight: -0.01em; /* 大标题 */
+}/* ═══════════════════════════════════════════════════════════════════
+   三、间距栅格
+   4px 基准 · 6 档 · 容器最大 1280px
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  --opc-space-1: 4px;
+  --opc-space-2: 8px;
+  --opc-space-3: 12px;
+  --opc-space-4: 16px;
+  --opc-space-6: 24px;
+  --opc-space-8: 32px;
+  --opc-space-12: 48px;
+  --opc-space-16: 64px;
+
+  --opc-container: 1280px;
+  --opc-gutter: 24px;          /* 水平 padding */
+  --opc-section-pad: 72px;     /* 区块上下内边距（原站各 section 不统一：0 / 80 / 90 / 100 / 110） */
+}/* ═══════════════════════════════════════════════════════════════════
+   四、圆角与阴影
+   4 档圆角 · 2 档阴影（默认描边，阴影是奖励不是标配）
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  --opc-radius-tag: 4px;       /* 标签 / 输入框 */
+  --opc-radius-control: 8px;   /* 按钮 / 导航 */
+  --opc-radius-panel: 12px;    /* 卡片 / 面板 */
+  --opc-radius-card: 16px;     /* 主卡 / 区块容器 */
+
+  --opc-shadow-lift: 0 2px 4px rgb(20 47 89 / 6%), 0 18px 40px -12px rgb(20 47 89 / 18%);
+  --opc-shadow-overlay: 0 12px 32px -12px rgb(20 47 89 / 22%);
+}/* ═══════════════════════════════════════════════════════════════════
+   五、基础排版落地
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica {
+  font-family: var(--opc-font-sans);
+  font-size: var(--opc-fs-body);
+  line-height: var(--opc-lh-body);
+  color: var(--opc-ink);
+  background: var(--opc-surface);
+  font-variant-numeric: tabular-nums;
+}/* 所有文本节点统一继承中文字体与正文字色。
+   复现态的 24 档文字色由原站内联样式带入，这里用 `!important` 收口到 5 档。
+   语义色与白字区除外（在下方组件层单独处理）。 */.opc-replica.opc-replica h1,
+.opc-replica.opc-replica h2,
+.opc-replica.opc-replica h3,
+.opc-replica.opc-replica h4,
+.opc-replica.opc-replica h5,
+.opc-replica.opc-replica h6,
+.opc-replica.opc-replica p,
+.opc-replica.opc-replica span,
+.opc-replica.opc-replica div,
+.opc-replica.opc-replica li,
+.opc-replica.opc-replica dd,
+.opc-replica.opc-replica dt,
+.opc-replica.opc-replica td,
+.opc-replica.opc-replica th,
+.opc-replica.opc-replica label,
+.opc-replica.opc-replica small,
+.opc-replica.opc-replica strong,
+.opc-replica.opc-replica em,
+.opc-replica.opc-replica b {
+  font-family: var(--opc-font-sans);
+}/* 标题层级：收口到 8 档字号阶 */.opc-replica.opc-replica h1 {
+  font-size: var(--opc-fs-h1) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  letter-spacing: var(--opc-tracking-tight);
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica h2 {
+  font-size: var(--opc-fs-h2) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica h3 {
+  font-size: var(--opc-fs-h3) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica h4,
+.opc-replica.opc-replica h5,
+.opc-replica.opc-replica h6 {
+  font-size: var(--opc-fs-body) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica p,
+.opc-replica.opc-replica li,
+.opc-replica.opc-replica dd {
+  font-size: var(--opc-fs-body) !important;
+  line-height: var(--opc-lh-body) !important;
+  color: var(--opc-ink-2) !important;
+}/* 指标数字：等宽字体 + 数字排版，视觉重量与正文拉开。
+ *
+ * ⚠️ 这里**只声明字体属性，不声明颜色**。
+ * 颜色的归属取决于该指标处于浅底还是深底：
+ * 在 token 层统一给色会让深底 hero 的白字被 ink-3 反压（实测已发生），
+ * 因此颜色统一交给组件层按容器上下文决定。
+ *
+ * ⚠️ 特异性必须与组件层一致（双层 .opc-replica），否则会被原站
+ * `data-v-*` 限定的同权重规则按加载顺序反向压过。 */.opc-replica.opc-replica .hero-stat-num {
+  font-family: var(--opc-font-mono) !important;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--opc-fw-bold) !important;
+  letter-spacing: -0.02em;
+}/* 数字与单位分色（浅底场景；深底场景由组件层覆盖） *//* 焦点环：统一到品牌青，键盘可达 */.opc-replica.opc-replica a:focus-visible,
+.opc-replica.opc-replica button:focus-visible,
+.opc-replica.opc-replica input:focus-visible,
+.opc-replica.opc-replica select:focus-visible,
+.opc-replica.opc-replica textarea:focus-visible,
+.opc-replica.opc-replica [tabindex]:focus-visible {
+  outline: 2px solid var(--opc-focus);
+  outline-offset: 3px;
+  border-radius: var(--opc-radius-tag);
+}/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-components.css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+
+
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-components.css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * OPC 复刻站 · 组件层（2026-10-22 重设计轮）
+ *
+ * ## 定位
+ *
+ * `opc-tokens.css` 定义「有哪些量」，本文件定义「每个控件长什么样」。
+ *
+ * 复刻页的 DOM 来自原站净化产物，类名是原站的（`.hero-btn` / `.nc-card` / `.tab-chip` …）。
+ * 因此这里**不改 DOM 结构**，只用 CSS 覆写原站类名的外观，
+ * 让 20 个路由、筛选 / 分页 / 弹窗 / 表单的既有逻辑全部保持不变。
+ *
+ * 覆写策略：选择器一律加 `!important`，因为 `public/opc/reference-blue.css`
+ * 是机器拼接产物，规则顺序不可控且选择器权重不一。
+ * 加 `!important` 是这里唯一可靠的收敛手段 —— 代价是不能再从外部微调这些值，
+ * 因此所有可调项都抽成 `opc-tokens.css` 里的 token。
+ *//* ═══════════════════════════════════════════════════════════════════
+   一、页头 · 导航
+   ═══════════════════════════════════════════════════════════════════ *//* 首页页头浮在主视觉上（透明底），其余页面是白底吸顶。
+   原站用 `.opcheader:has(nav.is-home:not(.scrolled))` 判定，这里保留同一机制，
+   但**必须再加 `:not(.scrolled)`** ——
+   运行期（`ReplicaInteractions.tsx`）把 `scrolled` 加在 **`nav`** 上（与原站一致），
+   原站的白字规则写作 `nav.is-home:not(.scrolled)`：首页只有**未滚动时**才反白，
+   滚动后页头变白底，导航文字必须回到深色。
+   少了这个限定，首页滚动后就是**白字落在白底上**（实测导航项与 logo 同时不可读）。 */.opc-replica.opc-replica .opcheader {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  background: rgb(255 255 255 / 92%) !important;
+  backdrop-filter: saturate(180%) blur(14px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(14px) !important;
+  border-bottom: 1px solid var(--opc-line) !important;
+  transition: background 0.3s var(--ease-out-soft, ease),
+    box-shadow 0.3s var(--ease-out-soft, ease) !important;
+  line-height: 1 !important;
+}/* 首页：浮在深色主视觉上，用深底 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}.opc-replica.opc-replica .opcheader:has(nav.scrolled),
+.opc-replica.opc-replica .opcheader:has(nav:not(.is-home)) {
+  box-shadow: 0 1px 0 rgb(20 47 89 / 4%), 0 8px 24px -12px rgb(20 47 89 / 10%) !important;
+}/* 容器：统一最大宽度与水平留白
+   ⚠️ `width` 必须显式写：`max-width` **不能覆盖**显式 `width`。
+   原站容器是**固定宽度阶梯**（788 / 1012 / 1220 / 1940），
+   只靠 `@media(max-width:900px){.container{max-width:100%}}` 收口；
+   而本层更高的 `max-width:1280px` 把那条 `max-width:100%` 顶掉了，
+   于是 `width:788px` 存活 —— 768 平板下容器比视口宽 20px，产生横向滚动；
+   901–1012px 视口同理（容器 1012px）会溢出更多。
+   同理 `margin-right` 也要显式压：原站在小屏用 `margin-right:-20px` 做满幅，
+   本层的 `margin-inline:auto` 是**逻辑属性**，与物理属性 `margin-right` 的
+   优先级仲裁实测未生效，负边距仍在 → 左右留白不对称（24 vs 44）。
+   这里两个属性都显式压掉，容器回到「视口宽、上限 --opc-container、居中」。 */
+.opc-replica.opc-replica .container {
+  width: 100% !important;
+  max-width: var(--opc-container) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-inline: var(--opc-gutter) !important;
+}/* Logo：文字 logo 换成品牌标记 + 字标 */.opc-replica.opc-replica .logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 20px !important;
+  font-weight: var(--opc-fw-bold) !important;
+  color: var(--opc-ink) !important;
+  letter-spacing: -0.01em !important;
+  cursor: pointer !important;
+  transition: color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .logo:hover {
+  color: var(--opc-blue-deep) !important;
+}/* 品牌标记：浅底用彩色版，深底用反白版。
+   两张图都注入到 DOM，用 CSS 切换 —— 避免依赖 JS 判断当前页是否首页。 */.opc-replica.opc-replica .opc-brand-mark {
+  display: block !important;
+  width: 32px !important;
+  height: 31px !important;
+  flex-shrink: 0 !important;
+  object-fit: contain !important;
+}.opc-replica.opc-replica .opc-brand-mark--inverse {
+  display: none !important;
+}/* 首页深底上的 logo 反白 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .logo {
+  color: #fff !important;
+}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .opc-brand-mark {
+  display: none !important;
+}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .opc-brand-mark--inverse {
+  display: block !important;
+}.opc-replica.opc-replica .logo img,
+.opc-replica.opc-replica .logo svg {
+  width: 32px !important;
+  height: 31px !important;
+  flex-shrink: 0 !important;
+}/* 导航项 */.opc-replica.opc-replica .nav-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}.opc-replica.opc-replica .nav-links li {
+  list-style: none !important;
+}.opc-replica.opc-replica .nav-links a {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  border-radius: var(--opc-radius-control) !important;
+  font-size: 14px !important;
+  font-weight: var(--opc-fw-normal) !important;
+  color: var(--opc-ink-2) !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: color 0.2s var(--ease-out-soft, ease),
+    background-color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .nav-links a:hover {
+  color: var(--opc-blue-deep) !important;
+  background: var(--opc-surface-blue) !important;
+}.opc-replica.opc-replica .nav-links a.active,
+.opc-replica.opc-replica .nav-links a.router-link-active {
+  color: var(--opc-blue-deep) !important;
+  font-weight: var(--opc-fw-medium) !important;
+}/* 选中态用下划线而非胶囊底色 —— 胶囊 + 描边是模板站最强的信号
+   ⚠️ `width: auto` 不是可选项，必须显式写：
+   原站 `reference-blue.css` 里有 `.nav-links a.active[data-v-…]:after{width:100%}`
+   与 `:hover:after{width:100%}`，本层选择器更高但**没有声明 width**，
+   于是属性级联让 `width:100%` 存活下来。
+   绝对定位元素同时给 left / right / width 时属于过度约束，
+   浏览器会**忽略 right**（LTR）→ 伪元素宽度 = 包含块(50px) 的 100%，
+   左缘停在 left:12px → 右缘落在 62px，比链接的 padding box(50px) 还宽 12px：
+     · 视觉上：下划线越过链接右缘，压到相邻导航项；
+     · 布局上：scrollWidth(62) > clientWidth(50)，被响应式审计判成「文本硬裁」。
+   写成 `width:auto` 后，left/right 正常拉伸到内容盒(26px)，恰好等于文字宽度。 */
+.opc-replica.opc-replica .nav-links a.active::after,
+.opc-replica.opc-replica .nav-links a.router-link-active::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  left: 12px !important;
+  right: 12px !important;
+  width: auto !important;
+  bottom: -1px !important;
+  height: 2px !important;
+  background: var(--opc-blue-deep) !important;
+  border-radius: 2px !important;
+}.opc-replica.opc-replica .nav-links a {
+  position: relative !important;
+}/* 首页深底导航 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a {
+  color: rgb(255 255 255 / 88%) !important;
+}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a:hover {
+  color: #fff !important;
+  background: rgb(255 255 255 / 12%) !important;
+}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a.active::after,
+.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a.router-link-active::after {
+  background: #fff !important;
+}/* 登录按钮：全站唯一主行动点，保留胶囊形 */.opc-replica.opc-replica .login-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  padding: 0 20px !important;
+  border: 1px solid var(--opc-blue-deep) !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: 13px !important;
+  font-weight: var(--opc-fw-medium) !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s var(--ease-out-soft, ease),
+    color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .login-btn:hover {
+  background: var(--opc-blue-deep) !important;
+  color: #fff !important;
+}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .login-btn {
+  border-color: rgb(255 255 255 / 60%) !important;
+  color: #fff !important;
+}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .login-btn:hover {
+  background: #fff !important;
+  color: var(--opc-blue-deep) !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   二、区块标题 · eyebrow
+   去掉胶囊描边，改纯文字小标 + 左对齐
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica.opc-replica .sec-head {
+  margin-bottom: var(--opc-space-8) !important;
+  text-align: left !important;
+}.opc-replica.opc-replica .sec-eyebrow {
+  display: block !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  letter-spacing: var(--opc-tracking-wide) !important;
+  text-transform: none !important;
+  color: var(--opc-blue-deep) !important;
+  margin-bottom: var(--opc-space-2) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+}.opc-replica.opc-replica .sec-head h2 {
+  font-size: var(--opc-fs-h2) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  color: var(--opc-ink) !important;
+  margin: 0 0 var(--opc-space-2) !important;
+  text-align: left !important;
+}.opc-replica.opc-replica .sec-head p {
+  font-size: var(--opc-fs-body) !important;
+  color: var(--opc-ink-3) !important;
+  line-height: var(--opc-lh-body) !important;
+  margin: 0 !important;
+  max-width: 640px !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   三、按钮体系
+   三档：主行动（实心）/ 次级（描边）/ 文字链
+   ═══════════════════════════════════════════════════════════════════ *//* 主行动：品牌蓝实心 */.opc-replica.opc-replica .hero-btn--primary,
+.opc-replica.opc-replica .btn-cta,
+.opc-replica.opc-replica .submit-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  min-height: 48px !important;
+  padding: 12px 32px !important;
+  border: 1px solid var(--opc-blue-deep) !important;
+  border-radius: var(--opc-radius-control) !important;
+  background: var(--opc-blue-deep) !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: var(--opc-fw-medium) !important;
+  line-height: 1.4 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s var(--ease-out-soft, ease),
+    border-color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica :is(.hero-btn--primary, .hero-btn--ghost, .btn-cta, .submit-btn) :is(span, i) {
+  color: inherit !important;
+}.opc-replica.opc-replica .sc-contact {
+  color: var(--opc-white) !important;
+  background: var(--opc-blue-deep) !important;
+}.opc-replica.opc-replica .sc-contact:hover {
+  background: var(--opc-blue-dark) !important;
+}.opc-replica.opc-replica .hero-btn--primary:hover,
+.opc-replica.opc-replica .btn-cta:hover,
+.opc-replica.opc-replica .submit-btn:hover {
+  background: var(--opc-blue-dark) !important;
+  border-color: var(--opc-blue-dark) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}/* 次级：描边 */.opc-replica.opc-replica .hero-btn--ghost,
+.opc-replica.opc-replica .event-more-btn,
+.opc-replica.opc-replica .load-more-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  min-height: 44px !important;
+  padding: 10px 24px !important;
+  border: 1px solid var(--opc-line-strong) !important;
+  border-radius: var(--opc-radius-control) !important;
+  background: var(--opc-white) !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: 14px !important;
+  font-weight: var(--opc-fw-medium) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s var(--ease-out-soft, ease),
+    border-color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .hero-btn--ghost:hover,
+.opc-replica.opc-replica .event-more-btn:hover,
+.opc-replica.opc-replica .load-more-btn:hover {
+  background: var(--opc-surface-blue) !important;
+  border-color: var(--opc-line-blue) !important;
+}/* 文字链 */.opc-replica.opc-replica .text-link,
+.opc-replica.opc-replica .nc-more {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  /* 「查看更多」这类文字链原本只有 15px 高，低于 WCAG 2.2 SC 2.5.8 的 24×24。
+     inline-flex 已是块级化盒，用 min-height 撑到 24px 不改变字重/字号/排版。 */
+  min-height: 24px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-sm) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+}.opc-replica.opc-replica .text-link:hover,
+.opc-replica.opc-replica .nc-more:hover {
+  color: var(--opc-blue-dark) !important;
+}/* 深底上的次级按钮反白描边 */.opc-replica.opc-replica .hero .hero-btn--ghost,
+.opc-replica.opc-replica .hero-section .hero-btn--ghost {
+  border-color: rgb(255 255 255 / 55%) !important;
+  background: transparent !important;
+  color: #fff !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   四、筛选 chip / 标签
+   胶囊保留（语义上确实是可选标签），但收口配色与尺寸
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica.opc-replica .filter-chip,
+.opc-replica.opc-replica .filter-btn,
+.opc-replica.opc-replica .city-btn,
+.opc-replica.opc-replica .tab-chip {
+  font-size: var(--opc-fs-sm) !important;
+  font-weight: var(--opc-fw-normal) !important;
+}.opc-replica.opc-replica .filter-chip,
+.opc-replica.opc-replica .filter-btn,
+.opc-replica.opc-replica .city-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 36px !important;
+  padding: 7px 16px !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: 999px !important;
+  background: var(--opc-white) !important;
+  color: var(--opc-ink-2) !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s var(--ease-out-soft, ease),
+    border-color 0.2s var(--ease-out-soft, ease),
+    color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .filter-chip:hover,
+.opc-replica.opc-replica .filter-btn:hover,
+.opc-replica.opc-replica .city-btn:hover {
+  border-color: var(--opc-line-blue) !important;
+  color: var(--opc-blue-deep) !important;
+  background: var(--opc-surface-blue) !important;
+}/* 选中态 */.opc-replica.opc-replica .filter-chip.active,
+.opc-replica.opc-replica .filter-btn.active,
+.opc-replica.opc-replica .city-btn.active,
+.opc-replica.opc-replica .tab-chip.active {
+  background: var(--opc-blue-deep) !important;
+  border-color: var(--opc-blue-deep) !important;
+  color: #fff !important;
+  font-weight: var(--opc-fw-medium) !important;
+}/* 选中态里的计数小字：按底色分别给色，不能用 opacity 压暗 *//* 供需切换 tab：一组里只允许一个实心 */.opc-replica.opc-replica .tab-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 44px !important;
+  padding: 10px 28px !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-control) !important;
+  background: var(--opc-white) !important;
+  color: var(--opc-ink-2) !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s var(--ease-out-soft, ease),
+    color 0.2s var(--ease-out-soft, ease),
+    border-color 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .tab-chip:hover {
+  border-color: var(--opc-line-blue) !important;
+  color: var(--opc-blue-deep) !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   五、卡片体系
+   两档制：主卡（品牌色顶边）/ 次级卡（纯描边无阴影）
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica.opc-replica .news-card,
+.opc-replica.opc-replica .tool-card,
+.opc-replica.opc-replica .opc-card,
+.opc-replica.opc-replica .supply-card,
+.opc-replica.opc-replica .demand-card,
+.opc-replica.opc-replica .activity-item {
+  background: var(--opc-white) !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-panel) !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  transition: border-color 0.2s var(--ease-out-soft, ease),
+    transform 0.2s var(--ease-out-soft, ease),
+    box-shadow 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .news-card:hover,
+.opc-replica.opc-replica .tool-card:hover,
+.opc-replica.opc-replica .opc-card:hover,
+.opc-replica.opc-replica .supply-card:hover,
+.opc-replica.opc-replica .demand-card:hover,
+.opc-replica.opc-replica .activity-item:hover {
+  border-color: var(--opc-line-blue) !important;
+  box-shadow: var(--opc-shadow-lift) !important;
+  transform: translateY(-2px) !important;
+}/* 卡片内的图片区：统一比例与浅底 */.opc-replica.opc-replica .nc-media {
+  background: var(--opc-surface-2) !important;
+}.opc-replica.opc-replica .nc-media img,
+.opc-replica.opc-replica .tool-card img,
+.opc-replica.opc-replica .opc-card img {
+  transition: transform 0.4s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica .news-card:hover .nc-media img,
+.opc-replica.opc-replica .opc-card:hover img {
+  transform: scale(1.04) !important;
+}/* ── 工具卡图标（aidh.ai 同款 gstatic faviconV2，构建期本地化）──
+   tc-body 变两列网格：图标定宽，文字列维持原有块级流。
+   未命中图标的卡片没有 .tc-icon，网格不生效、布局不变。 */
+.opc-replica.opc-replica .tc-body:has(> .tc-icon) {
+  display: grid !important;
+  grid-template-columns: 44px 1fr !important;
+  column-gap: var(--opc-space-4) !important;
+  align-items: start !important;
+}.opc-replica.opc-replica .tc-icon {
+  grid-row: 1 !important;
+  grid-column: 1 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  object-fit: contain !important;
+  background: var(--opc-white) !important;
+  border: 1px solid var(--opc-line) !important;
+  padding: 6px !important;
+}.opc-replica.opc-replica .tc-body:has(> .tc-icon) > :not(.tc-icon) {
+  grid-column: 2 !important;
+}/* 卡片正文 */.opc-replica.opc-replica .nc-body {
+  padding: var(--opc-space-4) var(--opc-space-6) var(--opc-space-6) !important;
+}.opc-replica.opc-replica .tc-title {
+  font-size: var(--opc-fs-h3) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  color: var(--opc-ink) !important;
+  line-height: var(--opc-lh-heading) !important;
+  margin: 0 0 var(--opc-space-3) !important;
+}/* 摘要：原站是 #a3a3a3（白底 2.6:1，不达标），收口到 ink-3 */.opc-replica.opc-replica .nc-excerpt,
+.opc-replica.opc-replica .tc-desc {
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-3) !important;
+  line-height: 1.7 !important;
+  margin: 0 0 var(--opc-space-4) !important;
+}/* 卡片底部条 */.opc-replica.opc-replica .nc-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-top: var(--opc-space-3) !important;
+  border-top: 1px solid var(--opc-line) !important;
+}/* 分类标签：不再是实心色块 */.opc-replica.opc-replica .nc-cat {
+  display: inline-block !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  letter-spacing: var(--opc-tracking-wide) !important;
+  text-transform: none !important;
+  color: var(--opc-blue-deep) !important;
+  background: none !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}/* 日期徽章：原站是实心蓝块 */.opc-replica.opc-replica .news-date {
+  background: none !important;
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-family: var(--opc-font-mono) !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   六、表单控件
+   ═══════════════════════════════════════════════════════════════════ */.opc-replica.opc-replica input[type='text'],
+.opc-replica.opc-replica input[type='tel'],
+.opc-replica.opc-replica input[type='email'],
+.opc-replica.opc-replica input[type='password'],
+.opc-replica.opc-replica input[type='number'],
+.opc-replica.opc-replica input[type='search'],
+.opc-replica.opc-replica textarea,
+.opc-replica.opc-replica select {
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 10px 14px !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-control) !important;
+  background: var(--opc-white) !important;
+  color: var(--opc-ink) !important;
+  font-family: var(--opc-font-sans) !important;
+  font-size: var(--opc-fs-body) !important;
+  line-height: 1.5 !important;
+  transition: border-color 0.2s var(--ease-out-soft, ease),
+    box-shadow 0.2s var(--ease-out-soft, ease) !important;
+}.opc-replica.opc-replica textarea {
+  min-height: 110px !important;
+  resize: vertical !important;
+}.opc-replica.opc-replica input::placeholder,
+.opc-replica.opc-replica textarea::placeholder {
+  color: var(--opc-ink-muted) !important;
+}.opc-replica.opc-replica input:focus,
+.opc-replica.opc-replica textarea:focus,
+.opc-replica.opc-replica select:focus {
+  border-color: var(--opc-blue-deep) !important;
+  box-shadow: 0 0 0 3px rgb(29 127 186 / 12%) !important;
+  outline: none !important;
+}/* 表单标签 */.opc-replica.opc-replica .form-group label {
+  font-size: var(--opc-fs-sm) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  color: var(--opc-ink-2) !important;
+  margin-bottom: var(--opc-space-2) !important;
+}/* 发送验证码按钮 */.opc-replica.opc-replica .send-code-btn {
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border: 1px solid var(--opc-line-strong) !important;
+  border-radius: var(--opc-radius-control) !important;
+  background: var(--opc-white) !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-sm) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  cursor: pointer !important;
+}.opc-replica.opc-replica .send-code-btn:disabled {
+  color: var(--opc-ink-muted) !important;
+  border-color: var(--opc-line) !important;
+  background: var(--opc-surface) !important;
+  cursor: not-allowed !important;
+}/* 复选框 */.opc-replica.opc-replica input[type='checkbox'],
+.opc-replica.opc-replica input[type='radio'] {
+  width: 16px !important;
+  height: 16px !important;
+  min-height: 0 !important;
+  accent-color: var(--opc-blue-deep) !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   七、页脚
+   ═══════════════════════════════════════════════════════════════════ *//* ⚠️⚠️ **页脚容器的真实类名是 `.opcbottom`，不是 `.footer` / `.opcfooter`。**
+ *
+ * 原站底部组件的结构是：
+ *   <div class="opcbottom"> <footer> ← 这个 <footer> 标签**没有 class**
+ *     <div class="footer-grid"><div class="footer-item">…</div></div>
+ *   </div>
+ *
+ * 上一版把页脚规则写成 `.footer` / `.opcfooter` —— 实测这两个类在 15 个带页脚的
+ * 页面里**一个都不存在**，整段页脚样式是**死代码**：
+ * 底色还是原站的 `#1a1a2e`（紫黑），链接还是 14px `#b0b0b0`，
+ * 标题还是 20px —— 与品牌色板和 8 档字号阶都不沾边。
+ * 这里按真实结构重写。
+ *
+ * ⚠️ 另注意：原站页脚规则带 `[data-v-52d6d425]` 属性限定，
+ * 特异性 (0,4,3)；本层同形状选择器也是 (0,4,3) —— **同权重**，
+ * 靠「设计层排在 reference-blue.css 之后」取胜（见文件头 CSS Cascade 说明）。 */.opc-replica.opc-replica .opcbottom {
+  background: var(--opc-navy) !important;
+  color: rgb(255 255 255 / 78%) !important;
+  padding: var(--opc-space-16) 0 var(--opc-space-8) !important;
+}.opc-replica.opc-replica .opcbottom .footer-item h4 {
+  font-size: var(--opc-fs-body) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  color: #fff !important;
+  margin-bottom: var(--opc-space-4) !important;
+}.opc-replica.opc-replica .opcbottom .footer-item p {
+  font-size: var(--opc-fs-sm) !important;
+  color: rgb(255 255 255 / 70%) !important;
+  line-height: var(--opc-lh-body) !important;
+}.opc-replica.opc-replica .opcbottom .footer-item ul li {
+  /* ⚠️ 裸 li（地址 / 电话这类非链接行）必须显式声明颜色：
+     通用基线会给中间容器落 ink-2 墨灰，li 靠继承拿到灰字
+     压在 --opc-navy 上只有 ~1.4:1（实测不可见）。 */
+  color: rgb(255 255 255 / 70%) !important;
+}.opc-replica.opc-replica .opcbottom .footer-item ul li,
+.opc-replica.opc-replica .opcbottom .footer-item ul li a {
+  font-size: var(--opc-fs-sm) !important;
+}.opc-replica.opc-replica .opcbottom .footer-item ul li a {
+  color: rgb(255 255 255 / 70%) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease !important;
+  /* 触控目标：原站链接是 inline（行内盒高 18px），不满足 WCAG 2.2 SC 2.5.8 的 24×24。
+     改成 inline-flex + min-height，字号/行距/行距都不动 —— 行高 23.4px 只比 24 少 0.6px，
+     所以每个链接只多撑高 0.6px，页脚整体几乎不膨胀。 */
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 24px !important;
+}.opc-replica.opc-replica .opcbottom .footer-item ul li a:hover {
+  color: #fff !important;
+}.opc-replica.opc-replica .opcbottom .footer-bottom {
+  font-size: var(--opc-fs-xs) !important;
+  color: rgb(255 255 255 / 60%) !important;
+  border-top: 1px solid rgb(255 255 255 / 12%) !important;
+  padding-top: var(--opc-space-6) !important;
+}.opc-replica.opc-replica .opcbottom .footer-bottom p {
+  /* 版权行同「联系我们」的坑：裸 p 被通用基线直接压成 ink-2 墨灰
+     （继承不赢直接命中），深蓝底上 1.4:1 不可见 —— 显式回到页脚次级白。 */
+  color: rgb(255 255 255 / 60%) !important;
+  font-size: var(--opc-fs-xs) !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   九、内页标题区（page-header）—— 编辑式重构
+   ═══════════════════════════════════════════════════════════════════
+   原站各页的 `.page-header` 是一组「居中大标题 + 居中副标题 + 居中分隔线」，
+   padding 从 60px 到 200px 不等（同一语义、四种规格），
+   是模板站最强的信号之一。
+
+   这里统一为：
+   - 左对齐标题 + 副标题
+   - eyebrow（纯文字小标）替代胶囊
+   - 统一的垂直留白（96px / 56px）
+   - 标题字号收口到 h1 档 */.opc-replica.opc-replica .page-header {
+  text-align: left !important;
+  padding: 96px 0 56px !important;
+  margin-bottom: var(--opc-space-8) !important;
+  background: linear-gradient(135deg, rgb(29 127 186 / 6%), rgb(9 104 171 / 6%)) !important;
+}.opc-replica.opc-replica .page-header h1 {
+  color: var(--opc-ink) !important;
+  font-size: var(--opc-fs-h1) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 0 var(--opc-space-3) !important;
+  text-align: left !important;
+}.opc-replica.opc-replica .page-header h1 span {
+  color: var(--opc-blue-deep) !important;
+}.opc-replica.opc-replica .page-header p {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-body) !important;
+  line-height: 1.85 !important;
+  max-width: 640px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}/* eyebrow：胶囊改纯文字小标 */.opc-replica.opc-replica .page-header .sec-eyebrow {
+  display: block !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin-bottom: var(--opc-space-2) !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  letter-spacing: var(--opc-tracking-wide) !important;
+  text-transform: none !important;
+  color: var(--opc-blue-deep) !important;
+}/* 居中分隔线改为左对齐的短横线 */.opc-replica.opc-replica .page-header .hero-divider {
+  justify-content: flex-start !important;
+  margin: 0 0 var(--opc-space-4) !important;
+  max-width: 120px !important;
+}@media (max-width: 767px) {.opc-replica.opc-replica .page-header {
+    padding: 72px 0 40px !important;
+  }.opc-replica.opc-replica .page-header h1 {
+    font-size: 28px !important;
+  }
+
+}/* ═══════════════════════════════════════════════════════════════════
+   十一、登录 / 注册页
+   ═══════════════════════════════════════════════════════════════════
+   登录页左侧是深蓝品牌底板，右侧是白色表单。
+   原站左侧标题与列表用 `color:#fff`，但我方通用正文规则
+   （`p/li/span → ink-2`）会把它压成深灰，在深底上不可读。
+   这里对深底容器整体声明一次白字，优先级高于通用正文规则。 */.opc-replica.opc-replica .login-left,
+.opc-replica.opc-replica .login-left-content,
+.opc-replica.opc-replica .register-left,
+.opc-replica.opc-replica .register-left-content {
+  color: #fff !important;
+}.opc-replica.opc-replica .login-left h1,
+.opc-replica.opc-replica .login-left-content h1,
+.opc-replica.opc-replica .register-left h1,
+.opc-replica.opc-replica .register-left-content h1 {
+  color: #fff !important;
+  font-size: 30px !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  margin-bottom: var(--opc-space-3) !important;
+}/* 标题里的高亮 span（「开启创业之旅」）：
+   ⚠️ 深底容器规则里的 `span → inherit` 会把它压成 ink-2，
+   这里用更具体的选择器显式给白字。 */.opc-replica.opc-replica .register-left h1 span,
+.opc-replica.opc-replica .register-left-content h1 span,
+.opc-replica.opc-replica .login-left h1 span,
+.opc-replica.opc-replica .login-left-content h1 span {
+  color: #fff !important;
+}.opc-replica.opc-replica .login-left p,
+.opc-replica.opc-replica .login-left-content p,
+.opc-replica.opc-replica .register-left p,
+.opc-replica.opc-replica .register-left-content p {
+  color: rgb(255 255 255 / 78%) !important;
+  font-size: var(--opc-fs-body) !important;
+  line-height: 1.8 !important;
+  margin-bottom: var(--opc-space-6) !important;
+}.opc-replica.opc-replica .login-left li,
+.opc-replica.opc-replica .login-left-content li,
+.opc-replica.opc-replica .login-left .feature-list li span,
+.opc-replica.opc-replica .login-left-content .feature-list li span,
+.opc-replica.opc-replica .register-left li,
+.opc-replica.opc-replica .register-left-content li,
+.opc-replica.opc-replica .register-left .feature-list li span,
+.opc-replica.opc-replica .register-left-content .feature-list li span {
+  color: rgb(255 255 255 / 88%) !important;
+  font-size: var(--opc-fs-body) !important;
+  line-height: 1.7 !important;
+}/* 左侧底板：品牌深蓝渐变 */.opc-replica.opc-replica .login-left,
+.opc-replica.opc-replica .register-left {
+  background: var(--opc-gradient) !important;
+}/* 右侧表单区 */.opc-replica.opc-replica .login-right {
+  background: var(--opc-white) !important;
+  color: var(--opc-ink) !important;
+}.opc-replica.opc-replica .login-right h1,
+.opc-replica.opc-replica .login-right h2 {
+  color: var(--opc-ink) !important;
+  font-size: var(--opc-fs-h2) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  margin-bottom: var(--opc-space-2) !important;
+}.opc-replica.opc-replica .login-right p {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-sm) !important;
+  margin-bottom: var(--opc-space-6) !important;
+}/* 记住我 / 忘记密码 一行
+   ⚠️ 旧类名 `.login-options` / `.form-options` 在复刻 DOM 里不存在，
+   真实类名是 `.form-actions` —— 见文件末「死类名重映射」一节。 */.opc-replica.opc-replica .form-actions {
+  color: var(--opc-ink-2) !important;
+  font-size: var(--opc-fs-sm) !important;
+}.opc-replica.opc-replica .form-actions a,
+.opc-replica.opc-replica .forgot-link {
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-sm) !important;
+}/* 登录按钮：主行动实心 */.opc-replica.opc-replica .login-right button[type='submit'],
+.opc-replica.opc-replica .login-right .submit-btn {
+  width: 100% !important;
+  background: var(--opc-blue-deep) !important;
+  border: 1px solid var(--opc-blue-deep) !important;
+  border-radius: var(--opc-radius-control) !important;
+  color: #fff !important;
+  font-size: var(--opc-fs-body) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  min-height: 48px !important;
+  padding: 12px 20px !important;
+  cursor: pointer !important;
+}.opc-replica.opc-replica .login-right button[type='submit']:hover,
+.opc-replica.opc-replica .login-right .submit-btn:hover {
+  background: var(--opc-blue-dark) !important;
+  border-color: var(--opc-blue-dark) !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   十三、移动端导航
+   ═══════════════════════════════════════════════════════════════════
+   ⚠️ 移动端菜单必须显式声明 `display:none`：
+   桌面端 `.nav-links { display:flex }` 的规则在组件层被提权到 (0,3,0)，
+   会压过原站 `@media(max-width:900px)` 里的 `display:none`（同权重），
+   导致移动端菜单默认展开。
+
+   同时把菜单底色从原站的深色 `rgba(30,30,40,.97)` 换成品牌深蓝，
+   与页头体系一致（原站深色菜单 + 浅色页头的组合本身就不统一）。 */@media (max-width: 1099px) {.opc-replica.opc-replica .opcheader .nav-links {
+    display: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    max-height: calc(100dvh - 80px) !important;
+    overflow: auto !important;
+    padding: var(--opc-space-2) var(--opc-gutter) var(--opc-space-6) !important;
+    margin: 0 !important;
+    background: var(--opc-navy) !important;
+    box-shadow: var(--opc-shadow-overlay) !important;
+    z-index: 100 !important;
+  }.opc-replica.opc-replica .opcheader.opc-menu-open .nav-links {
+    display: flex !important;
+  }.opc-replica.opc-replica .opcheader .nav-links li {
+    display: block !important;
+    width: 100% !important;
+  }.opc-replica.opc-replica .opcheader .nav-links a {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+    color: rgb(255 255 255 / 88%) !important;
+    border-radius: var(--opc-radius-control) !important;
+  }.opc-replica.opc-replica .opcheader .nav-links a:hover,
+.opc-replica.opc-replica .opcheader .nav-links a.active {
+    color: #fff !important;
+    background: rgb(255 255 255 / 10%) !important;
+  }.opc-replica.opc-replica .opcheader .nav-links a.active::after,
+.opc-replica.opc-replica .opcheader .nav-links a.router-link-active::after {
+    display: none !important;
+  }/* 移动端菜单内的登录按钮 */.opc-replica.opc-replica .opcheader .login-btn {
+    border-color: rgb(255 255 255 / 60%) !important;
+    color: #fff !important;
+  }/* 移动端汉堡按钮 */.opc-replica.opc-replica .opcheader .mobile-menu {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    color: inherit !important;
+  }
+
+}/* 移动端 hero：事实条改为 2×2 网格。
+   4 个指标在窄屏折行会变成「3 + 1」，最后一项独占一行，视觉很碎。 */@media (max-width: 767px) {.opc-replica.opc-replica .hero .hero-stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: var(--opc-space-4) 0 !important;
+    margin-top: var(--opc-space-6) !important;
+  }.opc-replica.opc-replica .hero .hero-stats-row .hero-stat {
+    padding: 0 var(--opc-space-4) 0 0 !important;
+  }.opc-replica.opc-replica .hero .hero-stats-row .hero-stat + .hero-stat {
+    padding-left: var(--opc-space-4) !important;
+    border-left: 1px solid rgb(255 255 255 / 14%) !important;
+  }/* 第 3、4 项换行后不需要左边框 */.opc-replica.opc-replica .hero .hero-stats-row .hero-stat:nth-child(3) {
+    padding-left: 0 !important;
+    border-left: 0 !important;
+  }.opc-replica.opc-replica .hero .hero-stat-num {
+    font-size: 26px !important;
+  }
+
+}/* ═══════════════════════════════════════════════════════════════════
+   十五、对比度收口（实测驱动的批量修正）
+   ═══════════════════════════════════════════════════════════════════
+   `scripts/opc-contrast.mjs` 在 16 页 × 2 断点 × 2 滚动位置共采样 1350 处文本，
+   实测出 134 处不达标。根因是原站的灰阶（#a3a3a3 / #999 / #8a93a2）
+   在白底只有 2.4–2.9:1，远低于 AA 的 4.5:1。
+
+   统一收口规则：
+   - **承载信息量的灰**（日期、单位、域名、统计标签、描述）→ `--opc-ink-3`（5.6:1）
+   - **纯装饰/次要文案** → 同样给 `--opc-ink-3`，不做「更浅」的降级
+   - **品牌蓝小字**（链接、按钮文字）→ `--opc-blue-deep`（5.9:1），
+     不用 `--opc-blue`（4.4:1，卡在小字上不达标）
+   - **深底上的白字** → 纯白或 88% 以上透明度，不再用 70%（3.5:1）
+   ═══════════════════════════════════════════════════════════════════ *//* ── 元信息：日期、单位、域名、统计标签 ── */.opc-replica.opc-replica .news-date,
+.opc-replica.opc-replica .meta-item,
+.opc-replica.opc-replica .tc-domain,
+.opc-replica.opc-replica .stat-label,
+.opc-replica.opc-replica .ec-meta-item {
+  color: var(--opc-ink-3) !important;
+}/* ── 描述文案：原站是 #a3a3a3 / ink-2 在浅色卡上的低对比版本 ── */.opc-replica.opc-replica .adg-item-desc,
+.opc-replica.opc-replica .ec-desc,
+.opc-replica.opc-replica .strength-text {
+  color: var(--opc-ink-3) !important;
+}/* ⚠️ `.adg-item-title` / `.adg-item-desc` 在深色底板（首页「关于我们」区）
+   上的配色由下面的「深底容器」分组接管，这里不再声明颜色 ——
+   否则浅底/深底两处会互相反压（实测深底处只有 2.27:1）。 *//* 页头登录按钮及其内层文字规则已随按钮一并删除
+   （2026-10：本站暂无登录能力，页头入口先撤，/opclogin 路由保留）。 *//* 蓝底上的白字按钮文字：主蓝底上白字 4.38:1 略低，
+   统一改用可读蓝底（白字 5.87:1）。 */.opc-replica.opc-replica .publish-btn {
+  background: var(--opc-blue-deep) !important;
+  border-color: var(--opc-blue-deep) !important;
+  color: #fff !important;
+}/* ── 品牌蓝小字：链接、按钮文字、区域名 ──
+   `--opc-blue` 在白底 4.38:1，差一点到 AA；统一改用 `--opc-blue-deep`。
+   ⚠️ `.cc-enroll` 不在本组 —— 它是课程卡底部的**整宽按钮**（原站橙底白字，
+   蓝主题映射后是品牌蓝底），蓝字压蓝底只有 ~1.6:1；它的白字处理见下方按钮组。 */.opc-replica.opc-replica .oc-region,
+.opc-replica.opc-replica .oc-region.oc-region--link,
+.opc-replica.opc-replica .business-subtitle,
+.opc-replica.opc-replica .login-link,
+.opc-replica.opc-replica .forgot-link {
+  color: var(--opc-blue-deep) !important;
+}/* 课程卡按钮/分类 tab 规则已随 /center 旧课程卡移除（2026-10-23 契约 docs/15）。 *//* ── 深底上的白字：提到 92% ──
+   原站的 70% 白在深蓝上只有 3.5:1；78% 是 3.8:1，仍不达标。
+   92% 白在品牌深蓝上约 5.4:1。 */.opc-replica.opc-replica .hero-badge,
+.opc-replica.opc-replica .publish-btn,
+.opc-replica.opc-replica .opc-name,
+.opc-replica.opc-replica .ftr-tag,
+.opc-replica.opc-replica .cdd-dot {
+  color: rgb(255 255 255 / 94%) !important;
+}/* 品牌徽记里的文字（在深色底板上） */.opc-replica.opc-replica .opc-name {
+  color: #fff !important;
+}/* ⚠️ OPC 社区卡片（无封面时用品牌蓝渐变底）的白字：
+   原站渐变是 linear-gradient(135deg,#1d7fba,#0968ab)，
+   起点 #1d7fba 上白字只有 4.38:1，16px 的社区名不达 AA。
+   改用 token 层的品牌渐变（#0968ab → #0e3769），最浅处 5.86:1。
+   原站选择器带 `[data-v-*]` + `:not(:has(.opc-cover))`，特异性 (0,5,0)；
+   本条同为 (0,5,0)，靠「设计层排在 reference-blue.css 之后」取胜。 */.opc-replica.opc-replica .zone .opc-card:not(:has(.opc-cover)) {
+  background: var(--opc-gradient) !important;
+}/* 星计划 hero 的引文（<em>）：浅底上的品牌蓝必须用 deep 档。
+   原站是 #1d7fba（4.13:1），15px 正文达不到 4.5:1。 */.opc-replica.opc-replica .hero-sp .hero-desc em {
+  color: var(--opc-blue-deep) !important;
+  font-style: normal;
+}/* 徽章类元素底色偏亮时，白字需要更实 */.opc-replica.opc-replica .hero-badge {
+  background: var(--opc-blue-deep) !important;
+  border-color: var(--opc-blue-deep) !important;
+  color: #fff !important;
+}/* ── 深底容器：整体声明一次白字 ──
+   ⚠️ 只给具体文字元素声明会被通用 `span/p → ink-2` 规则反压
+   （实测 `.city-btn.active` 的白字被压成 ink-2，只有 1.37:1）。
+   正确做法是给**深底容器**声明白字，再让容器继承给所有后代。
+   ⚠️ 这里用 `:is()` 收拢容器清单，避免每加一个容器就复制 8 行选择器；
+   `:is()` 取参数中最高的特异性，与展开写法等价。 */.opc-replica.opc-replica :is(
+  .about-content,
+  .about-overlay,
+  .cta-card,
+  .register-left,
+  .register-left-content,
+  .login-left,
+  .login-left-content
+) {
+  color: #fff !important;
+}/* 深底容器内的所有文本继承容器色。
+   ⚠️ 这里**不含 `p`**：`p` 在下一条规则里单独给 88% 白（次级说明），
+   两条规则若特异性相同就只能靠加载顺序决胜，避免这种隐性依赖。 */.opc-replica.opc-replica :is(
+  .about-content,
+  .about-overlay,
+  .cta-card,
+  .register-left,
+  .register-left-content,
+  .login-left,
+  .login-left-content
+) :is(span, li, div, dd, dt, label, small, strong, em, h1, h2, h3, h4, h5, h6) {
+  color: inherit !important;
+}/* 深底容器里的次级说明：88% 白（4.6:1 以上） */.opc-replica.opc-replica :is(
+  .about-content,
+  .cta-card,
+  .register-left,
+  .login-left
+) p {
+  color: rgb(255 255 255 / 88%) !important;
+}/* 关于页的赋能条目标题与说明：在深色底板上必须是白字。
+   ⚠️ 放在「深底容器 span → inherit」之后，且选择器更具体 ——
+   否则会被那条 `color: inherit` 规则反压（实测 2.27:1）。 */.opc-replica.opc-replica .about-content .adg-item-title {
+  color: #fff !important;
+  font-size: var(--opc-fs-body) !important;
+  font-weight: var(--opc-fw-medium) !important;
+}.opc-replica.opc-replica .about-content .adg-item-desc {
+  color: rgb(255 255 255 / 82%) !important;
+  font-size: var(--opc-fs-sm) !important;
+}/* 「关于我们」这类深底 eyebrow */.opc-replica.opc-replica .sec-eyebrow--light,
+.opc-replica.opc-replica .about-content .sec-eyebrow {
+  color: rgb(255 255 255 / 92%) !important;
+}/* 社区页的城市筛选：选中态是白字压品牌蓝底。
+   ⚠️ 文字在 `<span>` 里，必须单独声明 —— 通用 `span → ink-2` 会把它压成深灰
+   （实测 1.37:1，白字压在蓝底上完全不可读）。 */.opc-replica.opc-replica .city-btn.active,
+.opc-replica.opc-replica .city-btn[aria-pressed='true'] {
+  background: var(--opc-blue-deep) !important;
+  border-color: var(--opc-blue-deep) !important;
+  color: #fff !important;
+}.opc-replica.opc-replica .city-btn.active span,
+.opc-replica.opc-replica .city-btn[aria-pressed='true'] span,
+.opc-replica.opc-replica .filter-chip.active span,
+.opc-replica.opc-replica .filter-btn.active span,
+.opc-replica.opc-replica .tab-chip.active span {
+  color: #fff !important;
+}/* 深底里的品牌蓝链接/按钮文字：改成白字，否则 4.1:1 不达标。
+   ⚠️ 清单里**不含 `.join-section`** —— 该类名只在 `/community` 出现，
+   而那里它是**浅底**区块（原站 `padding:60px 0 80px; margin-top:-100px`，无背景），
+   白字会直接落在白卡片上（实测 `.oc-join` 白字白底）。 */
+.opc-replica.opc-replica .about-content a,
+.opc-replica.opc-replica .cta-card a,
+.opc-replica.opc-replica .register-left a,
+.opc-replica.opc-replica .login-left a {
+  color: rgb(255 255 255 / 92%) !important;
+}
+/* ── 品牌色填充面：白字压品牌色时，底色必须用「深」变体 ──
+   ⚠️ 实测：白字在 `--opc-blue #1d7fba` 上只有 **4.38:1**（要求 4.5:1），
+   在青绿 `#1fabbe` 上更只有 **2.75:1**。
+   所以「品牌色填充底 + 白字」一律改用 `--opc-blue-deep #0968ab`（白字 5.86:1）；
+   浅品牌色只用于边框、图标与 ≥24px 的大字。 */
+.opc-replica.opc-replica .join-cta {
+  background: var(--opc-blue-deep) !important;
+  box-shadow: 0 8px 28px rgb(9 104 171 / 30%) !important;
+}
+.opc-replica.opc-replica .join-cta:hover {
+  background: var(--opc-navy) !important;
+  box-shadow: 0 12px 36px rgb(20 47 89 / 35%) !important;
+}
+/* CTA 卡片：原站渐变 `135deg(#1d7fba,#0968ab)` 的**中段**偏浅（实测 #1374b3），
+   88% 白字压在上面只有 4.29:1。整体压深到 blue-deep → navy，
+   88% 白字在中段也 ≥4.9:1，且视觉上从「亮蓝」变成「深蓝收尾」，更贴合科技蓝体系。 */
+.opc-replica.opc-replica .cta-card {
+  background: linear-gradient(135deg, var(--opc-blue-deep), var(--opc-navy)) !important;
+}
+/* 社区卡片底部的「申请加入」：原站是 `#1d7fba`，白底只有 4.16:1（不达标），
+   通用 `span → ink-2` 又会把它压成深灰、丢掉品牌色。
+   这里显式落到品牌深蓝（白底 5.87:1）。 */
+.opc-replica.opc-replica .oc-join {
+  color: var(--opc-blue-deep) !important;
+}
+/* ── 首页主视觉轮播 ──
+   原站的 `el-carousel` 是 Vue 组件，SSR 静态 HTML 里每个 `.el-carousel__item`
+   的 `transform` 是**写死的内联值**（translateX(1440px) 等），永远不会切换。
+   原站 CSS 把 item 定位成 `position:absolute` 叠放（width/height 100%），
+   所以这里改用 **opacity + z-index** 做淡入淡出，比改 transform 稳。
+   指示器由运行期注入（`ReplicaInteractions.tsx`），故类名是 JS 注入类。 */
+.opc-replica.opc-replica .hero-carousel .el-carousel__item {
+  opacity: 0 !important;
+  z-index: 1 !important;
+  transition: opacity 0.7s var(--ease-out-soft, ease) !important;
+}
+.opc-replica.opc-replica .hero-carousel .el-carousel__item.is-active {
+  opacity: 1 !important;
+  z-index: 2 !important;
+}
+.opc-replica.opc-replica .opc-carousel-dots {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 40px !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  z-index: 5 !important;
+}
+.opc-replica.opc-replica .opc-carousel-dot {
+  /* ⚠️ 触摸目标必须是 24×24（WCAG 2.2 SC 2.5.8），
+     视觉上却只要 4px 细条 —— 所以**按钮盒 24px 高、条用 ::after 居中绘制**。
+     （直接给按钮 4px 高会被响应式审计判为「触控目标过小」。） */
+  position: relative !important;
+  width: 28px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+}
+.opc-replica.opc-replica .opc-carousel-dot::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  /* 显式写 width:auto —— left+right+width 三者齐备属过度约束，
+     浏览器会忽略 right，伪元素就会右溢（见 §9.6）。 */
+  width: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: rgb(255 255 255 / 42%) !important;
+  transition: background-color 0.25s ease !important;
+}
+.opc-replica.opc-replica .opc-carousel-dot:hover::after {
+  background: rgb(255 255 255 / 70%) !important;
+}
+.opc-replica.opc-replica .opc-carousel-dot.is-active {
+  width: 46px !important;
+}
+.opc-replica.opc-replica .opc-carousel-dot.is-active::after {
+  background: #fff !important;
+}
+.opc-replica.opc-replica .opc-carousel-dot:focus-visible {
+  outline: 2px solid #fff !important;
+  outline-offset: 2px !important;
+}/* ── 登录页的次级链接 ── */.opc-replica.opc-replica .login-right a {
+  color: var(--opc-blue-deep) !important;
+}/* 「还没有账号？立即注册」这类混排文案：
+   容器是灰的，链接本身要是品牌蓝 —— 两段不能同色，否则链接看不出来。 */.opc-replica.opc-replica .register-link,
+.opc-replica.opc-replica .login-right .register-link,
+.opc-replica.opc-replica .login-link {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-body) !important;
+}/* 链接用可读蓝：主蓝在白底只有 4.31:1，差一点到 AA */.opc-replica.opc-replica .register-link a,
+.opc-replica.opc-replica .login-link a,
+.opc-replica.opc-replica .back-home a,
+.opc-replica.opc-replica .login-right .register-link a {
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-body) !important;
+}/* 「返回首页」这类次要返回链接：品牌蓝但不加下划线也可以，
+   关键是不能用 #999（实测 2.85:1）。 */.opc-replica.opc-replica .back-home {
+  margin-top: var(--opc-space-4) !important;
+}/* GPU 租赁卡专属类（price/rental/spec/meta）已随 /computingresource 下线，规则整段移除。 *//* ═══════════════════════════════════════════════════════════════════
+   十六、通用排版收口
+   ═══════════════════════════════════════════════════════════════════ *//* ⚠️ 特异性说明（实测踩坑，务必保留）
+ *
+ * 原站参考 CSS 的选择器带 `data-v-*` 属性限定，例如
+ *   `.hero-title[data-v-af8bee70]{color:#fff;...}`
+ * 它的特异性是 (0,2,0)，与本文件的 `.opc-replica .hero-title` **相同**。
+ * 两条规则都带 `!important` 时，CSS Cascade 规定按「特异性 → 来源顺序」决胜，
+ * 相同特异性下**后加载的胜出**。
+ *
+ * 但 `public/opc/reference-blue.css` 是通过 `<link precedence="opc-reference">`
+ * 注入的，而本文件走 Next.js 的 CSS 打包链路 —— 两者在最终 HTML 里的相对顺序
+ * 并不由 import 语句决定（实测：`layout.css` → `reference-blue.css` → `page.css`）。
+ * 一旦原站规则落在本文件之后，同特异性的 `!important` 就会反向压过设计层。
+ *
+ * 因此：**凡是要压过原站样式的规则，选择器必须比原站更具体。**
+ * 这里统一用 `.opc-replica.opc-replica X` 的写法，把特异性抬到 (0,3,0)，
+ * 确保设计层始终胜出。
+ *
+ * 之所以用「重复类名」而不是加一个额外类：重复 `.opc-replica` 不需要改
+ * HTML 里的类名结构（`<div class="opc-replica opc-replica">` 由 React 侧给出），
+ * 且与 token 层的写法保持一致，两层之间不会互相反向覆盖。
+ *
+ * ⚠️ **另一条更隐蔽的规则（实测踩坑）**：
+ * CSS Cascade 规定 —— **带 `!important` 的声明优先于不带 `!important` 的**，
+ * 且这一步发生在特异性比较**之前**。
+ * 原站参考 CSS 的规则（`.opc-replica .hero .hero-stats-row .hero-stat
+ * .hero-stat-num[data-v-xxx]{color:#fff}`，特异性高达 (0,6,0)）**不带**
+ * `!important`，因此会被本层任意一条带 `!important` 的规则压过 ——
+ * 哪怕本层的选择器特异性低得多。
+ *
+ * 这意味着：只靠「加特异性」不足以压过原站，**凡是本层用 `!important`
+ * 声明的属性，原站那边必须也是 `!important` 才能赢**。
+ * 所以覆盖原站样式时，选择器要写得和原站一样具体
+ * （如 `.hero .hero-stats-row .hero-stat .hero-stat-num`），
+ * 而不是笼统的 `.hero-stat-num`。
+ *
+ * 代价：选择器更长，但换来「不依赖加载顺序」的确定性 —— 这在两套样式表
+ * 分别来自生成产物与手写代码的架构里是必要的。
+ *//* 正文字色统一到 5 档
+ *
+ * ⚠️⚠️ **作用域必须用 `:where()` 包裹 —— 这是本层最容易反噬自己的地方。**
+ *
+ * 若写成 `.opc-replica.opc-replica span:not([class*='bg-']):not([class*='color-'])`，
+ * 特异性是 **(0,4,1)**：两个 `.opc-replica` (0,2,0) + 两个 `:not()` 各带一个属性选择器
+ * (0,2,0) + `span` 类型选择器 (0,0,1)。
+ * 而定向覆盖 `.opc-replica.opc-replica .about-content .adg-item-title` 只有 **(0,4,0)**。
+ *
+ * 两条规则都带 `!important` 时，**高特异性者胜**，于是这条「兜底基线」
+ * 反而压过了它本该让路的每一条定向规则 —— 表现为「声明正确但计算值不符」：
+ * 白字被压成 ink-2。实测影响 `.adg-item-title`（2.0:1）、`.adg-item-desc`、
+ * `.sec-eyebrow--light`、`.city-btn.active span`（1.37:1）等一整批。
+ *
+ * `:where()` 把作用域与 `:not()` 守卫的特异性**全部归零**，
+ * 基线规则降到 **(0,0,1)**。于是：
+ *   1. 任何带类名的定向规则（≥ (0,1,0)）都压得过它；
+ *   2. 压过关系由**特异性**决定，不再依赖加载顺序
+ *      （`reference-blue.css` 走 `<link precedence>`，手写层走 Next.js 打包链路）。
+ *
+ * 本层所有「通用基线」一律遵守这条规则。 */:where(.opc-replica.opc-replica) p,
+:where(.opc-replica.opc-replica) li,
+:where(.opc-replica.opc-replica) dd,
+:where(.opc-replica.opc-replica) span:not(:where([class*='bg-'], [class*='color-'])) {
+  color: var(--opc-ink-2) !important;
+}/* 深色区内的文字保持白/半透明白。
+   ⚠️ 原站的 `.hero-desc` 等元素在参考 CSS 里带 `color:#525252`（深灰），
+   在深底主视觉上完全不可读 —— 这一组必须显式覆盖成白/半透明白。 */.opc-replica.opc-replica .hero p,
+.opc-replica.opc-replica .hero span,
+.opc-replica.opc-replica .hero div,
+.opc-replica.opc-replica .hero h1,
+.opc-replica.opc-replica .hero h2,
+.opc-replica.opc-replica .hero h3,
+.opc-replica.opc-replica .hero li,
+.opc-replica.opc-replica .hero-section p,
+.opc-replica.opc-replica .hero-section span,
+.opc-replica.opc-replica .hero-section div,
+.opc-replica.opc-replica .hero-section h1,
+.opc-replica.opc-replica .hero-section h2,
+.opc-replica.opc-replica .hero-section h3 {
+  color: inherit !important;
+}/* hero 标题与描述：深底上的白字分层。
+ *
+ * ⚠️ 内页 hero 用的是 `hero-agent` / `hero-market` 等**独立类名**，
+ * 与首页的 `.hero` 不是同一个容器，且内页 hero 是**浅底**。
+ * 因此这里只针对首页 `.hero`（深底）设白字，
+ * 内页 hero 的标题/描述由下面的「浅底 hero」一组规则处理。 */.opc-replica.opc-replica .hero .hero-title {
+  color: #fff !important;
+  font-size: clamp(32px, 4.4vw, 48px) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em !important;
+}/* ── hero 编辑式排版重构 ──
+   原站是「居中大标题 + 一排居中指标」，是模板站最强的信号之一。
+   改为：左对齐的标题块（品牌标记与标题横排）+ 左下角事实条，
+   与主站 docs/06 的「编辑式排版」方向一致。 */.opc-replica.opc-replica .hero-body {
+  position: relative !important;
+  z-index: 3 !important;
+  text-align: left !important;
+  width: 100% !important;
+  max-width: var(--opc-container) !important;
+  margin-inline: auto !important;
+  padding: 0 var(--opc-gutter) !important;
+}.opc-replica.opc-replica .hero-brand {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: var(--opc-space-4) !important;
+  margin-bottom: var(--opc-space-4) !important;
+}.opc-replica.opc-replica .hero-logo {
+  width: 56px !important;
+  height: 56px !important;
+  flex-shrink: 0 !important;
+  filter: drop-shadow(0 0 22px rgb(29 127 186 / 30%)) !important;
+}.opc-replica.opc-replica .hero-logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}.opc-replica.opc-replica .hero .hero-desc {
+  color: rgb(255 255 255 / 82%) !important;
+  font-size: var(--opc-fs-body) !important;
+  line-height: 1.9 !important;
+  max-width: 620px !important;
+  margin-inline: 0 !important;
+}.opc-replica.opc-replica .hero-body::before {
+  margin-left: 0 !important;
+}@media (max-width: 767px) {
+  .opc-replica.opc-replica .hero .hero-logo { display: none !important; }
+  .opc-replica.opc-replica .hero .hero-title { font-size: clamp(28px, 8vw, 32px) !important; }
+}/* ═══════════════════════════════════════════════════════════════════
+   子页 hero —— 统一版式（参考 /center 实现，2026-10-23）
+   ═══════════════════════════════════════════════════════════════════
+   除首页全屏轮播外，所有子页 banner（/agent /market /center /starproject
+   /work /community /about /newslist /activitylist /zone …）统一为：
+   浅底 + 左对齐标题层级 + 右侧背景图（opc-visual-hero 机制）+ 120/100
+   内边距。容器统一用 .opc-visual-hero 选择器（首页 hero 不带此类）。 */
+.opc-replica.opc-replica .opc-visual-hero {
+  text-align: left !important;
+  padding: 120px 0 100px !important;
+}
+.opc-replica.opc-replica .opc-visual-hero :is(h1, h2) {
+  color: var(--opc-ink) !important;
+  -webkit-text-fill-color: var(--opc-ink) !important;
+  font-size: var(--opc-fs-h1) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  line-height: var(--opc-lh-heading) !important;
+  letter-spacing: -0.01em !important;
+  margin-inline: 0 !important;
+  text-align: left !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-desc,
+.opc-replica.opc-replica .opc-visual-hero .hero-subtitle,
+.opc-replica.opc-replica .opc-visual-hero .container > p {
+  color: var(--opc-ink-3) !important;
+  -webkit-text-fill-color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-body) !important;
+  line-height: 1.9 !important;
+  text-align: left !important;
+}/* 内页 hero 里的 eyebrow 小标 */.opc-replica.opc-replica .hero-agent span[data-v-199d00a7]:first-child,
+.opc-replica.opc-replica .hero-badge,
+.opc-replica.opc-replica .hero-agent > .container > div:first-child > span {
+  color: var(--opc-blue-deep) !important;
+}/* ── 筛选条容器：左对齐 ──
+   原站 `.category-tab` / `.tabs-container` 都是 `justify-content:center`，
+   筛选 chip 居中排一行，视觉上像一排按钮而不是「一组可选项」。 */.opc-replica.opc-replica .filter-scroll,
+.opc-replica.opc-replica .tabs-container {
+  justify-content: flex-start !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-bottom: var(--opc-space-8) !important;
+}/* 移动端筛选条：横向滚动而不是换行堆叠 */@media (max-width: 767px) {.opc-replica.opc-replica .filter-scroll {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin-inline: calc(var(--opc-gutter) * -1) !important;
+    padding-inline: var(--opc-gutter) !important;
+  }.opc-replica.opc-replica .filter-scroll::-webkit-scrollbar {
+    display: none !important;
+  }.opc-replica.opc-replica .filter-scroll > * {
+    flex: 0 0 auto !important;
+  }
+
+}/* 事实条：左对齐、细分隔线，不居中 */.opc-replica.opc-replica .hero-stats-row {
+  position: relative !important;
+  z-index: 1 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  gap: 0 !important;
+  flex-wrap: wrap !important;
+  margin-top: var(--opc-space-8) !important;
+  padding-top: var(--opc-space-4) !important;
+  border-top: 1px solid rgb(255 255 255 / 18%) !important;
+}.opc-replica.opc-replica .hero-stats-row .hero-stat {
+  position: relative !important;
+  text-align: left !important;
+  padding: 0 var(--opc-space-6) 0 0 !important;
+}.opc-replica.opc-replica .hero-stats-row .hero-stat + .hero-stat {
+  padding-left: var(--opc-space-6) !important;
+  border-left: 1px solid rgb(255 255 255 / 14%) !important;
+}.opc-replica.opc-replica .hero .hero-stats-row .hero-stat .hero-stat-num {
+  display: block !important;
+  color: #fff !important;
+  font-size: 30px !important;
+  line-height: 1.1 !important;
+  margin-bottom: 4px !important;
+}.opc-replica.opc-replica .hero .hero-stats-row .hero-stat .hero-stat-lbl {
+  display: block !important;
+  color: rgb(255 255 255 / 70%) !important;
+  font-size: var(--opc-fs-sm) !important;
+  font-weight: var(--opc-fw-normal) !important;
+}/* 蒙版：让主视觉压暗，标题更清晰（原来 40%→50% 太浅） */.opc-replica.opc-replica .hero-overlay {
+  background: linear-gradient(90deg, rgb(20 47 89 / 90%) 0%, rgb(20 47 89 / 64%) 45%, rgb(20 47 89 / 20%) 100%), linear-gradient(0deg, rgb(20 47 89 / 72%), transparent 55%) !important;
+}/* ── 标签 / 徽章：统一到 xs 档（12px）──
+   复现态这里有 11px / 12px / 13px 三档，全是「比正文小一点」的模糊区间。
+   标签就是标签，统一 12px + 字间距，层级反而更清楚。 */.opc-replica.opc-replica .tc-tag,
+.opc-replica.opc-replica .activity-badge,
+.opc-replica.opc-replica .sc-tags span {
+  font-size: var(--opc-fs-xs) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.02em !important;
+}/* 交易市场供给/需求卡上的行业标签。
+   原站是 11px —— 全站最小的字号档，实测被响应式审计抓出。
+   统一到 xs 档（12px）。 */.opc-replica.opc-replica .sc-tag,
+.opc-replica.opc-replica .dc-tag {
+  font-size: var(--opc-fs-xs) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--opc-blue-deep) !important;
+}/* 分类标签：从灰底胶囊改为纯文字 + 品牌色。
+   「圆角胶囊 + 灰底」是模板站最强的信号之一；分类标签用纯文字更安静，
+   也让「热门工具」这类内容分类不再与「全部 / 热门工具」筛选 chip 混淆。
+   ⚠️ 选择器要比通用 `span → ink-2` 规则更具体：元素选择器算 (0,2,1)，
+   只写类名是 (0,3,0) —— 但那条通用规则也带 !important，
+   因此这里用「类名 + 元素」的双重限定把它压到 (0,3,1)。 */.opc-replica.opc-replica .tool-card .tc-tag,
+.opc-replica.opc-replica .tc-body .tc-tag {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  color: var(--opc-blue-deep) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  font-size: var(--opc-fs-xs) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+}/* hover 时给一点点品牌色反馈（不反色，避免闪烁） */.opc-replica.opc-replica .tool-card:hover .tc-tag {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--opc-blue-dark) !important;
+}/* ── 元信息 / 次级链接：统一到 sm 档（13px）── */.opc-replica.opc-replica .news-read-more,
+.opc-replica.opc-replica .activity-read-more,
+.opc-replica.opc-replica .sc-contact,
+.opc-replica.opc-replica .nc-date-line,
+.opc-replica.opc-replica .nc-more {
+  font-size: var(--opc-fs-sm) !important;
+  line-height: 1.6 !important;
+}/* ── 导航链接：统一 sm 档（13px）──
+   14px 在中文导航里偏大，13px 是更常见的导航字号，
+   同时给导航项更多横向呼吸（原站 gap:25px 过于松散）。 */.opc-replica.opc-replica .nav-links a {
+  font-size: var(--opc-fs-sm) !important;
+}/* ── logo 字标：与标记图视觉重量匹配 ──
+   ⚠️ 颜色必须显式声明：通用 `span → ink-2` 规则会把字标压成深灰，
+   在首页深色页头上实测只有 2.14:1（不可读）。 */.opc-replica.opc-replica .logo,
+.opc-replica.opc-replica .logo-a span {
+  font-size: 18px !important;
+  color: var(--opc-ink) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  letter-spacing: -0.01em !important;
+}/* 首页页头浮在深色主视觉上，字标反白 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .logo,
+.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .logo-a span {
+  color: #fff !important;
+}/* ── 区块之间的呼吸：统一上下留白 ──
+   ⚠️ 原站每个 section 自带 padding-bottom（实测 0 / 80 / 90 / 100 / 110 各不相同），
+   设计层原先又加了一条 `margin-bottom:72px` —— 两者叠加造成**双重留白**，
+   实测 `features-sec` 的下留白达 100 + 72 = **172px**，
+   `about-sec` 却是 0（内容贴边），整页节奏被撕碎。
+   现在改成「上/下各 --opc-section-pad」，并去掉叠加的 margin-bottom。 */
+.opc-replica.opc-replica .section {
+  margin-bottom: 0 !important;
+  padding-top: var(--opc-section-pad) !important;
+  padding-bottom: var(--opc-section-pad) !important;
+}/* ── 首页收尾 CTA 区：不吃通用下留白 ──
+   ⚠️ 原站 `.cta-sec` 显式写了 `padding-bottom:0`（镜像层 reference-blue.css
+   里就带着这条）—— 渐变横幅是全出血卡片，底部直接贴着深色页脚收尾。
+   上面的通用 `.section` 规则用 `!important` 把这条特例盖掉了，
+   卡片与页脚之间凭空多出一条 72px 的 #f7f9fc 空带。
+   另外：原站页面底是米色（#fafaf9），njz 区与 cta 区同底无缝；
+   本站页面底是白色，区块自带的 #f7f9fc 反而凸成一条色缝 ——
+   还原成透明，让卡片上方留白与相邻区块连成一体。 */
+.opc-replica.opc-replica .cta-sec {
+  padding-bottom: 0 !important;
+  background: transparent !important;
+}/* 链接：下划线只在正文里出现，导航与按钮不加 */.opc-replica.opc-replica .article-content a,
+.opc-replica.opc-replica .nc-excerpt a,
+.opc-replica.opc-replica p a {
+  color: var(--opc-blue-deep) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+}/* 图片统一圆角 */.opc-replica.opc-replica img {
+  border-radius: var(--opc-radius-tag) !important;
+}.opc-replica.opc-replica .nc-media img,
+.opc-replica.opc-replica .hero-carousel-img,
+.opc-replica.opc-replica .el-image__inner {
+  border-radius: 0 !important;
+}/* ═══════════════════════════════════════════════════════════════════
+   十五、字号阶收口 —— 把原站残留的非阶字号拉回 8 档
+   ═══════════════════════════════════════════════════════════════════
+   `scripts/opc-design-audit.mjs` 实测的字号档位里，除 12/13/15/19/24/32
+   这 6 档主体外，还有一批落在阶外的字号。它们的共同点是：
+   **原站用类名精确定位，优先级高于 token 层的标签级规则**，所以没被收口。
+
+   审计脚本现在会点名每一个阶外元素（页数 + 样例文本），
+   这组规则就是按那份名单逐条补的 —— 补完重跑，档位数应显著下降。 *//* 活动徽标：原站 11px —— 同样低于下限 */.opc-replica.opc-replica .ec-badge {
+  font-size: var(--opc-fs-xs) !important;
+}/* 新闻日期：14px → 13px（次级信息档） */.opc-replica.opc-replica .news-date {
+  font-size: var(--opc-fs-sm) !important;
+}/* 课程 meta 值规则已随 /center 旧课程卡移除。 *//* 统计标签：14px → 13px */.opc-replica.opc-replica .stat-label,
+.opc-replica.opc-replica .intro-stat-label {
+  font-size: var(--opc-fs-sm) !important;
+}/* 统计描述：原站 `color:#a3a3a3`，在 #f7f9fc 上只有 **2.39:1**（实测不达标）。
+   这是设计层**漏网**的一类 —— 类名没进过设计层，于是整条原站色值直接生效。
+   收口到 --opc-ink-3（#5f6878，同底 5.32:1），字号与同组的 .stat-label 对齐。 */
+.opc-replica.opc-replica .stat-description {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-sm) !important;
+}/* 工作平台特性行：14px → 15px（与卡片正文对齐） */.opc-replica.opc-replica .intro-features div {
+  font-size: var(--opc-fs-body) !important;
+}/* 活动列表统计行：14px → 13px */.opc-replica.opc-replica .activity-info div {
+  font-size: var(--opc-fs-sm) !important;
+}/* 「供给发布」按钮：16px → 15px（与按钮体系对齐） */.opc-replica.opc-replica .publish-btn {
+  font-size: var(--opc-fs-body) !important;
+}/* 表单必填星号：14px → 12px（是标记，不是文字） */.opc-replica.opc-replica .required {
+  font-size: var(--opc-fs-xs) !important;
+}/* 首页 ftr-* 页脚标签：23px → 19px；「了解更多」链接：17px → 15px */.opc-replica.opc-replica .ftr-tag {
+  font-size: var(--opc-fs-h3) !important;
+}.opc-replica.opc-replica .ftr-link {
+  font-size: var(--opc-fs-body) !important;
+}/* 正文里的行内字号（原站文章富文本用 `style="font-size:22px"` 内联）。
+   ⚠️ 只挑**带 style 属性的 span** —— 那些才是原作者显式标注的；
+   继承 15px 的普通 span 不能跟着放大。 */.opc-replica.opc-replica .article-content span[style*='font-size'] {
+  font-size: var(--opc-fs-h3) !important;
+}/* ── 死类名重映射 ──────────────────────────────────────────────
+   下面这几条的旧类名在复刻 DOM 里**根本不存在**（审计脚本会点名），
+   等于整条规则从未生效。这里换成真实类名：
+
+   · 「记住我 / 忘记密码」那一行：`.login-options` / `.form-options` → `.form-actions`
+   · 「返回首页」链接：`.login-back` / `.opcregister-back` / `.opcforgot-back` → `.back-home` */.opc-replica.opc-replica .form-actions {
+  color: var(--opc-ink-2) !important;
+  font-size: var(--opc-fs-sm) !important;
+}.opc-replica.opc-replica .form-actions a,
+.opc-replica.opc-replica .forgot-link {
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-sm) !important;
+}.opc-replica.opc-replica .back-home,
+.opc-replica.opc-replica .back-home a {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-body) !important;
+}.opc-replica.opc-replica .back-home a {
+  color: var(--opc-blue-deep) !important;
+}/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-interactions.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   认证页波海背景（openhex wave-grid 呼吸海面，2026-10）
+   WaveField 挂在登录 / 注册 / 忘记密码三页（ReplicaPage 的 WAVE_AUTH_PATHS），
+   fixed z-index:-1 的波海层在页面底下呼吸；本组让认证壳透出波海：
+   页面底 → 透明，表单卡 → 玻璃白，品牌面板 → 半透蓝 tint。
+   ═══════════════════════════════════════════════════════════════════ */
+.opc-replica[data-opc-wave] {
+  background: transparent !important;
+}.opc-replica[data-opc-wave] :is(.opclogin, .opcregister, .opcforgotpassword) {
+  background: transparent !important;
+}/* 表单卡：白玻璃浮在海面上（前景文字仍是深色系，对比度不降） */
+.opc-replica[data-opc-wave] :is(.login-container, .register-container, .forgot-container) {
+  background: rgb(255 255 255 / 92%) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 32px 90px rgb(8 26 51 / 45%) !important;
+}/* 品牌面板：实心渐变 → 半透蓝 tint，波海在卡内也有呼吸 */
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+  background: linear-gradient(135deg, rgb(29 127 186 / 62%), rgb(9 104 171 / 62%)) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   认证页 Kimi 版式（2026-10，参照 platform.kimi.com/login）
+   波海背景保留；卡片从「左右分栏玻璃卡」改为 Kimi 式居中窄卡：
+   · 卡宽 440px、纵向堆叠；品牌面板变卡内居中品牌头（特性列表收起）
+   · 表单标题居中；输入框浅灰底、无边框、大圆角、大内边距
+   · 主按钮全宽 48px（覆盖页头遗留的描边胶囊规则）
+   特异性 (0,6,0)：压过深底容器白字组 (0,3,0)、页头 login-btn 组 (0,3,0)。
+   ═══════════════════════════════════════════════════════════════════ */
+.opc-replica[data-opc-wave] :is(.login-container, .register-container, .forgot-container) {
+  flex-direction: column !important;
+  max-width: 440px !important;
+  width: calc(100% - 40px) !important;
+  border-radius: 24px !important;
+}/* 品牌面板 → 卡内顶部品牌头：透明底、居中、深色字（卡是白玻璃） */
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+  display: block !important;
+  background: none !important;
+  padding: 44px 36px 0 !important;
+  text-align: center !important;
+  color: var(--opc-ink) !important;
+}.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) :is(h1, h2, p, span, li, div) {
+  color: inherit !important;
+}.opc-replica[data-opc-wave] :is(.login-left-content, .register-left-content, .forgot-left-content) {
+  padding: 0 !important;
+}.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) h1 {
+  justify-content: center !important;
+  font-size: 22px !important;
+  margin-bottom: 8px !important;
+}.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) > div > p {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-sm) !important;
+  margin-bottom: 0 !important;
+}/* Kimi 卡片无特性长列表：收起，保持卡片干净 */
+.opc-replica[data-opc-wave] .feature-list {
+  display: none !important;
+}/* 表单区：标题居中、紧凑内边距 */
+.opc-replica[data-opc-wave] :is(.login-right, .register-right, .forgot-right) {
+  width: 100% !important;
+  padding: 20px 36px 36px !important;
+}.opc-replica[data-opc-wave] :is(.login-header, .register-header, .forgot-header) {
+  text-align: center !important;
+}.opc-replica[data-opc-wave] :is(.login-header, .register-header, .forgot-header) :is(.logo, h2, p) {
+  text-align: center !important;
+}/* 输入框：浅灰底、无边框、大圆角、大内边距；聚焦描边品牌蓝 */
+.opc-replica[data-opc-wave] .form-input-wrapper {
+  background: var(--opc-surface-2) !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 12px !important;
+  transition: border-color 0.2s ease, background-color 0.2s ease !important;
+}.opc-replica[data-opc-wave] .form-input-wrapper:focus-within {
+  border-color: var(--opc-blue) !important;
+  background: var(--opc-white) !important;
+}.opc-replica[data-opc-wave] .form-input {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 14px 16px !important;
+  font-size: 15px !important;
+}.opc-replica[data-opc-wave] .form-input:focus {
+  outline: none !important;
+}.opc-replica[data-opc-wave] .form-label {
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-2) !important;
+  margin-bottom: 6px !important;
+}/* 主按钮：全宽 48px、圆角 12px、品牌蓝实心（Kimi 式） */
+.opc-replica[data-opc-wave] :is(.login-btn, .register-btn, .reset-btn) {
+  display: flex !important;
+  width: 100% !important;
+  height: 48px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--opc-blue-deep) !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: var(--opc-fw-medium) !important;
+  margin-top: 8px !important;
+}.opc-replica[data-opc-wave] :is(.login-btn, .register-btn, .reset-btn):hover {
+  background: var(--opc-blue-dark) !important;
+  color: #fff !important;
+}/* 底部辅助链接居中（记住我 / 忘记密码 / 立即注册引导） */
+.opc-replica[data-opc-wave] :is(.form-actions, .register-link, .back-home) {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   十七、文案菜单对齐（2026-10-23 契约 docs/15）
+   导航重建（下拉 + CTA）、合作企业 16 格、集智商学院（features 5 列 /
+   培训课程体系 / 一站式就业服务 / hero 口号行）。
+   断点与 opc-visual-motion.css 的导航断点（1279 / 1280）保持一致。
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 导航下拉（desktop ≥1280）：绝对定位脱离文档流，展开不撑高页头 ── */
+@media (min-width: 1280px) {
+  .opc-replica.opc-replica .nav-links .nav-item {
+    position: relative !important;
+  }
+  .opc-replica.opc-replica .nav-links .nav-item--dropdown .nav-dropdown {
+    position: absolute !important;
+    top: calc(100% + 6px) !important;
+    left: 0 !important;
+    display: none !important;
+    min-width: 156px !important;
+    margin: 0 !important;
+    padding: 6px !important;
+    list-style: none !important;
+    background: var(--opc-white) !important;
+    border: 1px solid var(--opc-line) !important;
+    border-radius: var(--opc-radius-panel) !important;
+    box-shadow: var(--opc-shadow-overlay) !important;
+    z-index: 130 !important;
+  }
+  .opc-replica.opc-replica .nav-links .nav-item--dropdown:hover .nav-dropdown,
+  .opc-replica.opc-replica .nav-links .nav-item--dropdown:focus-within .nav-dropdown {
+    display: block !important;
+  }
+  .opc-replica.opc-replica .nav-links .nav-dropdown li {
+    display: block !important;
+    width: auto !important;
+    list-style: none !important;
+  }
+  .opc-replica.opc-replica .nav-links .nav-dropdown a {
+    display: flex !important;
+    align-items: center !important;
+    height: 38px !important;
+    padding: 0 14px !important;
+    border-radius: var(--opc-radius-control) !important;
+    color: var(--opc-ink-2) !important;
+    font-size: var(--opc-fs-sm) !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+  }
+  .opc-replica.opc-replica .nav-links .nav-dropdown a:hover {
+    color: var(--opc-blue-deep) !important;
+    background: var(--opc-surface-blue) !important;
+  }
+  /* 首页透明页头（未滚动）父级白字规则不得透传到白底下拉面板 */
+  .opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-dropdown a {
+    color: var(--opc-ink-2) !important;
+    background: transparent !important;
+  }
+  .opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-dropdown a:hover {
+    color: var(--opc-blue-deep) !important;
+    background: var(--opc-surface-blue) !important;
+  }
+}
+
+/* ── 导航下拉（mobile <1280）：.opc-menu-open 展开菜单内静态显示、缩进 ──
+   配色由 opc-visual-motion.css 的移动菜单组接管（白字），这里只做结构复位。 */
+@media (max-width: 1279px) {
+  .opc-replica.opc-replica .nav-links .nav-dropdown {
+    display: block !important;
+    position: static !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 0 2px 16px !important;
+    list-style: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ── 申请入驻 CTA：按钮态（科技蓝实心），覆盖通用导航链接与深底页头规则 ── */
+.opc-replica.opc-replica .nav-links .nav-item--cta > a,
+.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-item--cta > a {
+  background: var(--opc-blue-deep) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+  padding: 0 20px !important;
+  font-weight: var(--opc-fw-medium) !important;
+}
+.opc-replica.opc-replica .nav-links .nav-item--cta > a:hover,
+.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-item--cta > a:hover {
+  background: var(--opc-blue-dark) !important;
+  color: #fff !important;
+}
+
+/* ── 合作企业 16 格（opc-visual-partner-grid）：8×2 desktop / 4×4 mobile ──
+   品牌 SVG logo 卡：白底描边格内 object-fit:contain 居中，矢量任意缩放不失真；
+   SVG 的 intrinsic width/height 差异（24~470px）由统一高度 + contain 归一。 */
+.opc-replica.opc-replica .opc-visual-partner-grid {
+  display: grid !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  gap: 1px !important;
+  padding: 1px !important;
+  margin: var(--opc-space-8) 0 0 !important;
+  list-style: none !important;
+  background: var(--opc-line) !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-panel) !important;
+  overflow: hidden !important;
+}
+.opc-replica.opc-replica .opc-visual-partner-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  min-height: 72px !important;
+  padding: var(--opc-space-3) var(--opc-space-2) !important;
+  background: var(--opc-white) !important;
+  transition: background-color .2s ease !important;
+}
+.opc-replica.opc-replica .opc-visual-partner-card:hover {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica .opc-visual-partner-logo {
+  display: block !important;
+  width: 100% !important;
+  height: 40px !important;
+  max-width: 120px !important;
+  object-fit: contain !important;
+}
+@media (max-width: 1023px) {
+  .opc-replica.opc-replica .opc-visual-partner-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .opc-replica.opc-replica .opc-visual-partner-logo {
+    height: 36px !important;
+  }
+}
+
+/* ── 集智商学院 features-grid：4 → 5 列（卡片本身居中排版由原站样式沿用） ── */
+.opc-replica.opc-replica .features-sec .features-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+.opc-replica.opc-replica .features-sec .feature-item h4 {
+  margin: 0 !important;
+}
+@media (max-width: 1279px) {
+  .opc-replica.opc-replica .features-sec .features-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica .features-sec .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ── hero 口号行（集智商学院）：字号介于 h1 与 desc 之间，品牌蓝加粗 ── */
+.opc-replica.opc-replica .hero-center .hero-slogan {
+  font-size: var(--opc-fs-h2) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  color: var(--opc-blue-deep) !important;
+  line-height: var(--opc-lh-heading) !important;
+  letter-spacing: 0.01em !important;
+  margin: var(--opc-space-2) 0 0 !important;
+  text-align: left !important;
+}
+
+/* ── 培训课程体系（opc-academy-course-grid）：5 列 desktop / 2 列 mobile ──
+   卡：图区 4:3 圆角；标签 pill 走青绿系（浅青底 + 可读蓝字保对比度）。 */
+.opc-replica.opc-replica .opc-academy-course-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: var(--opc-space-6) var(--opc-space-4) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-card {
+  min-width: 0 !important;
+  margin: 0 !important;
+  background: var(--opc-white) !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-panel) !important;
+  overflow: hidden !important;
+  transition: border-color 0.2s var(--ease-out-soft, ease),
+    transform 0.2s var(--ease-out-soft, ease),
+    box-shadow 0.2s var(--ease-out-soft, ease) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-card:hover {
+  border-color: var(--opc-line-blue, var(--opc-blue)) !important;
+  box-shadow: var(--opc-shadow-lift) !important;
+  transform: translateY(-2px) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-media {
+  aspect-ratio: 4 / 3 !important;
+  overflow: hidden !important;
+  background: var(--opc-surface-2) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-media img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+  transition: transform 0.4s var(--ease-out-soft, ease) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-card:hover .opc-academy-course-media img {
+  transform: scale(1.04) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-card figcaption {
+  padding: var(--opc-space-4) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 10px !important;
+  margin-bottom: var(--opc-space-2) !important;
+  border-radius: 999px !important;
+  background: rgb(31 171 190 / 14%) !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  letter-spacing: 0.02em !important;
+}
+.opc-replica.opc-replica .opc-academy-course-card h3 {
+  margin: 0 0 var(--opc-space-2) !important;
+  font-size: var(--opc-fs-h3) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  color: var(--opc-ink) !important;
+  line-height: var(--opc-lh-heading) !important;
+}
+.opc-replica.opc-replica .opc-academy-course-card p {
+  margin: 0 !important;
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-3) !important;
+  line-height: 1.6 !important;
+}
+@media (max-width: 1279px) {
+  .opc-replica.opc-replica .opc-academy-course-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 640px) {
+  .opc-replica.opc-replica .opc-academy-course-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ── 一站式就业服务（opc-employ-steps）：6 列 desktop / 1200 以下 3 列 / 640 以下 2 列 ── */
+.opc-replica.opc-replica .opc-employ-steps {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: var(--opc-space-6) var(--opc-space-4) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+.opc-replica.opc-replica .opc-employ-steps > li {
+  min-width: 0 !important;
+  padding: var(--opc-space-4) !important;
+  background: var(--opc-white) !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-panel) !important;
+}
+.opc-replica.opc-replica .opc-employ-num {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 4px 10px !important;
+  margin-bottom: var(--opc-space-3) !important;
+  border-radius: 999px !important;
+  background: var(--opc-surface-blue) !important;
+  color: var(--opc-blue-deep) !important;
+  font-family: var(--opc-font-mono) !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-weight: var(--opc-fw-medium) !important;
+  letter-spacing: 0.08em !important;
+}
+.opc-replica.opc-replica .opc-employ-steps h3 {
+  margin: 0 0 var(--opc-space-2) !important;
+  font-size: var(--opc-fs-h3) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  color: var(--opc-ink) !important;
+  line-height: var(--opc-lh-heading) !important;
+}
+.opc-replica.opc-replica .opc-employ-slogan {
+  margin: 0 0 var(--opc-space-3) !important;
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-3) !important;
+  line-height: 1.6 !important;
+}
+.opc-replica.opc-replica .opc-employ-points {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+.opc-replica.opc-replica .opc-employ-points li {
+  position: relative !important;
+  padding-left: 14px !important;
+  margin-bottom: var(--opc-space-2) !important;
+  font-size: var(--opc-fs-xs) !important;
+  color: var(--opc-ink-3) !important;
+  line-height: 1.6 !important;
+}
+.opc-replica.opc-replica .opc-employ-points li::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0.55em !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 999px !important;
+  background: var(--opc-cyan, var(--opc-blue)) !important;
+}
+@media (max-width: 1200px) {
+  .opc-replica.opc-replica .opc-employ-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 640px) {
+  .opc-replica.opc-replica .opc-employ-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-visual.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/* Local imagery slots. Existing components keep their own tokens and typography. */
+/* The text-side overlay supplies contrast without hiding the new banner artwork. */
+.opc-replica.opc-replica .hero .hero-carousel .hero-carousel-img img {
+  filter: brightness(.9) saturate(.9) !important;
+}
+/* Contain the active slide's z-index so it cannot paint over the text overlay. */
+.opc-replica.opc-replica .hero .hero-carousel {
+  z-index: 0 !important;
+}
+.opc-replica.opc-replica .hero .hero-overlay {
+  pointer-events: none !important;
+}
+.opc-replica.opc-replica .hero .hero-stats-row .hero-stat .hero-stat-lbl {
+  color: rgb(255 255 255 / 94%) !important;
+}
+.opc-replica.opc-replica .about-sec .about-overlay {
+  background: rgb(7 27 50 / 32%) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero {
+  position: relative !important;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--opc-surface-2) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero > :not(.opc-visual-hero-art) {
+  position: relative;
+  z-index: 1;
+}
+.opc-replica.opc-replica .opc-visual-hero-art {
+  position: absolute !important;
+  inset: 0 0 0 auto;
+  width: 48%;
+  z-index: 0;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 30%);
+}
+.opc-replica.opc-replica .opc-visual-hero-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 68% 50%;
+  opacity: .88;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-desc,
+.opc-replica.opc-replica .opc-visual-hero.page-header > p {
+  max-width: min(620px, 55%) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .container > p {
+  max-width: min(620px, 55%) !important;
+  margin-inline: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-divider {
+  margin-left: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-actions {
+  justify-content: flex-start !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-stats {
+  background: var(--opc-surface) !important;
+  border: 1px solid var(--opc-line);
+  border-radius: var(--opc-radius-panel);
+  padding: var(--opc-space-6) !important;
+}
+.opc-replica.opc-replica .opc-visual-service-icon {
+  display: block;
+  width: 54px !important;
+  height: 54px !important;
+  object-fit: contain;
+  border-radius: var(--opc-radius-panel) !important;
+}
+.opc-replica.opc-replica .opc-visual-gallery {
+  background: var(--opc-white) !important;
+}
+.opc-replica.opc-replica .opc-visual-section-head {
+  text-align: left !important;
+  max-width: none !important;
+  margin-bottom: var(--opc-space-8) !important;
+}
+.opc-replica.opc-replica .opc-visual-section-head h2 {
+  margin: 0 0 var(--opc-space-3) !important;
+}
+.opc-replica.opc-replica .opc-visual-section-head p {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--opc-ink-3) !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--opc-space-8) var(--opc-space-6);
+}
+.opc-replica.opc-replica .opc-visual-photo-card {
+  min-width: 0;
+  margin: 0;
+}
+.opc-replica.opc-replica .opc-visual-photo-media {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--opc-radius-panel);
+  background: var(--opc-surface-2);
+}
+.opc-replica.opc-replica .opc-visual-photo-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 0 !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-media img[src$='/activity-study-unitree.webp'] {
+  object-position: left center;
+}
+.opc-replica.opc-replica .opc-visual-photo-card figcaption {
+  padding-top: var(--opc-space-4);
+  border-bottom: 1px solid var(--opc-line);
+  padding-bottom: var(--opc-space-4);
+}
+.opc-replica.opc-replica .opc-visual-photo-tag {
+  display: block;
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-xs) !important;
+  letter-spacing: .06em;
+  margin-bottom: var(--opc-space-2);
+}
+.opc-replica.opc-replica .opc-visual-photo-card h3 {
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+.opc-replica.opc-replica .opc-visual-photo-card p {
+  margin: var(--opc-space-2) 0 0;
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-3) !important;
+}
+.opc-replica.opc-replica [data-opc-gallery='scene'] .opc-visual-photo-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.opc-replica.opc-replica .opc-visual-ecosystem {
+  background: var(--opc-surface) !important;
+}
+/* 2026-10-23 契约 docs/15：AI生态 logo 墙（opc-visual-logo-grid / -card）已
+   重写为「合作企业」16 家文字卡（opc-visual-partner-grid，样式在
+   opc-components.css），原 logo 网格规则随之移除。 */
+@media (max-width: 1023px) {
+  .opc-replica.opc-replica .opc-visual-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica .hero .hero-overlay {
+    background: linear-gradient(180deg, rgb(7 27 50 / 72%), rgb(7 27 50 / 82%)) !important;
+  }
+  .opc-replica.opc-replica .hero .hero-carousel .hero-carousel-img img[src^='/opc/visual/computing-banner-'] {
+    object-position: 72% center !important;
+  }
+  .opc-replica.opc-replica .opc-visual-hero-art { width: 100%; opacity: .12; mask-image: linear-gradient(90deg, transparent, #000); }
+  .opc-replica.opc-replica .opc-visual-hero .hero-desc,
+  .opc-replica.opc-replica .opc-visual-hero .container > p,
+  .opc-replica.opc-replica .opc-visual-hero.page-header > p { max-width: 100% !important; }
+  .opc-replica.opc-replica .opc-visual-photo-grid,
+  .opc-replica.opc-replica [data-opc-gallery='scene'] .opc-visual-photo-grid { grid-template-columns: 1fr; gap: var(--opc-space-8); }
+}
+
+/* ── 子页 banner 统一（2026-10-23）─────────────────────────────────────
+   全部子页 hero（含曾经的 /work、/community 深色横幅）统一走 /center
+   版式：浅底 + 左对齐 + 右侧背景图。has-visual-dark 变体退役，相关
+   覆盖规则随之移除；深色版式只保留给首页全屏轮播。 */
+
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-interactions.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+.opc-replica.opc-replica [hidden] { display: none !important; }
+.opc-replica.opc-replica [data-opc-route], .opc-replica.opc-replica [data-opc-action] { cursor: pointer; }
+.opc-replica.opc-replica [data-opc-route]:focus-visible, .opc-replica.opc-replica [data-opc-action]:focus-visible, .opc-replica.opc-replica a:focus-visible, .opc-replica.opc-replica button:focus-visible { outline: 3px solid var(--opc-focus, #1aa8d3); outline-offset: 4px; }
+.opc-live-status { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.opc-empty-results { width: 100%; padding: 56px 20px; text-align: center; color: var(--opc-ink-2, #4d5153); }
+.opc-form-status { margin: 20px 0 0; padding: 14px 16px; border: 1px solid var(--opc-blue-deep, #0968ab); border-radius: 8px; background: color-mix(in srgb, var(--opc-blue-deep, #0968ab) 7%, white); color: var(--opc-navy, #142f59); font-size: 14px; line-height: 1.7; }
+.opc-form-error, .opc-field-error { color: var(--opc-danger, #b42318); }
+.opc-field-error { display: block; margin-top: 6px; font-size: 13px; line-height: 1.5; }
+.opc-replica.opc-replica .opc-invalid { border-color: var(--opc-danger, #b42318) !important; }
+.opc-dialog { width: min(860px, calc(100vw - 32px)); max-height: min(86vh, 1000px); margin: auto; padding: 0; border: 1px solid color-mix(in srgb, var(--opc-blue-deep, #0968ab) 20%, white); border-radius: 18px; background: white; color: var(--opc-navy, #142f59); box-shadow: 0 20px 100px #142F5940; overflow: auto; overscroll-behavior: contain; }
+.opc-dialog::backdrop { background: #142F5999; backdrop-filter: blur(5px); }
+.opc-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; position: sticky; top: 0; z-index: 1; padding: 24px 28px; background: white; border-bottom: 1px solid color-mix(in srgb, var(--opc-blue-deep, #0968ab) 15%, white); }
+.opc-dialog-header h2 { margin: 0; font-size: 23px; font-weight: 700; line-height: 1.5; }
+.opc-dialog-close { display: inline-grid; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: color-mix(in srgb, var(--opc-blue-deep, #0968ab) 8%, white); color: inherit; font-size: 28px; line-height: 1; cursor: pointer; }
+.opc-dialog-close:focus-visible, .opc-dialog a:focus-visible { outline: 3px solid var(--opc-focus, #1aa8d3); outline-offset: 3px; }
+.opc-dialog-content { padding: 24px 28px; font-size: 16px; line-height: 1.9; overflow-wrap: anywhere; }
+.opc-dialog-content p { margin: 0 0 1em; }
+.opc-dialog-content h2, .opc-dialog-content h3, .opc-dialog-content h4 { margin: 1.3em 0 .5em; font-weight: 700; line-height: 1.5; }
+.opc-dialog-content ul, .opc-dialog-content ol { padding-left: 1.5em; margin: 1em 0; }
+.opc-dialog-content ul { list-style: disc; }.opc-dialog-content ol { list-style: decimal; }
+.opc-dialog-content img { display: block; max-width: 100%; height: auto; margin: 20px auto; border-radius: 6px; }
+.opc-dialog-content a { color: var(--opc-blue-deep, #0968ab); text-decoration: underline; }
+.opc-dialog-content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+.opc-dialog-content td, .opc-dialog-content th { padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--opc-blue-deep, #0968ab) 20%, white); }
+.opc-dialog-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding: 20px 28px; border-top: 1px solid color-mix(in srgb, var(--opc-blue-deep, #0968ab) 15%, white); }
+.opc-dialog-footer a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border: 1px solid var(--opc-blue-deep, #0968ab); border-radius: 8px; color: var(--opc-blue-deep, #0968ab); text-decoration: none; font-size: 14px; }
+.opc-dialog-footer a:first-child { background: var(--opc-blue-deep, #0968ab); color: white; }
+@media (max-width: 1099px) {
+  .opc-replica.opc-replica .opcheader .mobile-menu { display: flex !important; position: relative; z-index: 101; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .opc-replica.opc-replica .opcheader.opc-menu-open .nav-links { display: flex !important; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; max-height: calc(100dvh - 80px); overflow: auto; padding: 16px 24px; margin: 0; background: var(--opc-navy, #142f59); z-index: 100; }
+  .opc-replica.opc-replica .opcheader.opc-menu-open .nav-links li { display: block; width: 100%; }
+  .opc-replica.opc-replica .opcheader.opc-menu-open .nav-links a { display: flex; align-items: center; min-height: 44px; padding: 10px 14px; color: white; }
+  .opc-replica.opc-replica .opcheader.opc-menu-open .menu-backdrop { display: block !important; position: fixed; inset: 72px 0 0; background: #142F5980; z-index: 90; }
+}
+@media (max-width: 600px) { .opc-dialog { width: calc(100vw - 20px); max-height: 90dvh; border-radius: 12px; }.opc-dialog-header { padding: 18px; gap: 12px; }.opc-dialog-header h2 { font-size: 19px; }.opc-dialog-content { padding: 18px; font-size: 15px; }.opc-dialog-footer { padding: 16px 18px; justify-content: flex-start; } }
+
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-visual-motion.css ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/* Motion is separate from the branded component and media layers. SSR stays visible. */
+.opc-replica.opc-replica .hero-carousel .el-carousel__item {
+  transform: none !important;
+  inset: 0 !important;
+  width: 100% !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 700ms ease !important;
+}
+.opc-replica.opc-replica .hero-carousel .el-carousel__item.is-active {
+  opacity: 1 !important;
+}
+.opc-replica.opc-replica .opc-carousel-controls {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  pointer-events: auto;
+}
+.opc-replica.opc-replica .opc-carousel-controls .opc-carousel-dots {
+  position: static !important;
+  transform: none !important;
+  gap: 10px !important;
+}
+
+.opc-replica.opc-replica [data-opc-reveal] { animation: none !important; }
+.opc-replica.opc-replica [data-opc-reveal='pending'] {
+  opacity: 0 !important;
+  transform: translateY(18px) !important;
+}
+.opc-replica.opc-replica [data-opc-reveal='shown'] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: opacity 580ms ease, transform 580ms ease, box-shadow 180ms ease, border-color 180ms ease !important;
+  transition-delay: var(--opc-reveal-delay, 0ms), var(--opc-reveal-delay, 0ms), 0ms, 0ms !important;
+}
+.opc-replica.opc-replica [data-opc-motion-page-paused='true'] *,
+.opc-replica.opc-replica [data-opc-motion-page-paused='true'] *::before,
+.opc-replica.opc-replica [data-opc-motion-page-paused='true'] *::after,
+.opc-replica.opc-replica [data-opc-motion-region-visible='false'] *,
+.opc-replica.opc-replica [data-opc-motion-region-visible='false'] *::before,
+.opc-replica.opc-replica [data-opc-motion-region-visible='false'] *::after { animation-play-state: paused !important; }
+
+/* One navigation breakpoint overrides the original 1280px rule and the old 1100px layer. */
+@media (max-width: 1279px) {
+  .opc-replica.opc-replica .opcheader .container nav { justify-content: space-between !important; }
+  .opc-replica.opc-replica .opcheader .container nav .logo { position: static !important; }
+  .opc-replica.opc-replica .opcheader .container nav .mobile-menu {
+    display: flex !important;
+    position: relative !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    color: var(--opc-ink, #142f59) !important;
+    z-index: 101;
+  }
+  .opc-replica.opc-replica .opcheader .container nav.is-home:not(.scrolled) .mobile-menu {
+    color: #fff !important;
+  }
+  .opc-replica.opc-replica .opcheader .container nav .mobile-menu i { color: inherit !important; }
+  .opc-replica.opc-replica .opcheader .container nav .user-area { display: none !important; }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links {
+    display: none !important;
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    padding: 12px !important;
+    margin: 0 !important;
+    max-height: calc(100dvh - 112px) !important;
+    overflow-y: auto !important;
+    border-radius: var(--opc-radius-panel, 12px) !important;
+    background: var(--opc-navy, #142f59) !important;
+    box-shadow: var(--opc-shadow-overlay) !important;
+    z-index: 100 !important;
+  }
+  .opc-replica.opc-replica .opcheader.opc-menu-open .container nav .nav-links { display: flex !important; }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links li { display: block !important; width: 100% !important; }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links a {
+    display: flex !important;
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+    color: #fff !important;
+  }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links a.active::after { display: none !important; }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links a:is(:hover, :focus-visible, .active) {
+    color: #fff !important;
+    background: rgb(255 255 255 / 12%) !important;
+  }
+  .opc-replica.opc-replica .opcheader .container nav .nav-links .loginli { display: block !important; }
+  .opc-replica.opc-replica .opcheader.opc-menu-open .menu-backdrop {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgb(20 47 89 / 36%);
+    z-index: -1 !important;
+  }
+}
+@media (min-width: 1280px) {
+  .opc-replica.opc-replica .opcheader .container nav .nav-links {
+    display: flex !important;
+    position: static !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .opc-replica.opc-replica .opcheader .container nav .mobile-menu,
+  .opc-replica.opc-replica .opcheader .container nav .loginli,
+  .opc-replica.opc-replica .opcheader .menu-backdrop { display: none !important; }
+  .opc-replica.opc-replica .opcheader .container nav .user-area { display: flex !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opc-replica.opc-replica *,
+  .opc-replica.opc-replica *::before,
+  .opc-replica.opc-replica *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .opc-replica.opc-replica .hero-carousel .el-carousel__item,
+  .opc-replica.opc-replica [data-opc-reveal='pending'],
+  .opc-replica.opc-replica [data-opc-reveal='shown'] { transition: none !important; transition-delay: 0s !important; }
+  .opc-replica.opc-replica [data-opc-reveal] { opacity: 1 !important; transform: none !important; }
+}
+
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/opc-layout-refresh.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/* The shared Header/native PageHero contract is defined in public-chrome.css.
+   Captured heroes consume the same variables here, above their scoped baseline. */
+.opc-replica.opc-replica .opc-visual-hero {
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding: var(--public-hero-pad-start) 0 var(--public-hero-pad-end) !important;
+  background: var(--public-hero-surface) !important;
+  color: #142f59 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .container {
+  max-width: var(--public-content-width) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero h1 {
+  max-width: min(760px, 64%);
+  margin-top: 12px !important;
+  color: #142f59 !important;
+  -webkit-text-fill-color: #142f59 !important;
+  font-size: var(--public-hero-title-size) !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero h1 span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  font-size: inherit !important;
+}
+.opc-replica.opc-replica .opc-visual-hero :is(.hero-desc, .hero-subtitle),
+.opc-replica.opc-replica .opc-visual-hero > p,
+.opc-replica.opc-replica .opc-visual-hero .container > p:not(.hero-slogan) {
+  max-width: min(640px, 58%) !important;
+  margin: 18px 0 0 !important;
+  color: #4c6380 !important;
+  -webkit-text-fill-color: #4c6380 !important;
+  font-size: var(--public-hero-description-size) !important;
+  line-height: 1.9 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .opc-visual-hero-art {
+  width: var(--public-hero-art-width) !important;
+  opacity: var(--public-hero-art-opacity) !important;
+  mask-image: linear-gradient(90deg, transparent, #000 30%);
+}
+.opc-replica.opc-replica .opc-visual-hero .sec-eyebrow {
+  color: #0968ab !important;
+  font-size: 13px !important;
+}
+/* Page-specific composition starts below. */
+.opc-replica.opc-replica :is([data-opc-about-page], .agent-store, [data-opc-academy-layout]) {
+  padding-top: 0 !important;
+}
+
+/* About: overview → three drivers → eight enablers → real journey → vision. */
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-section {
+  padding: 80px 0 !important;
+  background: var(--opc-white);
+  scroll-margin-top: calc(var(--public-header-height, 80px) + 24px);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-heading {
+  margin-bottom: 32px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-eyebrow {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--opc-blue-deep) !important;
+  font-size: 12px !important;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1.5;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-heading h2 {
+  margin: 0 !important;
+  color: var(--opc-navy) !important;
+  font-size: clamp(28px, 2.7vw, 38px) !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.02em;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 56px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-copy > p,
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enablers-intro {
+  margin: 0 0 20px;
+  color: var(--opc-ink-2) !important;
+  font-size: 16px !important;
+  line-height: 1.9 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-copy .opc-about-backing {
+  margin: 28px 0 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--opc-blue);
+  color: var(--opc-blue-dark) !important;
+  font-size: 14px !important;
+  font-weight: 500;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media {
+  min-width: 0;
+  margin: 0;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img {
+  display: block;
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media figcaption {
+  margin-top: 12px;
+  color: var(--opc-ink-3) !important;
+  font-size: 13px !important;
+  line-height: 1.7;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-drivers {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] :is(.opc-about-drivers, .opc-about-journey) .opc-about-heading {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver {
+  position: relative;
+  min-width: 0;
+  padding: 40px 28px 36px;
+  border: 1px solid var(--opc-line);
+  border-radius: 16px;
+  background: var(--opc-white);
+  overflow: hidden;
+  text-align: center;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-number {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  color: rgb(20 47 89 / 7%) !important;
+  font-size: 76px !important;
+  line-height: 1;
+  font-family: var(--opc-font-mono);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: var(--opc-surface-blue);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-icon img {
+  width: 36px;
+  height: 36px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver h3 {
+  position: relative;
+  margin: 0 0 16px !important;
+  color: var(--opc-navy) !important;
+  font-size: 20px !important;
+  line-height: 1.55 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver p {
+  margin: 0;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.85 !important;
+  text-align: left;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enablers-intro {
+  max-width: 1100px;
+  margin-bottom: 32px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--opc-line);
+  border-left: 1px solid var(--opc-line);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 24px 20px;
+  border-right: 1px solid var(--opc-line);
+  border-bottom: 1px solid var(--opc-line);
+  color: var(--opc-navy) !important;
+  font-size: 16px !important;
+  font-weight: 500;
+  text-decoration: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list a:hover {
+  background: var(--opc-surface-blue);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-index {
+  color: var(--opc-blue-deep) !important;
+  font-size: 12px !important;
+  font-family: var(--opc-font-mono);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-arrow {
+  margin-left: auto;
+  color: var(--opc-blue-deep) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-journey {
+  padding-top: 0 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-timeline {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 48px;
+  position: relative;
+  padding: 12px 0 24px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc((100% - 48px) / 3 + 24px);
+  width: 1px;
+  background: var(--opc-line);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::after {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: calc((100% - 48px) / 3 + 18px);
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--opc-white);
+  border-radius: 50%;
+  background: var(--opc-blue-deep);
+  box-shadow: 0 0 0 1px var(--opc-blue);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone time {
+  padding-top: 16px;
+  text-align: right;
+  color: var(--opc-blue-deep) !important;
+  font-size: 15px !important;
+  font-weight: 700;
+  line-height: 1.8;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card {
+  padding: 24px;
+  border: 1px solid var(--opc-line);
+  border-radius: 16px;
+  background: var(--opc-surface);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card h3 {
+  margin: 0 0 12px !important;
+  color: var(--opc-navy) !important;
+  font-size: 20px !important;
+  line-height: 1.5 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card p {
+  margin: 0;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.85 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note {
+  margin: 24px 0 0;
+  text-align: center;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.8 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note a {
+  margin-left: 12px;
+  color: var(--opc-blue-deep) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision {
+  padding: 80px 0;
+  background: var(--opc-blue-dark);
+  color: var(--opc-white);
+  text-align: center;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision .opc-about-eyebrow {
+  color: rgb(255 255 255 / 84%) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision h2 {
+  max-width: 860px;
+  margin: 0 auto 28px !important;
+  color: var(--opc-white) !important;
+  -webkit-text-fill-color: var(--opc-white) !important;
+  font-size: clamp(28px, 3vw, 40px) !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-list li {
+  margin: 8px 0;
+  color: rgb(255 255 255 / 94%) !important;
+  font-size: 17px !important;
+  line-height: 1.8 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 12px 24px;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 8px;
+  color: var(--opc-white) !important;
+  font-size: 15px !important;
+  text-decoration: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-link:hover {
+  background: rgb(255 255 255 / 10%);
+}
+
+/* Agent: compact search, persistent categories and group-aware results. */
+.opc-replica.opc-replica .agent-store .hero-search {
+  width: min(580px, 100%) !important;
+  margin: 28px 0 0 !important;
+}
+.opc-replica.opc-replica .opc-agent-directory {
+  padding: 40px 0 72px;
+  background: var(--opc-white);
+}
+.opc-replica.opc-replica [data-opc-agent-layout] {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  align-items: start;
+  gap: 40px;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] {
+  position: sticky;
+  top: calc(var(--public-header-height, 80px) + 24px);
+  max-height: calc(100dvh - var(--public-header-height, 80px) - 48px);
+  overflow-y: auto;
+  padding-right: 12px;
+  scrollbar-width: thin;
+}
+.opc-replica.opc-replica .opc-agent-sidebar-title {
+  margin: 0 0 20px !important;
+  color: var(--opc-ink-3) !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-scroll {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 4px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px !important;
+  border: 0 !important;
+  border-left: 2px solid transparent !important;
+  border-radius: 0 6px 6px 0 !important;
+  background: transparent !important;
+  color: var(--opc-ink-2) !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  text-align: left;
+  white-space: nowrap;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip:hover {
+  background: var(--opc-surface) !important;
+  color: var(--opc-blue-deep) !important;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip.active {
+  border-left-color: var(--opc-blue-deep) !important;
+  background: var(--opc-surface-blue) !important;
+  color: var(--opc-blue-deep) !important;
+  font-weight: 700 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-results] {
+  min-width: 0;
+}
+.opc-replica.opc-replica .opc-agent-status {
+  margin: 0 0 24px;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] {
+  padding: 0 0 48px !important;
+  background: transparent !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group][hidden] {
+  display: none !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] > .container {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .sec-head {
+  text-align: left !important;
+  max-width: none !important;
+  margin-bottom: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .sec-head h2 {
+  margin-bottom: 6px !important;
+  font-size: 22px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .sec-head .sec-desc {
+  margin-top: 6px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-card {
+  min-width: 0;
+  height: 100%;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-card[hidden] { display: none !important; }
+.opc-replica.opc-replica [data-opc-agent-group] .tc-body {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 215px;
+  height: 100%;
+  padding: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-icon {
+  width: 32px !important;
+  height: 32px !important;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-title {
+  overflow-wrap: anywhere;
+  margin: 0 0 8px !important;
+  font-size: 18px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-desc {
+  min-height: 44px;
+  margin-bottom: 20px !important;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-footer {
+  margin-top: auto !important;
+  padding-top: 12px;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-domain {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px !important;
+}
+
+/* Academy: make courses and the six-step employment path a continuous story. */
+.opc-replica.opc-replica [data-opc-academy-layout] .hero-slogan {
+  max-width: 620px !important;
+  font-size: 22px !important;
+  line-height: 1.6 !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .features-sec {
+  padding: 28px 0 !important;
+  border-bottom: 1px solid var(--opc-line);
+  background: var(--opc-white) !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .feature-item {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .feature-item .fi-icon {
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 !important;
+  flex: 0 0 36px;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .feature-item h4 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  white-space: nowrap;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] :is(.courses-sec, .path-sec, .opc-visual-gallery) {
+  padding: 64px 0 !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .path-sec {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-academy-course-grid {
+  gap: 20px 16px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-academy-course-card h3 {
+  font-size: 19px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li {
+  position: relative;
+  padding: 28px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-num {
+  padding: 0 !important;
+  margin-bottom: 16px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-size: 13px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-visual-section-head {
+  margin-bottom: 24px !important;
+}
+
+@media (max-width: 1100px) {
+  .opc-replica.opc-replica [data-opc-agent-layout] { grid-template-columns: 156px minmax(0, 1fr); gap: 24px; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .features-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 20px !important; }
+}
+@media (max-width: 900px) {
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-grid { grid-template-columns: 1fr; gap: 32px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img { height: 300px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-grid { grid-template-columns: 1fr; gap: 20px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver { padding: 32px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver p { max-width: 56ch; margin-inline: auto; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica .opc-visual-hero h1,
+  .opc-replica.opc-replica .opc-visual-hero :is(.hero-desc, .hero-subtitle),
+  .opc-replica.opc-replica .opc-visual-hero > p,
+  .opc-replica.opc-replica .opc-visual-hero .container > p:not(.hero-slogan) { max-width: 100% !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-section { padding: 52px 0 !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-heading { margin-bottom: 24px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img { height: 260px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver { padding: 32px 24px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-journey { padding-top: 0 !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list a { padding: 20px 12px; gap: 8px; font-size: 15px !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone { grid-template-columns: 1fr; gap: 16px; padding: 0 0 20px 28px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::before { left: 6px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::after { left: 0; top: 6px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone time { text-align: left; padding-top: 0; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card { padding: 20px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note { text-align: left; margin-left: 28px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note a { display: block; margin: 8px 0 0; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-vision { padding: 56px 0; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-list li { font-size: 16px !important; }
+  .opc-replica.opc-replica [data-opc-agent-layout] { display: block; }
+  .opc-replica.opc-replica .opc-agent-directory { padding: 24px 0 48px; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] { position: static; max-height: none; overflow: visible; padding: 0; margin-bottom: 24px; }
+  .opc-replica.opc-replica .opc-agent-sidebar-title { margin-bottom: 12px !important; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-scroll { flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; gap: 8px !important; padding-bottom: 8px !important; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip { width: auto; border: 1px solid var(--opc-line) !important; border-radius: 6px !important; text-align: center; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip.active { border-color: var(--opc-blue-deep) !important; }
+  .opc-replica.opc-replica [data-opc-agent-group] { padding-bottom: 36px !important; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-body { padding: 16px !important; min-height: 205px; }
+  .opc-replica.opc-replica .agent-store .hero-search { margin-top: 24px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .hero-slogan { font-size: 19px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] :is(.courses-sec, .path-sec, .opc-visual-gallery) { padding: 48px 0 !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .features-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .feature-item { justify-content: flex-start; padding: 0 !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li { padding: 24px !important; }
+}
+@media (max-width: 639px) {
+  .opc-replica.opc-replica [data-opc-agent-group] .tool-grid { grid-template-columns: 1fr !important; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-body { min-height: 0; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-desc { min-height: 0; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps { grid-template-columns: 1fr !important; }
+}
+
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/.pnpm/next@15.5.28_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./src/components/three/StaticWave.module.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/* 纯 CSS 的「数字海洋」占位：与 WaveGrid 同构图 —— 上 1/3 地平线微光，
+   下方 rotateX 点阵向远处收密，SSR / 静态档 / 低端设备像素完整。 */
+.StaticWave_sea__3Cz3Q {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.StaticWave_glow__P1F4_ {
+  position: absolute;
+  left: 50%;
+  top: 24%;
+  width: 80%;
+  aspect-ratio: 1.6;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, #1d7fba1e 0, #57b6a50d 46%, transparent 72%);
+}
+.StaticWave_horizon__oQCri {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34%;
+  height: 90px;
+  background: linear-gradient(180deg, transparent, #64c4d912 55%, transparent);
+  filter: blur(1px);
+}
+/* 透视点阵：一张点纹平面绕 X 轴倒下，行距向地平线压缩 */
+.StaticWave_floor__V49WI {
+  position: absolute;
+  left: -60%;
+  top: 34%;
+  width: 220%;
+  height: 150%;
+  transform-origin: 50% 0;
+  transform: perspective(520px) rotateX(58deg);
+  background-image: radial-gradient(circle, #57b6a5a8 0.8px, transparent 1.3px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, transparent 0, #000 26%, #000 76%, transparent 96%);
+}
+/* 近景补一层更大更亮的点，强化纵深 */
+.StaticWave_floorNear__kf6Ci {
+  position: absolute;
+  left: -40%;
+  top: 62%;
+  width: 180%;
+  height: 90%;
+  transform-origin: 50% 0;
+  transform: perspective(520px) rotateX(62deg);
+  background-image: radial-gradient(circle, #1aa8d3a3 1.1px, transparent 1.7px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(180deg, transparent 0, #000 30%, #000 72%, transparent 95%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .StaticWave_sea__3Cz3Q, .StaticWave_sea__3Cz3Q * { transition: none; }
+}
+

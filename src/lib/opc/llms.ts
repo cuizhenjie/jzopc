@@ -1,3 +1,4 @@
+import { publicNavigation } from '@/lib/site/navigation';
 import { site } from '@/lib/site/config';
 import { getReplicaPage, REPLICA_SITE_NAME } from './content';
 import { replicaPaths } from './routes';
@@ -13,6 +14,12 @@ export function buildReplicaLlmsTxt(): string {
     '本地科技蓝版本，公开内容来源为 https://opcstore.com/webNew/index.html#/ ，采集于2026-10-22。',
     '提供233个AI工具以及158条公开新闻、供需、课程、活动和社区资讯。',
     '账号、验证码和申请服务尚未接入，界面校验不代表账号创建或申请提交。',
+    '',
+    '## 规范入口',
+    ...publicNavigation.map(item => `- [${item.label}](${base}${item.href})`),
+    '',
+    '社区动态列表优先展示数据库已发布内容，查询异常或未配置数据库时回落本地快照。',
+    '旧列表 /news 永久重定向到 /newslist；旧查询参数不保留。新闻详情仍可访问。',
     '',
     '## 页面',
     ...replicaPaths.filter(path => !account.has(path)).map(path => {

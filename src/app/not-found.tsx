@@ -23,7 +23,7 @@ export default function NotFound() {
 
       <div className="mt-9 flex flex-wrap justify-center gap-3">
         <ButtonLink href="/">回到首页</ButtonLink>
-        <ButtonLink href="/agents" variant="secondary">
+        <ButtonLink href="/agent" variant="secondary">
           浏览智能体
         </ButtonLink>
         <ButtonLink href="/market" variant="secondary">
@@ -38,8 +38,8 @@ export default function NotFound() {
         {[
           { label: '关于集智', href: '/about' },
           { label: '八大赋能', href: '/empower/space' },
-          { label: '集智商学院', href: '/academy' },
-          { label: '社区动态', href: '/news' },
+          { label: '集智商学院', href: '/center' },
+          { label: '社区动态', href: '/newslist' },
         ].map((l) => (
           <Link key={l.href} href={l.href} className="transition-colors hover:text-[var(--color-brand-blue-deep)]">
             {l.label}

@@ -18,12 +18,12 @@ import '@/styles/opc-components.css';
 import '@/styles/opc-visual.css';
 import '@/styles/opc-interactions.css';
 import '@/styles/opc-visual-motion.css';
+import '@/styles/opc-layout-refresh.css';
 
 type Props = { route: string; rootId?: string };
 type Modal = { title: string; content: ReactNode; articleId?: string; loading?: boolean };
 type Filters = { category: string; city: string; tab: string; query: string; limit: number };
 const PAGE_SIZE = 20;
-const controls = 'a[href],button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]';
 const cardSelector = '.tool-card,.course-card,.opc-card,.supply-card,.demand-card,.news-card,.news-item,.activity-item';
 const formSelector = 'form,[role="form"]';
 const marketTab = (value: string) => value === '需求' || value === 'demand' ? 'demand' : 'supply';
@@ -97,26 +97,6 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       };
     };
     let filters = readFilters();
-    let menuOpen = false;
-    const header = root.querySelector<HTMLElement>('.opcheader');
-    const menu = root.querySelector<HTMLElement>('[data-opc-action="menu"],.mobile-menu');
-    const navigation = header?.querySelector<HTMLElement>('.nav-links');
-    const backdrop = header?.querySelector<HTMLElement>('.menu-backdrop');
-    const navBar = header?.querySelector<HTMLElement>('nav') ?? header;
-    const onScroll = () => navBar?.classList.toggle('scrolled', window.scrollY > 24);
-
-    const closeMenu = (restoreFocus = false) => {
-      menuOpen = false;
-      header?.classList.remove('opc-menu-open');
-      menu?.setAttribute('aria-expanded', 'false');
-      if (restoreFocus) menu?.focus();
-    };
-    if (menu && navigation) {
-      menu.setAttribute('role', 'button'); menu.tabIndex = 0;
-      menu.setAttribute('aria-label', '打开导航菜单'); menu.setAttribute('aria-expanded', 'false');
-      navigation.id ||= 'opc-mobile-navigation'; menu.setAttribute('aria-controls', navigation.id);
-    }
-
     const announce = (grid: HTMLElement, count: number) => {
       let status = grid.parentElement?.querySelector<HTMLElement>(`:scope > [data-opc-status="${grid.classList[0]}"]`);
       if (!status) {
@@ -128,7 +108,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       status.textContent = count ? `找到 ${count} 项内容` : '没有找到相关内容，请调整筛选条件或搜索关键词。';
     };
 
-    const filterGrid = (selector: string, category: string, facet: 'category' | 'city' = 'category', paginate = false) => {
+    const filterGrid = (selector: string, category: string, facet: 'category' | 'city' = 'category', paginate = false, announceResults = true) => {
       let total = 0;
       root.querySelectorAll<HTMLElement>(selector).forEach(grid => {
         let matching = 0;
@@ -141,7 +121,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
           element.hidden = !matches || (paginate && matching > filters.limit);
         });
         total += matching;
-        announce(grid, matching);
+        if (announceResults) announce(grid, matching);
       });
       return total;
     };
@@ -161,7 +141,22 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
 
     const renderLists = (persist = false) => {
       let total = 0;
-      if (path === '/agent') total = filterGrid('.tool-grid', filters.category);
+      if (path === '/agent') {
+        // One summary covers all categories. Empty sections must not leave headings
+        // and multiple empty messages between the matching groups.
+        total = filterGrid('.tool-grid', filters.category, 'category', false, false);
+        root.querySelectorAll<HTMLElement>('[data-opc-agent-group]').forEach(group => {
+          group.hidden = !Array.from(group.querySelectorAll<HTMLElement>('.tool-card')).some(card => !card.hidden);
+        });
+        const count = root.querySelector<HTMLElement>('.filter-stats strong');
+        if (count) count.textContent = String(total);
+        const status = root.querySelector<HTMLElement>('[data-opc-agent-status]');
+        if (status) {
+          status.className = total ? 'opc-agent-status' : 'opc-agent-status opc-empty-results';
+          status.textContent = total ? `共 ${total} 个智能体` : '没有找到相关智能体，请调整分类或搜索关键词。';
+          status.hidden = false;
+        }
+      }
       else if (path === '/center') total = filterGrid('.course-grid', filters.category);
       else if (path === '/community') {
         total = filterGrid('.opc-grid', filters.city, 'city');
@@ -194,7 +189,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
     const navigate = (candidate: string) => {
       const local = resolveReferenceLocation(candidate);
       if (!local) return false;
-      closeMenu(); router.push(local); return true;
+      router.push(local); return true;
     };
 
     const openInfo = (title: string, text: string, target?: HTMLElement) => {
@@ -268,14 +263,8 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-opc-action],[data-opc-route],a[href],.password-toggle,.send-code-btn') : null;
       if (!target || !root.contains(target)) return;
-      if (backdrop && (event.target === backdrop || backdrop.contains(event.target as Node))) { event.preventDefault(); closeMenu(true); return; }
       const action = target.dataset.opcAction;
       const value = target.dataset.opcValue ?? target.textContent?.trim() ?? '';
-      if (action === 'menu' || target === menu) {
-        event.preventDefault(); menuOpen = !menuOpen; header?.classList.toggle('opc-menu-open', menuOpen);
-        menu?.setAttribute('aria-expanded', String(menuOpen));
-        if (menuOpen) navigation?.querySelector<HTMLElement>(controls)?.focus(); return;
-      }
       if (action === 'filter-zone') {
         event.preventDefault(); const news = value === 'news';
         root.querySelectorAll<HTMLElement>('.community-section,.news-section').forEach(section => {
@@ -321,8 +310,8 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
         // 加入/入驻类动作统一去原生申请入驻页（2026-10-23 需求），不再进
         // 登录克隆页 /opcapply。/apply 不在复刻路由表里，navigate() 会拒并
         // 放行默认行为——而这些卡是 article/div 无 href，默认行为是空操作，
-        // 所以这里直接 router.push（本站原生路由，可信目标），再收起菜单。
-        event.preventDefault(); closeMenu(); router.push('/apply');
+        // 所以这里直接 router.push（本站原生路由，可信目标）。
+        event.preventDefault(); router.push('/apply');
       }
     };
 
@@ -337,12 +326,6 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       input.removeAttribute('aria-invalid'); input.classList.remove('opc-invalid');
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && menuOpen) { event.preventDefault(); closeMenu(true); return; }
-      if (event.key === 'Tab' && menuOpen && navigation) {
-        const items = [menu, ...Array.from(navigation.querySelectorAll<HTMLElement>(controls))].filter((item): item is HTMLElement => !!item && !item.hidden);
-        if (!event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0]?.focus(); }
-        else if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1)?.focus(); }
-      }
       if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
         const form = event.target.closest<HTMLElement>(formSelector);
         if (form) { event.preventDefault(); submitLocalForm(form); return; }
@@ -351,21 +334,18 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       const target = event.target instanceof HTMLElement ? event.target : null;
       if (target?.matches('[data-opc-action],[data-opc-route]') && !target.matches('a,button,input,textarea,select')) { event.preventDefault(); target.click(); }
     };
-    const onResize = () => { if (window.innerWidth >= 1280) closeMenu(); };
     const onPopState = () => { filters = readFilters(); root.querySelectorAll<HTMLInputElement>('[data-opc-search],.hero-search-input').forEach(input => { input.value = filters.query; }); renderLists(); };
-    const onBackdrop = () => closeMenu(true);
     root.querySelectorAll<HTMLInputElement>('[data-opc-search],.hero-search-input').forEach(input => { input.value = filters.query; input.setAttribute('aria-label', input.getAttribute('placeholder') || '搜索内容'); });
     root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); root.addEventListener('input', onInput);
-    root.addEventListener('keydown', onKeyDown); window.addEventListener('resize', onResize); window.addEventListener('popstate', onPopState); window.addEventListener('scroll', onScroll, { passive: true });
-    backdrop?.addEventListener('click', onBackdrop);
+    root.addEventListener('keydown', onKeyDown); window.addEventListener('popstate', onPopState);
 
     cleanups.push(mountVisualMotion(root));
 
-    renderLists(); onScroll();
+    renderLists();
     return () => {
       root.removeEventListener('click', onClick); root.removeEventListener('submit', onSubmit); root.removeEventListener('input', onInput);
-      root.removeEventListener('keydown', onKeyDown); window.removeEventListener('resize', onResize); window.removeEventListener('popstate', onPopState); window.removeEventListener('scroll', onScroll);
-      backdrop?.removeEventListener('click', onBackdrop); closeMenu(); articleRequest.current?.abort(); setModal(null);
+      root.removeEventListener('keydown', onKeyDown); window.removeEventListener('popstate', onPopState);
+      articleRequest.current?.abort(); setModal(null);
       root.querySelectorAll('[data-opc-generated]').forEach(node => node.remove()); cleanups.forEach(cleanup => cleanup());
     };
   }, [route, rootId, router]);

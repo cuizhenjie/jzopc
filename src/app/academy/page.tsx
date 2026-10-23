@@ -31,7 +31,7 @@ export default async function AcademyPage() {
           {academy.tags.map((t) => (
             <span
               key={t}
-              className="rounded bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white/85 ring-1 ring-white/18 backdrop-blur"
+              className="page-hero-tag rounded px-4 py-1.5 text-[13px] font-medium"
             >
               {t}
             </span>

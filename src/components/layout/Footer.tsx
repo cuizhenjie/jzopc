@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { footerNav, site, contentReady } from '@/lib/site/config';
+import { footerNav, site } from '@/lib/site/config';
 import BrandMark from '@/components/ui/BrandMark';
 
 export default function Footer() {
@@ -43,9 +43,7 @@ export default function Footer() {
                   用 h3 会造成 h1 → h3 跳级，违反 heading 层级规则 */}
               <h2 className="text-[13px] font-semibold text-[var(--color-brand-navy)]">{col.title}</h2>
               <ul className="mt-4 space-y-2.5">
-                {/* 与导航一致：内容尚未就绪的子页不进链接列表（PRD FR-ABOUT-05）。
-                    页面本身仍可通过直链访问 —— 那里有「内容筹备中」占位与留资表单。 */}
-                {col.links.filter((l) => contentReady[l.href] !== false).map((l) => (
+                {col.links.map((l) => (
                   <li key={l.href}>
                     <Link
                       href={l.href}

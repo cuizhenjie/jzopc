@@ -49,9 +49,11 @@ export default function PageHero({ eyebrow, title, desc, crumbs = [], children }
   const breadcrumbJsonLd = crumbs.length >= 2 ? buildBreadcrumbJsonLd(crumbs) : null;
 
   return (
-    <section data-nav-theme="dark" className="page-hero">
+    <section data-nav-theme="light" data-public-hero="" className="page-hero opc-visual-hero">
+      <div className="opc-visual-hero-art" aria-hidden="true">
+        <img className="opc-visual-hero-image" src="/opc/visual/hero-city-12-960.webp" alt="" width={960} height={540} decoding="async" />
+      </div>
       <PageHeroFx>
-        <div className="page-hero-art" aria-hidden="true"><i /><i /><i /></div>
         {breadcrumbJsonLd && (
           <JsonLd data={breadcrumbJsonLd} attrs={{ 'data-breadcrumb-jsonld': 'BreadcrumbList' }} />
         )}

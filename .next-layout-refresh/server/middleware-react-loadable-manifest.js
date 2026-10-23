@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"components/three/WaveField.tsx -> ./WaveFieldRuntime\":{\"id\":\"components/three/WaveField.tsx -> ./WaveFieldRuntime\",\"files\":[\"static/chunks/_app-pages-browser_src_components_three_WaveFieldRuntime_tsx.js\"]}}"

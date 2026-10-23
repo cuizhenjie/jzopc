@@ -42,7 +42,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ sl
         desc={agent.summary}
         crumbs={[
           { label: '首页', href: '/' },
-          { label: '智能体', href: '/agents' },
+          { label: '智能体', href: '/agent' },
           { label: agent.name },
         ]}
       >

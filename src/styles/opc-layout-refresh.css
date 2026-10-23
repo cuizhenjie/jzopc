@@ -1,0 +1,598 @@
+/* The shared Header/native PageHero contract is defined in public-chrome.css.
+   Captured heroes consume the same variables here, above their scoped baseline. */
+.opc-replica.opc-replica .opc-visual-hero {
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding: var(--public-hero-pad-start) 0 var(--public-hero-pad-end) !important;
+  background: var(--public-hero-surface) !important;
+  color: #142f59 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .container {
+  max-width: var(--public-content-width) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero h1 {
+  max-width: min(760px, 64%);
+  margin-top: 12px !important;
+  color: #142f59 !important;
+  -webkit-text-fill-color: #142f59 !important;
+  font-size: var(--public-hero-title-size) !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero h1 span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  font-size: inherit !important;
+}
+.opc-replica.opc-replica .opc-visual-hero :is(.hero-desc, .hero-subtitle),
+.opc-replica.opc-replica .opc-visual-hero > p,
+.opc-replica.opc-replica .opc-visual-hero .container > p:not(.hero-slogan) {
+  max-width: min(640px, 58%) !important;
+  margin: 18px 0 0 !important;
+  color: #4c6380 !important;
+  -webkit-text-fill-color: #4c6380 !important;
+  font-size: var(--public-hero-description-size) !important;
+  line-height: 1.9 !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .opc-visual-hero-art {
+  width: var(--public-hero-art-width) !important;
+  opacity: var(--public-hero-art-opacity) !important;
+  mask-image: linear-gradient(90deg, transparent, #000 30%);
+}
+.opc-replica.opc-replica .opc-visual-hero .sec-eyebrow {
+  color: #0968ab !important;
+  font-size: 13px !important;
+}
+/* Page-specific composition starts below. */
+.opc-replica.opc-replica :is([data-opc-about-page], .agent-store, [data-opc-academy-layout]) {
+  padding-top: 0 !important;
+}
+
+/* About: overview → three drivers → eight enablers → real journey → vision. */
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-section {
+  padding: 80px 0 !important;
+  background: var(--opc-white);
+  scroll-margin-top: calc(var(--public-header-height, 80px) + 24px);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-heading {
+  margin-bottom: 32px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-eyebrow {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--opc-blue-deep) !important;
+  font-size: 12px !important;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1.5;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-heading h2 {
+  margin: 0 !important;
+  color: var(--opc-navy) !important;
+  font-size: clamp(28px, 2.7vw, 38px) !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.02em;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 56px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-copy > p,
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enablers-intro {
+  margin: 0 0 20px;
+  color: var(--opc-ink-2) !important;
+  font-size: 16px !important;
+  line-height: 1.9 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-copy .opc-about-backing {
+  margin: 28px 0 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--opc-blue);
+  color: var(--opc-blue-dark) !important;
+  font-size: 14px !important;
+  font-weight: 500;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media {
+  min-width: 0;
+  margin: 0;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img {
+  display: block;
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media figcaption {
+  margin-top: 12px;
+  color: var(--opc-ink-3) !important;
+  font-size: 13px !important;
+  line-height: 1.7;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-drivers {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] :is(.opc-about-drivers, .opc-about-journey) .opc-about-heading {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver {
+  position: relative;
+  min-width: 0;
+  padding: 40px 28px 36px;
+  border: 1px solid var(--opc-line);
+  border-radius: 16px;
+  background: var(--opc-white);
+  overflow: hidden;
+  text-align: center;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-number {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  color: rgb(20 47 89 / 7%) !important;
+  font-size: 76px !important;
+  line-height: 1;
+  font-family: var(--opc-font-mono);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: var(--opc-surface-blue);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-icon img {
+  width: 36px;
+  height: 36px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver h3 {
+  position: relative;
+  margin: 0 0 16px !important;
+  color: var(--opc-navy) !important;
+  font-size: 20px !important;
+  line-height: 1.55 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-driver p {
+  margin: 0;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.85 !important;
+  text-align: left;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enablers-intro {
+  max-width: 1100px;
+  margin-bottom: 32px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--opc-line);
+  border-left: 1px solid var(--opc-line);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 24px 20px;
+  border-right: 1px solid var(--opc-line);
+  border-bottom: 1px solid var(--opc-line);
+  color: var(--opc-navy) !important;
+  font-size: 16px !important;
+  font-weight: 500;
+  text-decoration: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list a:hover {
+  background: var(--opc-surface-blue);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-index {
+  color: var(--opc-blue-deep) !important;
+  font-size: 12px !important;
+  font-family: var(--opc-font-mono);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-arrow {
+  margin-left: auto;
+  color: var(--opc-blue-deep) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-journey {
+  padding-top: 0 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-timeline {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 48px;
+  position: relative;
+  padding: 12px 0 24px;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc((100% - 48px) / 3 + 24px);
+  width: 1px;
+  background: var(--opc-line);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::after {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: calc((100% - 48px) / 3 + 18px);
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--opc-white);
+  border-radius: 50%;
+  background: var(--opc-blue-deep);
+  box-shadow: 0 0 0 1px var(--opc-blue);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone time {
+  padding-top: 16px;
+  text-align: right;
+  color: var(--opc-blue-deep) !important;
+  font-size: 15px !important;
+  font-weight: 700;
+  line-height: 1.8;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card {
+  padding: 24px;
+  border: 1px solid var(--opc-line);
+  border-radius: 16px;
+  background: var(--opc-surface);
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card h3 {
+  margin: 0 0 12px !important;
+  color: var(--opc-navy) !important;
+  font-size: 20px !important;
+  line-height: 1.5 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card p {
+  margin: 0;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.85 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note {
+  margin: 24px 0 0;
+  text-align: center;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.8 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note a {
+  margin-left: 12px;
+  color: var(--opc-blue-deep) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision {
+  padding: 80px 0;
+  background: var(--opc-blue-dark);
+  color: var(--opc-white);
+  text-align: center;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision .opc-about-eyebrow {
+  color: rgb(255 255 255 / 84%) !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision h2 {
+  max-width: 860px;
+  margin: 0 auto 28px !important;
+  color: var(--opc-white) !important;
+  -webkit-text-fill-color: var(--opc-white) !important;
+  font-size: clamp(28px, 3vw, 40px) !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-list li {
+  margin: 8px 0;
+  color: rgb(255 255 255 / 94%) !important;
+  font-size: 17px !important;
+  line-height: 1.8 !important;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 12px 24px;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 8px;
+  color: var(--opc-white) !important;
+  font-size: 15px !important;
+  text-decoration: none;
+}
+.opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-link:hover {
+  background: rgb(255 255 255 / 10%);
+}
+
+/* Agent: compact search, persistent categories and group-aware results. */
+.opc-replica.opc-replica .agent-store .hero-search {
+  width: min(580px, 100%) !important;
+  margin: 28px 0 0 !important;
+}
+.opc-replica.opc-replica .opc-agent-directory {
+  padding: 40px 0 72px;
+  background: var(--opc-white);
+}
+.opc-replica.opc-replica [data-opc-agent-layout] {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  align-items: start;
+  gap: 40px;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] {
+  position: sticky;
+  top: calc(var(--public-header-height, 80px) + 24px);
+  max-height: calc(100dvh - var(--public-header-height, 80px) - 48px);
+  overflow-y: auto;
+  padding-right: 12px;
+  scrollbar-width: thin;
+}
+.opc-replica.opc-replica .opc-agent-sidebar-title {
+  margin: 0 0 20px !important;
+  color: var(--opc-ink-3) !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-scroll {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 4px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px !important;
+  border: 0 !important;
+  border-left: 2px solid transparent !important;
+  border-radius: 0 6px 6px 0 !important;
+  background: transparent !important;
+  color: var(--opc-ink-2) !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  text-align: left;
+  white-space: nowrap;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip:hover {
+  background: var(--opc-surface) !important;
+  color: var(--opc-blue-deep) !important;
+}
+.opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip.active {
+  border-left-color: var(--opc-blue-deep) !important;
+  background: var(--opc-surface-blue) !important;
+  color: var(--opc-blue-deep) !important;
+  font-weight: 700 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-results] {
+  min-width: 0;
+}
+.opc-replica.opc-replica .opc-agent-status {
+  margin: 0 0 24px;
+  color: var(--opc-ink-3) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] {
+  padding: 0 0 48px !important;
+  background: transparent !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group][hidden] {
+  display: none !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] > .container {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .sec-head {
+  text-align: left !important;
+  max-width: none !important;
+  margin-bottom: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .sec-head h2 {
+  margin-bottom: 6px !important;
+  font-size: 22px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .sec-head .sec-desc {
+  margin-top: 6px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-card {
+  min-width: 0;
+  height: 100%;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-card[hidden] { display: none !important; }
+.opc-replica.opc-replica [data-opc-agent-group] .tc-body {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 215px;
+  height: 100%;
+  padding: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-icon {
+  width: 32px !important;
+  height: 32px !important;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-title {
+  overflow-wrap: anywhere;
+  margin: 0 0 8px !important;
+  font-size: 18px !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-desc {
+  min-height: 44px;
+  margin-bottom: 20px !important;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-footer {
+  margin-top: auto !important;
+  padding-top: 12px;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tc-domain {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px !important;
+}
+
+/* Academy: make courses and the six-step employment path a continuous story. */
+.opc-replica.opc-replica [data-opc-academy-layout] .hero-slogan {
+  max-width: 620px !important;
+  font-size: 22px !important;
+  line-height: 1.6 !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .features-sec {
+  padding: 28px 0 !important;
+  border-bottom: 1px solid var(--opc-line);
+  background: var(--opc-white) !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .feature-item {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .feature-item .fi-icon {
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 !important;
+  flex: 0 0 36px;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .feature-item h4 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  white-space: nowrap;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] :is(.courses-sec, .path-sec, .opc-visual-gallery) {
+  padding: 64px 0 !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .path-sec {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-academy-course-grid {
+  gap: 20px 16px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-academy-course-card h3 {
+  font-size: 19px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li {
+  position: relative;
+  padding: 28px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-num {
+  padding: 0 !important;
+  margin-bottom: 16px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-size: 13px !important;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+}
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-visual-section-head {
+  margin-bottom: 24px !important;
+}
+
+@media (max-width: 1100px) {
+  .opc-replica.opc-replica [data-opc-agent-layout] { grid-template-columns: 156px minmax(0, 1fr); gap: 24px; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .features-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 20px !important; }
+}
+@media (max-width: 900px) {
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-grid { grid-template-columns: 1fr; gap: 32px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img { height: 300px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver-grid { grid-template-columns: 1fr; gap: 20px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver { padding: 32px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver p { max-width: 56ch; margin-inline: auto; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica .opc-visual-hero h1,
+  .opc-replica.opc-replica .opc-visual-hero :is(.hero-desc, .hero-subtitle),
+  .opc-replica.opc-replica .opc-visual-hero > p,
+  .opc-replica.opc-replica .opc-visual-hero .container > p:not(.hero-slogan) { max-width: 100% !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-section { padding: 52px 0 !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-heading { margin-bottom: 24px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img { height: 260px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-driver { padding: 32px 24px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-journey { padding-top: 0 !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-enabler-list a { padding: 20px 12px; gap: 8px; font-size: 15px !important; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone { grid-template-columns: 1fr; gap: 16px; padding: 0 0 20px 28px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::before { left: 6px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone::after { left: 0; top: 6px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone time { text-align: left; padding-top: 0; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-milestone-card { padding: 20px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note { text-align: left; margin-left: 28px; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-journey-note a { display: block; margin: 8px 0 0; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-vision { padding: 56px 0; }
+  .opc-replica.opc-replica [data-opc-about-page] .opc-about-vision-list li { font-size: 16px !important; }
+  .opc-replica.opc-replica [data-opc-agent-layout] { display: block; }
+  .opc-replica.opc-replica .opc-agent-directory { padding: 24px 0 48px; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] { position: static; max-height: none; overflow: visible; padding: 0; margin-bottom: 24px; }
+  .opc-replica.opc-replica .opc-agent-sidebar-title { margin-bottom: 12px !important; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-scroll { flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; gap: 8px !important; padding-bottom: 8px !important; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip { width: auto; border: 1px solid var(--opc-line) !important; border-radius: 6px !important; text-align: center; }
+  .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip.active { border-color: var(--opc-blue-deep) !important; }
+  .opc-replica.opc-replica [data-opc-agent-group] { padding-bottom: 36px !important; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-body { padding: 16px !important; min-height: 205px; }
+  .opc-replica.opc-replica .agent-store .hero-search { margin-top: 24px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .hero-slogan { font-size: 19px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] :is(.courses-sec, .path-sec, .opc-visual-gallery) { padding: 48px 0 !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .features-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .feature-item { justify-content: flex-start; padding: 0 !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li { padding: 24px !important; }
+}
+@media (max-width: 639px) {
+  .opc-replica.opc-replica [data-opc-agent-group] .tool-grid { grid-template-columns: 1fr !important; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-body { min-height: 0; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-desc { min-height: 0; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps { grid-template-columns: 1fr !important; }
+}
