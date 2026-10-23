@@ -141,16 +141,15 @@ describe('搜索控件唯一性与静态渲染红线', () => {  test('每个列�
     assert.deepEqual(offenders, [], '这些文件手写了搜索输入框，应统一用 SearchField');
   });
 
-  test('三处搜索的检索语料来自共享的 searchItemText（同一词同结果）', () => {
-    // 只统一 UI 不够：可检索文本也必须同源，否则搜「需求」在 /market 是 0 条、
-    // 在 /search 却搜得到 —— 同一个功能、两种行为。
+  test('两处搜索的检索语料来自共享的 searchItemText（同一词同结果）', () => {
+    // 只统一 UI 不够：可检索文本也必须同源，否则同一个词在两处列表搜出
+    // 不同的结果 —— 同一个功能、两种行为。
+    // （全局搜索页 /search 已于 2026-10-23 下线，现存搜索控件为列表页内筛选。）
     //
     // 这里只做**结构**断言，真正的「同源」由下面那条**语义**断言兜住：
     // 结构断言单独用会漏掉「表达式里额外改了语料」这种改法。
     const cases: Array<[string, string, RegExp]> = [
       ['智能体页', agentsSrc, /^searchItemText\(\s*agentToSearchItem\(/],
-      // 全局搜索页的条目本身就是转换后的 SearchItem，直接算即可
-      ['全局搜索页', read('src/app/search/page.tsx'), /^searchItemText\(\s*item\s*\)/],
     ];
     for (const [name, src, pattern] of cases) {
       const expr = extractBracedExpr(src, 'data-filter-text');

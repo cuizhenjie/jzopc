@@ -78,15 +78,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     description: site.description,
     inLanguage: 'zh-CN',
     publisher: { '@type': 'Organization', name: site.company, url: site.url },
-    // 站内搜索入口（FR-SITE-08 /search?q=）暴露给搜索引擎与 AI 助手
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${site.url}/search?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
   };
 
   return (

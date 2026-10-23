@@ -32,7 +32,7 @@ const PAGES = [
   '/', '/about', '/about/history', '/about/audience', '/about/partners',
   '/agents', '/agents/feishu', '/market', '/market/demand-retail-ai-ops',
   '/academy', '/academy/courses/ai-ecommerce-basics', '/news', '/news/opc-salon-2026-10',
-  '/empower/space', '/empower/traffic', '/apply', '/traffic', '/search',
+  '/empower/space', '/empower/traffic', '/apply', '/traffic',
 ];
 
 /* ── 启动 headless Chrome ─────────────────────────────────────────────── */

@@ -27,20 +27,6 @@ export default function Header({ home = false }: { home?: boolean }) {
   useEffect(() => { setOpen(false); }, [pathname]);
 
   useEffect(() => {
-    const onSearch = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
-      const target = event.target;
-      if (target instanceof HTMLElement && (target.matches('input,textarea,select') || target.isContentEditable)) return;
-      event.preventDefault();
-      const field = document.querySelector<HTMLInputElement>('[data-search-field="true"],[data-opc-search],.hero-search-input');
-      if (!open && field) field.focus();
-      else window.location.assign('/search');
-    };
-    document.addEventListener('keydown', onSearch);
-    return () => document.removeEventListener('keydown', onSearch);
-  }, [open]);
-
-  useEffect(() => {
     if (!open) return;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -97,9 +83,6 @@ export default function Header({ home = false }: { home?: boolean }) {
           })}
         </nav>
         <div className="header-actions">
-          <a href="/search" className="header-search" aria-label="站内搜索" title="站内搜索">
-            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5" /><path d="m12.8 12.8 4.2 4.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-          </a>
           <a href={apply.href} className="header-apply">{apply.label}<span aria-hidden="true">↗</span></a>
           <button ref={menuButton} type="button" className="menu-button" aria-controls="mobile-navigation" aria-expanded={open} aria-label={open ? '关闭菜单' : '打开菜单'} onClick={() => setOpen(value => !value)}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">{open ? <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.7" /> : <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" />}</svg>
@@ -114,7 +97,6 @@ export default function Header({ home = false }: { home?: boolean }) {
             <a href={item.href} className={clsx('mobile-nav-parent', navigationMatchesPath(pathname, item.href) && 'is-active')}>{item.label}<span aria-hidden="true">↗</span></a>
             {!!item.children?.length && <div className="mobile-nav-children">{item.children.map(child => <a href={child.href} key={child.href} aria-current={pathname === child.href ? 'page' : undefined}>{child.label}</a>)}</div>}
           </div>)}
-          <div className="mobile-nav-group"><a href="/search" className="mobile-nav-parent">站内搜索<span aria-hidden="true">↗</span></a></div>
           <a href={apply.href} className="mobile-apply">{apply.label}<span aria-hidden="true">↗</span></a>
         </nav>
       </div>
