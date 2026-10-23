@@ -557,6 +557,54 @@ def beijing_home_region(node):
                 ]
 
 
+
+def apply_word_about_copy(root):
+    """首页「关于我们」与「为什么选择」文案以《集智AI 网站.docx》为准替换。
+
+    原文是原运营方（同橙科创）的集团资质叙述（含「南京市云南商会」等
+    江苏背景残留）；本站口径与主站 `src/lib/site/config.ts` 的 v2/优势段同源。
+    只换文字节点，DOM 结构与全部样式类保持不变。
+    """
+    about = next((n for n in by_class(root, "section") if "about-sec" in n.classes), None)
+    if about:
+        heading = next((n for n in walk(about) if n.tag == "h2"), None)
+        if heading:
+            # Word 的品牌口号（主站 Hero 同款）
+            heading.children = ["集众智之力，启 AI 未来"]
+        intro = next((n for n in walk(about) if n.tag == "p"), None)
+        if intro:
+            # Word V2 官方简版（与 site.config 的 about.v2 同源）
+            intro.children = [
+                "集美科技旗下的一站式 AI 应用综合赋能平台，位于北京丰台西马场甲14号，"
+                "首期占地超 3000 平米。平台以集智空间、智能体、算力超市、集智商学院、"
+                "企服超市、订单市场、流量赋能、资本政策八大赋能体系为核心，整合产业资源，"
+                "赋能 AI 创业团队，构建 AI 产业生态。"
+            ]
+        drive_items = [
+            ("八大赋能", "一体贯通，需求不出社区"),
+            ("订单流量", "双入口，做完就能卖"),
+            ("在场服务", "人才财税法务，后台不出楼"),
+        ]
+        for item, (title, desc) in zip(by_class(about, "adg-item"), drive_items):
+            for node in walk(item):
+                if "adg-item-title" in node.classes:
+                    node.children = [title]
+                elif "adg-item-desc" in node.classes:
+                    node.children = [desc]
+        badge_texts = ["八大赋能体系", "首期 3000+ ㎡ 实体空间", "2026 年 10 月启动运营"]
+        for badge, text in zip(by_class(about, "ab-item"), badge_texts):
+            label = next((n for n in walk(badge) if n.tag == "span" and not n.classes), None)
+            if label is not None:
+                label.children = [text]
+    lead = first(root, "strength-lead")
+    if lead:
+        # Word「平台优势」主段（与 site.config 的 advantages 引言同源）
+        lead.children = [
+            "集美科技旗下的一站式 AI 应用综合赋能平台，位于北京丰台，首期 3000 余平米。"
+            "场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区。"
+        ]
+
+
 def replace_home_hero(tree):
     """Keep the reference carousel structure; use local, responsive brand imagery."""
     if not by_class(tree, "hero"):
@@ -711,7 +759,9 @@ def inject_visual_media(tree, path):
     hero_classes = {"/agent": "hero-agent", "/market": "hero-market", "/center": "hero-center", "/starproject": "hero-sp", "/work": "hero"}
     hero = first(tree, hero_classes.get(path, "page-header")) if path != "/" else None
     if hero:
-        dark = path == "/work"
+        # community 的 banner 对齐 work 规格（深色左排大横幅，2026-10 按需求）：
+        # 尺寸由 opc-visual.css 的 has-visual-dark.page-header 组接管。
+        dark = path in {"/work", "/community"}
         hero.attrs["class"] = hero.attrs.get("class", "") + " opc-visual-hero has-visual" + (" has-visual-dark" if dark else "")
         asset_id = "computing-banner" if dark else "hero-city-13" if path == "/market" else "hero-city-11" if path == "/agent" else "hero-city-12"
         hero.children.insert(0, Node("div", {"class": "opc-visual-hero-art", "aria-hidden": "true"}, [visual_image(asset_id, decorative=True, sizes="(max-width: 767px) 100vw, 48vw", class_name="opc-visual-hero-image")]))
@@ -1135,7 +1185,9 @@ def generate():
         rebrand_tree(tree)
         inject_brand_mark(tree)
         inject_visual_media(tree, path)
-        if path == "/community":
+        if path == "/":
+            apply_word_about_copy(tree)
+        elif path == "/community":
             beijing_home_region(tree)
         pages[path] = {"html": sanitize(tree, paths, assets), "title": rebrand(page["title"]), "path": path}
     shell = parse(detail_template["html"])

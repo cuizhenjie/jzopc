@@ -210,3 +210,37 @@
   .opc-replica.opc-replica .opc-visual-logo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .opc-replica.opc-replica .opc-visual-logo-card { height: 88px; }
 }
+
+/* ── community banner 对齐 work hero 规格（2026-10）───────────────────
+   /community 的 page-header 走 has-visual-dark 深色变体后，
+   尺寸沿 work 同款 .hero 的三档内边距阶（120/100 → 100/60 → 64/40，
+   与镜像层 .hero[data-v-8651a8e1] 的断点一致）；
+   p 的墨灰在深蓝底不可读，显式回到深色版次级白。
+   特异性 (0,6,0) 压过设计层 page-header 组（0,3,0）及其 767px 断点。 */
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
+  padding: 120px 0 100px !important;
+}
+.opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header p {
+  color: rgb(255 255 255 / 78%) !important;
+}
+@media (max-width: 1024px) {
+  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
+    padding: 100px 0 60px !important;
+  }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
+    padding: 64px 0 40px !important;
+  }
+}
+/* community banner 的内容行数比 work hero 少（高度 353 vs 530）：
+   桌面端用 min-height 对齐 work 的版面占用，内容垂直居中；
+   平板/移动端维持内容自适应（与 work 的断点行为一致）。 */
+@media (min-width: 1024px) {
+  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
+    min-height: 530px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}

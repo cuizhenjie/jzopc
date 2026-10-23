@@ -566,6 +566,11 @@
   color: rgb(255 255 255 / 60%) !important;
   border-top: 1px solid rgb(255 255 255 / 12%) !important;
   padding-top: var(--opc-space-6) !important;
+}.opc-replica.opc-replica .opcbottom .footer-bottom p {
+  /* 版权行同「联系我们」的坑：裸 p 被通用基线直接压成 ink-2 墨灰
+     （继承不赢直接命中），深蓝底上 1.4:1 不可见 —— 显式回到页脚次级白。 */
+  color: rgb(255 255 255 / 60%) !important;
+  font-size: var(--opc-fs-xs) !important;
 }/* ═══════════════════════════════════════════════════════════════════
    九、内页标题区（page-header）—— 编辑式重构
    ═══════════════════════════════════════════════════════════════════
@@ -1408,3 +1413,110 @@
   \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   认证页波海背景（openhex wave-grid 呼吸海面，2026-10）
+   WaveField 挂在登录 / 注册 / 忘记密码三页（ReplicaPage 的 WAVE_AUTH_PATHS），
+   fixed z-index:-1 的波海层在页面底下呼吸；本组让认证壳透出波海：
+   页面底 → 透明，表单卡 → 玻璃白，品牌面板 → 半透蓝 tint。
+   ═══════════════════════════════════════════════════════════════════ */
+.opc-replica[data-opc-wave] {
+  background: transparent !important;
+}.opc-replica[data-opc-wave] :is(.opclogin, .opcregister, .opcforgotpassword) {
+  background: transparent !important;
+}/* 表单卡：白玻璃浮在海面上（前景文字仍是深色系，对比度不降） */
+.opc-replica[data-opc-wave] :is(.login-container, .register-container, .forgot-container) {
+  background: rgb(255 255 255 / 92%) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 32px 90px rgb(8 26 51 / 45%) !important;
+}/* 品牌面板：实心渐变 → 半透蓝 tint，波海在卡内也有呼吸 */
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+  background: linear-gradient(135deg, rgb(29 127 186 / 62%), rgb(9 104 171 / 62%)) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   认证页 Kimi 版式（2026-10，参照 platform.kimi.com/login）
+   波海背景保留；卡片从「左右分栏玻璃卡」改为 Kimi 式居中窄卡：
+   · 卡宽 440px、纵向堆叠；品牌面板变卡内居中品牌头（特性列表收起）
+   · 表单标题居中；输入框浅灰底、无边框、大圆角、大内边距
+   · 主按钮全宽 48px（覆盖页头遗留的描边胶囊规则）
+   特异性 (0,6,0)：压过深底容器白字组 (0,3,0)、页头 login-btn 组 (0,3,0)。
+   ═══════════════════════════════════════════════════════════════════ */
+.opc-replica[data-opc-wave] :is(.login-container, .register-container, .forgot-container) {
+  flex-direction: column !important;
+  max-width: 440px !important;
+  width: calc(100% - 40px) !important;
+  border-radius: 24px !important;
+}/* 品牌面板 → 卡内顶部品牌头：透明底、居中、深色字（卡是白玻璃） */
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+  display: block !important;
+  background: none !important;
+  padding: 44px 36px 0 !important;
+  text-align: center !important;
+  color: var(--opc-ink) !important;
+}.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) :is(h1, h2, p, span, li, div) {
+  color: inherit !important;
+}.opc-replica[data-opc-wave] :is(.login-left-content, .register-left-content, .forgot-left-content) {
+  padding: 0 !important;
+}.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) h1 {
+  justify-content: center !important;
+  font-size: 22px !important;
+  margin-bottom: 8px !important;
+}.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) > div > p {
+  color: var(--opc-ink-3) !important;
+  font-size: var(--opc-fs-sm) !important;
+  margin-bottom: 0 !important;
+}/* Kimi 卡片无特性长列表：收起，保持卡片干净 */
+.opc-replica[data-opc-wave] .feature-list {
+  display: none !important;
+}/* 表单区：标题居中、紧凑内边距 */
+.opc-replica[data-opc-wave] :is(.login-right, .register-right, .forgot-right) {
+  width: 100% !important;
+  padding: 20px 36px 36px !important;
+}.opc-replica[data-opc-wave] :is(.login-header, .register-header, .forgot-header) {
+  text-align: center !important;
+}.opc-replica[data-opc-wave] :is(.login-header, .register-header, .forgot-header) :is(.logo, h2, p) {
+  text-align: center !important;
+}/* 输入框：浅灰底、无边框、大圆角、大内边距；聚焦描边品牌蓝 */
+.opc-replica[data-opc-wave] .form-input-wrapper {
+  background: var(--opc-surface-2) !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 12px !important;
+  transition: border-color 0.2s ease, background-color 0.2s ease !important;
+}.opc-replica[data-opc-wave] .form-input-wrapper:focus-within {
+  border-color: var(--opc-blue) !important;
+  background: var(--opc-white) !important;
+}.opc-replica[data-opc-wave] .form-input {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 14px 16px !important;
+  font-size: 15px !important;
+}.opc-replica[data-opc-wave] .form-input:focus {
+  outline: none !important;
+}.opc-replica[data-opc-wave] .form-label {
+  font-size: var(--opc-fs-sm) !important;
+  color: var(--opc-ink-2) !important;
+  margin-bottom: 6px !important;
+}/* 主按钮：全宽 48px、圆角 12px、品牌蓝实心（Kimi 式） */
+.opc-replica[data-opc-wave] :is(.login-btn, .register-btn, .reset-btn) {
+  display: flex !important;
+  width: 100% !important;
+  height: 48px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--opc-blue-deep) !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: var(--opc-fw-medium) !important;
+  margin-top: 8px !important;
+}.opc-replica[data-opc-wave] :is(.login-btn, .register-btn, .reset-btn):hover {
+  background: var(--opc-blue-dark) !important;
+  color: #fff !important;
+}/* 底部辅助链接居中（记住我 / 忘记密码 / 立即注册引导） */
+.opc-replica[data-opc-wave] :is(.form-actions, .register-link, .back-home) {
+  justify-content: center !important;
+  text-align: center !important;
+}
