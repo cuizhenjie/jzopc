@@ -10,6 +10,7 @@
  *
  * 本模块服务端专用（依赖 @/lib/queries → supabase admin 客户端）。
  */
+import sanitizeHtml from 'sanitize-html';
 import { getNewsPosts, getNewsPost } from '@/lib/queries';
 import { seedNews } from '@/lib/data/seed';
 import {
@@ -61,9 +62,69 @@ const ACTIVITY_SCOPE = 'data-v-0bb519df=""';
 const ACTIVITY_VENUE = '集智 AI OPC 社区';
 const ACTIVITY_CAPACITY = '50+';
 
-/** DB 详情正文段落沿用遗留烘焙段的排版（article-shell 内联样式口径） */
+/** DB 纯文本段落沿用遗留烘焙段的排版（article-shell 内联样式口径） */
 function renderArticleParagraph(paragraph: string): string {
   return `<p style="line-height:2"><span style="font-size:22px">${escapeText(paragraph)}</span></p>`;
+}
+
+const ARTICLE_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: [
+    'p', 'br', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote',
+    'strong', 'b', 'em', 'i', 'u', 's', 'span', 'div', 'section', 'figure',
+    'figcaption', 'img', 'a', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'hr',
+  ],
+  allowedAttributes: {
+    '*': ['style'],
+    a: ['href', 'title', 'target', 'rel'],
+    img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'decoding'],
+    th: ['colspan', 'rowspan', 'scope'],
+    td: ['colspan', 'rowspan'],
+  },
+  allowedStyles: {
+    '*': {
+      'font-size': [/^\d{1,3}(?:\.\d+)?(?:px|rem|em|%)$/],
+      'font-weight': [/^(?:normal|bold|[1-9]00)$/],
+      'font-style': [/^(?:normal|italic|oblique)$/],
+      'line-height': [/^(?:normal|\d+(?:\.\d+)?|\d+(?:\.\d+)?(?:px|rem|em|%))$/],
+      'text-align': [/^(?:left|right|center|justify|start|end)$/],
+      'text-decoration': [/^(?:none|underline|line-through)(?:\s+(?:underline|line-through))?$/],
+    },
+  },
+  allowedSchemes: ['https', 'mailto', 'tel'],
+  allowedSchemesByTag: { img: ['https'] },
+  allowProtocolRelative: false,
+  transformTags: {
+    a: (tagName, attribs) => {
+      const next: sanitizeHtml.Attributes = { ...attribs, rel: 'noopener noreferrer' };
+      if (next.target && next.target !== '_blank') delete next.target;
+      return { tagName, attribs: next };
+    },
+    img: (tagName, attribs) => ({
+      tagName,
+      attribs: {
+        ...attribs,
+        alt: /^https?:\/\//.test(attribs.alt ?? '') ? '' : attribs.alt ?? '',
+        loading: 'lazy',
+        decoding: 'async',
+      },
+    }),
+  },
+  exclusiveFilter: (frame) => frame.tag === 'img' && !isSafeArticleImage(frame.attribs.src ?? ''),
+};
+
+function isSafeArticleImage(value: string): boolean {
+  if (/^\/(?!\/)/.test(value) && !/[\u0000-\u001f\\]/.test(value)) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function renderArticleSegment(segment: string): string {
+  if (!/<\/?[a-z][^>]*>/i.test(segment)) return renderArticleParagraph(segment);
+  return sanitizeHtml(segment, ARTICLE_SANITIZE_OPTIONS);
 }
 
 /** published_at（ISO 日期或日期时间）→ 卡片/详情用的 YYYY-MM-DD；不合法 → 空串 */
@@ -197,7 +258,7 @@ export interface ReplicaDetailOptions {
  * /newsdetail?id= 的运行时解析：
  * 1. id 数字 N → 先查 DB slug=`opc-N`，再回落遗留 generated/details.json[N]
  * 2. id slug 形态 → 查 DB 该 slug（无遗留回落）
- * 3. DB body 段落各转义为 `<p>` 注入 article-shell
+ * 3. DB body 纯文本转义为 `<p>`；富文本经允许列表净化后直接注入 article-shell
  * 4. 都没有 → null（页面 404）
  * 查询失败（异常）同样回落 details.json。
  */
@@ -218,7 +279,7 @@ export async function getReplicaDetailPage(
 
   const resolved = post;
   if (resolved) {
-    const article = resolved.body.map(renderArticleParagraph).join('');
+    const article = resolved.body.map(renderArticleSegment).join('');
     return {
       path: '/newsdetail',
       title: `${resolved.title} - ${REPLICA_SITE_NAME}`,

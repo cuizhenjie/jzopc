@@ -228,7 +228,7 @@ describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () =>
     body: ['第一段<b>加粗</b>', '第二段&引号"'],
   };
 
-  test('数字 id：先查 DB slug=opc-N，命中则正文逐段转义注入 article-shell', async () => {
+  test('数字 id：先查 DB slug=opc-N，富文本保留标签而纯文本仍逐段转义', async () => {
     const slugs: string[] = [];
     const page = await getReplicaDetailPage('392', {
       loadPost: async (slug) => {
@@ -240,10 +240,50 @@ describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () =>
     assert.equal(page!.title, 'DB 里的新文章 - 集智 AI OPC 社区');
     assert.ok(page!.html.includes('class="article-title">DB 里的新文章</h1>'));
     assert.ok(page!.html.includes('2026-10-23'));
-    assert.ok(page!.html.includes('<p style="line-height:2"><span style="font-size:22px">第一段&lt;b&gt;加粗&lt;/b&gt;</span></p>'));
+    assert.ok(page!.html.includes('第一段<b>加粗</b>'));
     assert.ok(page!.html.includes('<p style="line-height:2"><span style="font-size:22px">第二段&amp;引号&quot;</span></p>'));
     assert.doesNotMatch(page!.html, /__OPC_(?:TITLE|DATE|ARTICLE)__/);
-    assert.doesNotMatch(page!.html, /<b>|第一段<b>/);
+    assert.ok(!page!.html.includes('第一段&lt;b&gt;'));
+  });
+
+  test('id=371：迁移后的完整富文本直接渲染段落与正文图片', async () => {
+    const snapshot = JSON.parse(readFileSync('scripts/opc-source/public-content.json', 'utf8')) as {
+      records: Record<string, { content: { sort: number; content: string }[] }>;
+    };
+    const body = snapshot.records['371'].content
+      .filter((item) => item.sort !== -1)
+      .sort((a, b) => a.sort - b.sort)
+      .map((item) => item.content);
+    const page = await getReplicaDetailPage('371', {
+      loadPost: async () => ({ ...dbPost, slug: 'opc-371', body }),
+    });
+    assert.ok(page);
+    assert.ok(!page.html.includes('&lt;p'));
+    assert.ok(!page.html.includes('&lt;img'));
+    assert.equal((page.html.match(/<img\b/g) ?? []).length, 5);
+    assert.ok(page.html.includes('src="https://www.opcstore.com/opc/20261009/e11b3d94e2476cbbf57cb8157c9ad4b3.jpg"'));
+    assert.ok(page.html.includes('人工智能AIGC技术正以前所未有的速度'));
+  });
+
+  test('富文本净化：保留安全格式，移除脚本、事件属性与危险协议', async () => {
+    const page = await getReplicaDetailPage('392', {
+      loadPost: async () => ({
+        ...dbPost,
+        body: [
+          '<p>安全<strong>加粗</strong><a href="https://example.com" target="_blank">链接</a>'
+            + '<a href="javascript:alert(1)">危险链接</a>'
+            + '<img src="https://example.com/a.jpg" onerror="alert(1)">'
+            + '<img src="javascript:alert(2)"><script>alert(3)</script>'
+            + '<iframe src="https://example.com"></iframe></p>',
+        ],
+      }),
+    });
+    assert.ok(page);
+    assert.ok(page.html.includes('<strong>加粗</strong>'));
+    assert.ok(page.html.includes('href="https://example.com"'));
+    assert.ok(page.html.includes('rel="noopener noreferrer"'));
+    assert.ok(page.html.includes('src="https://example.com/a.jpg"'));
+    assert.doesNotMatch(page.html, /<script\b|<iframe\b|\son\w+\s*=|javascript:/i);
   });
 
   test('数字 id：DB 未命中 → 回落遗留 details.json', async () => {
