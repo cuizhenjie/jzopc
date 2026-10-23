@@ -197,13 +197,11 @@
  *
  * ⚠️ 这里**只声明字体属性，不声明颜色**。
  * 颜色的归属取决于该指标处于浅底还是深底：
- * 浅底的 `.njz-stat-*` 用 ink-3，深底的 `.hero-stat-*` 用白色。
  * 在 token 层统一给色会让深底 hero 的白字被 ink-3 反压（实测已发生），
  * 因此颜色统一交给组件层按容器上下文决定。
  *
  * ⚠️ 特异性必须与组件层一致（双层 .opc-replica），否则会被原站
- * `data-v-*` 限定的同权重规则按加载顺序反向压过。 */.opc-replica.opc-replica .hero-stat-num,
-.opc-replica.opc-replica .njz-stat-num {
+ * `data-v-*` 限定的同权重规则按加载顺序反向压过。 */.opc-replica.opc-replica .hero-stat-num {
   font-family: var(--opc-font-mono) !important;
   font-variant-numeric: tabular-nums;
   font-weight: var(--opc-fw-bold) !important;

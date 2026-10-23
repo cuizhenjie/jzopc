@@ -183,18 +183,6 @@
     ]
   },
   {
-    "path": "/NanjingZone",
-    "name": "NanjingZone",
-    "file": "NanjingZone-BSdVD6GG.js",
-    "title": "南京专区",
-    "css": [
-      "OpcBottom-_fXMpX-p.css",
-      "OpcHeader-C1iDSgna.css",
-      "NanjingZone-CI_q58uD.css",
-      "all-DdGN75aA.css"
-    ]
-  },
-  {
     "path": "/NewsList",
     "name": "newslist",
     "file": "NewsList-BMBKsTP4.js",

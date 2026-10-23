@@ -131,61 +131,33 @@ try {
   assert.equal((await state()).index, 1);
   check('keyboard Home/End move selection and focus, with autoplay paused');
 
-  await evaluate("document.querySelector('.opcheader a').focus();document.querySelector('.opc-carousel-toggle').click()");
-  assert.ok((await state()).reason.includes('user'));
-  await evaluate("document.querySelector('.opc-carousel-toggle').click()");
-  await until("document.querySelector('.hero-carousel').dataset.opcAutoplay==='true'", 'Autoplay did not resume');
-  const automatic = (await state()).index;
+  // Focus inside the hero keeps autoplay paused; moving focus out resumes it.
+  const focusPaused = (await state()).index;
   await sleep(5850);
-  assert.notEqual((await state()).index, automatic);
-  check('explicit pause persists until resumed and normal autoplay advances');
-
-  await S('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
-  const tapRotation = async () => {
-    const point = await evaluate("(()=>{const r=document.querySelector('.opc-carousel-toggle').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()");
-    await S('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
-    await sleep(80);
-    await S('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-    await sleep(120);
-  };
-  assert.equal((await state()).playing, true);
-  await tapRotation();
-  assert.ok((await state()).reason.includes('user'), 'First real tap of visible Pause must pause, despite contact/focus events');
-  assert.equal(await evaluate("document.activeElement.classList.contains('opc-carousel-toggle')"), true);
-  const touchPaused = (await state()).index;
-  await sleep(5850);
-  assert.equal((await state()).index, touchPaused);
-  await tapRotation();
-  assert.equal((await state()).playing, true, 'Second real tap must resume while the button retains focus');
-  assert.equal(await evaluate("document.activeElement.classList.contains('opc-carousel-toggle')"), true);
-  await sleep(5850);
-  assert.notEqual((await state()).index, touchPaused);
+  assert.equal((await state()).index, focusPaused);
   await evaluate("document.querySelector('.opcheader a').focus()");
-  check('first real touch tap pauses; second resumes with retained focus and actual timed advancement');
+  await until("!document.querySelector('.hero-carousel').dataset.opcPauseReason.includes('focus')", 'Leaving hero focus did not resume autoplay');
+  check('hero focus keeps autoplay paused through a full period and leaving resumes it');
 
-  await evaluate("document.querySelector('.opc-carousel-toggle').focus()");
-  assert.ok((await state()).reason.includes('focus'));
-  assert.equal(await evaluate("document.querySelector('.opc-carousel-toggle').textContent"), '播放');
-  await evaluate("document.querySelector('.opc-carousel-toggle').click()");
+  // Without a pause control, manual dot selection keeps autoplay running.
+  await evaluate("document.querySelectorAll('.opc-carousel-dot')[1].click()");
+  assert.equal((await state()).index, 2);
   assert.equal((await state()).playing, true);
-  assert.equal(await evaluate("document.activeElement.classList.contains('opc-carousel-toggle')"), true);
-  const focusedPlayback = (await state()).index;
+  const manual = (await state()).index;
   await sleep(5850);
-  assert.notEqual((await state()).index, focusedPlayback);
-  await evaluate("document.querySelector('.opc-carousel-dot').focus()");
-  assert.ok((await state()).reason.includes('focus'));
-  await evaluate("document.querySelector('.opcheader a').focus()");
-  check('explicit play advances with retained control focus and the next focus entry pauses again');
+  assert.notEqual((await state()).index, manual);
+  check('manual dot selection keeps autoplay running and advancing');
 
   await S('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 400, y: 600 });
   await until("document.querySelector('.hero-carousel').dataset.opcPauseReason.includes('hover')", 'Pointer hover did not pause');
-  await evaluate("document.querySelector('.opc-carousel-toggle').click()");
-  assert.equal((await state()).playing, true);
+  const hoverPaused = (await state()).index;
+  await sleep(5850);
+  assert.equal((await state()).index, hoverPaused);
   await S('Input.dispatchMouseEvent', { type: 'mouseMoved', x: -10, y: -10 });
-  await S('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 400, y: 600 });
-  await until("document.querySelector('.hero-carousel').dataset.opcPauseReason.includes('hover')", 'New hover entry did not clear explicit play override');
-  await S('Input.dispatchMouseEvent', { type: 'mouseMoved', x: -10, y: -10 });
-  check('real pointer entry pauses autoplay, explicit play overrides it until the next entry');
+  await until("!document.querySelector('.hero-carousel').dataset.opcPauseReason.includes('hover')", 'Pointer leave did not resume autoplay');
+  check('pointer entry pauses autoplay and leaving resumes it');
+
+  await S('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
 
   const beforeTouch = (await state()).index;
   await S('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 800, y: 600 }] });

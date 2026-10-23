@@ -250,7 +250,6 @@
   box-shadow: none !important;
 }/* 次级：描边 */.opc-replica.opc-replica .hero-btn--ghost,
 .opc-replica.opc-replica .event-more-btn,
-.opc-replica.opc-replica .njz-enter-btn,
 .opc-replica.opc-replica .load-more-btn {
   display: inline-flex !important;
   align-items: center !important;
@@ -271,7 +270,6 @@
     border-color 0.2s var(--ease-out-soft, ease) !important;
 }.opc-replica.opc-replica .hero-btn--ghost:hover,
 .opc-replica.opc-replica .event-more-btn:hover,
-.opc-replica.opc-replica .njz-enter-btn:hover,
 .opc-replica.opc-replica .load-more-btn:hover {
   background: var(--opc-surface-blue) !important;
   border-color: var(--opc-line-blue) !important;
@@ -306,8 +304,7 @@
 .opc-replica.opc-replica .filter-btn,
 .opc-replica.opc-replica .city-btn,
 .opc-replica.opc-replica .tab-chip,
-.opc-replica.opc-replica .category-tab,
-.opc-replica.opc-replica .njz-chip {
+.opc-replica.opc-replica .category-tab {
   font-size: var(--opc-fs-sm) !important;
   font-weight: var(--opc-fw-normal) !important;
 }.opc-replica.opc-replica .filter-chip,
@@ -336,8 +333,7 @@
 .opc-replica.opc-replica .filter-btn.active,
 .opc-replica.opc-replica .city-btn.active,
 .opc-replica.opc-replica .tab-chip.active,
-.opc-replica.opc-replica .category-tab.active,
-.opc-replica.opc-replica .njz-chip.active {
+.opc-replica.opc-replica .category-tab.active {
   background: var(--opc-blue-deep) !important;
   border-color: var(--opc-blue-deep) !important;
   color: #fff !important;
@@ -367,7 +363,6 @@
 .opc-replica.opc-replica .tool-card,
 .opc-replica.opc-replica .course-card,
 .opc-replica.opc-replica .opc-card,
-.opc-replica.opc-replica .njz-card,
 .opc-replica.opc-replica .supply-card,
 .opc-replica.opc-replica .demand-card,
 .opc-replica.opc-replica .rental-card,
@@ -384,7 +379,6 @@
 .opc-replica.opc-replica .tool-card:hover,
 .opc-replica.opc-replica .course-card:hover,
 .opc-replica.opc-replica .opc-card:hover,
-.opc-replica.opc-replica .njz-card:hover,
 .opc-replica.opc-replica .supply-card:hover,
 .opc-replica.opc-replica .demand-card:hover,
 .opc-replica.opc-replica .rental-card:hover,
@@ -785,7 +779,6 @@
 .opc-replica.opc-replica .tc-domain,
 .opc-replica.opc-replica .stat-label,
 .opc-replica.opc-replica .ec-meta-item,
-.opc-replica.opc-replica .njz-count,
 .opc-replica.opc-replica .cc-meta {
   color: var(--opc-ink-3) !important;
 }/* ── 描述文案：原站是 #a3a3a3 / ink-2 在浅色卡上的低对比版本 ── */.opc-replica.opc-replica .adg-item-desc,
@@ -809,11 +802,6 @@
 .opc-replica.opc-replica .login-link,
 .opc-replica.opc-replica .forgot-link {
   color: var(--opc-blue-deep) !important;
-}/* 南京专区的计数行：数字是主蓝（实测 4.11:1，差一点到 AA），统一改用可读蓝。 */.opc-replica.opc-replica .njz-count b {
-  color: var(--opc-blue-deep) !important;
-  font-family: var(--opc-font-mono) !important;
-  font-weight: var(--opc-fw-bold) !important;
-  font-size: var(--opc-fs-body) !important;
 }/* ── 深底上的白字：提到 92% ──
    原站的 70% 白在深蓝上只有 3.5:1；78% 是 3.8:1，仍不达标。
    92% 白在品牌深蓝上约 5.4:1。 */.opc-replica.opc-replica .hero-badge,
@@ -1165,19 +1153,17 @@
    内页 hero（浅底）—— 统一版式
    ═══════════════════════════════════════════════════════════════════
    内页 hero 的容器类是 `hero-agent` / `hero-market` / `hero-center` /
-   `hero-sp` / `njz-hero`，与首页的 `.hero` 不是同一个元素。
+   `hero-sp`，与首页的 `.hero` 不是同一个元素。
    原站把它们做成「居中大标题 + 居中副标题 + 居中筛选条」，
    这是模板站最强的信号之一；这里改为左对齐的编辑式版式。 */.opc-replica.opc-replica .hero-agent,
 .opc-replica.opc-replica .hero-market,
 .opc-replica.opc-replica .hero-center,
-.opc-replica.opc-replica .hero-sp,
-.opc-replica.opc-replica .njz-hero {
+.opc-replica.opc-replica .hero-sp {
   text-align: left !important;
 }.opc-replica.opc-replica .hero-agent h1,
 .opc-replica.opc-replica .hero-market h1,
 .opc-replica.opc-replica .hero-center h1,
-.opc-replica.opc-replica .hero-sp h1,
-.opc-replica.opc-replica .njz-hero h1 {
+.opc-replica.opc-replica .hero-sp h1 {
   color: var(--opc-ink) !important;
   font-size: var(--opc-fs-h1) !important;
   font-weight: var(--opc-fw-bold) !important;
@@ -1188,8 +1174,7 @@
 }.opc-replica.opc-replica .hero-agent .hero-desc,
 .opc-replica.opc-replica .hero-market .hero-desc,
 .opc-replica.opc-replica .hero-center .hero-desc,
-.opc-replica.opc-replica .hero-sp .hero-desc,
-.opc-replica.opc-replica .njz-hero .hero-desc {
+.opc-replica.opc-replica .hero-sp .hero-desc {
   color: var(--opc-ink-3) !important;
   font-size: var(--opc-fs-body) !important;
   line-height: 1.9 !important;
@@ -1259,7 +1244,6 @@
    标签就是标签，统一 12px + 字间距，层级反而更清楚。 */.opc-replica.opc-replica .tc-tag,
 .opc-replica.opc-replica .cc-meta-label,
 .opc-replica.opc-replica .activity-badge,
-.opc-replica.opc-replica .njz-badge,
 .opc-replica.opc-replica .sc-tags span {
   font-size: var(--opc-fs-xs) !important;
   line-height: 1.5 !important;
@@ -1371,9 +1355,6 @@
   font-size: var(--opc-fs-h3) !important;
 }/* 课程 meta 值（评分/课时）：18px → 15px（它是标签不是标题） */.opc-replica.opc-replica .cc-meta-val {
   font-size: var(--opc-fs-body) !important;
-}/* 南京专区地址：13.5px → 13px；计数行同样收口 */.opc-replica.opc-replica .njz-addr span,
-.opc-replica.opc-replica .njz-count {
-  font-size: var(--opc-fs-sm) !important;
 }/* 统计标签：14px → 13px */.opc-replica.opc-replica .stat-label,
 .opc-replica.opc-replica .intro-stat-label {
   font-size: var(--opc-fs-sm) !important;

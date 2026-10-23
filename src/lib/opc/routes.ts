@@ -2,14 +2,14 @@
 export const replicaPaths = [
   '/', '/agent', '/market', '/center', '/starproject', '/community', '/work',
   '/computingresource', '/about', '/newslist', '/activitylist', '/newsdetail',
-  '/nanjingzone', '/zone', '/starjoin', '/opcapply', '/opclogin', '/opcregister',
+  '/zone', '/starjoin', '/opcapply', '/opclogin', '/opcregister',
   '/opcforgotpassword', '/myinfo',
 ] as const;
 
 export type ReplicaPath = (typeof replicaPaths)[number];
 const paths = new Set<string>(replicaPaths);
 const referenceHosts = new Set(['opcstore.com', 'www.opcstore.com']);
-const queryKeys = new Set(['id', 'formType', 'city', 'district', 'tab', 'category', 'q', 'page', 'type', 'courseId', 'serverName', 'serverCompute', 'serverPrice', 'rentalType']);
+const queryKeys = new Set(['id', 'formType', 'city', 'tab', 'category', 'q', 'page', 'type', 'courseId', 'serverName', 'serverCompute', 'serverPrice', 'rentalType']);
 
 export function isReplicaPath(pathname: string): pathname is ReplicaPath {
   return paths.has(pathname.toLowerCase().replace(/\/$/, '') || '/');

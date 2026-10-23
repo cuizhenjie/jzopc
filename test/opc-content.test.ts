@@ -7,7 +7,7 @@ import { getReplicaArticle, getReplicaPage } from '@/lib/opc/content';
 import { replicaPaths } from '@/lib/opc/routes';
 
 test('every public route has a substantive local page and preserves original scoped layout', () => {
-  assert.equal(replicaPaths.length, 20);
+  assert.equal(replicaPaths.length, 19);
   for (const path of replicaPaths) {
     const page = getReplicaPage(path);
     assert.ok(page, path);

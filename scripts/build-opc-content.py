@@ -652,7 +652,7 @@ def inject_visual_media(tree, path):
             for index, child in enumerate(parent.children):
                 if isinstance(child, Node) and "partners-section" in child.classes:
                     parent.children[index] = visual_ecosystem()
-    hero_classes = {"/agent": "hero-agent", "/market": "hero-market", "/center": "hero-center", "/starproject": "hero-sp", "/nanjingzone": "njz-hero", "/work": "hero", "/computingresource": "hero"}
+    hero_classes = {"/agent": "hero-agent", "/market": "hero-market", "/center": "hero-center", "/starproject": "hero-sp", "/work": "hero", "/computingresource": "hero"}
     hero = first(tree, hero_classes.get(path, "page-header")) if path != "/" else None
     if hero:
         dark = path in {"/work", "/computingresource"}
@@ -814,6 +814,8 @@ def enhance(root, path, records, directory):
     if first_hero:
         first_hero.attrs.update(loading="eager", fetchpriority="high")
     if path == "/":
+        # 南京专区板块已按要求移除：整段删除，页面与入口一并下线。
+        remove_matching(root, lambda node: "njz-sec" in node.classes)
         for node, value in zip(by_class(root, "hero-stat-num"), ["500+", "1,000+", "200+", "50+"]):
             node.children = [value]
         features = json.loads((SOURCE / "home-features.json").read_text())
@@ -849,8 +851,6 @@ def enhance(root, path, records, directory):
             action(node, "filter-city", text)
         elif "filter-btn" in classes:
             action(node, "filter-news", text)
-        elif "njz-chip" in classes:
-            action(node, "filter-district", text)
         elif "load-more-btn" in classes:
             action(node, "load-more", path)
         elif path == "/zone" and "tab-btn" in classes and node.tag != "a":
@@ -859,8 +859,6 @@ def enhance(root, path, records, directory):
             action(node, "navigate", route="/newslist")
         elif "event-more-btn" in classes:
             action(node, "navigate", route="/activitylist")
-        elif "njz-enter-btn" in classes:
-            action(node, "navigate", route="/nanjingzone")
         elif "rental-btn" in classes:
             action(node, "apply", "computing", "/opcapply?formType=computing")
         elif "hero-btn--primary" in classes and path == "/work":
@@ -878,8 +876,8 @@ def enhance(root, path, records, directory):
             action(node, "request-code")
         if node.tag == "input":
             placeholder = node.attrs.get("placeholder", "")
-            if path in {"/agent", "/nanjingzone"} and ("搜索" in placeholder or "search" in node.attrs.get("class", "")):
-                node.attrs["data-opc-search"] = "tools" if path == "/agent" else "communities"
+            if path == "/agent" and ("搜索" in placeholder or "search" in node.attrs.get("class", "")):
+                node.attrs["data-opc-search"] = "tools"
                 node.attrs.setdefault("aria-label", placeholder)
         if "tool-card" in classes:
             tool_title = first(node, "tc-title")
@@ -893,11 +891,6 @@ def enhance(root, path, records, directory):
                 node.attrs["data-opc-city"] = item["city"]
             if path in {"/zone", "/community"}:
                 action(node, "apply", "community", "/opcapply?formType=community")
-        if "njz-card" in classes:
-            item = next((x for x in directory["nanjingCommunities"] if x["name"] in text), None)
-            if item:
-                node.attrs["data-opc-district"] = item["district"]
-                node.attrs["data-opc-search-text"] = item["name"] + " " + item["address"]
         card_classes = classes & {"news-card", "news-item", "activity-item", "activity-card", "event-card", "course-card", "supply-card", "demand-card"}
         if card_classes:
             identifier = card_id(node, matching_records)
@@ -1124,9 +1117,11 @@ def generate():
         inject_visual_media(tree, "/zone")
         zones[city] = {"html": sanitize(tree, paths, assets), "path": "/zone", "title": city + "专区 - 集智 AI OPC 社区"}
     directory = rebrand_tree_deep(directory)
+    # 南京专区页已移除，其专属数据不再随生成物分发（源 public-directory.json 保持原样）。
+    directory.pop("nanjingCommunities", None)
     for name, value in {"pages": pages, "details": details, "directory": localize_data(directory, assets), "listings": localize_data(listings, assets), "article-shell": {"html": article_shell}, "zone-cities": zones}.items():
         (OUTPUT / f"{name}.json").write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")) + "\n")
-    manifest = {"source": BASE + "#/", "capturedAt": "2026-10-22", "pageCount": len(pages), "detailCount": len(details), "tools": len(directory["agents"]), "nanjingCommunities": len(directory["nanjingCommunities"]), "categories": {k: v["total"] for k, v in public["categories"].items()}}
+    manifest = {"source": BASE + "#/", "capturedAt": "2026-10-22", "pageCount": len(pages), "detailCount": len(details), "tools": len(directory["agents"]), "categories": {k: v["total"] for k, v in public["categories"].items()}}
     (OUTPUT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(manifest, ensure_ascii=False))
 

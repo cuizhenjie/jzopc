@@ -21,10 +21,10 @@ import '@/styles/opc-visual-motion.css';
 
 type Props = { route: string; rootId?: string };
 type Modal = { title: string; content: ReactNode; articleId?: string; loading?: boolean };
-type Filters = { category: string; city: string; district: string; tab: string; query: string; limit: number };
+type Filters = { category: string; city: string; tab: string; query: string; limit: number };
 const PAGE_SIZE = 20;
 const controls = 'a[href],button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]';
-const cardSelector = '.tool-card,.course-card,.opc-card,.njz-card,.supply-card,.demand-card,.news-card,.news-item,.activity-item';
+const cardSelector = '.tool-card,.course-card,.opc-card,.supply-card,.demand-card,.news-card,.news-item,.activity-item';
 const formSelector = 'form,[role="form"]';
 const marketTab = (value: string) => value === '需求' || value === 'demand' ? 'demand' : 'supply';
 
@@ -92,7 +92,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       const params = new URLSearchParams(window.location.search);
       return {
         category: params.get('category') ?? '全部', city: params.get('city') ?? '全部',
-        district: params.get('district') ?? '全部', tab: marketTab(params.get('tab') ?? 'supply'),
+        tab: marketTab(params.get('tab') ?? 'supply'),
         query: params.get('q') ?? '', limit: Math.max(1, Math.min(100, Number(params.get('page')) || 1)) * PAGE_SIZE,
       };
     };
@@ -128,15 +128,14 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       status.textContent = count ? `找到 ${count} 项内容` : '没有找到相关内容，请调整筛选条件或搜索关键词。';
     };
 
-    const filterGrid = (selector: string, category: string, facet: 'category' | 'city' | 'district' = 'category', paginate = false) => {
+    const filterGrid = (selector: string, category: string, facet: 'category' | 'city' = 'category', paginate = false) => {
       let total = 0;
       root.querySelectorAll<HTMLElement>(selector).forEach(grid => {
         let matching = 0;
         Array.from(grid.children).forEach(element => {
           if (!(element instanceof HTMLElement) || !element.matches(`${cardSelector},[data-opc-id]`)) return;
           const categories = facet === 'city' ? [element.dataset.opcCity ?? '']
-            : facet === 'district' ? [element.dataset.opcDistrict ?? '']
-              : parseCategories(element.dataset.opcCategories ?? element.dataset.opcCategory);
+            : parseCategories(element.dataset.opcCategories ?? element.dataset.opcCategory);
           const matches = facetMatches(element.textContent ?? '', categories, category, filters.query);
           if (matches) matching += 1;
           element.hidden = !matches || (paginate && matching > filters.limit);
@@ -152,7 +151,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
         const action = button.dataset.opcAction;
         if (action === 'filter-zone' || action === 'filter-gpu') return;
         const value = button.dataset.opcValue ?? button.textContent?.trim() ?? '';
-        const current = action === 'filter-city' ? filters.city : action === 'filter-district' ? filters.district
+        const current = action === 'filter-city' ? filters.city
           : action === 'filter-market' ? filters.tab : filters.category;
         const isAll = (text: string) => /^全部/.test(text) || text === 'all';
         const active = action === 'filter-market' ? marketTab(value) === marketTab(current) : value === current || (isAll(value) && isAll(current));
@@ -168,7 +167,6 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
         total = filterGrid('.opc-grid', filters.city, 'city');
         filterGrid('.news-grid', filters.category);
       }
-      else if (path === '/nanjingzone') total = filterGrid('.njz-grid,.njz-list', filters.district, 'district');
       else if (path === '/newslist') total = filterGrid('.news-list', filters.category, 'category', true);
       else if (path === '/activitylist') total = filterGrid('.activity-list', filters.category, 'category', true);
       else if (path === '/market') {
@@ -185,7 +183,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       syncFilterButtons();
       if (persist) {
         const url = new URL(window.location.href);
-        for (const [key, value] of Object.entries({ q: filters.query, category: filters.category, city: filters.city, district: filters.district, tab: filters.tab, page: String(filters.limit / PAGE_SIZE) })) {
+        for (const [key, value] of Object.entries({ q: filters.query, category: filters.category, city: filters.city, tab: filters.tab, page: String(filters.limit / PAGE_SIZE) })) {
           const isDefault = !value || /^全部/.test(value) || value === 'all' || (key === 'tab' && value === 'supply') || (key === 'page' && value === '1');
           if (isDefault) url.searchParams.delete(key); else url.searchParams.set(key, value);
         }
@@ -296,7 +294,6 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       if (action?.startsWith('filter-')) {
         event.preventDefault(); filters.limit = PAGE_SIZE;
         if (action === 'filter-city') filters.city = value;
-        else if (action === 'filter-district') filters.district = value;
         else if (action === 'filter-market') filters.tab = value;
         else if (action === 'filter-gpu') {
           root.querySelectorAll<HTMLElement>('.price-item').forEach(item => { item.hidden = value !== 'all' && !item.textContent?.includes(value === 'monthly' ? '包月' : value === 'yearly' ? '包年' : '卡时'); });

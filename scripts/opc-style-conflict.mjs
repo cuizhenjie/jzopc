@@ -38,7 +38,7 @@ const BASE = (args.find((a) => a.startsWith('--base=')) || '--base=http://localh
 const PAGES = [
   '/', '/about', '/agent', '/market', '/center', '/starproject',
   '/community', '/work', '/computingresource', '/newslist',
-  '/activitylist', '/newsdetail?id=392', '/nanjingzone', '/zone?city=上海',
+  '/activitylist', '/newsdetail?id=392', '/zone?city=上海',
   '/starjoin', '/opcapply?formType=training', '/opclogin', '/opcregister',
 ];
 

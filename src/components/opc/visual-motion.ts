@@ -1,7 +1,7 @@
 /** Progressive enhancement for the captured public pages. No source-site runtime is used. */
 const REVEAL_TARGETS = [
   '.sec-head', '.ftr-node', '.eco-node', '.strength-block', '.news-card', '.tool-card', '.course-card',
-  '.opc-card', '.njz-card', '.rental-card', '.supply-card', '.demand-card', '.activity-item',
+  '.opc-card', '.rental-card', '.supply-card', '.demand-card', '.activity-item',
   '.opc-visual-section-head', '.opc-visual-photo-card', '.opc-visual-logo-grid',
 ].join(',');
 const PERIOD = 5600;
@@ -144,21 +144,14 @@ export function mountVisualMotion(root: HTMLElement): () => void {
       dots.append(button);
       return button;
     });
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'opc-carousel-toggle';
-    container.append(dots, toggle);
+    container.append(dots);
     carousel.append(container);
     cleanup.push(() => container.remove());
     let current = 0;
     let timer: number | undefined;
     let hovered = false;
     let focused = hero.contains(document.activeElement);
-    let focusOverride = false;
-    let hoverOverride = false;
-    let pointerRotationIntent: 'play' | 'pause' | undefined;
     let touching = false;
-    let userPaused = false;
     let preloadFor = -1;
     let preloadTimer: number | undefined;
     let cancelImageWait = () => {};
@@ -228,17 +221,13 @@ export function mountVisualMotion(root: HTMLElement): () => void {
     };
     const reasons = () => [
       document.hidden && 'background', !carouselVisible && 'offscreen', reduced && 'reduced-motion',
-      hovered && !hoverOverride && 'hover', focused && !focusOverride && 'focus', touching && 'touch', userPaused && 'user',
+      hovered && 'hover', focused && 'focus', touching && 'touch',
     ].filter(Boolean) as string[];
     const sync = () => {
       stop();
       const paused = reasons();
       carousel.dataset.opcAutoplay = String(paused.length === 0);
       carousel.dataset.opcPauseReason = paused.join(',');
-      toggle.disabled = reduced;
-      toggle.textContent = reduced ? '静态' : paused.length ? '播放' : '暂停';
-      toggle.setAttribute('aria-label', reduced ? '系统已设置减少动态效果' : paused.length ? '继续自动切换主视觉' : '暂停自动切换主视觉');
-      toggle.setAttribute('aria-pressed', String(paused.length > 0));
       if (document.hidden || !carouselVisible || reduced) cancelPreload();
       else warmNextImage();
       if (!alive || paused.length) return;
@@ -251,30 +240,6 @@ export function mountVisualMotion(root: HTMLElement): () => void {
     reconcileCarousel = sync;
     cleanup.push(stop);
     buttons.forEach((button, index) => listen(button, 'click', () => { show(index); sync(); }));
-    listen(toggle, 'pointerdown', () => {
-      // Touch contact/focus pauses the hero before click. Preserve the action
-      // the user saw when starting the gesture instead of reversing that intent.
-      pointerRotationIntent = reasons().length ? 'play' : 'pause';
-    });
-    listen(toggle, 'pointercancel', () => { pointerRotationIntent = undefined; });
-    listen(toggle, 'keydown', () => { pointerRotationIntent = undefined; });
-    listen(toggle, 'click', event => {
-      // An explicit rotation request may resume while this control retains focus
-      // (common on touch devices). A new focus/pointer entry pauses it again.
-      const intent = (event as MouseEvent).detail > 0 ? pointerRotationIntent : undefined;
-      pointerRotationIntent = undefined;
-      const resume = intent ? intent === 'play' : userPaused || focused && !focusOverride || hovered && !hoverOverride;
-      if (resume) {
-        userPaused = false;
-        focusOverride = focused;
-        hoverOverride = hovered;
-      } else {
-        userPaused = true;
-        focusOverride = false;
-        hoverOverride = false;
-      }
-      sync();
-    });
     listen(dots, 'keydown', event => {
       const keyboard = event as KeyboardEvent;
       const position = buttons.indexOf(event.target as HTMLButtonElement);
@@ -288,13 +253,12 @@ export function mountVisualMotion(root: HTMLElement): () => void {
       sync();
     });
     listen(hero, 'pointerenter', event => {
-      if ((event as PointerEvent).pointerType === 'mouse') { hovered = true; hoverOverride = false; sync(); }
+      if ((event as PointerEvent).pointerType === 'mouse') { hovered = true; sync(); }
     });
-    listen(hero, 'pointerleave', () => { hovered = false; hoverOverride = false; sync(); });
-    listen(hero, 'focusin', () => { focused = true; focusOverride = false; sync(); });
+    listen(hero, 'pointerleave', () => { hovered = false; sync(); });
+    listen(hero, 'focusin', () => { focused = true; sync(); });
     listen(hero, 'focusout', event => {
       focused = (event as FocusEvent).relatedTarget instanceof Node && hero.contains((event as FocusEvent).relatedTarget as Node);
-      if (!focused) focusOverride = false;
       sync();
     });
     let touchX = 0;

@@ -33,7 +33,6 @@ const PAGES = [
   { path: '/newslist', label: '新闻列表' },
   { path: '/activitylist', label: '活动列表' },
   { path: '/newsdetail?id=392', label: '新闻详情' },
-  { path: '/nanjingzone', label: '南京专区' },
   { path: '/zone?city=上海', label: '城市专区' },
   { path: '/starjoin', label: '申请加入' },
   { path: '/opcapply?formType=training', label: '申请表' },

@@ -26,22 +26,6 @@
   transform: none !important;
   gap: 10px !important;
 }
-.opc-replica.opc-replica .opc-carousel-toggle {
-  min-width: 56px;
-  min-height: 36px;
-  padding: 6px 12px;
-  border: 1px solid rgb(255 255 255 / 54%);
-  border-radius: 6px;
-  color: #fff;
-  background: rgb(14 55 105 / 70%);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-.opc-replica.opc-replica .opc-carousel-toggle:hover,
-.opc-replica.opc-replica .opc-carousel-toggle[aria-pressed='true'] { background: #0968ab; }
-.opc-replica.opc-replica .opc-carousel-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.opc-replica.opc-replica .opc-carousel-toggle:disabled { cursor: default; opacity: .8; }
 
 .opc-replica.opc-replica [data-opc-reveal] { animation: none !important; }
 .opc-replica.opc-replica [data-opc-reveal='pending'] {

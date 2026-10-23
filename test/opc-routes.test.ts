@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { isReplicaPath, replicaPaths, resolveReferenceLocation } from '@/lib/opc/routes';
 
-test('OPC routes cover the twenty reference templates and both observed casings', () => {
-  assert.equal(replicaPaths.length, 20);
-  assert.equal(new Set(replicaPaths).size, 20);
+test('OPC routes cover the nineteen reference templates and both observed casings', () => {
+  assert.equal(replicaPaths.length, 19);
+  assert.equal(new Set(replicaPaths).size, 19);
   for (const path of replicaPaths) {
     assert.ok(isReplicaPath(path.toUpperCase()));
     assert.equal(resolveReferenceLocation(`#${path}`), path);
