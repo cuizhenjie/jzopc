@@ -145,7 +145,8 @@ export function mountVisualMotion(root: HTMLElement): () => void {
       return button;
     });
     container.append(dots);
-    carousel.append(container);
+    // Keep controls above the overlay, outside the slides' stacking context.
+    hero.append(container);
     cleanup.push(() => container.remove());
     let current = 0;
     let timer: number | undefined;

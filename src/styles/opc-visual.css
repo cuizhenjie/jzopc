@@ -3,6 +3,19 @@
 .opc-replica.opc-replica .hero .hero-carousel .hero-carousel-img img {
   filter: brightness(.9) saturate(.9) !important;
 }
+/* Contain the active slide's z-index so it cannot paint over the text overlay. */
+.opc-replica.opc-replica .hero .hero-carousel {
+  z-index: 0 !important;
+}
+.opc-replica.opc-replica .hero .hero-overlay {
+  pointer-events: none !important;
+}
+.opc-replica.opc-replica .hero .hero-stats-row .hero-stat .hero-stat-lbl {
+  color: rgb(255 255 255 / 94%) !important;
+}
+.opc-replica.opc-replica .about-sec .about-overlay {
+  background: rgb(7 27 50 / 32%) !important;
+}
 .opc-replica.opc-replica .opc-visual-hero {
   position: relative !important;
   isolation: isolate;
@@ -197,6 +210,9 @@
   .opc-replica.opc-replica .opc-visual-logo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 767px) {
+  .opc-replica.opc-replica .hero .hero-overlay {
+    background: linear-gradient(180deg, rgb(7 27 50 / 72%), rgb(7 27 50 / 82%)) !important;
+  }
   .opc-replica.opc-replica .hero .hero-carousel .hero-carousel-img img[src^='/opc/visual/computing-banner-'] {
     object-position: 72% center !important;
   }
