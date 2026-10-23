@@ -55,7 +55,8 @@ VISUAL_VARIANTS = {}
 # 2026-10-23 文案菜单对齐契约 §2.Req1：导航重建后新增「关于集智 / 八大赋能 /
 # 流量超市 / 申请入驻」四个入口的全部原生路径（精确成员匹配，勿重复 /empower/space）。
 LOCAL_LINKS = {
-    "/about", "/about/history", "/about/audience", "/about/partners",
+    # 关于集智的三个子页已下线（2026-10-23），仅保留 /about。
+    "/about",
     "/empower/space", "/empower/agents", "/empower/compute", "/empower/academy",
     "/empower/enterprise", "/empower/market", "/empower/traffic", "/empower/capital",
     "/traffic", "/apply",
@@ -790,7 +791,7 @@ def apply_about_page(root):
                     ]),
                 ]),
             ]),
-            Node("p", {"class": "opc-about-journey-note"}, ["更多发展节点持续整理中。", Node("a", {"href": "/about/history"}, ["查看发展历程", Node("span", {"aria-hidden": "true"}, [" →"])])]),
+            Node("p", {"class": "opc-about-journey-note"}, ["更多发展节点持续整理中。"]),
         ]),
     ])
     vision = Node("section", {"class": "opc-about-vision", "aria-labelledby": "about-vision-title"}, [

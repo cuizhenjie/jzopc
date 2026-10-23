@@ -66,10 +66,16 @@ describe('llms.txt · 与站点内容同源', () => {
     const pending = nav
       .flatMap((i) => i.children ?? [])
       .filter((c) => contentReady[c.href] === false);
-    for (const c of pending) {
-      assert.ok(txt.includes(c.label), `未就绪页面未出现在筹备中清单：${c.label}`);
+    // 关于集智四个子页已下线（2026-10-23），不再有未就绪子页：
+    // 有未就绪项时逐个标注；没有时不输出「内容筹备中」段（诚实优先）。
+    if (pending.length) {
+      for (const c of pending) {
+        assert.ok(txt.includes(c.label), `未就绪页面未出现在筹备中清单：${c.label}`);
+      }
+      assert.ok(txt.includes('内容筹备中'), '缺少「内容筹备中」说明');
+    } else {
+      assert.ok(!txt.includes('内容筹备中'), '无未就绪页面时不应输出筹备中说明');
     }
-    assert.ok(txt.includes('内容筹备中'), '缺少「内容筹备中」说明');
   });
 });
 

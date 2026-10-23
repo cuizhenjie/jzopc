@@ -3,14 +3,9 @@ export type NavChild = { label: string; href: string };
 export type NavItem = NavChild & { children?: NavChild[]; cta?: boolean };
 
 export const publicNavigation: NavItem[] = [
-  {
-    label: '关于集智', href: '/about', children: [
-      { label: '集智简介', href: '/about' },
-      { label: '发展历程', href: '/about/history' },
-      { label: '服务对象', href: '/about/audience' },
-      { label: '生态伙伴', href: '/about/partners' },
-    ],
-  },
+  // 关于集智的四个子页（简介/历程/服务对象/生态伙伴）已于 2026-10-23 下线，
+  // 内容统一收敛进 /about 单页 —— 导航只保留顶层入口。
+  { label: '关于集智', href: '/about' },
   {
     label: '八大赋能', href: '/empower/space', children: [
       { label: '集智空间', href: '/empower/space' },

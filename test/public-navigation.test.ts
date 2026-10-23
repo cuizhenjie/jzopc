@@ -8,7 +8,8 @@ describe('one public navigation contract', () => {
     assert.equal(nav, publicNavigation);
     assert.equal(nav.length, 8);
     assert.equal(nav.filter(item => item.cta).length, 1);
-    assert.equal(nav.find(item => item.href === '/about')?.children?.length, 4);
+    // 关于集智四个子页已下线（2026-10-23）：顶层直达 /about，无下拉。
+    assert.equal(nav.find(item => item.href === '/about')?.children, undefined);
     assert.equal(nav.find(item => item.href === '/empower/space')?.children?.length, 8);
     assert.deepEqual(nav.find(item => item.href === '/newslist')?.children?.map(item => item.href), ['/newslist', '/activitylist']);
   });

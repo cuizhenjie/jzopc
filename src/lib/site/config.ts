@@ -50,11 +50,9 @@ export const brandArray = [
   brand.cyan,
 ] as const;
 
-/** 历史内容就绪标记。公开菜单按 agent 全量契约展示，不再依此过滤。 */
-export const contentReady: Record<string, boolean> = {
-  '/about/history': false,
-  '/about/audience': false,
-};
+/** 历史内容就绪标记。公开菜单按 agent 全量契约展示，不再依此过滤。
+ * 关于集智的四个子页已下线（2026-10-23），此表不再有条目。 */
+export const contentReady: Record<string, boolean> = {};
 
 /** 与 React 公共头部共用的规范导航；不再维护第二套链接。 */
 export const nav = publicNavigation;
@@ -202,9 +200,6 @@ export const footerNav = [
     title: '关于集智',
     links: [
       { label: '集智简介', href: '/about' },
-      { label: '发展历程', href: '/about/history' },
-      { label: '服务对象', href: '/about/audience' },
-      { label: '生态伙伴', href: '/about/partners' },
     ],
   },
   {
