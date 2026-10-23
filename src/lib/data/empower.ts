@@ -1,5 +1,3 @@
-import type { LeadType } from '@/lib/lead/schema';
-
 export type EmpowerDetail = {
   slug: string;
   index: string;
@@ -13,8 +11,6 @@ export type EmpowerDetail = {
   items: string[];
   /** 数据指标（可选） */
   highlights?: { label: string; value: string; note?: string }[];
-  /** 是否展示留资表单 */
-  leadType: LeadType | null;
   /** 内容缺口说明（若有） */
   pending?: string;
   /** 相关推荐 slug */
@@ -47,7 +43,6 @@ export const empowerDetails: EmpowerDetail[] = [
       { label: '位置', value: '丰台 · 大红门' },
       { label: '启动运营', value: '2026 年 10 月' },
     ],
-    leadType: 'space',
     related: ['academy', 'enterprise', 'market'],
   },
   {
@@ -63,7 +58,6 @@ export const empowerDetails: EmpowerDetail[] = [
       { title: '持续更新', desc: '智能体目录持续扩充，新增条目会同步到社区市场与本页面。' },
     ],
     items: ['办公协同', '写作与长文', '编程与代码', '设计出图', '图像生成', '视频生成', '音频与配音'],
-    leadType: null,
     related: ['academy', 'market', 'traffic'],
   },
   {
@@ -80,7 +74,6 @@ export const empowerDetails: EmpowerDetail[] = [
     ],
     items: ['GPU 按需租用', '大模型 API 统一接入', '算力券与补贴对接', '优先渲染通道申请', '成本优化建议'],
     pending: '具体 GPU 型号、单价与到账周期以社区团队给出的方案为准，正在整理中。',
-    leadType: 'compute',
     related: ['agents', 'capital', 'market'],
   },
   {
@@ -97,7 +90,6 @@ export const empowerDetails: EmpowerDetail[] = [
       { title: '就业推荐', desc: '课程结束后进入岗位推荐与入职跟踪环节。' },
     ],
     items: ['AI 电商', 'AIGC', 'AI 漫剧', '大数据工程师', '短视频运营'],
-    leadType: null,
     related: ['space', 'agents', 'enterprise'],
   },
   {
@@ -115,7 +107,6 @@ export const empowerDetails: EmpowerDetail[] = [
     ],
     items: ['工商注册与变更', '代理记账与报税', '合同与法务顾问', '知识产权与商标', '人事社保代办'],
     pending: '具体服务清单、承办方与计费方式正在与服务商确认，整理完成后在此公示。',
-    leadType: 'enterprise',
     related: ['space', 'capital', 'market'],
   },
   {
@@ -132,7 +123,6 @@ export const empowerDetails: EmpowerDetail[] = [
       { title: '产业共创', desc: '融入集智 AI 开放社区，携手伙伴共建 AI 智能体产业生态。' },
     ],
     items: ['需求发布与承接', '能力与案例展示', '社区内优先撮合', '外部企业需求对接'],
-    leadType: null,
     related: ['agents', 'traffic', 'capital'],
   },
   {
@@ -150,7 +140,6 @@ export const empowerDetails: EmpowerDetail[] = [
     items: ['AIGC 内容生产', '产品素材与视觉', '投放与账号运营', '内容测试与迭代'],
     pending:
       '集智AIGC新媒体流量基地介绍与赋能机制的资料正在整理中，正式内容将补充到本页。',
-    leadType: 'traffic',
     related: ['market', 'agents', 'academy'],
   },
   {
@@ -167,7 +156,6 @@ export const empowerDetails: EmpowerDetail[] = [
     ],
     items: ['创投机构对接', 'AI OPC 政策申报协助', '算力券与数据券通道', '融资材料预审建议'],
     pending: '具体政策清单、申报流程与对接机构名单正在整理中。',
-    leadType: 'capital',
     related: ['compute', 'enterprise', 'market'],
   },
 ];

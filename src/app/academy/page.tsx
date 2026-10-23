@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Section, SectionHead } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
-import { Reveal, Stagger } from '@/components/ui/Reveal';
+import { Reveal } from '@/components/ui/Reveal';
+import StaggerIn from '@/components/anim/StaggerIn';
 import { Badge } from '@/components/ui/Card';
 import { ButtonLink } from '@/components/ui/Button';
 import { academy } from '@/lib/site/config';
@@ -46,24 +47,26 @@ export default async function AcademyPage() {
           title="紧跟行业需求，打造系统化 AI 人才培养体系"
           desc="五条课程线，对应五类真实岗位方向。"
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {academy.tracks.map((t, i) => (
-            <Reveal key={t.name} delay={i * 0.05}>
-              <div className="group h-full rounded-xl border border-[var(--color-line)] bg-white p-6 shadow-none transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-[19px] font-semibold text-[var(--color-brand-navy)]">
-                    {t.name}
-                  </h3>
-                  <Badge tone="blue" className="text-[12px]">{t.tag}</Badge>
-                </div>
-                <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-2)]">{t.desc}</p>
-                <div className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
-                  {courses.filter((c) => c.track === t.name).length} 门课程在售 →
-                </div>
+        {/* 五张 tracks 卡同屏入场，GSAP batch stagger 统一节奏（见 StaggerIn） */}
+        <StaggerIn className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {academy.tracks.map((t) => (
+            <div
+              key={t.name}
+              className="group h-full rounded-xl border border-[var(--color-line)] bg-white p-6 shadow-none transition-colors duration-200 hover:border-[var(--color-brand-blue-deep)]/40 hover:bg-[var(--color-surface)]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-[19px] font-semibold text-[var(--color-brand-navy)]">
+                  {t.name}
+                </h3>
+                <Badge tone="blue" className="text-[12px]">{t.tag}</Badge>
               </div>
-            </Reveal>
+              <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-2)]">{t.desc}</p>
+              <div className="mt-5 text-[13px] font-medium text-[var(--color-brand-blue-deep)]">
+                {courses.filter((c) => c.track === t.name).length} 门课程在售 →
+              </div>
+            </div>
           ))}
-        </div>
+        </StaggerIn>
       </Section>
 
       {/* 一站式就业服务 */}
@@ -119,31 +122,30 @@ export default async function AcademyPage() {
       {courses.length > 0 && (
         <Section size="sm">
           <SectionHead eyebrow="在售课程" title="可报名课程" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.map((c, i) => (
-              <Reveal key={c.slug} delay={Math.min(i, 6) * 0.05}>
-                <Link
-                  href={`/academy/courses/${c.slug}`}
-                  className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
-                >
-                  <Badge tone="outline" className="text-[12px]">{c.track}</Badge>
-                  <h3 className="mt-3.5 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
-                    {c.title}
-                  </h3>
-                  <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-                    {c.summary}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {c.tags.map((t) => (
-                      <span key={t} className="rounded bg-[var(--color-surface)] px-2 py-0.5 text-[12px] text-[var(--color-ink-3)]">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </Link>
-              </Reveal>
+          <StaggerIn className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {courses.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/academy/courses/${c.slug}`}
+                className="group flex h-full flex-col rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-brand-blue)]/30 hover:shadow-[var(--shadow-lift)]"
+              >
+                <Badge tone="outline" className="text-[12px]">{c.track}</Badge>
+                <h3 className="mt-3.5 text-[16px] font-semibold leading-snug text-[var(--color-brand-navy)] group-hover:text-[var(--color-brand-blue-deep)]">
+                  {c.title}
+                </h3>
+                <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
+                  {c.summary}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {c.tags.map((t) => (
+                    <span key={t} className="rounded bg-[var(--color-surface)] px-2 py-0.5 text-[12px] text-[var(--color-ink-3)]">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </Link>
             ))}
-          </div>
+          </StaggerIn>
         </Section>
       )}
 
