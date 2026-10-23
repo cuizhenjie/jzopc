@@ -37,9 +37,16 @@ test('article lookup resolves all published records and rejects traversal or mis
 
 test('all list pages contain every public record beyond the first captured page', () => {
   const source = JSON.parse(readFileSync('src/lib/opc/generated/listings.json', 'utf8'));
-  for (const [path, category] of [['/newslist', '10'], ['/activitylist', '16'], ['/market', '14']] as const) {
-    const page = getReplicaPage(path)!;
-    const ids = new Set([...page.html.matchAll(/data-opc-id="(\d+)"/g)].map(match => Number(match[1])));
+  // P1 动态内容契约（docs/14）：/newslist、/activitylist 的卡片改为运行时注入，
+  // pages.json 只留占位符；构建期快照 list-cards.json 与改动前烘焙卡逐字节一致，
+  // 完整性守卫改对拍快照串（/market 的卡片仍烘焙在 pages.json）。
+  const snapshot = JSON.parse(readFileSync('src/lib/opc/generated/list-cards.json', 'utf8'));
+  for (const [path, category, html] of [
+    ['/newslist', '10', snapshot.news],
+    ['/activitylist', '16', snapshot.activities],
+    ['/market', '14', getReplicaPage('/market')!.html],
+  ] as const) {
+    const ids = new Set([...html.matchAll(/data-opc-id="(\d+)"/g)].map(match => Number(match[1])));
     for (const id of source.categories[category].ids) assert.ok(ids.has(id), `${path}: ${id}`);
     assert.equal(ids.size, source.categories[category].total);
   }
@@ -50,8 +57,10 @@ test('city variants retain their source descriptions and global contact address'
   assert.match(page.html, /上海作为国际化大都市/);
   // 联系地址是**全站统一**的那一个（不是按城市变的）。
   // ⚠️ 原站运营方（同橙）的地址已换成本站地址 —— 见 build-opc-content.py 的
-  // replace_operator_contact()；本站地址与 src/lib/site/config.ts 的 site.address 一致。
-  assert.match(page.html, /北京市丰台区西马场甲14号/);
+  // replace_operator_contact()；本站地址与 src/lib/site/config.ts 的 site.address 一致
+  // （2026-10-23 契约 docs/15：地址口径收敛为「北京丰台大红门」）。
+  assert.match(page.html, /北京市丰台区大红门/);
+  assert.doesNotMatch(page.html, /西马场/);
   assert.doesNotMatch(page.html, /上海市鼓楼区/);
   // 社区名里的运营方品牌已换成本站品牌（OPC 作为业务概念词保留）
   assert.match(page.html, /松江大学城科创源·集智 AI OPC 社区/);
@@ -60,8 +69,10 @@ test('city variants retain their source descriptions and global contact address'
 
 test('SSR metrics contain final values instead of captured animation frames', () => {
   const home = getReplicaPage('/')!.html;
-  for (const value of ['500+', '1,000+', '200+', '50+']) assert.ok(home.includes(value));
-  assert.doesNotMatch(home, /496\+|992\+|198\+/);
+  // 2026-10-23 契约 docs/15 §2.Req2：指标换为 500+/1000+/100+/50+。
+  for (const value of ['500+', '1000+', '100+', '50+']) assert.ok(home.includes(value));
+  for (const label of ['入驻智能体', '活跃创业者', '精品课程', '生态伙伴企业']) assert.ok(home.includes(label));
+  assert.doesNotMatch(home, /496\+|992\+|198\+|1,000\+/);
   const work = getReplicaPage('/work')!.html;
   assert.match(work, /class="count-num"[^>]*>500<\/span>/);
   assert.match(work, /class="count-num"[^>]*>10,000<\/span>/);
@@ -116,6 +127,76 @@ test('all homepage feature entries have native links matching the public source'
   assert.match(external[1], /rel="noopener noreferrer"/);
 });
 
+test('rebuilt navigation carries the eight contract entries with pure local hrefs', () => {
+  // 2026-10-23 契约 docs/15 §2.Req1：导航重建为 8 项 + 三个下拉。
+  // DOM 契约：纯 <a href>，无 data-opc-action；申请入驻 li 带 nav-item--cta。
+  const home = getReplicaPage('/')!.html;
+  const nav = home.slice(home.indexOf('class="nav-links"'), home.indexOf('class="mobile-menu"'));
+  const topItems: [string, string][] = [
+    ['关于集智', '/about'], ['八大赋能', '/empower/space'], ['智能体', '/agent'],
+    ['供需市场', '/market'], ['流量超市', '/traffic'], ['集智商学院', '/center'],
+    ['社区动态', '/newslist'], ['申请入驻', '/apply'],
+  ];
+  for (const [label, href] of topItems) {
+    assert.ok(nav.includes(`href="${href}"`) && nav.includes(`${label}<`), `${label} → ${href}`);
+  }
+  assert.match(nav, /nav-item--dropdown/g);
+  assert.match(nav, /nav-item--cta/);
+  assert.ok(nav.includes('href="/about/history"') && nav.includes('发展历程'));
+  assert.ok(nav.includes('href="/empower/capital"') && nav.includes('资本政策'));
+  assert.ok(nav.includes('href="/activitylist"') && nav.includes('活动资讯'));
+  assert.ok(nav.includes('aria-haspopup="true"'));
+  // 纯 href 导航：导航区不得携带交互动作属性（复刻路径由 ReplicaInteractions 拦截）
+  assert.doesNotMatch(nav, /data-opc-action/);
+  // 旧导航项与原站绝对链接不得残留
+  for (const legacy of ['智能体中心', '交易市场', '星计划', '工作平台', 'https://opcstore.com']) {
+    assert.ok(!nav.includes(legacy), legacy);
+  }
+});
+
+test('contract copy lands on the rewritten sections', () => {
+  // 首页 banner（Req2）
+  const home = getReplicaPage('/')!.html;
+  assert.ok(home.includes('一站式 AI 应用综合赋能平台，为创业者提供空间、算力、技术、培训、流量、订单、企业服务、资本政策全方位的支持。'));
+  // 关于文案（Req3）
+  assert.ok(home.includes('北京集美科技有限公司 · 2026 年 10 月启动运营'));
+  assert.ok(home.includes('位于北京丰台大红门'));
+  // 合作企业 16 家（Req6，首页与 /work 共用 visual_ecosystem）
+  for (const source of ['/', '/work']) {
+    const html = getReplicaPage(source)!.html;
+    assert.ok(html.includes('COOPERATIVE ENTERPRISES') && html.includes('合作企业'), source);
+    const grid = html.slice(html.indexOf('opc-visual-partner-grid'));
+    for (const partner of ['华为', '字节跳动', '哔哩哔哩', '豆瓣', '携程']) {
+      assert.ok(grid.includes(partner), `${source}: ${partner}`);
+    }
+    assert.equal((grid.match(/opc-visual-partner-card/g) ?? []).length, 16, source);
+    assert.ok(!html.includes('AI ECOSYSTEM') && !html.includes('opc-visual-logo-card'), source);
+  }
+  // /agent（Req4）
+  assert.ok(getReplicaPage('/agent')!.html.includes('集智·探索 AI 的无限可能'));
+  // /market 加入区（Req5+Req7）
+  const market = getReplicaPage('/market')!.html;
+  assert.ok(market.includes('加入集智 AI OPC 交易市场'));
+  assert.ok(market.includes('上架智能体能力，发布项目需求，链接产业伙伴，共筑 AI 产业新生态'));
+  for (const step of ['供需发布', '智能匹配', '能力展示', '产业共创']) assert.ok(market.includes(step), step);
+  // 集智商学院四段（Req8）
+  const center = getReplicaPage('/center')!.html;
+  assert.ok(center.includes('hero-slogan') && center.includes('学AI技能拿高薪Offer让未来，从这里开始'));
+  assert.ok(center.includes('提供AI人才培养与就业服务，助力个人成长与企业数字化升级'));
+  for (const feature of ['实战教学', 'AIGC认证', '研学班', '项目驱动', '名企合作']) {
+    assert.ok(center.includes(feature), feature);
+  }
+  assert.ok(!center.includes('视频教学'));
+  assert.ok(center.includes('培训课程体系') && center.includes('紧跟行业需求，打造系统化AI人才培养体系'));
+  assert.ok(center.includes('AI电商') && center.includes('Hadoop、Spark、Flink 技术栈'));
+  assert.ok(!center.includes('category-tab') && !center.includes('course-detail'), 'old course tabs/cards removed');
+  assert.ok(center.includes('一站式就业服务') && center.includes('从学习到就业，全程陪伴，让每一次努力都有结果'));
+  for (const step of ['职业测评', '技能培训', '项目实战', '求职面试', '就业推荐', '入职跟踪']) {
+    assert.ok(center.includes(step), step);
+  }
+  assert.ok(center.includes('STEP 06'));
+});
+
 test('HTML compiler rejects adversarial elements, attributes, CSS and URLs', () => {
   const output = execFileSync('python3', ['scripts/build-opc-content.py', '--test'], { encoding: 'utf8' });
   assert.match(output, /sanitizer checks passed/);
@@ -165,7 +246,7 @@ test('site contact surfaces carry this site identity and never the reference ope
   // **备案号未提供** → 一律不渲染（原运营方的备案号已删除，不顶替）。
   for (const path of ['/', '/about', '/zone']) {
     const page = getReplicaPage(path)!;
-    assert.match(page.html, /北京市丰台区西马场甲14号/, path);
+    assert.match(page.html, /北京市丰台区大红门/, path);
     assert.match(page.html, /400-006-5858/, path);
     assert.match(page.html, /developer@jimei\.com\.cn/, path);
     assert.match(page.html, /www\.jizhiai\.net\.cn/, path);

@@ -4,15 +4,103 @@ import LogoutButton from './LogoutButton';
 import { getAdminSession } from '@/lib/admin/auth';
 
 /**
- * 管理后台共享外壳：深色顶栏 + 二级导航 + shader 背景层。
+ * 管理后台共享外壳：深色顶栏 + 分组侧边栏菜单树 + shader 背景层。
  * 由各受保护页面自行引入（login 页不用），认证检查在各页面的服务端组件里完成。
+ *
+ * 菜单树分五组：概览 / 内容管理 / 线索管理 / 站点配置 / 系统。
+ * 尚未落地的模块以「规划中」呈现（不可点、无路由），路由就绪后在 NAV_GROUPS
+ * 里补 href 即可上线。
  */
 
-const NAV = [
-  { key: 'overview', label: '概览', href: '/admin' },
-  { key: 'leads', label: '线索管理', href: '/admin/leads' },
-  { key: 'news', label: '新闻动态', href: '/admin/news' },
-] as const;
+type NavKey = 'overview' | 'news' | 'activities' | 'leads';
+
+type NavItem = {
+  label: string;
+  /** 当前高亮的导航项（有路由的才需要）。 */
+  key?: NavKey;
+  href?: string;
+  /** 规划中：渲染为不可点的占位项，不建路由。 */
+  planned?: boolean;
+};
+
+const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
+  {
+    title: '概览',
+    items: [{ key: 'overview', label: '仪表盘', href: '/admin' }],
+  },
+  {
+    title: '内容管理',
+    items: [
+      { key: 'news', label: '新闻资讯', href: '/admin/news' },
+      { key: 'activities', label: '活动管理', href: '/admin/activities' },
+      { label: '智能体工具', planned: true },
+      { label: '供需市场', planned: true },
+      { label: '课程管理', planned: true },
+      { label: '社区专区', planned: true },
+      { label: '合作伙伴', planned: true },
+    ],
+  },
+  {
+    title: '线索管理',
+    items: [{ key: 'leads', label: '线索列表', href: '/admin/leads' }],
+  },
+  {
+    title: '站点配置',
+    items: [{ label: '统计数字', planned: true }, { label: '八大赋能', planned: true }, { label: '页面文案', planned: true }],
+  },
+  {
+    title: '系统',
+    items: [{ label: '媒体库', planned: true }, { label: '管理员账号', planned: true }],
+  },
+];
+
+function SidebarNav({ active }: { active: NavKey }) {
+  return (
+    <nav
+      aria-label="后台导航"
+      className="self-start rounded-2xl border border-[var(--color-line)] bg-white p-3 shadow-[var(--shadow-card)] lg:sticky lg:top-4"
+    >
+      {/* 移动端：分组平铺成两/三列小卡片；桌面（lg+）：纵向菜单树 */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 lg:block lg:space-y-5">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.title}>
+            <p className="px-2.5 text-[11px] font-semibold tracking-wide text-[var(--color-ink-3)]">{group.title}</p>
+            <ul className="mt-1.5 space-y-0.5">
+              {group.items.map((item) => (
+                <li key={item.label}>
+                  {item.planned ? (
+                    <span
+                      title="功能规划中，敬请期待"
+                      aria-disabled="true"
+                      className="flex cursor-not-allowed items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--color-ink-3)]"
+                    >
+                      {item.label}
+                      <span className="shrink-0 rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-ink-3)]">
+                        规划中
+                      </span>
+                    </span>
+                  ) : (
+                    <Link
+                      href={item.href!}
+                      aria-current={item.key === active ? 'page' : undefined}
+                      className={
+                        item.key === active
+                          ? 'block rounded-lg bg-[var(--color-brand-navy)] px-2.5 py-1.5 text-[13px] font-semibold text-white shadow-[var(--shadow-card)]'
+                          : 'block rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-brand-navy)]'
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
 
 export default async function AdminShell({
   active,
@@ -22,7 +110,7 @@ export default async function AdminShell({
   dbConfigured = true,
   children,
 }: {
-  active: 'overview' | 'leads' | 'news';
+  active: NavKey;
   title: string;
   desc?: string;
   /** 标题右侧的操作区（如「新建」「导出」按钮）。 */
@@ -73,46 +161,32 @@ export default async function AdminShell({
             <LogoutButton />
           </div>
         </header>
-        <nav className="mt-3 flex gap-1">
-          {NAV.map((item) => {
-            const isActive = item.key === active;
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                aria-current={isActive ? 'page' : undefined}
-                className={
-                  isActive
-                    ? 'rounded-lg bg-white px-4 py-2 text-[13px] font-semibold text-[var(--color-brand-navy)] shadow-[var(--shadow-card)]'
-                    : 'rounded-lg px-4 py-2 text-[13px] font-medium text-[var(--color-ink-2)] transition-colors hover:bg-white/70 hover:text-[var(--color-brand-navy)]'
-                }
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
 
-      {/* 标题区 */}
-      <div className="relative mx-auto mt-8 w-full max-w-[1240px] px-5 sm:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-[24px] font-semibold text-[var(--color-brand-navy)]">{title}</h1>
-            {desc && <p className="mt-1.5 text-[13px] text-[var(--color-ink-2)]">{desc}</p>}
-          </div>
-          <div className="flex items-center gap-3">
-            {!dbConfigured && (
-              <span className="rounded-full bg-amber-50 px-3.5 py-1.5 text-[12px] font-medium text-amber-700 ring-1 ring-amber-200">
-                未连接 Supabase · 数据不可用
-              </span>
-            )}
-            {actions}
+        {/* 侧边栏菜单树 + 内容列（移动端侧边栏平铺到标题上方，不折叠） */}
+        <div className="mt-3 grid gap-5 lg:grid-cols-[212px_minmax(0,1fr)] lg:gap-6">
+          <SidebarNav active={active} />
+
+          <div className="min-w-0">
+            {/* 标题区 */}
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h1 className="text-[24px] font-semibold text-[var(--color-brand-navy)]">{title}</h1>
+                {desc && <p className="mt-1.5 text-[13px] text-[var(--color-ink-2)]">{desc}</p>}
+              </div>
+              <div className="flex items-center gap-3">
+                {!dbConfigured && (
+                  <span className="rounded-full bg-amber-50 px-3.5 py-1.5 text-[12px] font-medium text-amber-700 ring-1 ring-amber-200">
+                    未连接 Supabase · 数据不可用
+                  </span>
+                )}
+                {actions}
+              </div>
+            </div>
+
+            <main className="mt-6">{children}</main>
           </div>
         </div>
       </div>
-
-      <main className="relative mx-auto mt-6 w-full max-w-[1240px] px-5 sm:px-8">{children}</main>
     </div>
   );
 }

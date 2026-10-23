@@ -28,7 +28,7 @@ export const empowerDetails: EmpowerDetail[] = [
     title: '集智空间',
     tagline: '拎包入驻的工位与独立办公室，会议、路演、直播一站配齐。',
     heroDesc:
-      '首期 3000 余平米，位于北京丰台西马场甲14号。工位、独立办公室、会议室、路演厅与直播影棚一站配齐，工商财税法务办事窗口就在楼里。',
+      '首期 3000 余平米，位于北京丰台大红门。工位、独立办公室、会议室、路演厅与直播影棚一站配齐，工商财税法务办事窗口就在楼里。',
     values: [
       { title: '拎包入驻', desc: '工位与独立办公室即刻可用，不需要等待装修与采购周期，先把产品做出来。' },
       { title: '会议与路演', desc: '共享会议室与路演厅按需预约，客户来了有地方见，投资人来了有地方讲。' },
@@ -44,7 +44,7 @@ export const empowerDetails: EmpowerDetail[] = [
     ],
     highlights: [
       { label: '首期面积', value: '3000+ ㎡' },
-      { label: '位置', value: '丰台 · 西马场' },
+      { label: '位置', value: '丰台 · 大红门' },
       { label: '启动运营', value: '2026 年 10 月' },
     ],
     leadType: 'space',

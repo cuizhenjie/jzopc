@@ -8,7 +8,20 @@ import type { AdminNewsRow } from '@/lib/admin/data';
 /**
  * 新闻新建 / 编辑共用表单。
  * 正文编辑模型：一段一行（body 在库里是 jsonb 段落数组，与前台渲染同形）。
+ *
+ * 新闻与活动共用 news_posts 表（仅 category 不同）：
+ * - 资讯 / 沙龙 → 出现在「新闻资讯」列表；
+ * - 活动 → 出现在「活动管理」列表。
+ * 从活动管理入口进来时传 presetCategory="活动"，保存后跳回活动列表。
  */
+
+/** 落在「新闻资讯」列表的分类 / 落在「活动管理」列表的分类（从 schema 枚举派生，不重复声明）。 */
+const NEWS_LIST_CATEGORIES = NEWS_CATEGORIES.filter((c) => c !== '活动');
+const ACTIVITY_LIST_CATEGORIES = NEWS_CATEGORIES.filter((c) => c === '活动');
+
+function isKnownCategory(v: string | undefined): boolean {
+  return !!v && (NEWS_CATEGORIES as readonly string[]).includes(v);
+}
 
 type FormState = {
   title: string;
@@ -29,11 +42,12 @@ function toLocalInput(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function initialState(row?: AdminNewsRow): FormState {
+function initialState(row?: AdminNewsRow, presetCategory?: string): FormState {
+  const defaultCategory = presetCategory && isKnownCategory(presetCategory) ? presetCategory : '资讯';
   return {
     title: row?.title ?? '',
     slug: row?.slug ?? '',
-    category: row?.category ?? '资讯',
+    category: row?.category ?? defaultCategory,
     author: row?.author ?? '',
     status: row?.status ?? 'draft',
     published_at: row ? toLocalInput(row.published_at) : toLocalInput(new Date().toISOString()),
@@ -52,9 +66,21 @@ function FieldError({ msg }: { msg?: string }) {
   return <p className="mt-1.5 text-[12px] text-red-600">{msg}</p>;
 }
 
-export default function NewsForm({ mode, row }: { mode: 'create' | 'edit'; row?: AdminNewsRow }) {
+export default function NewsForm({
+  mode,
+  row,
+  presetCategory,
+  redirectTo = '/admin/news',
+}: {
+  mode: 'create' | 'edit';
+  row?: AdminNewsRow;
+  /** 新建时预置的分类（如从活动管理入口进来的 "活动"）；不在枚举内则忽略。 */
+  presetCategory?: string;
+  /** 保存成功后的跳转目标（默认回新闻列表；活动入口传 /admin/activities）。 */
+  redirectTo?: string;
+}) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState>(() => initialState(row));
+  const [form, setForm] = useState<FormState>(() => initialState(row, presetCategory));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [globalError, setGlobalError] = useState('');
@@ -91,7 +117,7 @@ export default function NewsForm({ mode, row }: { mode: 'create' | 'edit'; row?:
         return;
       }
 
-      router.push('/admin/news');
+      router.push(redirectTo);
       router.refresh();
     } catch {
       setGlobalError('网络异常，请重试。');
@@ -182,12 +208,24 @@ export default function NewsForm({ mode, row }: { mode: 'create' | 'edit'; row?:
               onChange={(e) => set('category', e.target.value)}
               className={`mt-2 ${inputClass}`}
             >
-              {NEWS_CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
+              <optgroup label="新闻资讯列表">
+                {NEWS_LIST_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="活动列表">
+                {ACTIVITY_LIST_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </optgroup>
             </select>
+            <p className="mt-1.5 text-[12px] text-[var(--color-ink-3)]">
+              「{NEWS_LIST_CATEGORIES.join(' / ')}」出现在新闻资讯列表；「活动」出现在活动管理列表（共用同一内容池）。
+            </p>
             <FieldError msg={errors.category} />
           </div>
 

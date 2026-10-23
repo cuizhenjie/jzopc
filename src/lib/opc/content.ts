@@ -6,6 +6,7 @@ import detailsSource from './generated/details.json' with { type: 'json' };
 import articleShell from './generated/article-shell.json' with { type: 'json' };
 import zonePagesSource from './generated/zone-cities.json' with { type: 'json' };
 import { isReplicaPath } from '@/lib/opc/routes';
+import { NEWSDETAIL_ID_PATTERN } from '@/lib/opc/taxonomy';
 
 export interface ReplicaPageContent {
   html: string;
@@ -35,7 +36,8 @@ const zonePages = zonePagesSource as Record<string, ReplicaPageContent>;
  */
 export const REPLICA_SITE_NAME = '集智 AI OPC 社区';
 
-function escapeText(value: string): string {
+/** HTML 文本/属性值转义（news-runtime 的运行时卡片渲染复用同一实现） */
+export function escapeText(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 }
 
@@ -43,10 +45,10 @@ function firstQuery(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-/** Numeric identifiers are checked before an immutable lookup; no file paths. */
+/** /newsdetail 的 id 在不可变查表前先过形态校验（数字或 slug，见 taxonomy）；不做任何文件路径拼接。 */
 export function getReplicaArticle(id: string | number): ReplicaArticle | null {
   const key = String(id);
-  if (!/^[1-9]\d{0,9}$/.test(key) || !Object.hasOwn(details, key)) return null;
+  if (!NEWSDETAIL_ID_PATTERN.test(key) || !Object.hasOwn(details, key)) return null;
   const article = details[key];
   return { id: article.id, title: article.title, html: article.html };
 }

@@ -1238,6 +1238,589 @@
           "sha256": "3ef29fb95b04fba3000fed4b9eb0932d15056b40b46a3369c07ab8b09cd0be19"
         }
       ]
+    },
+    {
+      "id": "partner-huawei",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-huawei.svg",
+      "alt": "华为",
+      "original": {
+        "sha256": "c5b0b049b2022d5b2391e34b7871d2580f97ad67dcae053499da49ff58ac27ac",
+        "width": 24,
+        "height": 24,
+        "bytes": 1338
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-huawei.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 1338,
+          "sha256": "c5b0b049b2022d5b2391e34b7871d2580f97ad67dcae053499da49ff58ac27ac"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-huawei",
+        "work.ecosystem.partner-huawei"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-alibaba",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-alibaba.svg",
+      "alt": "阿里巴巴",
+      "original": {
+        "sha256": "c09c884c7e8759484f8ad311da78c0d243a93d7a042eb46443f449af0aba21d5",
+        "width": 717,
+        "height": 147,
+        "bytes": 7471
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-alibaba.svg",
+          "width": 717,
+          "height": 147,
+          "bytes": 7471,
+          "sha256": "c09c884c7e8759484f8ad311da78c0d243a93d7a042eb46443f449af0aba21d5"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-alibaba",
+        "work.ecosystem.partner-alibaba"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-tencent",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-tencent.svg",
+      "alt": "腾讯",
+      "original": {
+        "sha256": "a0f0d2d0d2e259e646f3fb78ccec18148072de8482fddbb178bf0ebff164a1db",
+        "width": 1024,
+        "height": 137,
+        "bytes": 8137
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-tencent.svg",
+          "width": 1024,
+          "height": 137,
+          "bytes": 8137,
+          "sha256": "a0f0d2d0d2e259e646f3fb78ccec18148072de8482fddbb178bf0ebff164a1db"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-tencent",
+        "work.ecosystem.partner-tencent"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-bytedance",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-bytedance.svg",
+      "alt": "字节跳动",
+      "original": {
+        "sha256": "09e1b96b8565257e80903215cc01d8ce201a4c570fe8e0094ca8af096a5bb2ad",
+        "width": 24,
+        "height": 24,
+        "bytes": 346
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-bytedance.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 346,
+          "sha256": "09e1b96b8565257e80903215cc01d8ce201a4c570fe8e0094ca8af096a5bb2ad"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-bytedance",
+        "work.ecosystem.partner-bytedance"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-baidu",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-baidu.svg",
+      "alt": "百度",
+      "original": {
+        "sha256": "c06b13de3ac002d1913b2ca7c74508e9333bddbb0f487672f50d3f204795dd55",
+        "width": 24,
+        "height": 24,
+        "bytes": 1406
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-baidu.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 1406,
+          "sha256": "c06b13de3ac002d1913b2ca7c74508e9333bddbb0f487672f50d3f204795dd55"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-baidu",
+        "work.ecosystem.partner-baidu"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-meituan",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-meituan.svg",
+      "alt": "美团",
+      "original": {
+        "sha256": "c030f195b10a59303cce3e32c0e11c4e16b7bf6806a280cf88ede1702103303b",
+        "width": 24,
+        "height": 24,
+        "bytes": 1215
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-meituan.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 1215,
+          "sha256": "c030f195b10a59303cce3e32c0e11c4e16b7bf6806a280cf88ede1702103303b"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-meituan",
+        "work.ecosystem.partner-meituan"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-jingdong",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-jingdong.svg",
+      "alt": "京东",
+      "original": {
+        "sha256": "6068f871546a1a0d2b04dadde4c93a087befcbcf383acbf29b5f1463df087acd",
+        "width": 129,
+        "height": 42,
+        "bytes": 2834
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-jingdong.svg",
+          "width": 129,
+          "height": 42,
+          "bytes": 2834,
+          "sha256": "6068f871546a1a0d2b04dadde4c93a087befcbcf383acbf29b5f1463df087acd"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-jingdong",
+        "work.ecosystem.partner-jingdong"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-didi",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-didi.svg",
+      "alt": "滴滴",
+      "original": {
+        "sha256": "53ea786f2e08907ac1f2353393bb9607d464645250721e439f64fea80b08a1c0",
+        "width": 266,
+        "height": 87,
+        "bytes": 3463
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-didi.svg",
+          "width": 266,
+          "height": 87,
+          "bytes": 3463,
+          "sha256": "53ea786f2e08907ac1f2353393bb9607d464645250721e439f64fea80b08a1c0"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-didi",
+        "work.ecosystem.partner-didi"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-xiaomi",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-xiaomi.svg",
+      "alt": "小米",
+      "original": {
+        "sha256": "20fb26a3565ed90895c0f29ad006301a5dd9cede687b3ff4a27a0758ad0f9ede",
+        "width": 24,
+        "height": 24,
+        "bytes": 918
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-xiaomi.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 918,
+          "sha256": "20fb26a3565ed90895c0f29ad006301a5dd9cede687b3ff4a27a0758ad0f9ede"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-xiaomi",
+        "work.ecosystem.partner-xiaomi"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-netease",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-netease.svg",
+      "alt": "网易",
+      "original": {
+        "sha256": "0c339db28884ca4d9fc66fd16f0e467342024316bdd7832d9fe9e5dfda26a3ad",
+        "width": 283,
+        "height": 51,
+        "bytes": 29398
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-netease.svg",
+          "width": 283,
+          "height": 51,
+          "bytes": 29398,
+          "sha256": "0c339db28884ca4d9fc66fd16f0e467342024316bdd7832d9fe9e5dfda26a3ad"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-netease",
+        "work.ecosystem.partner-netease"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-bilibili",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-bilibili.svg",
+      "alt": "哔哩哔哩",
+      "original": {
+        "sha256": "b765d3899f1d4ffa4b9be5fb6f4ef41b3d9c5e6905f174c29e92b43409483d24",
+        "width": 24,
+        "height": 24,
+        "bytes": 1396
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-bilibili.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 1396,
+          "sha256": "b765d3899f1d4ffa4b9be5fb6f4ef41b3d9c5e6905f174c29e92b43409483d24"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-bilibili",
+        "work.ecosystem.partner-bilibili"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-kuaishou",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-kuaishou.svg",
+      "alt": "快手",
+      "original": {
+        "sha256": "ed951f8f64841ba35688a28ab3b88d65ce9b25db0f06157c60e8cb6e7125e7f1",
+        "width": 24,
+        "height": 24,
+        "bytes": 1180
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-kuaishou.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 1180,
+          "sha256": "ed951f8f64841ba35688a28ab3b88d65ce9b25db0f06157c60e8cb6e7125e7f1"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-kuaishou",
+        "work.ecosystem.partner-kuaishou"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-zhihu",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-zhihu.svg",
+      "alt": "知乎",
+      "original": {
+        "sha256": "99322d6c81830bb28a5cc83abbf960182feb57d01aed33e5ec1831318ecdb3df",
+        "width": 24,
+        "height": 24,
+        "bytes": 933
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-zhihu.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 933,
+          "sha256": "99322d6c81830bb28a5cc83abbf960182feb57d01aed33e5ec1831318ecdb3df"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-zhihu",
+        "work.ecosystem.partner-zhihu"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-weibo",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-weibo.svg",
+      "alt": "微博",
+      "original": {
+        "sha256": "9cc890072b41eeb91ef989a4fbe36a9c25643ca82b0c89c3f867ad95560f1832",
+        "width": 24,
+        "height": 24,
+        "bytes": 1508
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-weibo.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 1508,
+          "sha256": "9cc890072b41eeb91ef989a4fbe36a9c25643ca82b0c89c3f867ad95560f1832"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-weibo",
+        "work.ecosystem.partner-weibo"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-douban",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-douban.svg",
+      "alt": "豆瓣",
+      "original": {
+        "sha256": "87a0a1b6247b74a85703664e8441c4e0b96559565939e152339d9ad9d548a0f4",
+        "width": 24,
+        "height": 24,
+        "bytes": 325
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-douban.svg",
+          "width": 24,
+          "height": 24,
+          "bytes": 325,
+          "sha256": "87a0a1b6247b74a85703664e8441c4e0b96559565939e152339d9ad9d548a0f4"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-douban",
+        "work.ecosystem.partner-douban"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "partner-ctrip",
+      "kind": "mark",
+      "source": "scripts/opc-source/visual-originals/partner-logos/partner-ctrip.svg",
+      "alt": "携程",
+      "original": {
+        "sha256": "ffb8a94b4691547a0abef86dcd2a7656d0f067e334cea39db004c75811f3d6f4",
+        "width": 135,
+        "height": 33,
+        "bytes": 1500
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/partner-ctrip.svg",
+          "width": 135,
+          "height": 33,
+          "bytes": 1500,
+          "sha256": "ffb8a94b4691547a0abef86dcd2a7656d0f067e334cea39db004c75811f3d6f4"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "home.ecosystem.partner-ctrip",
+        "work.ecosystem.partner-ctrip"
+      ],
+      "usageNote": "合作企业品牌 SVG（~/Downloads/company-logos/svg，2026-10-23 用户提供）；矢量 contain 排版，不改品牌色。"
+    },
+    {
+      "id": "course-ai-ecommerce",
+      "kind": "photo",
+      "source": "scripts/opc-source/visual-originals/academy-courses/course-ai-ecommerce.jpg",
+      "alt": "AI电商课程",
+      "original": {
+        "sha256": "5c4a7ae281617b776fcddcae3c4231cbdda62f3e66e09876cf4a645bf4030369",
+        "width": 1152,
+        "height": 864,
+        "bytes": 221840
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/course-ai-ecommerce.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 29334,
+          "sha256": "219467deb2dc4cd5aa2bc06452fdb9e04be015510966e57b9a2a36d4a08c2e1a"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "center.courses.course-ai-ecommerce"
+      ],
+      "usageNote": "课程体系卡配图（~/Downloads/ai-training-page/assets _4x3，2026-10-23 用户提供）。"
+    },
+    {
+      "id": "course-aigc",
+      "kind": "photo",
+      "source": "scripts/opc-source/visual-originals/academy-courses/course-aigc.jpg",
+      "alt": "AIGC课程",
+      "original": {
+        "sha256": "12e91589432405bd0e7181a5187c75ef48272eeb9941ab6c9cc671f5a8afc050",
+        "width": 1152,
+        "height": 864,
+        "bytes": 174710
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/course-aigc.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 17272,
+          "sha256": "d40aca8a423c90e93d938b7a8b7c9457e946c06878ae6971ba22ef2d082c582b"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "center.courses.course-aigc"
+      ],
+      "usageNote": "课程体系卡配图（~/Downloads/ai-training-page/assets _4x3，2026-10-23 用户提供）。"
+    },
+    {
+      "id": "course-ai-comic",
+      "kind": "photo",
+      "source": "scripts/opc-source/visual-originals/academy-courses/course-ai-comic.jpg",
+      "alt": "AI漫剧课程",
+      "original": {
+        "sha256": "c458a5950f6a1155c39da7d5ce8cd4d2d5b74790b7cba84be92483d8246273b9",
+        "width": 1152,
+        "height": 864,
+        "bytes": 227997
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/course-ai-comic.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 27920,
+          "sha256": "e53a1241da60e2be07299816c7341763d0ab565250da49982640b3b105c7e4d6"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "center.courses.course-ai-comic"
+      ],
+      "usageNote": "课程体系卡配图（~/Downloads/ai-training-page/assets _4x3，2026-10-23 用户提供）。"
+    },
+    {
+      "id": "course-bigdata",
+      "kind": "photo",
+      "source": "scripts/opc-source/visual-originals/academy-courses/course-bigdata.jpg",
+      "alt": "大数据工程师课程",
+      "original": {
+        "sha256": "bbab3b212cd8d0306811cbd193055015295942ce931bc8c8fe2ec33c4aa1b25d",
+        "width": 1152,
+        "height": 864,
+        "bytes": 284717
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/course-bigdata.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 40650,
+          "sha256": "6cabfcc74ae465bc9b2f1e884e11055a1624f39a7a21bf1f2df5af9203ec7bdb"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "center.courses.course-bigdata"
+      ],
+      "usageNote": "课程体系卡配图（~/Downloads/ai-training-page/assets _4x3，2026-10-23 用户提供）。"
+    },
+    {
+      "id": "course-shortvideo",
+      "kind": "photo",
+      "source": "scripts/opc-source/visual-originals/academy-courses/course-shortvideo.jpg",
+      "alt": "短视频运营课程",
+      "original": {
+        "sha256": "ddb5e3f56b2aa6bd8b673850aecb9f59611c61174cdd709220d5ecad0f59ed79",
+        "width": 1152,
+        "height": 864,
+        "bytes": 194462
+      },
+      "variants": [
+        {
+          "url": "/opc/visual/course-shortvideo.webp",
+          "width": 960,
+          "height": 720,
+          "bytes": 24228,
+          "sha256": "a586ebbe21d2ffe968caf53a8477a144d8dec234977ecf9a03f5796a39717e8f"
+        }
+      ],
+      "sourceType": "generated",
+      "tool": "user-supplied",
+      "slots": [
+        "center.courses.course-shortvideo"
+      ],
+      "usageNote": "课程体系卡配图（~/Downloads/ai-training-page/assets _4x3，2026-10-23 用户提供）。"
     }
   ],
   "pipeline": {

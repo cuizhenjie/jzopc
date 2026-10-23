@@ -317,7 +317,13 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
       if (action === 'work-platform') { event.preventDefault(); openInfo('工作平台', '工作平台的账号服务尚未配置，当前展示平台功能介绍。', target); return; }
       const candidate = target.dataset.opcRoute ?? (target instanceof HTMLAnchorElement ? target.getAttribute('href') : null);
       if (candidate && navigate(candidate)) { event.preventDefault(); return; }
-      if (action === 'apply' || action === 'applycommunity') { event.preventDefault(); navigate(`/opcapply?formType=${encodeURIComponent(action === 'applycommunity' ? 'community' : value || 'community')}`); }
+      if (action === 'apply' || action === 'applycommunity') {
+        // 加入/入驻类动作统一去原生申请入驻页（2026-10-23 需求），不再进
+        // 登录克隆页 /opcapply。/apply 不在复刻路由表里，navigate() 会拒并
+        // 放行默认行为——而这些卡是 article/div 无 href，默认行为是空操作，
+        // 所以这里直接 router.push（本站原生路由，可信目标），再收起菜单。
+        event.preventDefault(); closeMenu(); router.push('/apply');
+      }
     };
 
     const onSubmit = (event: SubmitEvent) => { if (event.target instanceof HTMLFormElement) { event.preventDefault(); submitLocalForm(event.target); } };

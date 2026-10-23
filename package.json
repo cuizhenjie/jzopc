@@ -4,6 +4,7 @@
   "private": true,
   "description": "集智 AI OPC 社区官网 — 北京集美科技有限公司",
   "type": "module",
+  "packageManager": "pnpm@12.11.2",
   "engines": {
     "node": ">=20"
   },

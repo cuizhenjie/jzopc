@@ -60,8 +60,8 @@ test('all provided media are inventoried and derivatives match their audited dim
   visit('webimages');
   assert.equal(sources.length, 36);
   assert.deepEqual(manifest.assets.filter(asset => asset.sourceType === 'user-provided').map(asset => asset.source).sort(), sources.sort());
-  assert.equal(manifest.assets.length, 45);
-  assert.equal(variants.size, 49);
+  assert.equal(manifest.assets.length, 66);
+  assert.equal(variants.size, 70);
   for (const asset of manifest.assets) {
     assert.ok(asset.slots.length, asset.id);
     assert.match(asset.original.sha256, /^[a-f\d]{64}$/);
@@ -76,7 +76,7 @@ test('all provided media are inventoried and derivatives match their audited dim
   const banner = manifest.assets.find(asset => asset.id === 'computing-banner')!;
   assert.equal(banner.sourceType, 'generated');
   assert.equal(banner.tool, 'image_gen');
-  assert.match(execFileSync('node', ['scripts/build-opc-visual-media.mjs', '--check'], { encoding: 'utf8' }), /Verified 45 visual sources \/ 49 local variants/);
+  assert.match(execFileSync('node', ['scripts/build-opc-visual-media.mjs', '--check'], { encoding: 'utf8' }), /Verified 66 visual sources \/ 70 local variants/);
 });
 
 test('homepage carousel uses four responsive local images with a single high priority frame', () => {
@@ -129,20 +129,27 @@ test('homepage about background uses the provided blue city image as a decorativ
   assert.equal([...home.matchAll(/fetchpriority="high"/g)].length, 1);
 });
 
-test('native calculator market navigation is reachable in every public header', () => {
+test('rebuilt navigation reaches the native compute entry in every public header', () => {
+  // 2026-10-23 契约 docs/15 §2.Req1：导航重建后「算力超市」是「八大赋能」
+  // 下拉的子项，指向原生页 /empower/compute（纯 href，无 data-opc-action）。
   for (const path of ['/', '/agent', '/market', '/center', '/community', '/work', '/about']) {
-    const home = getReplicaPage(path)!.html;
-    const nav = home.match(/<ul\b[^>]*class="nav-links[^>]*>([\s\S]*?)<\/ul>/)?.[1];
-    assert.ok(nav, path);
+    const html = getReplicaPage(path)!.html;
+    const nav = html.slice(html.indexOf('class="nav-links"'), html.indexOf('class="mobile-menu"'));
+    assert.ok(nav && nav.includes('nav-links'), path);
     const anchor = [...nav.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].find(match => match[2].replace(/<[^>]+>/g, '').trim() === '算力超市');
     assert.ok(anchor, path);
-    assert.match(anchor[1], /href="https:\/\/th\.jimei\.cn"/);
-    assert.match(anchor[1], /target="_blank"/);
-    assert.match(anchor[1], /rel="noopener noreferrer"/);
+    assert.match(anchor[1], /href="\/empower\/compute"/);
+    assert.ok(!anchor[1].includes('data-opc-action'), path);
   }
+  // 首页特性卡的算力超市入口保持外部直达（th.jimei.cn，新窗口打开）。
+  const feature = [...getReplicaPage('/')!.html.matchAll(/<a\b([^>]*class="ftr-node[^>]*)>([\s\S]*?)<\/a>/g)]
+    .find(match => match[2].includes('算力超市'))!;
+  assert.match(feature[1], /href="https:\/\/th\.jimei\.cn"/);
+  assert.match(feature[1], /target="_blank"/);
+  assert.match(feature[1], /rel="noopener noreferrer"/);
 });
 
-test('learning photos are independent of factual articles; ecosystem logos keep correct names and proportions', () => {
+test('learning photos are independent of factual articles; cooperative enterprises render as sixteen text cards', () => {
   const home = getReplicaPage('/')!.html;
   const gallery = home.match(/<section\b[^>]*data-opc-gallery="learning"[^>]*>([\s\S]*?)<\/section>/)?.[1];
   assert.ok(gallery);
@@ -153,15 +160,13 @@ test('learning photos are independent of factual articles; ecosystem logos keep 
   for (const path of ['/about', '/community']) assert.match(getReplicaPage(path)!.html, /data-opc-gallery="scene"/);
   for (const path of ['/', '/work']) {
     const html = getReplicaPage(path)!.html;
-    const logos = [...html.matchAll(/<img\b[^>]*src="(\/opc\/visual\/logo-\d+.webp)"[^>]*>/g)];
-    assert.equal(logos.length, 12, path);
-    assert.match(html, /AI生态/);
-    for (const logo of logos) {
-      const asset = manifest.assets.find(asset => asset.variants[0].url === logo[1])!;
-      assert.ok(logo[0].includes(`alt="${asset.alt}"`));
-      assert.equal(asset.original.width, asset.variants[0].width);
-      assert.equal(asset.original.height, asset.variants[0].height);
-    }
+    // 2026-10-23 契约 docs/15 §2.Req6：AI生态 logo 墙重写为「合作企业」
+    // 16 家文字卡（无图资产；logo-01..12 不再被页面引用，manifest 保留）。
+    const grid = html.match(/<ul\b[^>]*opc-visual-partner-grid[^>]*>([\s\S]*?)<\/ul>/)?.[1];
+    assert.ok(grid, path);
+    assert.equal([...grid.matchAll(/<li\b[^>]*opc-visual-partner-card/g)].length, 16, path);
+    assert.match(html, /合作企业/);
+    assert.ok(!/\/opc\/visual\/logo-\d+\.webp/.test(html), path);
   }
   const icons = [...home.matchAll(/<img\b[^>]*class="opc-visual-service-icon"[^>]*>/g)];
   assert.equal(icons.length, 7); // GPU资源特性卡已下线，服务图标 8→7

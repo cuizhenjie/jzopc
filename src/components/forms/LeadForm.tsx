@@ -204,7 +204,7 @@ export default function LeadForm({
       {desc && <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-ink-2)]">{desc}</p>}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <Field label="姓名" name="name" required error={fieldErrors.name}>
+        <Field label={withApplyFields ? '联系人姓名' : '姓名'} name="name" required error={fieldErrors.name}>
           <input
             id="name"
             name="name"
@@ -216,36 +216,51 @@ export default function LeadForm({
           />
         </Field>
 
-        <Field label="联系方式" name="contact" required error={fieldErrors.contact}>
-          <div className="flex gap-2">
-            <div className="flex shrink-0 overflow-hidden rounded-lg border border-[var(--color-line)]">
-              {(['phone', 'email'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setContactType(t)}
-                  className={clsx(
-                    'px-3 text-[13px] transition-colors',
-                    contactType === t
-                      ? 'bg-[var(--color-brand-blue-deep)] text-white'
-                      : 'bg-white text-[var(--color-ink-2)] hover:bg-[var(--color-surface)]',
-                  )}
-                >
-                  {t === 'phone' ? '手机' : '邮箱'}
-                </button>
-              ))}
-            </div>
+        {withApplyFields ? (
+          // 申请入驻（Req9）：只收电话，收起 手机/邮箱 切换；contactType 恒为 'phone'（payload 契约不变）
+          <Field label="联系电话" name="contact" required error={fieldErrors.contact}>
             <input
               id="contact"
               name="contact"
-              type={contactType === 'phone' ? 'tel' : 'email'}
+              type="tel"
               required
               maxLength={120}
-              placeholder={contactType === 'phone' ? '11 位手机号' : 'name@example.com'}
+              placeholder="11 位手机号"
               className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
             />
-          </div>
-        </Field>
+          </Field>
+        ) : (
+          <Field label="联系方式" name="contact" required error={fieldErrors.contact}>
+            <div className="flex gap-2">
+              <div className="flex shrink-0 overflow-hidden rounded-lg border border-[var(--color-line)]">
+                {(['phone', 'email'] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setContactType(t)}
+                    className={clsx(
+                      'px-3 text-[13px] transition-colors',
+                      contactType === t
+                        ? 'bg-[var(--color-brand-blue-deep)] text-white'
+                        : 'bg-white text-[var(--color-ink-2)] hover:bg-[var(--color-surface)]',
+                    )}
+                  >
+                    {t === 'phone' ? '手机' : '邮箱'}
+                  </button>
+                ))}
+              </div>
+              <input
+                id="contact"
+                name="contact"
+                type={contactType === 'phone' ? 'tel' : 'email'}
+                required
+                maxLength={120}
+                placeholder={contactType === 'phone' ? '11 位手机号' : 'name@example.com'}
+                className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
+              />
+            </div>
+          </Field>
+        )}
 
         <Field label="团队 / 项目名称" name="orgName">
           <input
@@ -320,13 +335,21 @@ export default function LeadForm({
         )}
       </div>
 
-      <Field label="补充说明" name="message" className="mt-4">
+      <Field
+        label={withApplyFields ? '项目一句话简介' : '补充说明'}
+        name="message"
+        className="mt-4"
+      >
         <textarea
           id="message"
           name="message"
-          rows={3}
+          rows={withApplyFields ? 2 : 3}
           maxLength={1000}
-          placeholder="简单介绍你的项目或需求，方便我们提前准备（选填）"
+          placeholder={
+            withApplyFields
+              ? '一句话介绍你的项目'
+              : '简单介绍你的项目或需求，方便我们提前准备（选填）'
+          }
           className="w-full resize-none rounded-lg border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none transition-colors placeholder:text-[var(--color-ink-3)] focus:border-[var(--color-brand-blue)]"
         />
       </Field>

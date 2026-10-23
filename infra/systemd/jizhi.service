@@ -1,0 +1,114 @@
+# 集智 AI OPC 官网 · systemd 服务单元（Rocky Linux 9）
+#
+# 放置位置：/etc/systemd/system/jizhi.service
+# 启用：   systemctl daemon-reload && systemctl enable --now jizhi
+#
+# ── 为什么用 systemd 而不是 pm2 ──────────────────────────────────────────
+# 本仓库另备了 pm2.config.cjs（随 prepare:deploy 一起打进产物），两者都能用。
+# 选 systemd 的三个理由：
+#   1. symlink 原子切换后，`systemctl restart` 会**重新解析** ExecStart 里的
+#      symlink 路径 → 必定启动新版本。pm2 记录的是启动时的 cwd 字符串，
+#      切 symlink 后行为依赖 pm2 版本，排查成本高。
+#   2. Rocky 是 systemd 原生发行版，开机自启、日志(journalctl)、崩溃重启
+#      全是内建能力，不需要额外装 pm2 守护自己。
+#   3. 日志统一进 journald，排障时 `journalctl -u jizhi -f` 即可，
+#      不用去翻 ./logs/。
+#
+# ── 与 pm2 的等价关系（迁移对照）────────────────────────────────────────
+#   pm2 start pm2.config.cjs   →  systemctl enable --now jizhi
+#   pm2 reload                 →  systemctl restart jizhi
+#   pm2 logs                   →  journalctl -u jizhi -f
+#   pm2 save                   →  systemctl enable jizhi（已持久化）
+
+[Unit]
+Description=JIZHI AI OPC site (Next.js standalone)
+Documentation=https://github.com/cuizhenjie/jzopc
+After=network-online.target
+Wants=network-online.target
+
+# StartLimit* 属于 [Unit] 段（写进 [Service] 会被 systemd 静默忽略）：
+# 60 秒内最多重启 5 次，超过则判定为「启动配置有问题」而停止重试，
+# 避免配置写错时把 journald 刷爆。
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+
+# 用独立用户跑，不给 root，也不给登录 shell
+User=jizhi
+Group=jizhi
+
+# current 是指向 releases/<sha> 的 symlink。
+# systemd 每次 ExecStart 都重新解析路径 → 切 symlink 后 restart 即新版本。
+WorkingDirectory=/opt/jizhi/current
+
+# 运行时密钥（服务端专用，不带 NEXT_PUBLIC_ 前缀的那些）。
+# 文件权限必须 600，属主 root:jizhi：
+#   install -o root -g jizhi -m 600 /dev/null /etc/jizhi.env
+#   chown root:jizhi /etc/jizhi.env
+EnvironmentFile=/etc/jizhi.env
+
+# 环境变量与 pm2.config.cjs 保持一致：
+#   PORT      应用监听端口
+#   HOSTNAME  只监听回环，由 nginx 对外
+#   NODE_ENV  production
+#
+# ⚠️ HOSTNAME 必须显式设成 127.0.0.1，不能省。
+#    Next 的 standalone 入口直接这么取监听地址（deploy/server.js）：
+#        const hostname = process.env.HOSTNAME || '0.0.0.0'
+#    而 Linux 的 HOSTNAME 是**系统默认环境变量，值就是主机名**（如 rocky-server）。
+#    于是不显式覆盖会有两种坏结果：
+#      · 绑到主机名解析出的地址 → 行为取决于服务器 DNS，不可靠；
+#      · 变量被清空 → 退化成 0.0.0.0 → 应用绕过 nginx 直接暴露公网，
+#        丢掉 TLS / WAF / 限流 / 安全响应头。
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+Environment=NODE_ENV=production
+
+ExecStart=/usr/bin/node /opt/jizhi/current/server.js
+
+# 崩溃自动重启；配合 StartLimit 给个宽限期，避免启动失败时疯狂重启刷屏
+Restart=always
+RestartSec=3
+
+# 优雅停机：等在途请求处理完（Next 的 standalone 处理 SIGTERM 会关闭 server）
+KillSignal=SIGTERM
+KillMode=mixed
+TimeoutStopSec=30
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=jizhi
+
+# ── 安全加固 ─────────────────────────────────────────────────────────────
+# node 只需要读代码 + 写 .next/cache（ISR 缓存）+ 写临时目录。
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+# 说明：MemoryDenyWriteExecute=true 会让部分 JIT（V8 / three.js 的 WASM）
+# 崩溃，Next 的运行时依赖 V8 JIT，所以这里保持 false。
+#
+# ProtectSystem=full 会把 /opt 整棵树挂成只读 → .next/cache 写不进去，
+# ISR 再生成会失败（页面表现成「内容永远不更新」）。
+# 下面单独开 /opt/jizhi 的写权限。
+#
+# ⚠️ 这里刻意写 /opt/jizhi 整个目录，而不是 /opt/jizhi/current/.next/cache：
+#   1) ReadWritePaths 的路径在**服务启动时**解析，写 current/... 的话，
+#      首次部署前该目录还不存在 → 单元直接启动失败（namespace 挂载报错）；
+#   2) current 是 symlink，每次发布都换目标，指向具体子目录会跟着漂移。
+#   /opt/jizhi 由 bootstrap 脚本预先创建，是真实目录，不受 symlink 切换影响。
+ReadWritePaths=/opt/jizhi
+
+[Install]
+WantedBy=multi-user.target

@@ -65,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       '@type': 'PostalAddress',
       addressLocality: '北京市',
       addressRegion: '丰台区',
-      streetAddress: '西马场甲14号',
+      streetAddress: '大红门',
     },
   };
   const websiteJsonLd = {

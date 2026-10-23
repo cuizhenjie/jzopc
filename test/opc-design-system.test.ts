@@ -182,7 +182,9 @@ test('every class the design layer targets actually exists in the replica DOM', 
 
   // 复刻 DOM 里真实存在的类名
   const domClasses = new Set<string>();
-  for (const file of ['pages', 'details', 'article-shell', 'zone-cities', 'directory', 'listings']) {
+  // list-cards：P1 动态内容契约（docs/14）后 /newslist、/activitylist 的卡片快照，
+  // 页面运行时注入的兜底串与原烘焙卡逐字节一致 —— 类名守卫需把它纳入 DOM 来源。
+  for (const file of ['pages', 'details', 'article-shell', 'zone-cities', 'directory', 'listings', 'list-cards']) {
     const raw = readFileSync(`src/lib/opc/generated/${file}.json`, 'utf8');
     for (const match of raw.matchAll(/class=\\?"([^"\\]*)\\?"/g)) {
       for (const name of match[1].split(/\s+/)) if (name) domClasses.add(name);

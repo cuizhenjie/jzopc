@@ -19,7 +19,18 @@ const statusBadge: Record<string, string> = {
   archived: 'bg-gray-100 text-gray-500 ring-gray-200',
 };
 
-export default function NewsTable({ rows }: { rows: AdminNewsRow[] }) {
+export default function NewsTable({
+  rows,
+  createHref = '/admin/news/new',
+  emptyTitle = '该状态下暂无动态',
+  emptyCta = '发布第一篇',
+}: {
+  rows: AdminNewsRow[];
+  /** 空状态的「新建」入口。活动列表传 /admin/news/new?preset=活动。 */
+  createHref?: string;
+  emptyTitle?: string;
+  emptyCta?: string;
+}) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState('');
@@ -65,12 +76,12 @@ export default function NewsTable({ rows }: { rows: AdminNewsRow[] }) {
   if (rows.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-[var(--color-line)] bg-white px-8 py-16 text-center">
-        <p className="text-[15px] font-medium text-[var(--color-brand-navy)]">该状态下暂无动态</p>
+        <p className="text-[15px] font-medium text-[var(--color-brand-navy)]">{emptyTitle}</p>
         <Link
-          href="/admin/news/new"
+          href={createHref}
           className="mt-3 inline-block text-[13px] font-medium text-[var(--color-brand-blue-deep)] hover:underline"
         >
-          发布第一篇 →
+          {emptyCta} →
         </Link>
       </div>
     );

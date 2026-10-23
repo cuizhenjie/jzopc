@@ -46,24 +46,6 @@
 .opc-replica.opc-replica .opc-visual-hero.page-header > p {
   max-width: min(620px, 55%) !important;
 }
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark {
-  background: var(--opc-navy) !important;
-  color: var(--opc-white) !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .container {
-  text-align: left !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark :is(h1, h2, .sec-eyebrow) {
-  color: var(--opc-white) !important;
-  -webkit-text-fill-color: var(--opc-white) !important;
-  text-align: left !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark h1 {
-  display: block !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark h1 > span {
-  font-size: inherit !important;
-}
 .opc-replica.opc-replica .opc-visual-hero .container > p {
   max-width: min(620px, 55%) !important;
   margin-inline: 0 !important;
@@ -71,32 +53,10 @@
 .opc-replica.opc-replica .opc-visual-hero .hero-divider {
   margin-left: 0 !important;
 }
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-desc {
-  color: rgb(255 255 255 / 94%) !important;
-  text-align: left !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark :is(p, .stat-label, .stat-value, .stat-num, .stat-unit) {
-  color: var(--opc-white) !important;
-  -webkit-text-fill-color: var(--opc-white) !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .container > p {
-  max-width: min(620px, 55%) !important;
-  margin-inline: 0 !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-stats {
-  background: var(--opc-navy) !important;
-  border: 1px solid rgb(255 255 255 / 18%);
-  border-radius: var(--opc-radius-panel);
-  padding: var(--opc-space-6) !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-divider {
-  margin-left: 0 !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark .hero-actions {
+.opc-replica.opc-replica .opc-visual-hero .hero-actions {
   justify-content: flex-start !important;
 }
-/* Metrics span the hero width, so they need a solid reading surface. */
-.opc-replica.opc-replica .opc-visual-hero:not(.has-visual-dark) .hero-stats {
+.opc-replica.opc-replica .opc-visual-hero .hero-stats {
   background: var(--opc-surface) !important;
   border: 1px solid var(--opc-line);
   border-radius: var(--opc-radius-panel);
@@ -177,37 +137,11 @@
 .opc-replica.opc-replica .opc-visual-ecosystem {
   background: var(--opc-surface) !important;
 }
-.opc-replica.opc-replica .opc-visual-logo-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1px;
-  padding: 1px;
-  margin: var(--opc-space-8) 0 0;
-  list-style: none;
-  background: var(--opc-line);
-  border: 1px solid var(--opc-line);
-  border-radius: var(--opc-radius-panel);
-  overflow: hidden;
-}
-.opc-replica.opc-replica .opc-visual-logo-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  height: 100px;
-  padding: var(--opc-space-4);
-  background: var(--opc-white);
-}
-.opc-replica.opc-replica .opc-visual-logo-card img {
-  display: block;
-  width: 100%;
-  height: 60px;
-  object-fit: contain;
-  border-radius: 0 !important;
-}
+/* 2026-10-23 契约 docs/15：AI生态 logo 墙（opc-visual-logo-grid / -card）已
+   重写为「合作企业」16 家文字卡（opc-visual-partner-grid，样式在
+   opc-components.css），原 logo 网格规则随之移除。 */
 @media (max-width: 1023px) {
   .opc-replica.opc-replica .opc-visual-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .opc-replica.opc-replica .opc-visual-logo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 767px) {
   .opc-replica.opc-replica .hero .hero-overlay {
@@ -219,44 +153,12 @@
   .opc-replica.opc-replica .opc-visual-hero-art { width: 100%; opacity: .12; mask-image: linear-gradient(90deg, transparent, #000); }
   .opc-replica.opc-replica .opc-visual-hero .hero-desc,
   .opc-replica.opc-replica .opc-visual-hero .container > p,
-  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark .container > p,
   .opc-replica.opc-replica .opc-visual-hero.page-header > p { max-width: 100% !important; }
   .opc-replica.opc-replica .opc-visual-photo-grid,
   .opc-replica.opc-replica [data-opc-gallery='scene'] .opc-visual-photo-grid { grid-template-columns: 1fr; gap: var(--opc-space-8); }
-  .opc-replica.opc-replica .opc-visual-logo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .opc-replica.opc-replica .opc-visual-logo-card { height: 88px; }
 }
 
-/* ── community banner 对齐 work hero 规格（2026-10）───────────────────
-   /community 的 page-header 走 has-visual-dark 深色变体后，
-   尺寸沿 work 同款 .hero 的三档内边距阶（120/100 → 100/60 → 64/40，
-   与镜像层 .hero[data-v-8651a8e1] 的断点一致）；
-   p 的墨灰在深蓝底不可读，显式回到深色版次级白。
-   特异性 (0,6,0) 压过设计层 page-header 组（0,3,0）及其 767px 断点。 */
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
-  padding: 120px 0 100px !important;
-}
-.opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header p {
-  color: rgb(255 255 255 / 78%) !important;
-}
-@media (max-width: 1024px) {
-  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
-    padding: 100px 0 60px !important;
-  }
-}
-@media (max-width: 767px) {
-  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
-    padding: 64px 0 40px !important;
-  }
-}
-/* community banner 的内容行数比 work hero 少（高度 353 vs 530）：
-   桌面端用 min-height 对齐 work 的版面占用，内容垂直居中；
-   平板/移动端维持内容自适应（与 work 的断点行为一致）。 */
-@media (min-width: 1024px) {
-  .opc-replica.opc-replica .opc-visual-hero.has-visual-dark.page-header {
-    min-height: 530px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-}
+/* ── 子页 banner 统一（2026-10-23）─────────────────────────────────────
+   全部子页 hero（含曾经的 /work、/community 深色横幅）统一走 /center
+   版式：浅底 + 左对齐 + 右侧背景图。has-visual-dark 变体退役，相关
+   覆盖规则随之移除；深色版式只保留给首页全屏轮播。 */

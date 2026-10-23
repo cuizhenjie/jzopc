@@ -2,7 +2,8 @@
 const REVEAL_TARGETS = [
   '.sec-head', '.ftr-node', '.eco-node', '.strength-block', '.news-card', '.tool-card', '.course-card',
   '.opc-card', '.rental-card', '.supply-card', '.demand-card', '.activity-item',
-  '.opc-visual-section-head', '.opc-visual-photo-card', '.opc-visual-logo-grid',
+  '.opc-visual-section-head', '.opc-visual-photo-card', '.opc-visual-partner-grid',
+  '.opc-academy-course-card', '.opc-employ-steps',
 ].join(',');
 const PERIOD = 5600;
 

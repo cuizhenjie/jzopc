@@ -62,7 +62,7 @@ await verifyDirectory(outputRoot, !checkOnly);
 for (const asset of manifest.assets) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(asset.id) || ids.has(asset.id)) throw new Error(`Invalid or duplicate asset id: ${asset.id}`);
   ids.add(asset.id);
-  if (!['hero', 'photo', 'reference', 'logo', 'icon'].includes(asset.kind)) throw new Error(`Invalid asset kind: ${asset.id}`);
+  if (!['hero', 'photo', 'reference', 'logo', 'icon', 'mark'].includes(asset.kind)) throw new Error(`Invalid asset kind: ${asset.id}`);
   const bytes = await readFile(await localFile(asset.source));
   const metadata = await sharp(bytes).metadata();
   if (!metadata.width || !metadata.height) throw new Error(`Undecodable image: ${asset.source}`);
@@ -71,7 +71,7 @@ for (const asset of manifest.assets) {
   const widths = asset.kind === 'hero' ? [960, 1920] : [null];
   const variants = [];
   for (const width of widths) {
-    const filename = asset.kind === 'icon' ? `${asset.id}.svg` : `${asset.id}${width ? `-${width}` : ''}.webp`;
+    const filename = (asset.kind === 'icon' || asset.kind === 'mark') ? `${asset.id}.svg` : `${asset.id}${width ? `-${width}` : ''}.webp`;
     const url = `/opc/visual/${filename}`;
     if (urls.has(url)) throw new Error(`Duplicate output: ${url}`);
     urls.add(url);
@@ -84,6 +84,11 @@ for (const asset of manifest.assets) {
     } else if (asset.kind === 'icon') {
       // SVG icons are produced by their own audited generator. Keep their bytes.
       data = bytes;
+    } else if (asset.kind === 'mark') {
+      // Externally supplied brand SVGs (e.g. partner logos) land here verbatim:
+      // vector bytes are copied as-is so scaling stays lossless at any size.
+      data = bytes;
+      await atomicWrite(outputPath, data);
     } else {
       let pipeline = sharp(bytes).rotate();
       if (asset.kind === 'hero') pipeline = pipeline.removeAlpha().resize({ width, withoutEnlargement: true });

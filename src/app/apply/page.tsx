@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
-import { Section, SectionHead } from '@/components/ui/Section';
+import { Section } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
 import LeadForm from '@/components/forms/LeadForm';
 import { Reveal } from '@/components/ui/Reveal';
-import Onboarding from '@/components/sections/Onboarding';
 
 export const metadata: Metadata = {
   title: '申请入驻',
@@ -81,17 +80,6 @@ export default function ApplyPage() {
             />
           </div>
         </div>
-      </Section>
-
-      {/* 入驻后可做的事：把八大赋能落到入驻者每天的真实动作上 */}
-      <Section tone="surface" size="sm">
-        <SectionHead
-          eyebrow="八大赋能落地清单"
-          title="入驻之后，这 8 件事都能在社区里做"
-          desc="八大赋能不是一张服务清单。签完约之后，它们对应着你每天真实会做的八件事——从领到工位，到接到第一单。"
-          align="left"
-        />
-        <Onboarding />
       </Section>
     </>
   );
