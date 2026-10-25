@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import AdminBackdrop from './AdminBackdrop';
 import LogoutButton from './LogoutButton';
+import ShaderAccent from '@/components/shaders/ShaderAccent';
 import { getAdminSession } from '@/lib/admin/auth';
 
 /**
@@ -8,11 +9,25 @@ import { getAdminSession } from '@/lib/admin/auth';
  * 由各受保护页面自行引入（login 页不用），认证检查在各页面的服务端组件里完成。
  *
  * 菜单树分五组：概览 / 内容管理 / 线索管理 / 站点配置 / 系统。
- * 尚未落地的模块以「规划中」呈现（不可点、无路由），路由就绪后在 NAV_GROUPS
- * 里补 href 即可上线。
+ * 2026-10-25 起「规划中」模块全部落地：智能体工具 / 供需市场 / 课程管理 /
+ * 社区专区 / 合作伙伴 / 统计数字 / 八大赋能 / 页面文案 / 媒体库 / 管理员账号。
  */
 
-type NavKey = 'overview' | 'news' | 'activities' | 'leads';
+type NavKey =
+  | 'overview'
+  | 'news'
+  | 'activities'
+  | 'community'
+  | 'agents'
+  | 'market'
+  | 'courses'
+  | 'partners'
+  | 'leads'
+  | 'site-stats'
+  | 'empower'
+  | 'site-contents'
+  | 'media'
+  | 'accounts';
 
 type NavItem = {
   label: string;
@@ -33,11 +48,11 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { key: 'news', label: '新闻资讯', href: '/admin/news' },
       { key: 'activities', label: '活动管理', href: '/admin/activities' },
-      { label: '智能体工具', planned: true },
-      { label: '供需市场', planned: true },
-      { label: '课程管理', planned: true },
-      { label: '社区专区', planned: true },
-      { label: '合作伙伴', planned: true },
+      { key: 'community', label: '社区专区', href: '/admin/community' },
+      { key: 'agents', label: '智能体工具', href: '/admin/agents' },
+      { key: 'market', label: '供需市场', href: '/admin/market' },
+      { key: 'courses', label: '课程管理', href: '/admin/courses' },
+      { key: 'partners', label: '合作伙伴', href: '/admin/partners' },
     ],
   },
   {
@@ -46,11 +61,18 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   },
   {
     title: '站点配置',
-    items: [{ label: '统计数字', planned: true }, { label: '八大赋能', planned: true }, { label: '页面文案', planned: true }],
+    items: [
+      { key: 'site-stats', label: '统计数字', href: '/admin/site-stats' },
+      { key: 'empower', label: '八大赋能', href: '/admin/empower' },
+      { key: 'site-contents', label: '页面文案', href: '/admin/site-contents' },
+    ],
   },
   {
     title: '系统',
-    items: [{ label: '媒体库', planned: true }, { label: '管理员账号', planned: true }],
+    items: [
+      { key: 'media', label: '媒体库', href: '/admin/media' },
+      { key: 'accounts', label: '管理员账号', href: '/admin/accounts' },
+    ],
   },
 ];
 
@@ -167,9 +189,10 @@ export default async function AdminShell({
           <SidebarNav active={active} />
 
           <div className="min-w-0">
-            {/* 标题区 */}
+            {/* 标题区：shader 组件包的 Accent 原语做页头点缀条 */}
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
+              <div className="min-w-0">
+                <ShaderAccent variant="brand" className="mb-3 max-w-[220px]" />
                 <h1 className="text-[24px] font-semibold text-[var(--color-brand-navy)]">{title}</h1>
                 {desc && <p className="mt-1.5 text-[13px] text-[var(--color-ink-2)]">{desc}</p>}
               </div>

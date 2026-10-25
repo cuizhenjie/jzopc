@@ -2,8 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { NEWS_CATEGORIES, NEWS_STATUSES, autoSlug, newsStatusLabels } from '@/lib/admin/news-schema';
+import {
+  NEWS_CATEGORIES,
+  NEWS_STATUSES,
+  autoSlug,
+  newsStatusLabels,
+  segmentsToHtml,
+} from '@/lib/admin/news-schema';
 import type { AdminNewsRow } from '@/lib/admin/data';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 
 /**
  * 新闻新建 / 编辑共用表单。
@@ -32,7 +39,8 @@ type FormState = {
   published_at: string;
   cover_url: string;
   summary: string;
-  bodyText: string;
+  /** 富文本 HTML（编辑器输出；存量纯文本段在 initialState 里包 <p> 转换） */
+  bodyHtml: string;
 };
 
 function toLocalInput(iso: string): string {
@@ -53,7 +61,7 @@ function initialState(row?: AdminNewsRow, presetCategory?: string): FormState {
     published_at: row ? toLocalInput(row.published_at) : toLocalInput(new Date().toISOString()),
     cover_url: row?.cover_url ?? '',
     summary: row?.summary ?? '',
-    bodyText: row ? row.body.join('\n') : '',
+    bodyHtml: row ? segmentsToHtml(row.body) : '',
   };
 }
 
@@ -102,6 +110,7 @@ export default function NewsForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          bodyHtml: form.bodyHtml || '<p></p>',
           slug: form.slug.trim() || (mode === 'create' ? autoSlug() : form.slug),
         }),
       });
@@ -163,17 +172,18 @@ export default function NewsForm({
         <div>
           <label htmlFor="nf-body" className={labelClass}>
             正文 <span className="text-red-500">*</span>
-            <span className="ml-2 font-normal text-[12px] text-[var(--color-ink-3)]">一段一行，空行会被忽略</span>
+            <span className="ml-2 font-normal text-[12px] text-[var(--color-ink-3)]">
+              富文本：标题 / 加粗 / 列表 / 引用 / 链接 / 图片
+            </span>
           </label>
-          <textarea
-            id="nf-body"
-            value={form.bodyText}
-            onChange={(e) => set('bodyText', e.target.value)}
-            rows={14}
-            placeholder={'第一段……\n第二段……'}
-            className={`mt-2 ${inputClass} leading-[1.9]`}
-          />
-          <FieldError msg={errors.bodyText} />
+          <div className="mt-2">
+            <RichTextEditor
+              key={`${mode}-${row?.id ?? 'new'}`}
+              value={form.bodyHtml}
+              onChange={(html) => set('bodyHtml', html)}
+            />
+          </div>
+          <FieldError msg={errors.bodyHtml} />
         </div>
       </div>
 

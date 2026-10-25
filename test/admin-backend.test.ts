@@ -1,5 +1,5 @@
 /**
- * 管理后台（/admin）核心纯函数的单测：新闻 schema、正文拆分、行转换、CSV 导出。
+ * 管理后台（/admin）核心纯函数的单测：新闻 schema、富文本正文、行转换、CSV 导出。
  *
  * 不需要数据库——数据访问层（src/lib/admin/data.ts）的查询依赖 Supabase 客户端，
  * 这里只测无副作用函数。DDL 列契约见 test/db-schema-contract.test.ts。
@@ -8,13 +8,14 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   newsInputSchema,
-  splitBody,
+  stripHtmlToText,
+  segmentsToHtml,
   toNewsRow,
   autoSlug,
 } from '@/lib/admin/news-schema';
 import { csvEscape, leadsToCsv, LEAD_CSV_COLUMNS } from '@/lib/admin/data';
 
-/** 一条合法的新闻表单输入 */
+/** 一条合法的新闻表单输入（富文本正文：编辑器输出的 HTML） */
 const validNews = {
   title: '集智第 3 期 AI 沙龙回顾',
   slug: 'salon-3-recap',
@@ -23,7 +24,7 @@ const validNews = {
   author: '集智运营',
   status: 'published',
   cover_url: '',
-  bodyText: '第一段。\n\n第二段。',
+  bodyHtml: '<p>第一段。</p><p>第二段。</p>',
   published_at: '2026-10-22T10:00',
 };
 
@@ -34,10 +35,20 @@ describe('newsInputSchema', () => {
   });
 
   test('缺标题 / 摘要 / 正文被拒绝', () => {
-    for (const key of ['title', 'summary', 'bodyText'] as const) {
+    for (const key of ['title', 'summary', 'bodyHtml'] as const) {
       const bad = { ...validNews };
       delete bad[key];
       assert.equal(newsInputSchema.safeParse(bad).success, false, `${key} 缺失应校验失败`);
+    }
+  });
+
+  test('纯空白正文（空段落/换行）被拒绝', () => {
+    for (const html of ['<p></p>', '<p>   </p>', '<p><br></p>']) {
+      assert.equal(
+        newsInputSchema.safeParse({ ...validNews, bodyHtml: html }).success,
+        false,
+        `bodyHtml=${html} 应校验失败`,
+      );
     }
   });
 
@@ -81,15 +92,25 @@ describe('newsInputSchema', () => {
   });
 });
 
-describe('splitBody / toNewsRow / autoSlug', () => {
-  test('按行拆分段落，空行与首尾空白被丢弃，兼容 CRLF', () => {
-    assert.deepEqual(splitBody('  a \r\n\r\nb\n\n  \nc'), ['a', 'b', 'c']);
+describe('stripHtmlToText / segmentsToHtml / toNewsRow / autoSlug', () => {
+  test('stripHtmlToText：去标签取可见文本，全空白内容为空串', () => {
+    assert.equal(stripHtmlToText('<p>你好</p><p>世界</p>'), '你好世界');
+    assert.equal(stripHtmlToText('<p>&nbsp;  </p>'), '');
+    assert.equal(stripHtmlToText('<h2>标题</h2>'), '标题');
   });
 
-  test('toNewsRow：body 是段落数组，作者空串归一为 null', () => {
+  test('segmentsToHtml：纯文本段包 <p> 并转义，HTML 段原样保留', () => {
+    assert.equal(segmentsToHtml(['第一段']), '<p>第一段</p>');
+    assert.equal(
+      segmentsToHtml(['<p>富文本<b>加粗</b></p>', '纯文本 < 段']),
+      '<p>富文本<b>加粗</b></p><p>纯文本 &lt; 段</p>',
+    );
+  });
+
+  test('toNewsRow：富文本 HTML 整体作为 body 单段入库，作者空串归一为 null', () => {
     const parsed = newsInputSchema.parse({ ...validNews, author: '' });
     const row = toNewsRow(parsed) as Record<string, unknown>;
-    assert.deepEqual(row.body, ['第一段。', '第二段。']);
+    assert.deepEqual(row.body, ['<p>第一段。</p><p>第二段。</p>']);
     assert.equal(row.author, null);
     assert.equal(row.slug, 'salon-3-recap');
   });

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
 import '@/styles/public-chrome.css';
+// 管理后台富文本编辑器/前台富文本正文的排版基线（.rte-scope / .rte-body 作用域内）
+import '@/styles/admin-rich-text.css';
 // ⚠️ OPC 复刻页的设计层（token + 组件）**不在这里导入**。
 //
 // 原因有二：

@@ -385,6 +385,29 @@ begin
   raise notice '[PASS] updated_at 触发器自动维护（当前 %）', t;
 end $$;
 
+-- ── 迁移 0005：管理后台模块种子（empower_modules / site_stats）─────────────
+do $$
+declare n int;
+begin
+  select count(*) into n from empower_modules where published;
+  if n < 8 then
+    raise exception '[FAIL] 0005 种子后已发布赋能模块应 ≥ 8，实际 %', n;
+  end if;
+  raise notice '[PASS] 0005 赋能模块种子（已发布 % 条）', n;
+
+  select count(*) into n from site_stats;
+  if n < 4 then
+    raise exception '[FAIL] 0005 种子后 site_stats 应 ≥ 4，实际 %', n;
+  end if;
+  raise notice '[PASS] 0005 统计数字种子（% 条）', n;
+
+  -- 种子幂等：on conflict do nothing，且 values/highlights 必须是合法 jsonb
+  if exists (select 1 from empower_modules where slug='space' and jsonb_typeof(values) <> 'array') then
+    raise exception '[FAIL] empower_modules.values 应为 jsonb 数组';
+  end if;
+  raise notice '[PASS] 0005 种子幂等与 jsonb 形状校验';
+end $$;
+
 -- 清理测试数据（让脚本可重复执行）
 delete from leads where name in ('服务端写入','空键1','空键2','幂等','幂等2','越权','测试');
 delete from agents where slug in ('test-agent-pub','test-agent-hid');

@@ -7,6 +7,7 @@ import JsonLd from '@/components/ui/JsonLd';
 import { site } from '@/lib/site/config';
 import { Badge } from '@/components/ui/Card';
 import { getNewsPost, getNewsPosts } from '@/lib/queries';
+import { renderArticleBody } from '@/lib/opc/news-runtime';
 
 export const revalidate = 300;
 
@@ -83,13 +84,12 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
             <span className="text-[13px] text-[var(--color-ink-3)]">作者：{post.author}</span>
           </div>
 
-          <article className="mt-8 space-y-5">
-            {post.body.map((p, i) => (
-              <p key={i} className="text-[15px] leading-[1.95] text-[var(--color-ink-2)]">
-                {p}
-              </p>
-            ))}
-          </article>
+          {/* 正文：段内含 HTML（富文本编辑器输出）→ sanitize 渲染；纯文本段 → 原排版。
+              与 OPC 复刻页（newsdetail?id=）共用 renderArticleBody 的双模式与同一白名单。 */}
+          <article
+            className="rte-body mt-8 text-[15px] text-[var(--color-ink-2)]"
+            dangerouslySetInnerHTML={{ __html: renderArticleBody(post.body) }}
+          />
 
           {related.length > 0 && (
             <div className="mt-14 border-t border-[var(--color-line)] pt-8">

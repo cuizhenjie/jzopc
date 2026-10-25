@@ -127,6 +127,14 @@ function renderArticleSegment(segment: string): string {
   return sanitizeHtml(segment, ARTICLE_SANITIZE_OPTIONS);
 }
 
+/**
+ * 详情正文统一渲染入口（OPC 复刻页与 /news/[slug] 共用）：
+ * 纯文本段 → 遗留烘焙段排版；含 HTML 标签的段（富文本编辑器输出）→ sanitize 后渲染。
+ */
+export function renderArticleBody(segments: string[]): string {
+  return segments.map(renderArticleSegment).join('');
+}
+
 /** published_at（ISO 日期或日期时间）→ 卡片/详情用的 YYYY-MM-DD；不合法 → 空串 */
 export function formatNewsDate(value: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value ?? ''));

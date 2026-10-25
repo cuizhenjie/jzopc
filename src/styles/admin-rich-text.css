@@ -1,0 +1,111 @@
+/* ── 管理后台富文本编辑器（tiptap）──────────────────────────────────────────
+ * 编辑区与前台渲染共用一套正文排版基线（.rte-scope / .rte-body）：
+ * 前台渲染见 src/components/site/RichBody.tsx（sanitize 后输出）。
+ * ProseMirror 的内容不经过 React，样式只能落在全局 CSS 上。
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.rte-scope .ProseMirror {
+  outline: none;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--color-ink, #1a2333);
+  min-height: inherit;
+}
+
+.rte-scope .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--color-ink-3, #5f6878);
+}
+
+.rte-scope .ProseMirror h2,
+.rte-body h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 1.2em 0 0.5em;
+  line-height: 1.4;
+}
+
+.rte-scope .ProseMirror h3,
+.rte-body h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 1em 0 0.4em;
+  line-height: 1.4;
+}
+
+.rte-scope .ProseMirror p,
+.rte-body p {
+  margin: 0.6em 0;
+}
+
+.rte-scope .ProseMirror ul,
+.rte-body ul,
+.rte-scope .ProseMirror ol,
+.rte-body ol {
+  padding-left: 1.4em;
+  margin: 0.6em 0;
+}
+
+.rte-scope .ProseMirror ul,
+.rte-body ul {
+  list-style: disc;
+}
+
+.rte-scope .ProseMirror ol,
+.rte-body ol {
+  list-style: decimal;
+}
+
+.rte-scope .ProseMirror blockquote,
+.rte-body blockquote {
+  border-left: 3px solid var(--color-line, #e3e9f2);
+  padding-left: 1em;
+  margin: 0.8em 0;
+  color: var(--color-ink-2, #4d5153);
+}
+
+.rte-scope .ProseMirror a,
+.rte-body a {
+  color: var(--color-brand-blue-deep, #0968ab);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rte-scope .ProseMirror img,
+.rte-body img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 0.8em 0;
+}
+
+.rte-scope .ProseMirror hr,
+.rte-body hr {
+  border: none;
+  border-top: 1px solid var(--color-line, #e3e9f2);
+  margin: 1.2em 0;
+}
+
+.rte-scope .ProseMirror code,
+.rte-body code {
+  background: var(--color-surface-2, #eef4fa);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.92em;
+}
+
+.rte-scope .ProseMirror pre,
+.rte-body pre {
+  background: var(--color-surface-2, #eef4fa);
+  border-radius: 8px;
+  padding: 0.8em 1em;
+  overflow-x: auto;
+  font-size: 0.9em;
+}
+
+.rte-scope .ProseMirror p:first-child,
+.rte-body > :first-child {
+  margin-top: 0;
+}

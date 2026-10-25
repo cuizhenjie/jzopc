@@ -5,13 +5,16 @@ import { Section, SectionHead } from '@/components/ui/Section';
 import PageHero from '@/components/layout/PageHero';
 import { Reveal } from '@/components/ui/Reveal';
 import EmpowerFx from '@/components/anim/EmpowerFx';
-import { empowerDetails, getEmpowerDetail } from '@/lib/data/empower';
+import { empowerDetails, getEmpowerDetail, getEmpowerDetailLive, listEmpowerSlugsLive } from '@/lib/data/empower';
 import { empowerModules } from '@/lib/site/config';
 
 export const revalidate = 3600;
 
-export function generateStaticParams() {
-  return empowerDetails.map((m) => ({ slug: m.slug }));
+export async function generateStaticParams() {
+  // 静态内置模块 + 管理后台新增的 DB 模块（未预渲染的 slug 由 Next 按需渲染）
+  const liveSlugs = await listEmpowerSlugsLive();
+  const seen = new Set(empowerDetails.map((m) => m.slug));
+  return [...empowerDetails.map((m) => ({ slug: m.slug })), ...liveSlugs.filter((s) => !seen.has(s)).map((slug) => ({ slug }))];
 }
 
 export async function generateMetadata({
@@ -20,7 +23,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const m = getEmpowerDetail(slug);
+  // DB 优先：管理后台的下架/修改立即生效；无 DB 时回落内置内容
+  const m = (await getEmpowerDetailLive(slug)) ?? getEmpowerDetail(slug);
   if (!m) return { title: '赋能模块' };
   return {
     title: m.title,
@@ -41,7 +45,8 @@ function splitStatValue(value: string): { num: string; suffix: string } | null {
 
 export default async function EmpowerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const m = getEmpowerDetail(slug);
+  // DB 优先（管理后台八大赋能），库内无/未发布 → 回落内置内容；都没有 → 404
+  const m = (await getEmpowerDetailLive(slug)) ?? getEmpowerDetail(slug);
   if (!m) notFound();
 
   const related = empowerModules.filter((x) => m.related.includes(x.slug));

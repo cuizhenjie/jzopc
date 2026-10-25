@@ -163,3 +163,85 @@ export const empowerDetails: EmpowerDetail[] = [
 export function getEmpowerDetail(slug: string): EmpowerDetail | undefined {
   return empowerDetails.find((m) => m.slug === slug);
 }
+
+/* ── DB 优先的运行时读取（2026-10-25 管理后台八大赋能模块接入）─────────────
+ * empower_modules 表由管理后台维护（迁移 0005 已把内置详情种子化）。
+ * 读取策略与 src/lib/queries 同款：DB 未配置 / 出错 / 该 slug 未发布 →
+ * 回落静态 empowerDetails；「已配置且该 slug 在库里被下架」→ 返回 null
+ * （页面 notFound() → 404，下架即不可见）。 */
+
+import { getSupabaseAdmin } from '@/lib/supabase/server';
+
+type EmpowerModuleRow = {
+  slug: string;
+  index_no: string;
+  title: string;
+  tagline: string;
+  hero_desc: string | null;
+  values: unknown;
+  items: unknown;
+  highlights: unknown;
+  pending: string | null;
+  related: string[] | null;
+  published: boolean;
+};
+
+/** DB 行 → EmpowerDetail（逐字段形状守卫，坏数据只丢字段不 500） */
+function mapEmpowerRow(row: EmpowerModuleRow): EmpowerDetail {
+  const values = Array.isArray(row.values)
+    ? row.values.filter(
+        (v): v is { title: string; desc: string } =>
+          !!v && typeof v === 'object' && typeof (v as { title?: unknown }).title === 'string' && typeof (v as { desc?: unknown }).desc === 'string',
+      )
+    : [];
+  const items = Array.isArray(row.items) ? row.items.filter((i): i is string => typeof i === 'string') : [];
+  const highlights = Array.isArray(row.highlights)
+    ? row.highlights.filter(
+        (h): h is { label: string; value: string; note?: string } =>
+          !!h && typeof h === 'object' && typeof (h as { label?: unknown }).label === 'string' && typeof (h as { value?: unknown }).value === 'string',
+      )
+    : [];
+  const related = Array.isArray(row.related) ? row.related.filter((r): r is string => typeof r === 'string') : [];
+  return {
+    slug: row.slug,
+    index: row.index_no,
+    title: row.title,
+    tagline: row.tagline,
+    heroDesc: row.hero_desc ?? row.tagline,
+    values,
+    items,
+    highlights: highlights.length > 0 ? highlights : undefined,
+    pending: row.pending ?? undefined,
+    related,
+  };
+}
+
+/** DB 优先读取单个赋能模块；无 DB / 出错 → null（调用方回落静态数据）。 */
+export async function getEmpowerDetailLive(slug: string): Promise<EmpowerDetail | null> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return null;
+  try {
+    const { data, error } = await sb.from('empower_modules').select('*').eq('slug', slug).eq('published', true).maybeSingle();
+    if (error) {
+      console.error(`[empower:live] 查询失败，回落内置内容：${error.message}`);
+      return null;
+    }
+    return data ? mapEmpowerRow(data as EmpowerModuleRow) : null;
+  } catch (e) {
+    console.error('[empower:live] 查询异常，回落内置内容', e);
+    return null;
+  }
+}
+
+/** 已发布模块的 slug 列表（generateStaticParams 用，与静态详情并集）。 */
+export async function listEmpowerSlugsLive(): Promise<string[]> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('empower_modules').select('slug').eq('published', true);
+    if (error) return [];
+    return (data ?? []).map((r) => (r as { slug: string }).slug);
+  } catch {
+    return [];
+  }
+}
