@@ -59,6 +59,8 @@ webimages/
 .next-layout-refresh/
 .next-ui-review/
 .next-ui-final/
+# 自定义 distDir 的本地构建产物（.next-traffic-ui 等），一网打尽
+.next-*/
 .next-traffic/
 
 # 本地 Supabase CLI 链接凭据痕迹（含 credential_ref，绝不入库）
