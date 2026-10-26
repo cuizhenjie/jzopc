@@ -348,6 +348,7 @@ function agentCardHtml(row: AgentRow, label: string, tcLink: string): string {
   return (
     `<a data-v-199d00a7="" class="tool-card revealed" href="${escapeText(row.external_url as string)}" target="_blank" rel="noopener noreferrer" style="transition-delay:0ms" data-opc-categories="${categories}" data-opc-search-text="${escapeText(row.summary ?? '')}">`
     + `<span data-v-199d00a7="" class="tc-glare" aria-hidden="true"></span>`
+    + `<span data-v-199d00a7="" class="tc-border-glow" aria-hidden="true"></span>`
     + `<div data-v-199d00a7="" class="tc-body">${icon}`
     + `<span data-v-199d00a7="" class="tc-tag">${escapeText(label)}</span>`
     + `<h3 data-v-199d00a7="" class="tc-title">${escapeText(row.name)}</h3>`
@@ -406,12 +407,24 @@ export function applyAgentTools(html: string, rows: readonly AgentRow[]): string
 const SUPPLY_GRID_OPEN = /<div[^>]*class="supply-grid"[^>]*>/;
 const DEMAND_GRID_OPEN = /<div[^>]*class="demand-grid"[^>]*>/;
 
-/** 烘焙日期形如 2026/6/25（无前导零）；DB 是 YYYY-MM-DD，转换失败就留空 */
+/** 烘焙日期形如 2026/6/25（无前导零）；DB 是 date 或 timestamptz——
+ *  统一按北京时间取日历日（避免 0-8 点录入的 UTC 前一天），解析失败留空。 */
 function marketDate(value: string | null): string {
   if (!value) return '';
-  const m = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (!m) return '';
-  return `${Number(m[1])}/${Number(m[2])}/${Number(m[3])}`;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(date);
+  const picked = new Map(parts.map((p) => [p.type, p.value]));
+  const year = Number(picked.get('year'));
+  const month = Number(picked.get('month'));
+  const day = Number(picked.get('day'));
+  if (!year || !month || !day) return '';
+  return `${year}/${month}/${day}`;
 }
 
 function tagsOf(row: MarketItemRow): string[] {

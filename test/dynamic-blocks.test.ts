@@ -103,6 +103,9 @@ describe('/agent 智能体目录 · applyAgentTools', () => {
     assert.ok(out.includes('<code data-v-199d00a7="" class="tc-domain">tool-b.example.com</code>'));
     assert.ok(out.includes('rel="noopener noreferrer"'));
     assert.ok(out.includes('class="tool-card revealed"'));
+    // 装饰节点齐全（验收轮补齐 tc-border-glow，缺了会少一层默认可见的边框光晕）
+    assert.ok(out.includes('class="tc-border-glow"'));
+    assert.ok(out.includes('class="tc-glare"'));
     // http 外链的行被跳过
     assert.ok(!out.includes('insecure.example.com'));
     assert.ok(!out.includes('坏链接'));
@@ -145,6 +148,15 @@ describe('/market 供需卡 · applyMarketItems', () => {
 
   test('空数组 → 两区烘焙原样（22 卡）', () => {
     assert.equal(applyMarketItems(marketHtml, []), marketHtml);
+  });
+
+  test('timestamptz 按北京时间取日历日（UTC 前一天 16:00 = 北京次日 0 点）', () => {
+    const out = applyMarketItems(marketHtml, [
+      { type: 'demand', title: '时区验收', summary: '', org_name: 'T', tags: [], published_at: '2026-10-20T16:00:00+00:00' },
+    ]);
+    // UTC 2026-10-20 16:00 = 北京 2026-10-21 00:00 → 应显示 2026/10/21 而非 10/20
+    assert.ok(out.includes('2026/10/21'), 'timestamptz 应按 Asia/Shanghai 取日期');
+    assert.ok(!out.includes('2026/10/20</span>'), '不得显示 UTC 前一天');
   });
 });
 

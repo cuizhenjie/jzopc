@@ -6,9 +6,8 @@ import HashRouteBridge from '@/components/opc/HashRouteBridge';
 import { getRuntimeReplicaPage } from '@/lib/opc/blocks-runtime';
 
 /**
- * /market 的显式路由（优先于 catch-all）：伙伴墙由 blocks-runtime 注入
- * （partners 表 DB 优先、烘焙 16 家兜底，与首页/工作页同一函数、同一口径）；
- * 供需列表卡仍为复刻快照（2026-10-26 方式一第一批范围仅伙伴墙）。
+ * /market 的显式路由（优先于 catch-all）：blocks-runtime 注入两个动态区块——
+ * 伙伴墙（partners 表）与供需卡（market_items 表，供给/需求分区各自 DB 优先、烘焙兜底）。
  */
 export const revalidate = 300;
 
