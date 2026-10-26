@@ -54,5 +54,16 @@ release/
 webimages/
 .zcode/
 .v2c/
+# oh-my-claudecode 会话交接产物（本地工具状态，不入库）
+.omc/
 .next-layout-refresh/
 .next-ui-review/
+.next-ui-final/
+.next-traffic/
+
+# 本地 Supabase CLI 链接凭据痕迹（含 credential_ref，绝不入库）
+supabase/.temp/
+
+# 个人 portfolio 发布脚本的工作目录（scripts/publish-portfolio.sh 生成）
+.portfolio-src/
+.portfolio-dist/
