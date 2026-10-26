@@ -11,6 +11,7 @@ import {
 } from '@/lib/admin/news-schema';
 import type { AdminNewsRow } from '@/lib/admin/data';
 import RichTextEditor from '@/components/admin/RichTextEditor';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 /**
  * 新闻新建 / 编辑共用表单。
@@ -299,14 +300,17 @@ export default function NewsForm({
 
           <div>
             <label htmlFor="nf-cover" className={labelClass}>
-              封面图链接（可选）
+              封面图（可选）
+              <span className="ml-2 font-normal text-[12px] text-[var(--color-ink-3)]">
+                上传直传对象存储，或粘贴外链
+              </span>
             </label>
-            <input
+            <ImageUploadField
               id="nf-cover"
               value={form.cover_url}
-              onChange={(e) => set('cover_url', e.target.value)}
-              placeholder="https://…"
-              className={`mt-2 ${inputClass}`}
+              onChange={(url) => set('cover_url', url)}
+              scene="covers"
+              className="mt-2"
             />
             <FieldError msg={errors.cover_url} />
           </div>

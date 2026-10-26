@@ -4,7 +4,8 @@ import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import { Placeholder } from '@tiptap/extensions';
-import { useId } from 'react';
+import { useId, useState } from 'react';
+import { pickAndUploadImage } from '@/lib/admin/upload-client';
 
 /**
  * 富文本编辑器（tiptap v3，全后台共用）。
@@ -14,14 +15,15 @@ import { useId } from 'react';
  * - SSR 安全：immediatelyRender: false，服务端只输出占位框；
  * - 工具栏覆盖运营日常：标题/加粗/斜体/下划线/删除线/引用/有序无序列表/
  *   链接/图片/撤销重做；清空格式兜底。
+ * - 图片：默认走「选文件 → 直传 Supabase Storage（票据 + PUT）→ 插入公开 URL」；
+ *   传入 uploadScene 可指定对象 key 场景目录，取消/失败不插入。
  *
- * 注意：图片/链接都要求 https?:// 开头，防止 javascript: 注入；
+ * 注意：链接要求 https?:// 开头，防止 javascript: 注入；上传得到的 URL 天然合规；
  *   输出在**前台渲染时**仍统一过 sanitize-html（纵深防御，存储不等于可信）。
  */
 
-function promptUrl(type: 'link' | 'image'): string | null {
-  const hint = type === 'link' ? '链接地址（https://…）' : '图片地址（https://…）';
-  const url = window.prompt(hint);
+function promptLinkUrl(): string | null {
+  const url = window.prompt('链接地址（https://…）');
   if (!url) return null;
   const trimmed = url.trim();
   if (!/^https?:\/\//i.test(trimmed)) {
@@ -69,14 +71,18 @@ export default function RichTextEditor({
   onChange,
   placeholder = '输入正文……支持标题 / 加粗 / 列表 / 引用 / 链接 / 图片',
   minHeight = 320,
+  uploadScene = 'body',
 }: {
   /** 初始 HTML（仅挂载时生效；切换编辑对象请给父组件换 key） */
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: number;
+  /** 正文配图的上传场景目录（covers / body / media） */
+  uploadScene?: string;
 }) {
   const editorId = useId();
+  const [imageUploading, setImageUploading] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -146,13 +152,19 @@ export default function RichTextEditor({
             editor.chain().focus().unsetLink().run();
             return;
           }
-          const url = promptUrl('link');
+          const url = promptLinkUrl();
           if (url) editor.chain().focus().setLink({ href: url }).run();
         }, editor.isActive('link'))}
-        {btn('🖼', '图片', () => {
-          const url = promptUrl('image');
-          if (url) editor.chain().focus().setImage({ src: url }).run();
-        })}
+        {btn('🖼', imageUploading ? '图片上传中…' : '插入图片（选文件直传）', async () => {
+          if (imageUploading) return;
+          setImageUploading(true);
+          try {
+            const url = await pickAndUploadImage(uploadScene);
+            if (url) editor.chain().focus().setImage({ src: url }).run();
+          } finally {
+            setImageUploading(false);
+          }
+        }, imageUploading, imageUploading)}
         {btn('⌫格式', '清除格式', () => editor.chain().focus().unsetAllMarks().clearNodes().run())}
       </div>
 

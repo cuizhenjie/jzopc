@@ -5,6 +5,7 @@ import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
 import { listMediaAssets } from '@/lib/admin/resource-data';
 import AdminShell from '@/components/admin/AdminShell';
+import MediaUploader from '@/components/admin/MediaUploader';
 import { MediaTable } from '@/components/admin/resource-tables';
 
 export const metadata: Metadata = {
@@ -23,15 +24,18 @@ export default async function AdminMediaPage() {
     <AdminShell
       active="media"
       title="媒体库"
-      desc="站点图片 / 视频等资源的登记表：封面、Logo 等表单可直接引用这里的 URL。"
+      desc="上传图片直入对象存储（Supabase Storage），或登记站外资源 URL；封面、Logo、正文配图可直接引用这里的地址。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/media/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 登记资源
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <MediaUploader />
+          <Link
+            href="/admin/media/new"
+            className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
+          >
+            + 登记资源
+          </Link>
+        </div>
       }
     >
       <div className="mt-1">

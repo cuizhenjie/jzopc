@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 import {
   Field,
   FieldError,
@@ -18,6 +19,7 @@ import {
  *
  * 字段配置来自 src/lib/admin/resource-configs.ts（与 zod schema 同源维护），
  * 新模块接入 = 写一份字段配置 + 一行路由装配，不再复制 NewsForm。
+ * image 类型 = URL 输入 + 直传按钮（/api/admin/uploads 票据 + 浏览器 PUT）。
  */
 
 export type ResourceFieldType =
@@ -29,7 +31,8 @@ export type ResourceFieldType =
   | 'switch'
   | 'richtext'
   | 'json'
-  | 'datetime';
+  | 'datetime'
+  | 'image';
 
 export type ResourceFieldConfig = {
   name: string;
@@ -43,6 +46,8 @@ export type ResourceFieldConfig = {
   /** 布局：2 = 独占整行（默认单列卡内即整行） */
   full?: boolean;
   rows?: number;
+  /** image 类型：上传场景目录（covers / body / media），默认 media */
+  uploadScene?: string;
 };
 
 export type ResourceFormValues = Record<string, string | number | boolean | string[]>;
@@ -187,6 +192,16 @@ export default function ResourceForm({
             key={f.name}
             value={String(v ?? '')}
             onChange={(html) => set(f.name, html)}
+            placeholder={f.placeholder}
+          />
+        );
+      case 'image':
+        return (
+          <ImageUploadField
+            id={`rf-${f.name}`}
+            value={String(v ?? '')}
+            onChange={(url) => set(f.name, url)}
+            scene={f.uploadScene ?? 'media'}
             placeholder={f.placeholder}
           />
         );
