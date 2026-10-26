@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { facetMatches, parseCategories, validateReplicaFields } from '@/components/opc/interaction-model';
+import { facetMatches, parseCategories, parseStatNumber, validateReplicaFields } from '@/components/opc/interaction-model';
 
 describe('OPC snapshot filtering', () => {
   test('search and category combine, including Unicode normalization', () => {
@@ -36,5 +36,23 @@ describe('OPC local form validation', () => {
       { label: '手机号码', value: '13800138000', type: 'tel', required: true },
       { label: '密码', value: 'abcdef', type: 'password', required: true },
     ], '/opclogin'), []);
+  });
+});
+
+describe('banner stat count-up parsing', () => {
+  test('integer prefix plus suffix parses with trim; everything else stays untouched', () => {
+    // 首页四项指标的现行形态
+    assert.deepEqual(parseStatNumber('500+'), { value: 500, suffix: '+' });
+    assert.deepEqual(parseStatNumber('1000+'), { value: 1000, suffix: '+' });
+    assert.deepEqual(parseStatNumber('100+'), { value: 100, suffix: '+' });
+    assert.deepEqual(parseStatNumber('50+'), { value: 50, suffix: '+' });
+    // 前后空白容忍
+    assert.deepEqual(parseStatNumber(' 100+ '), { value: 100, suffix: '+' });
+    // 不动原文的形态：小数 / 千分位 / 非数字开头 / 零 / 空值
+    assert.equal(parseStatNumber('1.5万'), null);
+    assert.equal(parseStatNumber('3,000+'), null);
+    assert.equal(parseStatNumber('万级'), null);
+    assert.equal(parseStatNumber('0'), null);
+    assert.equal(parseStatNumber(''), null);
   });
 });

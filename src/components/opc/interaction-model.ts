@@ -38,3 +38,15 @@ export function validateReplicaFields(fields: readonly ReplicaField[], mode: str
   });
   return errors;
 }
+
+/**
+ * 解析首页 banner 指标数字：`500+` → `{ value: 500, suffix: '+' }`。
+ * 仅接受「纯整数 + 非数字尾缀」原文；小数（`1.5万`）、千分位（`3,000+`）、
+ * 非数字开头一律返回 null —— 调用方保持原文不动、不做滚动。
+ * 数字滚动是渐进增强，不是内容契约：内容再生成换出新形态时宁可不动画。
+ */
+export function parseStatNumber(text: string): { value: number; suffix: string } | null {
+  const match = text.trim().match(/^([1-9]\d*)([^0-9.]*)?$/);
+  if (!match) return null;
+  return { value: Number(match[1]), suffix: (match[2] ?? '').trim() };
+}

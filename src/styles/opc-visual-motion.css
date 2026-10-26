@@ -27,6 +27,13 @@
   gap: 10px !important;
 }
 
+/* Banner 指标数字滚动（visual-motion.ts 注入 data-opc-count-up）：
+   计数进行中用等宽数字，数字位变化不牵动整块宽度抖动；
+   字体若无 tabular 变体则无效果，属无害增强。 */
+.opc-replica.opc-replica .hero-stat-num[data-opc-count-up='run'] {
+  font-variant-numeric: tabular-nums;
+}
+
 .opc-replica.opc-replica [data-opc-reveal] { animation: none !important; }
 .opc-replica.opc-replica [data-opc-reveal='pending'] {
   opacity: 0 !important;

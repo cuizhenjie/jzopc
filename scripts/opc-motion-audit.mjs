@@ -82,6 +82,18 @@ try {
       if (image instanceof HTMLImageElement && image.closest('.hero-carousel') && image.loading === 'eager')
         window.__opcImageTiming.push({kind:'eager',src:image.getAttribute('src'),at:performance.now()});
     })).observe(document,{subtree:true,attributes:true,attributeFilter:['loading']});
+    // banner 指标数字：水合前留档 SSR 终值；计数期间的中间值也全部留档
+    window.__statSSR = [];
+    window.__statSeen = new Set();
+    document.addEventListener('DOMContentLoaded', () => {
+      const nodes = document.querySelectorAll('.hero-stat-num');
+      window.__statSSR = [...nodes].map(node => node.textContent);
+      nodes.forEach(node => {
+        window.__statSeen.add(node.textContent);
+        new MutationObserver(() => window.__statSeen.add(node.textContent))
+          .observe(node, {childList:true, characterData:true, subtree:true});
+      });
+    });
   ` });
   await S('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await media('no-preference');
@@ -95,6 +107,16 @@ try {
   const warmed = imageTiming.find(event => event.kind === 'eager' && event.src === firstImages[1].src);
   assert.ok(decoded && warmed && warmed.at - decoded.at >= 950, 'Next eager request must follow first-frame decode and its delay');
   check('next frame warms at least 950ms after first-frame decoding', { delay: Math.round(warmed.at - decoded.at) });
+
+  // Banner 指标数字滚动：必须真的数过（留档里有中间值），且终点回到 SSR 终值。
+  await until("[...document.querySelectorAll('.hero-stat-num')].every(e=>e.dataset.opcCountUp==='done')", 'Banner stats did not finish counting');
+  const statValues = await evaluate("[...document.querySelectorAll('.hero-stat-num')].map(e=>e.textContent)");
+  const statSSR = await evaluate('window.__statSSR');
+  const statSeen = await evaluate('window.__statSeen.size');
+  assert.deepEqual(statValues, statSSR, 'Counted values must settle back on the SSR values');
+  assert.ok(statValues.length === 4, 'Homepage banner is expected to carry four stats');
+  assert.ok(statSeen >= 10, `Count-up produced only ${statSeen} distinct texts; the numbers never actually rolled`);
+  check('banner stats roll from zero and settle on their SSR values', { settled: statValues, distinctTextsDuringRun: statSeen });
 
   for (const selector of ['.ftr-node', '.eco-node', '.strength-block']) {
     const target = await evaluate(`(() => {const e=document.querySelector('${selector}');return {present:!!e,pending:e?.dataset.opcReveal==='pending',top:e?.getBoundingClientRect().top}})()`);
@@ -179,6 +201,14 @@ try {
   assert.equal(await evaluate("getComputedStyle(document.querySelector('.el-carousel__item.is-active')).opacity"), '1');
   await media('no-preference');
   check('runtime reduced-motion stops playback, reveals content, and removes slide/reveal transitions');
+
+  // 减弱动效在**加载前**就开启：数字不进入滚动，直接呈现 SSR 终值。
+  await media('reduce');
+  await go();
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.hero-stat-num')].map(e=>e.textContent)"), await evaluate('window.__statSSR'));
+  assert.equal(await evaluate("[...document.querySelectorAll('.hero-stat-num[data-opc-count-up]')].length"), 0, 'Reduced motion must not start any count-up');
+  await media('no-preference');
+  check('reduced-motion load keeps banner stats on their final SSR values without counting');
 
   await evaluate('window.scrollTo(0,1800)');
   await until("document.querySelector('.hero-carousel').dataset.opcPauseReason.includes('offscreen')", 'Offscreen hero did not pause');
@@ -265,6 +295,9 @@ try {
   await sleep(1300);
   assert.equal(await evaluate("document.querySelectorAll('[data-opc-reveal=\"pending\"]').length"), 0);
   assert.ok(await evaluate("!!document.querySelector('h1')&&document.documentElement.scrollHeight>3000"));
+  // 无 JS：数字停留在 SSR 终值，且从未出现计数标记。
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.hero-stat-num')].map(e=>e.textContent)"), statValues);
+  assert.equal(await evaluate("[...document.querySelectorAll('.hero-stat-num[data-opc-count-up]')].length"), 0);
   check('no-JavaScript SSR content stays visible');
   await mkdir('.screenshots', { recursive: true });
   await writeFile('.screenshots/opc-motion-audit.json', JSON.stringify({ base, startedAt, finishedAt: new Date().toISOString(), checks }, null, 2));

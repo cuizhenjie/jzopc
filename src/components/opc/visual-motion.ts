@@ -1,4 +1,6 @@
 /** Progressive enhancement for the captured public pages. No source-site runtime is used. */
+import { parseStatNumber } from './interaction-model';
+
 const REVEAL_TARGETS = [
   '.sec-head', '.ftr-node', '.eco-node', '.strength-block', '.news-card', '.tool-card', '.course-card',
   '.opc-card', '.rental-card', '.supply-card', '.demand-card', '.activity-item',
@@ -74,6 +76,56 @@ export function mountVisualMotion(root: HTMLElement): () => void {
       if (element.dataset.opcReveal === 'pending') reveal(element);
     }
   });
+
+  // Banner 指标数字滚动：SSR、无 JS、减弱动效一律直接呈现终值（无-JS 审计
+  // 断言依赖这一点）；仅在 IO 可用且未减弱动效时，从 0 数到 SSR 终值，
+  // 一次性行为。解析不了的原文保持不动 —— 动画是增强，不是内容契约。
+  const stats = Array.from(root.querySelectorAll<HTMLElement>('.hero-stat-num'));
+  if (stats.length && 'IntersectionObserver' in window && !reduced) {
+    const originals = stats.map(element => element.textContent ?? '');
+    const settle = (element: HTMLElement, index: number) => {
+      element.textContent = originals[index];
+      element.dataset.opcCountUp = 'done';
+    };
+    cleanup.push(() => stats.forEach((element, index) => {
+      element.textContent = originals[index];
+      element.removeAttribute('data-opc-count-up');
+    }));
+    const countUp = (element: HTMLElement, index: number) => {
+      const parsed = parseStatNumber(originals[index]);
+      if (!parsed) { settle(element, index); return; }
+      const duration = 1200;
+      const startedAt = performance.now();
+      const frame = (now: number) => {
+        if (!alive) return; // 卸载还原交给 cleanup，这里只负责停表
+        if (reduced) { settle(element, index); return; } // 中途开启减弱动效：立即定格终值
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        element.textContent = `${Math.round(parsed.value * eased)}${parsed.suffix}`;
+        if (progress < 1) window.requestAnimationFrame(frame);
+        else settle(element, index);
+      };
+      element.dataset.opcCountUp = 'run';
+      element.textContent = `0${parsed.suffix}`;
+      window.requestAnimationFrame(frame);
+    };
+    try {
+      const statObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const element = entry.target as HTMLElement;
+          statObserver.unobserve(element);
+          countUp(element, stats.indexOf(element));
+        });
+      }, { threshold: 0.5 });
+      stats.forEach(element => statObserver.observe(element));
+      cleanup.push(() => statObserver.disconnect());
+      // 减弱动效在动画进行中开启（onPreference 只兜底 reveal）：全部立即定格。
+      listen(preference, 'change', () => { if (preference.matches) stats.forEach(settle); });
+    } catch {
+      stats.forEach(settle);
+    }
+  }
 
   const carousel = root.querySelector<HTMLElement>('.hero-carousel');
   const hero = carousel?.closest<HTMLElement>('.hero') ?? carousel;
