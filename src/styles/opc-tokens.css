@@ -75,6 +75,14 @@
 
   /* ── 焦点环 ── */
   --opc-focus: #1aa8d3;
+
+  /* ── 动效节奏：所有复刻页共享同一套进入、反馈与滚动曲线 ── */
+  --opc-ease-standard: cubic-bezier(.22, 1, .36, 1);
+  --opc-ease-enter: cubic-bezier(.16, 1, .3, 1);
+  --opc-duration-fast: 180ms;
+  --opc-duration-base: 280ms;
+  --opc-duration-reveal: 540ms;
+  --opc-duration-carousel: 700ms;
 }/* ═══════════════════════════════════════════════════════════════════
    二、排版体系
    8 档字号 · 3 档字重 · 2 族字体

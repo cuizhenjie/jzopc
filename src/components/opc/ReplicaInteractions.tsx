@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { resolveReferenceLocation } from '@/lib/opc/routes';
 import { facetMatches, parseCategories, validateReplicaFields } from './interaction-model';
 import { mountVisualMotion } from './visual-motion';
+import { mountParallaxMotion } from './parallax-motion';
 // ⚠️ 设计层放在**客户端组件**里，而不是 Root Layout —— 两个原因：
 //  1. Next.js 只允许全局 CSS 在根布局 import；Server Component 里 import
 //     会被静默丢弃（实测设计层整层没进产物）。
@@ -19,6 +20,7 @@ import '@/styles/opc-visual.css';
 import '@/styles/opc-interactions.css';
 import '@/styles/opc-visual-motion.css';
 import '@/styles/opc-layout-refresh.css';
+import '@/styles/opc-polish.css';
 
 type Props = { route: string; rootId?: string };
 type Modal = { title: string; content: ReactNode; articleId?: string; loading?: boolean };
@@ -340,6 +342,7 @@ export default function ReplicaInteractions({ route, rootId = 'opc-page-content'
     root.addEventListener('keydown', onKeyDown); window.addEventListener('popstate', onPopState);
 
     cleanups.push(mountVisualMotion(root));
+    cleanups.push(mountParallaxMotion(root));
 
     renderLists();
     return () => {

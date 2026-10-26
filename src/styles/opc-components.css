@@ -41,7 +41,7 @@
   color: var(--opc-ink) !important;
   letter-spacing: -0.01em !important;
   cursor: pointer !important;
-  transition: color 0.2s var(--ease-out-soft, ease) !important;
+  transition: color 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .logo:hover {
   color: var(--opc-blue-deep) !important;
 }.opc-replica.opc-replica .logo img,
@@ -62,8 +62,8 @@
   font-size: 13px !important;
   font-weight: var(--opc-fw-medium) !important;
   cursor: pointer !important;
-  transition: background-color 0.2s var(--ease-out-soft, ease),
-    color 0.2s var(--ease-out-soft, ease) !important;
+  transition: background-color 0.2s var(--opc-ease-standard),
+    color 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .login-btn:hover {
   background: var(--opc-blue-deep) !important;
   color: #fff !important;
@@ -120,8 +120,8 @@
   box-shadow: none !important;
   transform: none !important;
   cursor: pointer !important;
-  transition: background-color 0.2s var(--ease-out-soft, ease),
-    border-color 0.2s var(--ease-out-soft, ease) !important;
+  transition: background-color 0.2s var(--opc-ease-standard),
+    border-color 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica :is(.hero-btn--primary, .hero-btn--ghost, .btn-cta, .submit-btn) :is(span, i) {
   color: inherit !important;
 }.opc-replica.opc-replica .sc-contact {
@@ -154,8 +154,8 @@
   box-shadow: none !important;
   transform: none !important;
   cursor: pointer !important;
-  transition: background-color 0.2s var(--ease-out-soft, ease),
-    border-color 0.2s var(--ease-out-soft, ease) !important;
+  transition: background-color 0.2s var(--opc-ease-standard),
+    border-color 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .hero-btn--ghost:hover,
 .opc-replica.opc-replica .event-more-btn:hover,
 .opc-replica.opc-replica .load-more-btn:hover {
@@ -207,9 +207,9 @@
   background: var(--opc-white) !important;
   color: var(--opc-ink-2) !important;
   cursor: pointer !important;
-  transition: background-color 0.2s var(--ease-out-soft, ease),
-    border-color 0.2s var(--ease-out-soft, ease),
-    color 0.2s var(--ease-out-soft, ease) !important;
+  transition: background-color 0.2s var(--opc-ease-standard),
+    border-color 0.2s var(--opc-ease-standard),
+    color 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .filter-chip:hover,
 .opc-replica.opc-replica .filter-btn:hover,
 .opc-replica.opc-replica .city-btn:hover {
@@ -236,9 +236,9 @@
   color: var(--opc-ink-2) !important;
   font-size: 15px !important;
   cursor: pointer !important;
-  transition: background-color 0.2s var(--ease-out-soft, ease),
-    color 0.2s var(--ease-out-soft, ease),
-    border-color 0.2s var(--ease-out-soft, ease) !important;
+  transition: background-color 0.2s var(--opc-ease-standard),
+    color 0.2s var(--opc-ease-standard),
+    border-color 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .tab-chip:hover {
   border-color: var(--opc-line-blue) !important;
   color: var(--opc-blue-deep) !important;
@@ -256,9 +256,9 @@
   border-radius: var(--opc-radius-panel) !important;
   box-shadow: none !important;
   overflow: hidden !important;
-  transition: border-color 0.2s var(--ease-out-soft, ease),
-    transform 0.2s var(--ease-out-soft, ease),
-    box-shadow 0.2s var(--ease-out-soft, ease) !important;
+  transition: border-color 0.2s var(--opc-ease-standard),
+    transform 0.2s var(--opc-ease-standard),
+    box-shadow 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .news-card:hover,
 .opc-replica.opc-replica .tool-card:hover,
 .opc-replica.opc-replica .opc-card:hover,
@@ -273,7 +273,7 @@
 }.opc-replica.opc-replica .nc-media img,
 .opc-replica.opc-replica .tool-card img,
 .opc-replica.opc-replica .opc-card img {
-  transition: transform 0.4s var(--ease-out-soft, ease) !important;
+  transition: transform 0.4s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica .news-card:hover .nc-media img,
 .opc-replica.opc-replica .opc-card:hover img {
   transform: scale(1.04) !important;
@@ -355,8 +355,8 @@
   font-family: var(--opc-font-sans) !important;
   font-size: var(--opc-fs-body) !important;
   line-height: 1.5 !important;
-  transition: border-color 0.2s var(--ease-out-soft, ease),
-    box-shadow 0.2s var(--ease-out-soft, ease) !important;
+  transition: border-color 0.2s var(--opc-ease-standard),
+    box-shadow 0.2s var(--opc-ease-standard) !important;
 }.opc-replica.opc-replica textarea {
   min-height: 110px !important;
   resize: vertical !important;
@@ -777,7 +777,7 @@
 .opc-replica.opc-replica .hero-carousel .el-carousel__item {
   opacity: 0 !important;
   z-index: 1 !important;
-  transition: opacity 0.7s var(--ease-out-soft, ease) !important;
+  transition: opacity 0.7s var(--opc-ease-standard) !important;
 }
 .opc-replica.opc-replica .hero-carousel .el-carousel__item.is-active {
   opacity: 1 !important;

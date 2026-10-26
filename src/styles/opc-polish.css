@@ -1,0 +1,280 @@
+/*
+ * Final visual layer for the captured OPC pages.
+ *
+ * This file intentionally comes last in ReplicaInteractions. It tightens the
+ * homepage's feature rhythm and gives every captured card/control the same
+ * quiet feedback: a brand border, a readable surface, no gratuitous lift.
+ * All selectors stay scoped to .opc-replica so native pages are untouched.
+ */
+
+/* ── Shared interaction rhythm ─────────────────────────────────────────── */
+.opc-replica.opc-replica :is(
+  .opc-home-action, .hero-btn, .btn-cta, .publish-btn, .filter-chip,
+  .filter-btn, .tab-chip, .news-read-more, .activity-read-more,
+  .ftr-link, .eco-link, .tool-card, .course-card, .opc-card,
+  .rental-card, .supply-card, .demand-card, .news-card, .activity-item
+) {
+  transition-duration: var(--opc-duration-fast) !important;
+  transition-timing-function: var(--opc-ease-standard) !important;
+}
+
+.opc-replica.opc-replica :is(.tool-card, .course-card, .opc-card, .rental-card, .supply-card, .demand-card, .news-card) {
+  box-shadow: none !important;
+}
+
+/* Cards communicate interactivity through their edges, not a moving layout. */
+.opc-replica.opc-replica :is(.tool-card, .course-card, .opc-card, .rental-card, .supply-card, .demand-card, .news-card):hover {
+  border-color: var(--opc-blue) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.opc-replica.opc-replica :is(.tool-card, .course-card, .rental-card, .supply-card, .demand-card, .news-card):hover {
+  background-color: var(--opc-surface-blue) !important;
+}
+.opc-replica.opc-replica [data-opc-agent-group] .tool-card:hover {
+  border-color: var(--opc-blue) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  background-color: var(--opc-surface-blue) !important;
+}
+
+/* A restrained image response supplies depth while the card itself stays put. */
+.opc-replica.opc-replica :is(.news-card, .news-item, .activity-item) :is(img, .news-image, .activity-image) {
+  transition: transform var(--opc-duration-reveal) var(--opc-ease-standard) !important;
+}
+.opc-replica.opc-replica :is(.news-card, .news-item, .activity-item):hover img {
+  transform: scale(1.035);
+}
+
+/* ── Homepage section headings ──────────────────────────────────────────── */
+.opc-replica.opc-replica [data-opc-page='/'] :is(.features-sec, .eco-sec, .news-sec) .sec-head {
+  max-width: 760px !important;
+  margin-bottom: 0 !important;
+  text-align: left !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] :is(.features-sec, .eco-sec, .news-sec) .sec-eyebrow {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: var(--opc-fs-xs) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  letter-spacing: .14em;
+  line-height: 1.5;
+}
+.opc-replica.opc-replica [data-opc-page='/'] :is(.features-sec, .eco-sec, .news-sec) .sec-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  flex: 0 0 24px;
+  background: var(--opc-blue);
+}
+.opc-replica.opc-replica [data-opc-page='/'] :is(.features-sec, .eco-sec, .news-sec) .sec-head h2 {
+  margin: 0 !important;
+  color: var(--opc-navy) !important;
+  font-size: clamp(28px, 3vw, 36px) !important;
+  font-weight: var(--opc-fw-bold) !important;
+  letter-spacing: -.025em;
+  line-height: 1.35 !important;
+}
+
+/* ── Homepage feature chain: compact, legible, connected cards ──────────── */
+.opc-replica.opc-replica [data-opc-page='/'] .features-sec {
+  background: var(--opc-surface) !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-stream {
+  counter-reset: opc-feature;
+  gap: 0 28px !important;
+  padding: 36px 0 0 !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-column {
+  gap: 20px !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-column--right {
+  padding-top: 48px !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-node {
+  align-items: center !important;
+  gap: 20px !important;
+  min-height: 180px;
+  padding: 24px !important;
+  border: 1px solid var(--opc-line) !important;
+  border-radius: var(--opc-radius-panel) !important;
+  background: var(--opc-white) !important;
+  box-shadow: none !important;
+  counter-increment: opc-feature;
+  overflow: hidden;
+  text-decoration: none !important;
+  transition: border-color var(--opc-duration-fast) var(--opc-ease-standard), background-color var(--opc-duration-fast) var(--opc-ease-standard) !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-node::before {
+  display: none !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-node::after {
+  content: counter(opc-feature, decimal-leading-zero);
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  color: var(--opc-ink-3);
+  font-family: var(--opc-font-mono);
+  font-size: 12px;
+  letter-spacing: .08em;
+  line-height: 1;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-node:hover {
+  border-color: var(--opc-blue) !important;
+  background: var(--opc-surface-blue) !important;
+  box-shadow: none !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-node:hover .ftr-hub {
+  transform: none !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-hub {
+  width: 72px !important;
+  height: 72px !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-sigil {
+  opacity: .55;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-hub-core {
+  inset: 7px !important;
+  border: 1px solid rgb(29 127 186 / 18%);
+  border-radius: var(--opc-radius-control);
+  background: var(--opc-surface-blue);
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-hub-core .opc-visual-service-icon {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 0 !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-body {
+  padding-top: 0 !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-tag-row {
+  margin-bottom: 10px !important;
+  padding-right: 30px;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-tag {
+  color: var(--opc-navy) !important;
+  font-size: 19px !important;
+  font-weight: var(--opc-fw-bold) !important;
+  letter-spacing: -.02em;
+  line-height: 1.4 !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-body p {
+  margin: 0 0 14px !important;
+  color: var(--opc-ink-2) !important;
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-link {
+  gap: 7px;
+  color: var(--opc-blue-deep) !important;
+  font-size: 13px !important;
+  font-weight: var(--opc-fw-medium) !important;
+  line-height: 1.5;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-link i {
+  transition: transform var(--opc-duration-fast) var(--opc-ease-standard) !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .ftr-node:hover .ftr-link i {
+  transform: translateX(3px);
+}
+.opc-replica.opc-replica [data-opc-page='/'] :is(.ftr-vpipe, .ftr-bridge) {
+  opacity: .55;
+}
+
+/* ── Shared section / CTA finishing ────────────────────────────────────── */
+.opc-replica.opc-replica .about-sec,
+.opc-replica.opc-replica .cta-card {
+  overflow: hidden;
+}
+.opc-replica.opc-replica .cta-card .btn-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: var(--opc-radius-control);
+  font-size: 15px !important;
+  line-height: 1.5;
+  text-decoration: none !important;
+}
+.opc-replica.opc-replica .cta-card .btn-cta i {
+  transition: transform var(--opc-duration-fast) var(--opc-ease-standard) !important;
+}
+.opc-replica.opc-replica .cta-card .btn-cta:hover i {
+  transform: translateX(4px);
+}
+.opc-replica.opc-replica .opc-visual-hero-art,
+.opc-replica.opc-replica .hero-bg-wrap,
+.opc-replica.opc-replica .about-bg-img {
+  pointer-events: none;
+}
+
+/* ── Responsive composition ────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-stream {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    padding-top: 28px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-column--right {
+    padding-top: 0 !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] :is(.ftr-vpipe, .ftr-bridge) {
+    display: none !important;
+  }
+}
+@media (max-width: 767px) {
+  .opc-replica.opc-replica [data-opc-page='/'] :is(.features-sec, .eco-sec, .news-sec) .sec-head h2 {
+    font-size: 28px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-column {
+    gap: 16px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-node {
+    align-items: flex-start !important;
+    gap: 16px !important;
+    min-height: 0;
+    max-width: none;
+    padding: 20px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-hub {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-hub-core .opc-visual-service-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-tag {
+    font-size: 17px !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-body p {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+  .opc-replica.opc-replica [data-opc-page='/'] .ftr-node::after {
+    top: 14px;
+    right: 16px;
+  }
+}
+
+/* This layer also yields to the user's reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  .opc-replica.opc-replica *,
+  .opc-replica.opc-replica *::before,
+  .opc-replica.opc-replica *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .opc-replica.opc-replica [data-opc-parallax] {
+    transform: none !important;
+    will-change: auto !important;
+  }
+}

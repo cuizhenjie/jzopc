@@ -5,7 +5,7 @@
   width: 100% !important;
   opacity: 0 !important;
   pointer-events: none !important;
-  transition: opacity 700ms ease !important;
+  transition: opacity var(--opc-duration-carousel) var(--opc-ease-standard) !important;
 }
 .opc-replica.opc-replica .hero-carousel .el-carousel__item.is-active {
   opacity: 1 !important;
@@ -42,7 +42,7 @@
 .opc-replica.opc-replica [data-opc-reveal='shown'] {
   opacity: 1 !important;
   transform: none !important;
-  transition: opacity 540ms var(--ease-out-soft, ease), transform 540ms var(--ease-out-soft, ease), box-shadow 180ms ease, border-color 180ms ease !important;
+  transition: opacity var(--opc-duration-reveal) var(--opc-ease-standard), transform var(--opc-duration-reveal) var(--opc-ease-standard), box-shadow var(--opc-duration-fast) var(--opc-ease-standard), border-color var(--opc-duration-fast) var(--opc-ease-standard) !important;
   transition-delay: var(--opc-reveal-delay, 0ms), var(--opc-reveal-delay, 0ms), 0ms, 0ms !important;
 }
 .opc-replica.opc-replica [data-opc-reveal]:focus-within {
