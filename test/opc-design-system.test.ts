@@ -346,3 +346,50 @@ test('首页深底规则必须带 :not(.scrolled) 限定', () => {
     `首页深底规则缺少 :not(.scrolled) 限定（滚动后白字落在白底上）:\n  ${offenders.join('\n  ')}`,
   );
 });
+
+test('agent banner 搜索面板：width 覆盖必须连带解除 max-width 钳制，输入框保持透明填充层', () => {
+  /**
+   * 2026-10-26 实测的同源隐性缺陷固化：
+   *
+   * 原站基线给 `.hero-search` 留了 `max-width: 480px`（不带 !important）。
+   * 刷新层只写 `width: min(580px,100%) !important` 时，CSS 的跨属性钳制
+   * （used width = min(width, max-width)）会把 580px **静默压回 480px** ——
+   * 不报错、审计看不见：`scripts/opc-style-conflict.mjs` 只对账
+   * color / font-size / background-color / border-radius / font-weight
+   * 五个属性，width 与 max-width 的博弈不在它的视野里。
+   * 所以 width 与 max-width 必须**成对**覆盖，缺一即回归。
+   *
+   * 同一块里的第二条契约：banner 搜索输入框是「透明填充层」——
+   * `opc-components.css` 六、表单控件给所有 input[type=text] 上了
+   * !important 的 `padding: 10px 14px` + 自带描边/圆角（那条规则本身
+   * 是对的，登录/注册等真表单靠它）。若不在刷新层把它中和掉，输入框会
+   * ① 占位文字压住左侧放大镜图标（图标占 18+18=36px > 14px 内距）、
+   * ② 正文钻进右侧 ↵ 徽章下（徽章占 12+28=40px > 14px 内距）、
+   * ③ 在外层面板里再画一圈内框（框中框）、
+   * ④ 44px 行内框顶在 52px 面板里垂直偏上。
+   * 左右内距 48/52px 即为图标与徽章让位的最小值，不得缩小。
+   */
+  const raw = readFileSync('src/styles/opc-layout-refresh.css', 'utf8');
+
+  const panel = raw.match(/\.agent-store \.hero-search \{[^}]*\}/);
+  assert.ok(panel, 'refresh layer 缺少 .agent-store .hero-search 面板规则块');
+  assert.ok(
+    /width:\s*min\(580px,\s*100%\)\s*!important/.test(panel[0]),
+    '面板 width 声明丢失',
+  );
+  assert.ok(
+    /max-width:\s*min\(580px,\s*100%\)\s*!important/.test(panel[0]),
+    'width 覆盖没有连带覆盖 max-width —— 会被原站遗留的 max-width:480px 静默钳回 480px',
+  );
+
+  const input = raw.match(/\.agent-store \.hero-search \.hero-search-input \{[^}]*\}/);
+  assert.ok(input, 'refresh layer 缺少 .hero-search-input 中和规则块');
+  assert.ok(
+    /padding:\s*0 52px 0 48px\s*!important/.test(input[0]),
+    '输入框左右内距（48/52px 图标与 ↵ 徽章让位值）被改动',
+  );
+  assert.ok(
+    /border:\s*0\s*!important/.test(input[0]),
+    '输入框自带描边会在面板里形成框中框',
+  );
+});

@@ -331,12 +331,38 @@
 /* Agent: compact search, persistent categories and group-aware results. */
 .opc-replica.opc-replica .agent-store .hero-search {
   width: min(580px, 100%) !important;
+  /* 参考样式自带的 max-width:480px 会把上面的 580px 又压回去，同步放开 */
+  max-width: min(580px, 100%) !important;
   min-height: 52px;
   margin: 28px 0 0 !important;
   border: 1px solid var(--opc-line) !important;
   border-radius: var(--opc-radius-panel) !important;
   background: var(--opc-white) !important;
   box-shadow: 0 10px 30px rgb(20 47 89 / 7%) !important;
+}
+/* 面板聚焦态：输入框本身不再是视觉框（见下一条），焦点反馈移到外层面板 */
+.opc-replica.opc-replica .agent-store .hero-search:focus-within {
+  border-color: var(--opc-blue-deep) !important;
+  box-shadow: 0 10px 30px rgb(20 47 89 / 7%), 0 0 0 3px rgb(29 127 186 / 12%) !important;
+}
+/* 输入框还原为「透明填充层」：opc-components.css 六、表单控件给所有
+   input[type=text] 上了 !important 的 10px 14px 内距 + 自带描边/圆角，
+   在这里会 ① 占位文字压到左侧放大镜图标上（图标占 18+18=36px）、正文
+   钻进右侧 ↵ 徽章下（徽章占 12+28=40px）；② 输入框在面板里再画一圈
+   内框（框中框）；③ 44px 的行高框在 52px 面板里垂直偏上。左右内距按
+   图标/徽章让位，唯一的视觉框是外层 .hero-search。 */
+.opc-replica.opc-replica .agent-store .hero-search .hero-search-input {
+  display: block !important;
+  height: 52px !important;
+  min-height: 0 !important;
+  padding: 0 52px 0 48px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.opc-replica.opc-replica .agent-store .hero-search .hero-search-input:focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 .opc-replica.opc-replica .opc-agent-directory {
   padding: 48px 0 80px;
