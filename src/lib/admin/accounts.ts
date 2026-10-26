@@ -69,14 +69,17 @@ const TOKEN_VERSION = 'v1';
 /**
  * 签名密钥：从既有服务端密钥派生。任一密钥轮换（换 Supabase key / OPS_TOKEN）
  * 会使所有已发会话失效——这正是密钥轮换期望的语义。
+ *
+ * fails-closed：三份密钥材料全空时若退化为固定可预测串，任何人都能自签
+ * 管理会话（API 鉴权只验签名不查库）。此时改用每次随机的密钥——所有
+ * token 永远验签失败，等价于关闭整个后台会话通道。
  */
 function sessionSecret(): Buffer {
-  const material = [
-    'jz-admin-session-v1',
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
-    process.env.OPS_TOKEN ?? '',
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  ].join('|');
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+  const opsToken = process.env.OPS_TOKEN ?? '';
+  const siteUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  if (!serviceKey && !opsToken && !siteUrl) return randomBytes(32);
+  const material = ['jz-admin-session-v1', serviceKey, opsToken, siteUrl].join('|');
   return createHash('sha256').update(material).digest();
 }
 
