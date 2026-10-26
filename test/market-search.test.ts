@@ -66,8 +66,11 @@ describe('旧版原生页下线 · 308 收敛表（2026-10-26）', () => {
 });
 
 describe('参考站市场 · 全量供需与筛选', () => {
-  test('市场入口使用隔离的复现页面，保持服务端静态内容', () => {
-    assert.match(marketSrc, /<ReplicaPage pathname="\/market"/);
+  test('市场入口走运行时装配（伙伴墙 DB 优先），保持服务端静态内容', () => {
+    // 2026-10-26 方式一：/market 从 ReplicaPage 静态包装改为 blocks-runtime
+    // 装配（与 /newslist 同款结构），伙伴墙 partners 表 DB 优先、烘焙兜底。
+    assert.match(marketSrc, /getRuntimeReplicaPage\('\/market'\)/);
+    assert.match(marketSrc, /export const revalidate = 300/);
     assert.doesNotMatch(marketSrc, /await\s+searchParams/);
   });
 

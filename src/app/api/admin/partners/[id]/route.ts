@@ -10,5 +10,6 @@ export const { GET, PATCH, DELETE } = createResourceItemApi({
   pk: 'id',
   schema: partnerInputSchema,
   toRow: partnerToRow,
-  revalidate: ['/'],
+  // 伙伴墙已运行时化（2026-10-26 方式一）：首页 / 供需 / 工作三页展示 partners 表
+  revalidate: ['/', '/market', '/work'],
 });

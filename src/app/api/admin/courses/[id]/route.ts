@@ -10,5 +10,6 @@ export const { GET, PATCH, DELETE } = createResourceItemApi({
   pk: 'id',
   schema: courseInputSchema,
   toRow: courseToRow,
-  // 公开页 /academy 已下线（308 → /center 复刻快照，不查本表），无前台缓存可失效
+  // 课程方向卡已运行时化（2026-10-26 方式一）：/center 展示 courses 表（DB 优先）
+  revalidate: ['/center'],
 });
