@@ -504,14 +504,14 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 **坑二：同特异性时按加载顺序决胜，而加载顺序不由 import 语句控制。**
 见 9.1。因此设计层要**排到 `reference-blue.css` 之后**：
 
-> 设计层不能 import 在 `src/app/layout.tsx` —— 那会进 `layout.css`，
+> 设计层不能 import 在 `src/app/layout.tsx` —— 那会进 layout 产物（layout.css），
 > 排在原站基线**之前**；也不能 import 在 Server Component `ReplicaPage.tsx` ——
 > Next.js 只允许全局 CSS 在根布局 import，在 Server Component 里 import 会被**静默丢弃**
 > （实测打包后整层设计样式完全没进产物，页面还是原站配色）。
 >
 > **正确位置是客户端组件 `ReplicaInteractions.tsx`** ——
-> 客户端组件的 CSS 落在 `page.css`，而 `page.css` 排在最后。
-> 顺带的好处：设计层不再进主站所有路由的 `layout.css`。
+> 客户端组件的 CSS 落在页面产物（page.css），而它在加载顺序上排最后。
+> 顺带的好处：设计层不再进主站所有路由的 layout 产物。
 
 **坑三（本轮最隐蔽的一个）：通用基线规则的选择器不能比定向覆盖更具体。**
 
@@ -792,7 +792,7 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 ### 9.10 ⚠️ `pnpm build` 会打断 dev server，实测前必须确认资产是新的
 
 > 2026-10-22 实测：跑完 `pnpm build` 之后，dev server 的
-> `layout.css` / `page.css` / 所有 JS chunk 全部 **404 或 MIME 错误**，
+> layout/page 两个 css chunk 与所有 JS chunk 全部 **404 或 MIME 错误**，
 > 浏览器只剩缓存里的旧样式、**且 JS 完全没加载**。
 > 表现是「交互全失效」（滚动态 `scrolled` 类永远不加），
 > 极易被误判成「代码写错了」。

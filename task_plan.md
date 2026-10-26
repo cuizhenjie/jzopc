@@ -97,7 +97,7 @@
 | 问题 | 根因 | 处理 |
 |---|---|---|
 | 深底区文字被压成深灰（`.adg-item-title` 2.0:1 等一整批） | **通用基线规则特异性 (0,4,1) 高于定向覆盖 (0,4,0)**，同为 `!important` 时高者胜 | 基线降级为 `:where()` → (0,0,1) |
-| 设计层排在原站基线**之前** | 设计层 import 在 Root Layout（进 `layout.css`） | 改挂客户端组件 CSS 链（进 `page.css`，排最后） |
+| 设计层排在原站基线**之前** | 设计层 import 在 Root Layout（进 layout 产物 css） | 改挂客户端组件 CSS 链（进 page 产物 css，排最后） |
 | 对比度实测出现假阳性 | 主站 `scroll-behavior: smooth` 让截图与读 rect 落在不同滚动位置 | `behavior:'instant'` + 等图片加载 + 落点复核 |
 | 对比度实测高估半透明文字 | 直接把 `rgba(...,0.88)` 当不透明色 | 先与背景合成再算亮度 |
 | 页头品牌字被判 4.17:1 | `background-clip:text` 的计算色 ≠ 绘制色 | 识别为 logotype 并单列豁免 |
