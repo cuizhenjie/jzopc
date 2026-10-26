@@ -444,15 +444,17 @@
 }
 /* 输入框还原为「透明填充层」：opc-components.css 六、表单控件给所有
    input[type=text] 上了 !important 的 10px 14px 内距 + 自带描边/圆角，
-   在这里会 ① 占位文字压到左侧放大镜图标上（图标占 18+18=36px）、正文
-   钻进右侧 ↵ 徽章下（徽章占 12+28=40px）；② 输入框在面板里再画一圈
-   内框（框中框）；③ 44px 的行高框在 52px 面板里垂直偏上。左右内距按
-   图标/徽章让位，唯一的视觉框是外层 .hero-search。 */
+   在这里会 ① 正文钻进右侧 ↵ 徽章下（徽章占 12+28=40px > 14px 内距）、
+   ② 输入框自带白底/描边叠在面板白底上（背景重叠、框中框）、
+   ③ 44px 的行内框顶在 52px 面板里垂直偏上。
+   放大镜图标已随构建期摘除（build-opc-content.py drop_agent_search_icon），
+   左内距只需面板级 18px；右内距 52px 为 ↵ 徽章让位。输入框透明无边框，
+   白底与描边只由外层 .hero-search 承担 —— 唯一的视觉框就是它。 */
 .opc-replica.opc-replica .agent-store .hero-search .hero-search-input {
   display: block !important;
   height: 52px !important;
   min-height: 0 !important;
-  padding: 0 52px 0 48px !important;
+  padding: 0 52px 0 18px !important;
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;

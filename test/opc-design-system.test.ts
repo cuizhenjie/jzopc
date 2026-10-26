@@ -363,11 +363,12 @@ test('agent banner 搜索面板：width 覆盖必须连带解除 max-width 钳�
    * `opc-components.css` 六、表单控件给所有 input[type=text] 上了
    * !important 的 `padding: 10px 14px` + 自带描边/圆角（那条规则本身
    * 是对的，登录/注册等真表单靠它）。若不在刷新层把它中和掉，输入框会
-   * ① 占位文字压住左侧放大镜图标（图标占 18+18=36px > 14px 内距）、
-   * ② 正文钻进右侧 ↵ 徽章下（徽章占 12+28=40px > 14px 内距）、
-   * ③ 在外层面板里再画一圈内框（框中框）、
-   * ④ 44px 行内框顶在 52px 面板里垂直偏上。
-   * 左右内距 48/52px 即为图标与徽章让位的最小值，不得缩小。
+   * ① 正文钻进右侧 ↵ 徽章下（徽章占 12+28=40px > 14px 内距）、
+   * ② 自带白底/描边叠在面板白底上（背景重叠、框中框）、
+   * ③ 44px 行内框顶在 52px 面板里垂直偏上。
+   * 左内距 18px 是面板级内距（放大镜图标已随构建期摘除，见
+   * test/opc-content.test.ts 的 hero-search-icon 守卫）；右内距 52px
+   * 为 ↵ 徽章让位，不得缩小。
    */
   const raw = readFileSync('src/styles/opc-layout-refresh.css', 'utf8');
 
@@ -385,8 +386,8 @@ test('agent banner 搜索面板：width 覆盖必须连带解除 max-width 钳�
   const input = raw.match(/\.agent-store \.hero-search \.hero-search-input \{[^}]*\}/);
   assert.ok(input, 'refresh layer 缺少 .hero-search-input 中和规则块');
   assert.ok(
-    /padding:\s*0 52px 0 48px\s*!important/.test(input[0]),
-    '输入框左右内距（48/52px 图标与 ↵ 徽章让位值）被改动',
+    /padding:\s*0 52px 0 18px\s*!important/.test(input[0]),
+    '输入框左右内距（18px 面板内距 / 52px ↵ 徽章让位值）被改动',
   );
   assert.ok(
     /border:\s*0\s*!important/.test(input[0]),

@@ -652,6 +652,28 @@ def apply_agent_hero_title(root):
             node.children = ["集智·探索 AI 的无限可能"]
 
 
+def drop_agent_search_icon(root):
+    """/agent banner 搜索框摘除放大镜图标（2026-10-26）。
+
+    原站快照里 .hero-search 内 input 左侧有个绝对定位的 svg.hero-search-icon。
+    它是定位元素、绘制在静态 input 之上：表单基线（opc-components.css 六）一旦
+    给 input 塞回 10px 14px 内距，占位文字就压进图标区；即便刷新层用 48px
+    左内距让位，图标与占位文字也始终在同一块 36px 视觉空间里贴着。构建期
+    直接摘掉（/agent 是复刻页里唯一带 hero-search 的页面），左侧只留面板内距。
+    """
+    panels = by_class(root, "hero-search")
+    if len(panels) != 1:
+        raise ValueError(f"Expected one hero-search panel on /agent; found {len(panels)}")
+    panel = panels[0]
+    kept = [
+        child for child in panel.children
+        if not (isinstance(child, Node) and child.tag == "svg" and "hero-search-icon" in child.classes)
+    ]
+    if len(kept) != len(panel.children) - 1:
+        raise ValueError("Expected exactly one svg.hero-search-icon inside the hero-search panel")
+    panel.children = kept
+
+
 def prepare_agent_layout(root, expected_count):
     """Reparent existing tool groups without rebuilding or duplicating any card.
 
@@ -1712,6 +1734,7 @@ def generate():
             apply_word_about_copy(tree)
         elif path == "/agent":
             apply_agent_hero_title(tree)
+            drop_agent_search_icon(tree)
             prepare_agent_layout(tree, len(directory["agents"]))
         elif path == "/market":
             apply_market_join_copy(tree)

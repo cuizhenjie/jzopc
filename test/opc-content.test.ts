@@ -187,6 +187,9 @@ test('agent layout preserves every tool and filter action in SSR, academy course
   assert.match(agent, /data-opc-agent-status=""[^>]*role="status"[^>]*aria-live="polite"/);
   assert.match(agent, /共 233 个智能体/);
   assert.match(agent, /data-opc-search="tools"/);
+  // 2026-10-26：banner 搜索框的放大镜图标构建期摘除（绝对定位叠在 input 上，
+  // 会压占位文字；drop_agent_search_icon）。回归即重新出现 hero-search-icon。
+  assert.ok(!agent.includes('hero-search-icon'));
   assert.doesNotMatch(agent, /data-opc-action="filter-category"/);
   const center = getReplicaPage('/center')!.html;
   assert.match(center, /data-opc-academy-layout/);
