@@ -5,19 +5,20 @@
   margin-top: 0 !important;
   padding: var(--public-hero-pad-start) 0 var(--public-hero-pad-end) !important;
   background: var(--public-hero-surface) !important;
-  color: #142f59 !important;
+  color: var(--opc-navy) !important;
 }
 .opc-replica.opc-replica .opc-visual-hero .container {
   max-width: var(--public-content-width) !important;
 }
 .opc-replica.opc-replica .opc-visual-hero h1 {
-  max-width: min(760px, 64%);
+  max-width: min(760px, 64%) !important;
   margin-top: 12px !important;
-  color: #142f59 !important;
-  -webkit-text-fill-color: #142f59 !important;
+  color: var(--opc-navy) !important;
+  -webkit-text-fill-color: var(--opc-navy) !important;
   font-size: var(--public-hero-title-size) !important;
   font-weight: 600 !important;
-  line-height: 1.4 !important;
+  line-height: 1.3 !important;
+  letter-spacing: -.02em !important;
 }
 .opc-replica.opc-replica .opc-visual-hero h1 span {
   color: inherit !important;
@@ -29,8 +30,8 @@
 .opc-replica.opc-replica .opc-visual-hero .container > p:not(.hero-slogan) {
   max-width: min(640px, 58%) !important;
   margin: 18px 0 0 !important;
-  color: #4c6380 !important;
-  -webkit-text-fill-color: #4c6380 !important;
+  color: var(--opc-ink-3) !important;
+  -webkit-text-fill-color: var(--opc-ink-3) !important;
   font-size: var(--public-hero-description-size) !important;
   line-height: 1.9 !important;
 }
@@ -40,13 +41,109 @@
   mask-image: linear-gradient(90deg, transparent, #000 30%);
 }
 .opc-replica.opc-replica .opc-visual-hero .sec-eyebrow {
-  color: #0968ab !important;
+  color: var(--opc-blue-deep) !important;
   font-size: 13px !important;
 }
 /* Page-specific composition starts below. */
-.opc-replica.opc-replica :is([data-opc-about-page], .agent-store, [data-opc-academy-layout]) {
+.opc-replica.opc-replica :is([data-opc-about-page], .agent-store, [data-opc-academy-layout], .market) {
   padding-top: 0 !important;
 }
+
+/* These two containers use grid; the captured float clearfix would become
+   additional grid items. Keep clearfix behavior on all other containers. */
+.opc-replica.opc-replica .opc-about-overview-grid::before,
+.opc-replica.opc-replica .opc-about-overview-grid::after,
+.opc-replica.opc-replica [data-opc-agent-layout]::before,
+.opc-replica.opc-replica [data-opc-agent-layout]::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Homepage shortcuts remain in the text layer above the four-image carousel. */
+.opc-replica.opc-replica [data-opc-page='/'] .hero {
+  height: auto !important;
+  min-height: max(680px, 100svh) !important;
+  padding: calc(var(--public-header-height) + 48px) 0 96px !important;
+}
+.opc-replica.opc-replica [data-opc-page='/'] .hero-desc {
+  margin-bottom: 0 !important;
+}
+.opc-replica.opc-replica .opc-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.opc-replica.opc-replica .opc-home-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 1px solid rgb(255 255 255 / 65%);
+  border-radius: var(--opc-radius-control);
+  font-size: 15px !important;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none !important;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.opc-replica.opc-replica .opc-home-action-primary {
+  background: var(--opc-white);
+  color: var(--opc-blue-dark) !important;
+}
+.opc-replica.opc-replica .opc-home-action-secondary {
+  background: rgb(20 47 89 / 20%);
+  color: var(--opc-white) !important;
+}
+.opc-replica.opc-replica .opc-home-action-primary:hover { background: var(--opc-surface-blue); }
+.opc-replica.opc-replica .opc-home-action-secondary:hover { background: rgb(255 255 255 / 16%); border-color: var(--opc-white); }
+.opc-replica.opc-replica .opc-home-action:focus-visible { outline: 3px solid var(--opc-white); outline-offset: 5px; }
+
+/* Market controls lead directly into results, without stacked section padding. */
+.opc-replica.opc-replica .market .tab-sec { padding: 24px 0 0 !important; }
+.opc-replica.opc-replica .market .tab-bar { justify-content: flex-start; flex-direction: row; margin: 0; }
+.opc-replica.opc-replica .market :is(.supply-sec, .demand-sec) { padding: 32px 0 64px !important; }
+.opc-replica.opc-replica .market :is(.supply-sec, .demand-sec) .sec-head { margin-bottom: 20px !important; }
+.opc-replica.opc-replica .market .publish-btn-container { margin-bottom: 24px; text-align: left; }
+.opc-replica.opc-replica .market .publish-btn {
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: var(--opc-radius-control);
+  font-size: 15px;
+  box-shadow: none;
+}
+.opc-replica.opc-replica .market .hero-divider { display: none !important; }
+
+/* Work shares the pale public hero, so its secondary action uses dark ink. */
+.opc-replica.opc-replica .opc-visual-hero .hero-btn--ghost {
+  color: var(--opc-blue-deep) !important;
+  -webkit-text-fill-color: currentColor !important;
+  border-color: var(--opc-blue-deep) !important;
+  background: rgb(255 255 255 / 80%) !important;
+}
+.opc-replica.opc-replica .opc-visual-hero .hero-btn--ghost:hover {
+  color: var(--opc-blue-dark) !important;
+  background: var(--opc-white) !important;
+}
+
+/* Editorial pages keep a comfortable measure regardless of screen width. */
+.opc-replica.opc-replica .newsdetail .article-main {
+  max-width: 896px;
+  padding: 40px 48px;
+  border: 1px solid var(--opc-line);
+  border-radius: var(--opc-radius-panel);
+  box-shadow: none;
+}
+.opc-replica.opc-replica .newsdetail .article-content {
+  /* Body elements consume these tokens through the shared p/li/dd rules. */
+  --opc-fs-body: 17px;
+  --opc-lh-body: 1.9;
+  font-size: var(--opc-fs-body) !important;
+  line-height: var(--opc-lh-body) !important;
+  overflow-wrap: anywhere;
+}
+.opc-replica.opc-replica :is(.newslist, .activitylist) :is(.news-content, .activity-content) { min-width: 0; }
 
 /* About: overview → three drivers → eight enablers → real journey → vision. */
 .opc-replica.opc-replica [data-opc-about-page] .opc-about-section {
@@ -490,60 +587,87 @@
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tool-card[hidden] { display: none !important; }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-body {
-  display: flex !important;
-  flex-direction: column;
-  min-height: 232px;
+  display: grid !important;
+  grid-template-columns: 36px minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr auto;
+  column-gap: 12px;
+  row-gap: 8px;
+  align-items: start;
+  min-height: 0;
   height: 100%;
-  padding: 22px !important;
+  padding: 20px !important;
   background: var(--opc-white) !important;
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-icon {
   width: 36px !important;
   height: 36px !important;
-  margin-bottom: 16px;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  align-self: center;
+  margin: 0;
   object-fit: contain;
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-tag {
-  align-self: flex-start;
-  margin-bottom: 10px !important;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start;
+  margin: 0 !important;
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-title {
+  grid-column: 2;
+  grid-row: 2;
+  display: block !important;
+  overflow: visible !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
   overflow-wrap: anywhere;
-  margin: 0 0 10px !important;
+  margin: 0 !important;
   font-size: 18px !important;
   line-height: 1.45 !important;
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-desc {
-  min-height: 66px;
-  margin-bottom: 20px !important;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  min-height: 44px;
+  margin: 4px 0 8px !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
   color: var(--opc-ink-3) !important;
   font-size: 13px !important;
   line-height: 1.7 !important;
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-footer {
-  margin-top: auto !important;
-  padding-top: 14px;
-  border-top-color: var(--opc-line) !important;
+  grid-column: 1 / -1;
+  grid-row: 4;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 0 !important;
+  padding-top: 10px;
+  border-top: 1px solid var(--opc-line) !important;
 }
 .opc-replica.opc-replica [data-opc-agent-group] .tc-domain {
   min-width: 0;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--opc-ink-3) !important;
   font-size: 12px !important;
 }
+.opc-replica.opc-replica [data-opc-agent-group] .tc-link {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+}
 
-/* Shared center/agent hero proportions follow the home title scale. */
-.opc-replica.opc-replica :is(.hero-center, .hero-agent).opc-visual-hero {
-  padding: 56px 0 64px !important;
-}
-.opc-replica.opc-replica :is(.hero-center, .hero-agent).opc-visual-hero h1 {
-  max-width: min(760px, 64%) !important;
-  font-size: clamp(32px, 4.4vw, 48px) !important;
-  line-height: 1.25 !important;
-  letter-spacing: -.02em !important;
-}
+/* Center and agent use the same title and spacing tokens as every public hero. */
 .opc-replica.opc-replica :is(.hero-center, .hero-agent) .hero-divider {
   display: none !important;
 }
@@ -569,6 +693,8 @@
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+  transform: none !important;
+  cursor: default;
 }
 .opc-replica.opc-replica [data-opc-academy-layout] .feature-item .fi-icon {
   width: 36px !important;
@@ -589,7 +715,7 @@
   margin-bottom: 32px !important;
 }
 .opc-replica.opc-replica [data-opc-academy-layout] .path-sec {
-  background: var(--opc-surface) !important;
+  background: var(--opc-white) !important;
 }
 .opc-replica.opc-replica [data-opc-academy-layout] .opc-academy-course-grid {
   align-items: stretch;
@@ -624,13 +750,19 @@
 }
 .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps {
   grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-  gap: 20px !important;
+  gap: 0 !important;
+  border-top: 2px solid var(--opc-line-blue);
 }
 .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li {
   position: relative;
   height: 100%;
-  padding: 28px !important;
+  padding: 28px 20px !important;
+  border: 0 !important;
+  border-right: 1px solid var(--opc-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
 }
+.opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li:last-child { border-right: 0 !important; }
 .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-num {
   padding: 0 !important;
   margin-bottom: 16px !important;
@@ -669,9 +801,43 @@
   .opc-replica.opc-replica .opc-visual-hero :is(.hero-desc, .hero-subtitle),
   .opc-replica.opc-replica .opc-visual-hero > p,
   .opc-replica.opc-replica .opc-visual-hero .container > p:not(.hero-slogan) { max-width: 100% !important; }
-  .opc-replica.opc-replica :is(.hero-center, .hero-agent).opc-visual-hero { padding: 36px 0 44px !important; }
-  .opc-replica.opc-replica :is(.hero-center, .hero-agent).opc-visual-hero h1 { max-width: 100% !important; }
-  .opc-replica.opc-replica .hero-agent.opc-visual-hero h1 { font-size: 30px !important; line-height: 1.35 !important; }
+  .opc-replica.opc-replica [data-opc-page='/'] .hero { padding: calc(var(--public-header-height) + 28px) 0 80px !important; }
+  .opc-replica.opc-replica .opc-home-actions { margin-top: 24px; gap: 10px; }
+  .opc-replica.opc-replica .opc-home-action { flex: 1; padding-inline: 12px; white-space: nowrap; }
+  .opc-replica.opc-replica .market :is(.supply-sec, .demand-sec) { padding-top: 24px !important; padding-bottom: 48px !important; }
+  .opc-replica.opc-replica .market .publish-btn { width: auto; }
+  .opc-replica.opc-replica .newsdetail .article-main { padding: 24px 0; border: 0; }
+  /* Captured mobile rules have equal specificity; pin only these list layouts
+     so their image sizes and line clamps do not depend on stylesheet order. */
+  .opc-replica.opc-replica :is(.newslist, .activitylist) :is(.news-item, .activity-item):not([hidden]) {
+    display: grid !important;
+    grid-template-columns: 96px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 12px !important;
+    padding: 16px 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--opc-line) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .opc-replica.opc-replica :is(.newslist, .activitylist) :is(.news-image, .activity-image) { width: 96px !important; height: 88px !important; border-radius: var(--opc-radius-control); }
+  .opc-replica.opc-replica :is(.newslist, .activitylist) :is(.news-content, .activity-content) { padding: 0 !important; }
+  .opc-replica.opc-replica :is(.newslist, .activitylist) :is(.news-title, .activity-title) {
+    margin: 0 0 8px !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+  }
+  .opc-replica.opc-replica :is(.newslist, .activitylist) :is(.news-summary, .activity-description) {
+    margin: 0 0 10px !important;
+    font-size: 13px !important;
+    line-height: 1.65 !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+  }
+  .opc-replica.opc-replica .activitylist .activity-badge { align-self: flex-start; margin-bottom: 8px; }
+  .opc-replica.opc-replica .activitylist .activity-info { gap: 6px 12px; }
   .opc-replica.opc-replica [data-opc-about-page] .opc-about-section { padding: 52px 0 !important; }
   .opc-replica.opc-replica [data-opc-about-page] .opc-about-heading { margin-bottom: 24px; }
   .opc-replica.opc-replica [data-opc-about-page] .opc-about-overview-media img { height: 260px; }
@@ -695,18 +861,22 @@
   .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip { width: auto; border: 1px solid var(--opc-line) !important; border-radius: 6px !important; text-align: center; }
   .opc-replica.opc-replica [data-opc-agent-sidebar] .filter-chip.active { border-color: var(--opc-blue-deep) !important; }
   .opc-replica.opc-replica [data-opc-agent-group] { padding-bottom: 36px !important; }
-  .opc-replica.opc-replica [data-opc-agent-group] .tc-body { padding: 16px !important; min-height: 205px; }
+  .opc-replica.opc-replica [data-opc-agent-group] .tc-body { padding: 16px !important; }
   .opc-replica.opc-replica .agent-store .hero-search { margin-top: 24px !important; }
   .opc-replica.opc-replica [data-opc-academy-layout] .hero-slogan { font-size: 19px !important; }
   .opc-replica.opc-replica [data-opc-academy-layout] :is(.courses-sec, .path-sec, .opc-visual-gallery) { padding: 48px 0 !important; }
   .opc-replica.opc-replica [data-opc-academy-layout] .features-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px !important; }
   .opc-replica.opc-replica [data-opc-academy-layout] .feature-item { justify-content: flex-start; padding: 0 !important; }
-  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li { padding: 24px !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li { padding: 24px 20px !important; }
 }
 @media (max-width: 639px) {
   .opc-replica.opc-replica [data-opc-agent-group] .tool-grid { grid-template-columns: 1fr !important; }
   .opc-replica.opc-replica [data-opc-agent-group] .tc-body { min-height: 0; }
-  .opc-replica.opc-replica [data-opc-agent-group] .tc-desc { min-height: 0; }
   .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps { grid-template-columns: 1fr !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps > li { padding: 24px 0 24px 20px !important; border-right: 0 !important; border-left: 2px solid var(--opc-line-blue) !important; border-bottom: 1px solid var(--opc-line) !important; }
+  .opc-replica.opc-replica [data-opc-academy-layout] .opc-employ-steps { border-top: 0; }
   .opc-replica.opc-replica [data-opc-academy-layout] .opc-academy-course-card p { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opc-replica.opc-replica .opc-home-action { transition: none; }
 }

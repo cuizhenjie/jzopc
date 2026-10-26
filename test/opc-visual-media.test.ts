@@ -6,6 +6,7 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync
 import { dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { getReplicaPage } from '@/lib/opc/content';
+import { publicNavigation } from '@/lib/site/navigation';
 
 type Variant = { url: string; width: number; height: number; bytes: number; sha256: string };
 type Asset = { id: string; source: string; sourceType: string; tool?: string; kind: string; alt: string; slots: string[]; original: { sha256: string; width: number; height: number; bytes: number }; variants: Variant[] };
@@ -106,6 +107,12 @@ test('homepage carousel uses four responsive local images with a single high pri
   }
   const fullHeroBytes = ['hero-city-12', 'hero-city-11', 'hero-city-13'].reduce((sum, id) => sum + manifest.assets.find(asset => asset.id === id)!.variants.at(-1)!.bytes, 0);
   assert.ok(fullHeroBytes < 400_000);
+  const actions = home.match(/<div class="opc-home-actions">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(actions, 'homepage shortcuts are present in the server-rendered HTML');
+  assert.match(actions, /href="\/agent">探索智能体<\/a>/);
+  assert.match(actions, /href="\/apply">申请入驻<\/a>/);
+  assert.equal([...home.matchAll(/class="opc-home-actions"/g)].length, 1);
+  assert.equal([...home.matchAll(/class="hero-stat"/g)].length, 4);
 });
 
 test('homepage about background uses the provided blue city image as a decorative replacement', () => {
@@ -129,17 +136,13 @@ test('homepage about background uses the provided blue city image as a decorativ
   assert.equal([...home.matchAll(/fetchpriority="high"/g)].length, 1);
 });
 
-test('rebuilt navigation reaches the native compute entry in every public header', () => {
-  // 2026-10-23 契约 docs/15 §2.Req1：导航重建后「算力超市」是「八大赋能」
-  // 下拉的子项，指向原生页 /empower/compute（纯 href，无 data-opc-action）。
+test('captured public pages defer navigation to the shared React header', () => {
+  const compute = publicNavigation.flatMap(item => item.children ?? [])
+    .find(item => item.label === '算力超市');
+  assert.equal(compute?.href, '/empower/compute');
   for (const path of ['/', '/agent', '/market', '/center', '/community', '/work', '/about']) {
     const html = getReplicaPage(path)!.html;
-    const nav = html.slice(html.indexOf('class="nav-links"'), html.indexOf('class="mobile-menu"'));
-    assert.ok(nav && nav.includes('nav-links'), path);
-    const anchor = [...nav.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].find(match => match[2].replace(/<[^>]+>/g, '').trim() === '算力超市');
-    assert.ok(anchor, path);
-    assert.match(anchor[1], /href="\/empower\/compute"/);
-    assert.ok(!anchor[1].includes('data-opc-action'), path);
+    assert.doesNotMatch(html, /class="[^"]*\b(?:opcheader|nav-links|mobile-menu)\b/, path);
   }
   // 首页特性卡的算力超市入口保持外部直达（th.jimei.cn，新窗口打开）。
   const feature = [...getReplicaPage('/')!.html.matchAll(/<a\b([^>]*class="ftr-node[^>]*)>([\s\S]*?)<\/a>/g)]
@@ -149,7 +152,7 @@ test('rebuilt navigation reaches the native compute entry in every public header
   assert.match(feature[1], /rel="noopener noreferrer"/);
 });
 
-test('learning photos are independent of factual articles; cooperative enterprises render as sixteen text cards', () => {
+test('learning and overview photos are independent of factual articles; cooperative enterprises keep sixteen entries', () => {
   const home = getReplicaPage('/')!.html;
   const gallery = home.match(/<section\b[^>]*data-opc-gallery="learning"[^>]*>([\s\S]*?)<\/section>/)?.[1];
   assert.ok(gallery);
@@ -157,7 +160,11 @@ test('learning photos are independent of factual articles; cooperative enterpris
   assert.match(gallery, /学习与交流/);
   const academy = getReplicaPage('/center')!.html.match(/<section\b[^>]*data-opc-gallery="academy"[^>]*>([\s\S]*?)<\/section>/)?.[1];
   assert.equal([...academy!.matchAll(/<figure\b/g)].length, 3);
-  for (const path of ['/about', '/community']) assert.match(getReplicaPage(path)!.html, /data-opc-gallery="scene"/);
+  assert.match(getReplicaPage('/community')!.html, /data-opc-gallery="scene"/);
+  const overview = getReplicaPage('/about')!.html.match(/<figure class="opc-about-overview-media">([\s\S]*?)<\/figure>/)?.[1];
+  assert.ok(overview);
+  assert.match(overview, /src="\/opc\/visual\/reference-city-window\.webp"/);
+  assert.match(overview, /<figcaption>连接城市与产业，让 AI 创业在此生长<\/figcaption>/);
   for (const path of ['/', '/work']) {
     const html = getReplicaPage(path)!.html;
     // 2026-10-23 契约 docs/15 §2.Req6：AI生态 logo 墙重写为「合作企业」

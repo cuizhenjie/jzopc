@@ -20,7 +20,7 @@ export function replicaMetadata(pathname: string, query: ReplicaQuery = {}): Met
   return {
     title: { absolute: page.title },
     description: '集智 AI OPC 社区，线上虚拟平台与线下实体空间，为 OPC 创业者提供全生命周期服务。',
-    keywords: ['集智AI', 'OPC', 'AI 创业', '智能体', '交易市场', '创业社区', '科技蓝'],
+    keywords: ['集智AI', 'OPC', 'AI 创业', '智能体', '供需市场', '创业社区', '科技蓝'],
     alternates: { canonical: pathname === '/newsdetail' && query.id ? `${pathname}?id=${encodeURIComponent(String(query.id))}` : pathname },
     openGraph: { type: 'website', locale: 'zh_CN', title: page.title, siteName: '集智AI', images: [] },
     twitter: { card: 'summary', title: page.title, images: [] },

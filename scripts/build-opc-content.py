@@ -823,13 +823,19 @@ MARKET_JOIN_ITEMS = [
 
 
 def apply_market_join_copy(root):
-    """/market 加入区（契约 §2.Req5 + Req7）：h2 / 副标 / 四个 join-item 逐字替换。"""
+    """Keep the market's visible name consistent with the public navigation."""
+    hero = first(root, "hero-market")
+    titles = [node for node in walk(hero) if node.tag == "h1"] if hero else []
+    if len(titles) != 1:
+        raise ValueError("Expected one market hero title")
+    titles[0].children = ["供需市场"]
+    set_text(hero, "sec-eyebrow", "连接需求与能力")
     join = next((n for n in by_class(root, "section") if "join-sec" in n.classes), None)
     if not join:
         return
     heading = next((n for n in walk(join) if n.tag == "h2"), None)
     if heading:
-        heading.children = ["加入集智 AI OPC 交易市场"]
+        heading.children = ["加入集智 AI 供需市场"]
     set_text(join, "sec-sub", "上架智能体能力，发布项目需求，链接产业伙伴，共筑 AI 产业新生态")
     for item, (title, desc) in zip(by_class(join, "join-item"), MARKET_JOIN_ITEMS):
         item_title = next((n for n in walk(item) if n.tag == "h4"), None)
@@ -1033,6 +1039,20 @@ def replace_home_hero(tree):
             image.attrs["src"] = "/logo-mark-inverse.svg"
             image.attrs["alt"] = ""
             image.attrs["loading"] = "eager"
+    bodies = by_class(tree, "hero-body")
+    if len(bodies) != 1:
+        raise ValueError("Expected one homepage hero body")
+    body = bodies[0]
+    stats = first(body, "hero-stats-row")
+    if stats is None or stats not in body.children:
+        raise ValueError("Expected homepage statistics inside the hero body")
+    # Plain SSR anchors remain usable before hydration and with JavaScript off.
+    # Keep the existing carousel/statistics nodes and their stacking untouched.
+    if not by_class(body, "opc-home-actions"):
+        body.children.insert(body.children.index(stats), Node("div", {"class": "opc-home-actions"}, [
+            Node("a", {"class": "opc-home-action opc-home-action-primary", "href": "/agent"}, ["探索智能体"]),
+            Node("a", {"class": "opc-home-action opc-home-action-secondary", "href": "/apply"}, ["申请入驻"]),
+        ]))
     return tree
 
 
@@ -1704,7 +1724,8 @@ def generate():
             # 让 pages.json 与 list-cards.json 在同一次构建里产出。
             channel = LIST_PLACEHOLDERS[path][2]
             list_cards[channel] = extract_list_cards(tree, path, paths, assets)
-        pages[path] = {"html": sanitize(tree, paths, assets), "title": "关于集智 - 集智 AI OPC 社区" if path == "/about" else rebrand(page["title"]), "path": path}
+        page_titles = {"/about": "关于集智 - 集智 AI OPC 社区", "/market": "供需市场 - 集智 AI OPC 社区"}
+        pages[path] = {"html": sanitize(tree, paths, assets), "title": page_titles.get(path, rebrand(page["title"])), "path": path}
     shell = parse(detail_template["html"])
     remove_captured_header(shell, "/newsdetail")
     localize_operator_links(shell, cities)

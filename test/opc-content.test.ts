@@ -223,7 +223,7 @@ test('contract copy lands on the rewritten sections', () => {
   assert.ok(getReplicaPage('/agent')!.html.includes('集智·探索 AI 的无限可能'));
   // /market 加入区（Req5+Req7）
   const market = getReplicaPage('/market')!.html;
-  assert.ok(market.includes('加入集智 AI OPC 交易市场'));
+  assert.ok(market.includes('加入集智 AI 供需市场'));
   assert.ok(market.includes('上架智能体能力，发布项目需求，链接产业伙伴，共筑 AI 产业新生态'));
   for (const step of ['供需发布', '智能匹配', '能力展示', '产业共创']) assert.ok(market.includes(step), step);
   // 集智商学院四段（Req8）

@@ -25,11 +25,4 @@
 .opc-dialog-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; padding: 20px 28px; border-top: 1px solid color-mix(in srgb, var(--opc-blue-deep, #0968ab) 15%, white); }
 .opc-dialog-footer a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border: 1px solid var(--opc-blue-deep, #0968ab); border-radius: 8px; color: var(--opc-blue-deep, #0968ab); text-decoration: none; font-size: 14px; }
 .opc-dialog-footer a:first-child { background: var(--opc-blue-deep, #0968ab); color: white; }
-@media (max-width: 1099px) {
-  .opc-replica.opc-replica .opcheader .mobile-menu { display: flex !important; position: relative; z-index: 101; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
-  .opc-replica.opc-replica .opcheader.opc-menu-open .nav-links { display: flex !important; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; max-height: calc(100dvh - 80px); overflow: auto; padding: 16px 24px; margin: 0; background: var(--opc-navy, #142f59); z-index: 100; }
-  .opc-replica.opc-replica .opcheader.opc-menu-open .nav-links li { display: block; width: 100%; }
-  .opc-replica.opc-replica .opcheader.opc-menu-open .nav-links a { display: flex; align-items: center; min-height: 44px; padding: 10px 14px; color: white; }
-  .opc-replica.opc-replica .opcheader.opc-menu-open .menu-backdrop { display: block !important; position: fixed; inset: 72px 0 0; background: #142F5980; z-index: 90; }
-}
 @media (max-width: 600px) { .opc-dialog { width: calc(100vw - 20px); max-height: 90dvh; border-radius: 12px; }.opc-dialog-header { padding: 18px; gap: 12px; }.opc-dialog-header h2 { font-size: 19px; }.opc-dialog-content { padding: 18px; font-size: 15px; }.opc-dialog-footer { padding: 16px 18px; justify-content: flex-start; } }

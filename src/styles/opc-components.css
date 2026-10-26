@@ -14,35 +14,8 @@
  * 加 `!important` 是这里唯一可靠的收敛手段 —— 代价是不能再从外部微调这些值，
  * 因此所有可调项都抽成 `opc-tokens.css` 里的 token。
  *//* ═══════════════════════════════════════════════════════════════════
-   一、页头 · 导航
-   ═══════════════════════════════════════════════════════════════════ *//* 首页页头浮在主视觉上（透明底），其余页面是白底吸顶。
-   原站用 `.opcheader:has(nav.is-home:not(.scrolled))` 判定，这里保留同一机制，
-   但**必须再加 `:not(.scrolled)`** ——
-   运行期（`ReplicaInteractions.tsx`）把 `scrolled` 加在 **`nav`** 上（与原站一致），
-   原站的白字规则写作 `nav.is-home:not(.scrolled)`：首页只有**未滚动时**才反白，
-   滚动后页头变白底，导航文字必须回到深色。
-   少了这个限定，首页滚动后就是**白字落在白底上**（实测导航项与 logo 同时不可读）。 */.opc-replica.opc-replica .opcheader {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 1000 !important;
-  background: rgb(255 255 255 / 92%) !important;
-  backdrop-filter: saturate(180%) blur(14px) !important;
-  -webkit-backdrop-filter: saturate(180%) blur(14px) !important;
-  border-bottom: 1px solid var(--opc-line) !important;
-  transition: background 0.3s var(--ease-out-soft, ease),
-    box-shadow 0.3s var(--ease-out-soft, ease) !important;
-  line-height: 1 !important;
-}/* 首页：浮在深色主视觉上，用深底 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) {
-  background: transparent !important;
-  border-bottom-color: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}.opc-replica.opc-replica .opcheader:has(nav.scrolled),
-.opc-replica.opc-replica .opcheader:has(nav:not(.is-home)) {
-  box-shadow: 0 1px 0 rgb(20 47 89 / 4%), 0 8px 24px -12px rgb(20 47 89 / 10%) !important;
-}/* 容器：统一最大宽度与水平留白
+   一、容器与认证页品牌元素
+   ═══════════════════════════════════════════════════════════════════ *//* 容器：统一最大宽度与水平留白
    ⚠️ `width` 必须显式写：`max-width` **不能覆盖**显式 `width`。
    原站容器是**固定宽度阶梯**（788 / 1012 / 1220 / 1940），
    只靠 `@media(max-width:900px){.container{max-width:100%}}` 收口；
@@ -71,89 +44,12 @@
   transition: color 0.2s var(--ease-out-soft, ease) !important;
 }.opc-replica.opc-replica .logo:hover {
   color: var(--opc-blue-deep) !important;
-}/* 品牌标记：浅底用彩色版，深底用反白版。
-   两张图都注入到 DOM，用 CSS 切换 —— 避免依赖 JS 判断当前页是否首页。 */.opc-replica.opc-replica .opc-brand-mark {
-  display: block !important;
-  width: 32px !important;
-  height: 31px !important;
-  flex-shrink: 0 !important;
-  object-fit: contain !important;
-}.opc-replica.opc-replica .opc-brand-mark--inverse {
-  display: none !important;
-}/* 首页深底上的 logo 反白 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .logo {
-  color: #fff !important;
-}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .opc-brand-mark {
-  display: none !important;
-}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .opc-brand-mark--inverse {
-  display: block !important;
 }.opc-replica.opc-replica .logo img,
 .opc-replica.opc-replica .logo svg {
   width: 32px !important;
   height: 31px !important;
   flex-shrink: 0 !important;
-}/* 导航项 */.opc-replica.opc-replica .nav-links {
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  list-style: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}.opc-replica.opc-replica .nav-links li {
-  list-style: none !important;
-}.opc-replica.opc-replica .nav-links a {
-  display: inline-flex !important;
-  align-items: center !important;
-  height: 38px !important;
-  padding: 0 12px !important;
-  border-radius: var(--opc-radius-control) !important;
-  font-size: 14px !important;
-  font-weight: var(--opc-fw-normal) !important;
-  color: var(--opc-ink-2) !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  transition: color 0.2s var(--ease-out-soft, ease),
-    background-color 0.2s var(--ease-out-soft, ease) !important;
-}.opc-replica.opc-replica .nav-links a:hover {
-  color: var(--opc-blue-deep) !important;
-  background: var(--opc-surface-blue) !important;
-}.opc-replica.opc-replica .nav-links a.active,
-.opc-replica.opc-replica .nav-links a.router-link-active {
-  color: var(--opc-blue-deep) !important;
-  font-weight: var(--opc-fw-medium) !important;
-}/* 选中态用下划线而非胶囊底色 —— 胶囊 + 描边是模板站最强的信号
-   ⚠️ `width: auto` 不是可选项，必须显式写：
-   原站 `reference-blue.css` 里有 `.nav-links a.active[data-v-…]:after{width:100%}`
-   与 `:hover:after{width:100%}`，本层选择器更高但**没有声明 width**，
-   于是属性级联让 `width:100%` 存活下来。
-   绝对定位元素同时给 left / right / width 时属于过度约束，
-   浏览器会**忽略 right**（LTR）→ 伪元素宽度 = 包含块(50px) 的 100%，
-   左缘停在 left:12px → 右缘落在 62px，比链接的 padding box(50px) 还宽 12px：
-     · 视觉上：下划线越过链接右缘，压到相邻导航项；
-     · 布局上：scrollWidth(62) > clientWidth(50)，被响应式审计判成「文本硬裁」。
-   写成 `width:auto` 后，left/right 正常拉伸到内容盒(26px)，恰好等于文字宽度。 */
-.opc-replica.opc-replica .nav-links a.active::after,
-.opc-replica.opc-replica .nav-links a.router-link-active::after {
-  content: '' !important;
-  display: block !important;
-  position: absolute !important;
-  left: 12px !important;
-  right: 12px !important;
-  width: auto !important;
-  bottom: -1px !important;
-  height: 2px !important;
-  background: var(--opc-blue-deep) !important;
-  border-radius: 2px !important;
-}.opc-replica.opc-replica .nav-links a {
-  position: relative !important;
-}/* 首页深底导航 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a {
-  color: rgb(255 255 255 / 88%) !important;
-}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a:hover {
-  color: #fff !important;
-  background: rgb(255 255 255 / 12%) !important;
-}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a.active::after,
-.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links a.router-link-active::after {
-  background: #fff !important;
-}/* 登录按钮：全站唯一主行动点，保留胶囊形 */.opc-replica.opc-replica .login-btn {
+}/* 认证页登录按钮；公共导航由 React Header 独立渲染。 */.opc-replica.opc-replica .login-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -171,12 +67,6 @@
 }.opc-replica.opc-replica .login-btn:hover {
   background: var(--opc-blue-deep) !important;
   color: #fff !important;
-}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .login-btn {
-  border-color: rgb(255 255 255 / 60%) !important;
-  color: #fff !important;
-}.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .login-btn:hover {
-  background: #fff !important;
-  color: var(--opc-blue-deep) !important;
 }/* ═══════════════════════════════════════════════════════════════════
    二、区块标题 · eyebrow
    去掉胶囊描边，改纯文字小标 + 左对齐
@@ -707,62 +597,6 @@
 .opc-replica.opc-replica .login-right .submit-btn:hover {
   background: var(--opc-blue-dark) !important;
   border-color: var(--opc-blue-dark) !important;
-}/* ═══════════════════════════════════════════════════════════════════
-   十三、移动端导航
-   ═══════════════════════════════════════════════════════════════════
-   ⚠️ 移动端菜单必须显式声明 `display:none`：
-   桌面端 `.nav-links { display:flex }` 的规则在组件层被提权到 (0,3,0)，
-   会压过原站 `@media(max-width:900px)` 里的 `display:none`（同权重），
-   导致移动端菜单默认展开。
-
-   同时把菜单底色从原站的深色 `rgba(30,30,40,.97)` 换成品牌深蓝，
-   与页头体系一致（原站深色菜单 + 浅色页头的组合本身就不统一）。 */@media (max-width: 1099px) {.opc-replica.opc-replica .opcheader .nav-links {
-    display: none !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 0 !important;
-    max-height: calc(100dvh - 80px) !important;
-    overflow: auto !important;
-    padding: var(--opc-space-2) var(--opc-gutter) var(--opc-space-6) !important;
-    margin: 0 !important;
-    background: var(--opc-navy) !important;
-    box-shadow: var(--opc-shadow-overlay) !important;
-    z-index: 100 !important;
-  }.opc-replica.opc-replica .opcheader.opc-menu-open .nav-links {
-    display: flex !important;
-  }.opc-replica.opc-replica .opcheader .nav-links li {
-    display: block !important;
-    width: 100% !important;
-  }.opc-replica.opc-replica .opcheader .nav-links a {
-    display: flex !important;
-    align-items: center !important;
-    min-height: 48px !important;
-    padding: 10px 14px !important;
-    color: rgb(255 255 255 / 88%) !important;
-    border-radius: var(--opc-radius-control) !important;
-  }.opc-replica.opc-replica .opcheader .nav-links a:hover,
-.opc-replica.opc-replica .opcheader .nav-links a.active {
-    color: #fff !important;
-    background: rgb(255 255 255 / 10%) !important;
-  }.opc-replica.opc-replica .opcheader .nav-links a.active::after,
-.opc-replica.opc-replica .opcheader .nav-links a.router-link-active::after {
-    display: none !important;
-  }/* 移动端菜单内的登录按钮 */.opc-replica.opc-replica .opcheader .login-btn {
-    border-color: rgb(255 255 255 / 60%) !important;
-    color: #fff !important;
-  }/* 移动端汉堡按钮 */.opc-replica.opc-replica .opcheader .mobile-menu {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    color: inherit !important;
-  }
-
 }/* 移动端 hero：事实条改为 2×2 网格。
    4 个指标在窄屏折行会变成「3 + 1」，最后一项独占一行，视觉很碎。 */@media (max-width: 767px) {.opc-replica.opc-replica .hero .hero-stats-row {
     display: grid !important;
@@ -817,14 +651,12 @@
    ⚠️ `.cc-enroll` 不在本组 —— 它是课程卡底部的**整宽按钮**（原站橙底白字，
    蓝主题映射后是品牌蓝底），蓝字压蓝底只有 ~1.6:1；它的白字处理见下方按钮组。 */.opc-replica.opc-replica .oc-region,
 .opc-replica.opc-replica .oc-region.oc-region--link,
-.opc-replica.opc-replica .business-subtitle,
 .opc-replica.opc-replica .login-link,
 .opc-replica.opc-replica .forgot-link {
   color: var(--opc-blue-deep) !important;
 }/* 课程卡按钮/分类 tab 规则已随 /center 旧课程卡移除（2026-10-23 契约 docs/15）。 *//* ── 深底上的白字：提到 92% ──
    原站的 70% 白在深蓝上只有 3.5:1；78% 是 3.8:1，仍不达标。
-   92% 白在品牌深蓝上约 5.4:1。 */.opc-replica.opc-replica .hero-badge,
-.opc-replica.opc-replica .publish-btn,
+   92% 白在品牌深蓝上约 5.4:1。 */.opc-replica.opc-replica .publish-btn,
 .opc-replica.opc-replica .opc-name,
 .opc-replica.opc-replica .ftr-tag,
 .opc-replica.opc-replica .cdd-dot {
@@ -842,10 +674,6 @@
    原站是 #1d7fba（4.13:1），15px 正文达不到 4.5:1。 */.opc-replica.opc-replica .hero-sp .hero-desc em {
   color: var(--opc-blue-deep) !important;
   font-style: normal;
-}/* 徽章类元素底色偏亮时，白字需要更实 */.opc-replica.opc-replica .hero-badge {
-  background: var(--opc-blue-deep) !important;
-  border-color: var(--opc-blue-deep) !important;
-  color: #fff !important;
 }/* ── 深底容器：整体声明一次白字 ──
    ⚠️ 只给具体文字元素声明会被通用 `span/p → ink-2` 规则反压
    （实测 `.city-btn.active` 的白字被压成 ink-2，只有 1.37:1）。
@@ -1173,7 +1001,6 @@
   text-align: left !important;
 }
 .opc-replica.opc-replica .opc-visual-hero .hero-desc,
-.opc-replica.opc-replica .opc-visual-hero .hero-subtitle,
 .opc-replica.opc-replica .opc-visual-hero .container > p {
   color: var(--opc-ink-3) !important;
   -webkit-text-fill-color: var(--opc-ink-3) !important;
@@ -1181,7 +1008,6 @@
   line-height: 1.9 !important;
   text-align: left !important;
 }/* 内页 hero 里的 eyebrow 小标 */.opc-replica.opc-replica .hero-agent span[data-v-199d00a7]:first-child,
-.opc-replica.opc-replica .hero-badge,
 .opc-replica.opc-replica .hero-agent > .container > div:first-child > span {
   color: var(--opc-blue-deep) !important;
 }/* ── 筛选条容器：左对齐 ──
@@ -1283,19 +1109,13 @@
   line-height: 1.6 !important;
 }/* ── 导航链接：统一 sm 档（13px）──
    14px 在中文导航里偏大，13px 是更常见的导航字号，
-   同时给导航项更多横向呼吸（原站 gap:25px 过于松散）。 */.opc-replica.opc-replica .nav-links a {
-  font-size: var(--opc-fs-sm) !important;
-}/* ── logo 字标：与标记图视觉重量匹配 ──
+   同时给导航项更多横向呼吸（原站 gap:25px 过于松散）。 *//* ── logo 字标：与标记图视觉重量匹配 ──
    ⚠️ 颜色必须显式声明：通用 `span → ink-2` 规则会把字标压成深灰，
-   在首页深色页头上实测只有 2.14:1（不可读）。 */.opc-replica.opc-replica .logo,
-.opc-replica.opc-replica .logo-a span {
+   在首页深色页头上实测只有 2.14:1（不可读）。 */.opc-replica.opc-replica .logo {
   font-size: 18px !important;
   color: var(--opc-ink) !important;
   font-weight: var(--opc-fw-bold) !important;
   letter-spacing: -0.01em !important;
-}/* 首页页头浮在深色主视觉上，字标反白 */.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .logo,
-.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .logo-a span {
-  color: #fff !important;
 }/* ── 区块之间的呼吸：统一上下留白 ──
    ⚠️ 原站每个 section 自带 padding-bottom（实测 0 / 80 / 90 / 100 / 110 各不相同），
    设计层原先又加了一条 `margin-bottom:72px` —— 两者叠加造成**双重留白**，
@@ -1341,8 +1161,7 @@
   font-size: var(--opc-fs-xs) !important;
 }/* 新闻日期：14px → 13px（次级信息档） */.opc-replica.opc-replica .news-date {
   font-size: var(--opc-fs-sm) !important;
-}/* 课程 meta 值规则已随 /center 旧课程卡移除。 *//* 统计标签：14px → 13px */.opc-replica.opc-replica .stat-label,
-.opc-replica.opc-replica .intro-stat-label {
+}/* 课程 meta 值规则已随 /center 旧课程卡移除。 *//* 统计标签：14px → 13px */.opc-replica.opc-replica .stat-label {
   font-size: var(--opc-fs-sm) !important;
 }/* 统计描述：原站 `color:#a3a3a3`，在 #f7f9fc 上只有 **2.39:1**（实测不达标）。
    这是设计层**漏网**的一类 —— 类名没进过设计层，于是整条原站色值直接生效。
@@ -1498,97 +1317,114 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   认证卡布局修复（2026-10-26，实测驱动）
+   Kimi 版式落地后 /opcregister 实测（1440×1000 / 390×900）暴露六处问题：
+   1. 注册页 5 字段卡片高 842px，900px 笔记本视口整卡放不下 → 压缩纵向节奏；
+   2. 移动端双边距：容器 calc(100% - 40px) 叠加壳层 .opcregister 的
+      padding 40px 20px，390px 屏卡片只剩 310px 宽 → 容器吃满内容宽；
+   3. `.register-right` 基线 max-height:90vh + overflow-y:auto 在纵向
+      卡片内形成「内滚 + 页滚」双重滚动 → 解除内滚；
+   4. 发送验证码按钮 disabled 态底色 --opc-surface (246,249,252) 与
+      输入框灰底 --opc-surface-2 (238,244,250) 几乎同色，按钮不可见
+      → 改 Kimi 式「输入框内文本按钮」（透明底 + 左侧细分隔线）；
+   5. 表单副标题与首个字段零间距（p 底边 = label 顶边）→ 头部留 12px；
+   6. 品牌面板基线的旋转光晕 ::before 在透明底上仍每帧重绘 → 停用。
+   ═══════════════════════════════════════════════════════════════════ */
+/* 1) 纵向节奏压缩（登录 / 忘记页本就短，同步收紧保持三页一致） */
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+  padding: 32px 32px 0 !important;
+}
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) h1 {
+  margin-bottom: 6px !important;
+}
+.opc-replica[data-opc-wave] :is(.login-right, .register-right, .forgot-right) {
+  padding: 16px 32px 28px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.opc-replica[data-opc-wave] :is(.login-header, .register-header, .forgot-header) {
+  margin-bottom: 12px !important;
+}
+.opc-replica[data-opc-wave] .form-group {
+  margin-bottom: 12px !important;
+}
+.opc-replica[data-opc-wave] .form-label {
+  margin-bottom: 6px !important;
+}
+.opc-replica[data-opc-wave] :is(.login-link, .register-link, .forgot-link) {
+  margin-top: 14px !important;
+}
+.opc-replica[data-opc-wave] .back-home {
+  margin-top: 10px !important;
+}
+/* 4) 发送验证码按钮：文本按钮形态。⚠️ 本组与设计层
+   `.opc-replica.opc-replica .send-code-btn`（line ~377）同为 (0,3,0) + !important，
+   靠本文件更靠后的加载顺序取胜 —— 若把本组挪到该规则之前会整体失效。 */
+.opc-replica[data-opc-wave] .send-code-btn {
+  min-height: 0 !important;
+  height: auto !important;
+  align-self: center !important;
+  margin: 0 !important;
+  padding: 8px 14px !important;
+  border: 0 !important;
+  border-left: 1px solid rgb(9 104 171 / 22%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--opc-blue-deep) !important;
+  font-size: 14px !important;
+}
+.opc-replica[data-opc-wave] .send-code-btn:hover:not(:disabled) {
+  background: transparent !important;
+  color: var(--opc-blue-dark) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.opc-replica[data-opc-wave] .send-code-btn:disabled {
+  background: transparent !important;
+  color: var(--opc-ink-muted) !important;
+  border-left-color: var(--opc-line-strong) !important;
+}
+/* 6) 停用品牌面板基线的旋转光晕（透明底上无意义且每帧重绘） */
+.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left)::before {
+  content: none !important;
+  animation: none !important;
+}
+/* 2) 移动端：容器吃满壳层内容宽（壳层 padding 20px 即边距），390px 屏
+      卡片 310 → 350px；左右内边距同步收窄给字段留宽度 */
+@media (max-width: 767px) {
+  .opc-replica[data-opc-wave] :is(.login-container, .register-container, .forgot-container) {
+    width: 100% !important;
+  }
+  .opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+    padding: 28px 24px 0 !important;
+  }
+  .opc-replica[data-opc-wave] :is(.login-right, .register-right, .forgot-right) {
+    padding: 14px 24px 24px !important;
+  }
+}
+/* 矮视口（≤820px 高的横屏笔记本 / 小窗口）：再收一档，注册卡尽量整卡可见 */
+@media (max-height: 820px) and (min-width: 768px) {
+  .opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) {
+    padding-top: 22px !important;
+  }
+  .opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) h1 {
+    font-size: 20px !important;
+  }
+  .opc-replica[data-opc-wave] :is(.login-right, .register-right, .forgot-right) {
+    padding-top: 12px !important;
+    padding-bottom: 20px !important;
+  }
+  .opc-replica[data-opc-wave] .form-group {
+    margin-bottom: 10px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    十七、文案菜单对齐（2026-10-23 契约 docs/15）
    导航重建（下拉 + CTA）、合作企业 16 格、集智商学院（features 5 列 /
    培训课程体系 / 一站式就业服务 / hero 口号行）。
    断点与 opc-visual-motion.css 的导航断点（1279 / 1280）保持一致。
    ═══════════════════════════════════════════════════════════════════ */
-
-/* ── 导航下拉（desktop ≥1280）：绝对定位脱离文档流，展开不撑高页头 ── */
-@media (min-width: 1280px) {
-  .opc-replica.opc-replica .nav-links .nav-item {
-    position: relative !important;
-  }
-  .opc-replica.opc-replica .nav-links .nav-item--dropdown .nav-dropdown {
-    position: absolute !important;
-    top: calc(100% + 6px) !important;
-    left: 0 !important;
-    display: none !important;
-    min-width: 156px !important;
-    margin: 0 !important;
-    padding: 6px !important;
-    list-style: none !important;
-    background: var(--opc-white) !important;
-    border: 1px solid var(--opc-line) !important;
-    border-radius: var(--opc-radius-panel) !important;
-    box-shadow: var(--opc-shadow-overlay) !important;
-    z-index: 130 !important;
-  }
-  .opc-replica.opc-replica .nav-links .nav-item--dropdown:hover .nav-dropdown,
-  .opc-replica.opc-replica .nav-links .nav-item--dropdown:focus-within .nav-dropdown {
-    display: block !important;
-  }
-  .opc-replica.opc-replica .nav-links .nav-dropdown li {
-    display: block !important;
-    width: auto !important;
-    list-style: none !important;
-  }
-  .opc-replica.opc-replica .nav-links .nav-dropdown a {
-    display: flex !important;
-    align-items: center !important;
-    height: 38px !important;
-    padding: 0 14px !important;
-    border-radius: var(--opc-radius-control) !important;
-    color: var(--opc-ink-2) !important;
-    font-size: var(--opc-fs-sm) !important;
-    white-space: nowrap !important;
-    background: transparent !important;
-  }
-  .opc-replica.opc-replica .nav-links .nav-dropdown a:hover {
-    color: var(--opc-blue-deep) !important;
-    background: var(--opc-surface-blue) !important;
-  }
-  /* 首页透明页头（未滚动）父级白字规则不得透传到白底下拉面板 */
-  .opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-dropdown a {
-    color: var(--opc-ink-2) !important;
-    background: transparent !important;
-  }
-  .opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-dropdown a:hover {
-    color: var(--opc-blue-deep) !important;
-    background: var(--opc-surface-blue) !important;
-  }
-}
-
-/* ── 导航下拉（mobile <1280）：.opc-menu-open 展开菜单内静态显示、缩进 ──
-   配色由 opc-visual-motion.css 的移动菜单组接管（白字），这里只做结构复位。 */
-@media (max-width: 1279px) {
-  .opc-replica.opc-replica .nav-links .nav-dropdown {
-    display: block !important;
-    position: static !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    padding: 0 0 2px 16px !important;
-    list-style: none !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-  }
-}
-
-/* ── 申请入驻 CTA：按钮态（科技蓝实心），覆盖通用导航链接与深底页头规则 ── */
-.opc-replica.opc-replica .nav-links .nav-item--cta > a,
-.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-item--cta > a {
-  background: var(--opc-blue-deep) !important;
-  color: #fff !important;
-  border-radius: 999px !important;
-  padding: 0 20px !important;
-  font-weight: var(--opc-fw-medium) !important;
-}
-.opc-replica.opc-replica .nav-links .nav-item--cta > a:hover,
-.opc-replica.opc-replica .opcheader:has(nav.is-home:not(.scrolled)) .nav-links .nav-item--cta > a:hover {
-  background: var(--opc-blue-dark) !important;
-  color: #fff !important;
-}
 
 /* ── 合作企业 16 格（opc-visual-partner-grid）：8×2 desktop / 4×4 mobile ──
    品牌 SVG logo 卡：白底描边格内 object-fit:contain 居中，矢量任意缩放不失真；
@@ -1613,10 +1449,6 @@
   min-height: 72px !important;
   padding: var(--opc-space-3) var(--opc-space-2) !important;
   background: var(--opc-white) !important;
-  transition: background-color .2s ease !important;
-}
-.opc-replica.opc-replica .opc-visual-partner-card:hover {
-  background: var(--opc-surface) !important;
 }
 .opc-replica.opc-replica .opc-visual-partner-logo {
   display: block !important;
@@ -1677,14 +1509,6 @@
   border: 1px solid var(--opc-line) !important;
   border-radius: var(--opc-radius-panel) !important;
   overflow: hidden !important;
-  transition: border-color 0.2s var(--ease-out-soft, ease),
-    transform 0.2s var(--ease-out-soft, ease),
-    box-shadow 0.2s var(--ease-out-soft, ease) !important;
-}
-.opc-replica.opc-replica .opc-academy-course-card:hover {
-  border-color: var(--opc-line-blue, var(--opc-blue)) !important;
-  box-shadow: var(--opc-shadow-lift) !important;
-  transform: translateY(-2px) !important;
 }
 .opc-replica.opc-replica .opc-academy-course-media {
   aspect-ratio: 4 / 3 !important;
@@ -1697,10 +1521,6 @@
   display: block !important;
   object-fit: cover !important;
   border-radius: 0 !important;
-  transition: transform 0.4s var(--ease-out-soft, ease) !important;
-}
-.opc-replica.opc-replica .opc-academy-course-card:hover .opc-academy-course-media img {
-  transform: scale(1.04) !important;
 }
 .opc-replica.opc-replica .opc-academy-course-card figcaption {
   padding: var(--opc-space-4) !important;
