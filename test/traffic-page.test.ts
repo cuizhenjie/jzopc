@@ -7,6 +7,7 @@
  *   1. **不得再跳转**——导航「流量超市」是顶层入口，整页 redirect 会把它变成死入口；
  *   2. **文案事实不丢**——案例数字、合规声明等关键事实必须逐字在数据文件里；
  *   3. **二维码位诚实**——图片没提供时不得渲染「扫描下方二维码」的引导。
+ * 2026-10-26 追加：banner 面包屑与页底留言表单下线，留资统一收敛到 /apply 统一留资页。
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -25,10 +26,12 @@ describe('流量超市页面 · 不再跳转', () => {
     assert.ok(!/permanentRedirect/.test(pageSource), '不得调用 permanentRedirect');
   });
 
-  test('页面使用站内统一版式（PageHero + Section）并挂留言表单', () => {
+  test('页面使用站内统一版式（PageHero + Section），面包屑与内嵌表单已下线', () => {
     assert.ok(pageSource.includes('PageHero'));
     assert.ok(pageSource.includes('<Section'));
-    assert.ok(pageSource.includes('leadType="traffic"'));
+    assert.ok(!pageSource.includes('crumbs='), 'banner 不再挂面包屑（2026-10-26 下线）');
+    assert.ok(!pageSource.includes('<LeadForm'), '页底不再内嵌留资表单（2026-10-26 下线）');
+    assert.ok(pageSource.includes('href="/apply"'), '留资入口必须统一指向 /apply');
     assert.ok(pageSource.includes("canonical: '/traffic'"));
   });
 
@@ -36,7 +39,7 @@ describe('流量超市页面 · 不再跳转', () => {
     if (trafficMiniappQr === null) {
       // 条件分支在页面里：只有 trafficMiniappQr 为真才出现扫码引导
       assert.ok(/trafficMiniappQr\s*\?/.test(pageSource), '扫码引导必须以二维码位存在为前提');
-      assert.ok(pageSource.includes('<LeadForm'));
+      assert.ok(pageSource.includes('href="/apply"'), '无二维码时仍须有 /apply 留资入口');
     }
   });
 });

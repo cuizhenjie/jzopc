@@ -5,7 +5,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import StaggerIn from '@/components/anim/StaggerIn';
 import CountUp from '@/components/anim/CountUp';
 import { Badge } from '@/components/ui/Card';
-import LeadForm from '@/components/forms/LeadForm';
+import { ButtonLink } from '@/components/ui/Button';
 import { trafficBase, trafficMiniappQr } from '@/lib/data/traffic-base';
 import { site } from '@/lib/site/config';
 
@@ -23,12 +23,7 @@ export default function TrafficPage() {
 
   return (
     <>
-      <PageHero
-        eyebrow="流量超市"
-        title={trafficBase.name}
-        desc={trafficBase.slogan}
-        crumbs={[{ label: '首页', href: '/' }, { label: '流量超市' }]}
-      >
+      <PageHero eyebrow="流量超市" title={trafficBase.name} desc={trafficBase.slogan}>
         <div className="flex flex-wrap gap-2">
           {intro.values.map((v) => (
             <span key={v} className="page-hero-tag rounded px-4 py-1.5 text-[13px] font-medium">
@@ -281,7 +276,7 @@ export default function TrafficPage() {
       {/* 七、合作邀请 */}
       <Section id="join">
         <SectionHead eyebrow="合作邀请 · Join Us" title="期待与您携手" desc={invitation.lead} />
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
+        <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
           <div>
             <div className="space-y-4">
               {invitation.audiences.map((a, i) => (
@@ -306,7 +301,7 @@ export default function TrafficPage() {
                 <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-ink-2)]">
                   {trafficMiniappQr
                     ? '请扫描下方二维码，或联系我们的专属顾问。'
-                    : '请联系我们的专属顾问，或填写右侧留言表单。'}
+                    : '请联系我们的专属顾问，或通过右侧入口前往统一咨询页留言。'}
                 </p>
                 <dl className="mt-5 space-y-3 text-[14px]">
                   <div className="flex items-center gap-3">
@@ -351,15 +346,34 @@ export default function TrafficPage() {
             </Reveal>
           </div>
 
-          <div>
-            <LeadForm
-              leadType="traffic"
-              sourcePage="/traffic"
-              sourceRef="流量基地合作邀请"
-              title="留言咨询"
-              desc="商务合作、院校共建或实训报名，请留下您的需求与联系方式，专属顾问会尽快与您对接。"
-            />
-          </div>
+          {/* 2026-10-26 表单下线：线索统一收敛到 /apply 统一留资页，这里只留按钮入口 */}
+          <Reveal delay={0.15}>
+            <div className="flex h-full flex-col justify-center rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-8 sm:p-10">
+              <h3 className="text-[18px] font-semibold text-[var(--color-brand-navy)]">
+                留言咨询
+              </h3>
+              <p className="mt-2.5 text-[13.5px] leading-relaxed text-[var(--color-ink-2)]">
+                商务合作、院校共建或实训报名，请前往统一咨询页留下您的需求与联系方式，专属顾问会尽快与您对接。
+              </p>
+              <div className="mt-7">
+                <ButtonLink href="/apply" size="lg" className="w-full sm:w-auto">
+                  前往统一咨询页
+                  <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 8h11m0 0L9.5 4m4 4-4 4"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </ButtonLink>
+              </div>
+              <p className="mt-4 text-[12.5px] leading-relaxed text-[var(--color-ink-3)]">
+                也可直接拨打左侧顾问电话或发送邮件洽谈。
+              </p>
+            </div>
+          </Reveal>
         </div>
 
         <Reveal delay={0.1}>

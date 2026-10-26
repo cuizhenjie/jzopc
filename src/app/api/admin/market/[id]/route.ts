@@ -10,5 +10,6 @@ export const { GET, PATCH, DELETE } = createResourceItemApi({
   pk: 'id',
   schema: marketItemInputSchema,
   toRow: marketToRow,
-  // /market 复刻快照不查本表、详情页已 308，无前台缓存可失效
+  // 供需卡已运行时化（2026-10-26 方式一）：/market 展示 market_items 表（DB 优先）
+  revalidate: ['/market'],
 });

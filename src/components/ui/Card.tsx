@@ -59,32 +59,3 @@ export function Badge({
     </span>
   );
 }
-
-export function EmptyState({
-  title,
-  desc,
-  action,
-}: {
-  title: string;
-  desc?: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-surface)] px-8 py-16 text-center">
-      <div className="mx-auto mb-5 h-14 w-14 rounded-xl bg-[var(--color-brand-blue)]/8 ring-1 ring-[var(--color-brand-blue)]/15">
-        <svg viewBox="0 0 24 24" className="h-full w-full p-3" fill="none" aria-hidden="true">
-          <path
-            d="M12 3v18M3 12h18"
-            stroke="var(--color-brand-blue)"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            opacity="0.5"
-          />
-        </svg>
-      </div>
-      <p className="text-base font-medium text-[var(--color-brand-navy)]">{title}</p>
-      {desc && <p className="mx-auto mt-2 max-w-md text-sm text-[var(--color-ink-3)]">{desc}</p>}
-      {action && <div className="mt-6 flex justify-center">{action}</div>}
-    </div>
-  );
-}

@@ -10,11 +10,15 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  applyAgentTools,
   applyCourseGrid,
   applyHomeStats,
+  applyMarketItems,
   applyPartnerGrid,
   replaceBalancedBlock,
+  type AgentRow,
   type CourseRow,
+  type MarketItemRow,
   type PartnerRow,
   type StatRow,
 } from '@/lib/opc/blocks-runtime';
@@ -22,6 +26,8 @@ import { getReplicaPage } from '@/lib/opc/content';
 
 const homeHtml = getReplicaPage('/')?.html ?? '';
 const centerHtml = getReplicaPage('/center')?.html ?? '';
+const agentHtml = getReplicaPage('/agent')?.html ?? '';
+const marketHtml = getReplicaPage('/market')?.html ?? '';
 
 describe('括号配平替换 · replaceBalancedBlock', () => {
   test('嵌套 div 下配平到正确的闭标签，只换内部', () => {
@@ -49,24 +55,96 @@ describe('烘焙产物前提守卫（配平算法的地基）', () => {
     assert.equal(literalOpen, literalClose, `开闭标签必须配平`);
   }
 
-  test('四个目标页的区块锚点恰好出现一次，且 token 纯净、标签配平', () => {
+  test('目标页的区块锚点恰好出现一次，且 token 纯净、标签配平', () => {
     const anchors: Array<[string, RegExp]> = [
       ['/', /class="hero-stats-row/g],
       ['/', /class="opc-visual-partner-grid"/g],
       ['/center', /class="opc-academy-course-grid"/g],
       ['/market', /class="opc-visual-partner-grid"/g],
+      ['/market', /class="supply-grid"/g],
+      ['/market', /class="demand-grid"/g],
       ['/work', /class="opc-visual-partner-grid"/g],
+      ['/agent', /class="filter-scroll"/g],
+      ['/agent', /data-opc-agent-results/g],
     ];
     for (const [path, re] of anchors) {
       const html = getReplicaPage(path)?.html ?? '';
       const hits = (html.match(re) ?? []).length;
       assert.equal(hits, 1, `${path} 的区块锚点应恰好一次（实际 ${hits}），配平替换的定位前提`);
     }
-    for (const path of ['/', '/center', '/market', '/work'] as const) {
+    for (const path of ['/', '/center', '/market', '/work', '/agent'] as const) {
       const html = getReplicaPage(path)?.html ?? '';
       assertTokenPurity(html, 'div');
       assertTokenPurity(html, 'ul');
     }
+  });
+});
+
+describe('/agent 智能体目录 · applyAgentTools', () => {
+  const rows: AgentRow[] = [
+    { name: '验收智能体A', category: 'office', summary: '办公类验收', external_url: 'https://tool-a.example.com', icon_url: null },
+    { name: '验收智能体B', category: 'coding', summary: '编程类验收', external_url: 'https://tool-b.example.com/path', icon_url: '/opc/assets/tool-icons/x.png' },
+    { name: '坏链接', category: 'office', summary: 's', external_url: 'http://insecure.example.com', icon_url: null },
+  ];
+
+  test('重建 chips 与分区；卡带 data-opc-categories（filter-tools 精确匹配契约）', () => {
+    const out = applyAgentTools(agentHtml, rows);
+    // chips：全部(active) + 办公 + 编程；烘焙 18 分类 chips 被替换
+    const chips = [...out.matchAll(/data-opc-action="filter-tools" data-opc-value="([^"]*)"/g)].map((m) => m[1]);
+    assert.deepEqual(chips, ['全部', '办公', '编程']);
+    assert.ok(out.includes('data-opc-value="全部" aria-pressed="true"'));
+    // 分区与状态行
+    assert.ok(out.includes('data-opc-agent-group="办公"'));
+    assert.ok(out.includes('data-opc-agent-group="编程"'));
+    assert.ok(out.includes('共 2 个智能体'));
+    // 卡片契约：categories JSON（转义后 &quot;）、搜索文本、域名、rel
+    assert.ok(out.includes('data-opc-categories="[&quot;办公&quot;]"'));
+    assert.ok(out.includes('href="https://tool-b.example.com/path"'));
+    assert.ok(out.includes('<code data-v-199d00a7="" class="tc-domain">tool-b.example.com</code>'));
+    assert.ok(out.includes('rel="noopener noreferrer"'));
+    assert.ok(out.includes('class="tool-card revealed"'));
+    // http 外链的行被跳过
+    assert.ok(!out.includes('insecure.example.com'));
+    assert.ok(!out.includes('坏链接'));
+    // 烘焙卡被替换（首张烘焙卡 LivePPT 不在了）
+    assert.ok(!out.includes('LivePPT'));
+  });
+
+  test('空数组或全部行外链不合法 → 烘焙目录原样（233 卡）', () => {
+    assert.equal(applyAgentTools(agentHtml, []), agentHtml);
+    const noLink = applyAgentTools(agentHtml, [{ name: 'x', category: 'office', summary: '', external_url: null, icon_url: null }]);
+    assert.equal(noLink, agentHtml);
+    assert.equal((agentHtml.match(/class="tool-card/g) ?? []).length, 233);
+  });
+});
+
+describe('/market 供需卡 · applyMarketItems', () => {
+  const rows: MarketItemRow[] = [
+    { type: 'supply', title: '验收供给服务', summary: '供给摘要', org_name: '验收科技', tags: ['AI客服', '外包'], published_at: '2026-10-20' },
+    { type: 'demand', title: '验收需求项目', summary: '需求摘要', org_name: null, tags: ['小程序'], published_at: '2026-10-26' },
+  ];
+
+  test('供给/需求两区各自替换，卡片结构与日期口径对齐烘焙卡', () => {
+    const out = applyMarketItems(marketHtml, rows);
+    assert.ok(out.includes('class="sc-title">验收供给服务</h3>'));
+    assert.ok(out.includes('class="sc-author-name">验收科技</span>'));
+    assert.ok(out.includes('class="sc-date">2026/10/20</span>'));
+    assert.ok(out.includes('href="/opcapply?formType=partner" class="sc-contact"'));
+    assert.ok(out.includes('class="dc-title">验收需求项目</h3>'));
+    assert.ok(out.includes('class="dc-user-info"><h4 data-v-18addbe5="">社区成员</h4>'));
+    assert.ok(out.includes('class="dc-time">2026/10/26</span>'));
+    // DB 卡不带 navigate（无详情页可去），烘焙卡的 navigate 不受影响
+    assert.ok(!out.includes('data-opc-route="/newsdetail?id=0"'));
+  });
+
+  test('只录一边：供给有行换供给区，需求区维持烘焙卡', () => {
+    const onlySupply = applyMarketItems(marketHtml, [rows[0]]);
+    assert.ok(onlySupply.includes('验收供给服务'));
+    assert.ok(onlySupply.includes('农资作物长势 AI 识别小程序开发'), '烘焙需求卡必须在');
+  });
+
+  test('空数组 → 两区烘焙原样（22 卡）', () => {
+    assert.equal(applyMarketItems(marketHtml, []), marketHtml);
   });
 });
 

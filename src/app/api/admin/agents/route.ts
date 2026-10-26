@@ -9,5 +9,6 @@ export const POST = createResourceCollectionApi({
   table: 'agents',
   schema: agentInputSchema,
   toRow: agentToRow,
-  // 公开页 /agents 已下线（308 → /agent 复刻快照，不查本表），无前台缓存可失效
+  // 智能体目录已运行时化（2026-10-26 方式一）：/agent 展示 agents 表（DB 优先）
+  revalidate: ['/agent'],
 });

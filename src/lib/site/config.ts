@@ -132,30 +132,10 @@ export const empowerModules = [
 export const advantages = aboutCopy.advantages;
 export const visions = aboutCopy.visions;
 
-/** 集智商学院 */
-export const academy = {
-  title: '集智商学院',
-  slogan: '学AI技能拿高薪Offer让未来，从这里开始',
-  summary: '提供AI人才培养与就业服务，助力个人成长与企业数字化升级',
-  tags: ['实战教学', 'AIGC认证', '研学班', '项目驱动', '名企合作'],
-  tracks: [
-    { name: 'AI电商', desc: '选品、内容与店铺智能运营', tag: '增长实战' },
-    { name: 'AIGC', desc: '文案、图像与视频内容生产', tag: '热门方向' },
-    { name: 'AI漫剧', desc: '剧本、分镜与AI漫剧制作', tag: '项目实训' },
-    { name: '大数据工程师', desc: 'Hadoop、Spark、Flink 技术栈', tag: '技术岗位' },
-    { name: '短视频运营', desc: '策划、制作与账号增长运营', tag: '就业实用' },
-  ],
-  steps: [
-    { step: '01', title: '职业测评', points: ['能力测评', '兴趣测评', '价值观评估'] },
-    { step: '02', title: '技能培训', points: ['线下授课', '专项技能学', '企业真实项目'] },
-    { step: '03', title: '项目实战', points: ['企业级项目', '团队协作训练', '项目成果展示'] },
-    { step: '04', title: '求职面试', points: ['简历优化', '模拟面试', '企业岗位匹配'] },
-    { step: '05', title: '就业推荐', points: ['企业岗位推荐', '定制化岗位推荐', '就业跟踪服务'] },
-    { step: '06', title: '入职跟踪', points: ['试用期跟踪', '职位适应辅导', '长期成长支持'] },
-  ],
-} as const;
+/** 集智商学院文案已随原生 /academy 页下线（2026-10-26）删除——
+ *  /center 复刻页的课程卡由 courses 表运行时化（blocks-runtime），不再需要静态 tracks/steps。 */
 
-/** 智能体分类（后台资源模块的选项来源，与 agents 表 FK 对齐） */
+/** 智能体分类（后台资源模块的选项来源，与 agents 表 FK 对齐；/agent 运行时化的分区名同源） */
 export const agentCategories = [
   { slug: 'office', name: '办公' },
   { slug: 'writing', name: '写作' },
