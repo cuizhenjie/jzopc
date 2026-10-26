@@ -37,8 +37,9 @@ const args = process.argv.slice(2);
 const BASE = (args.find((a) => a.startsWith('--base=')) || '--base=http://localhost:3000').slice(7);
 
 const PAGES = [
+  // 2026-10-26 口径：/computingresource（GPU 资源页）已下线，从采样清单移除。
   '/', '/about', '/agent', '/market', '/center', '/starproject',
-  '/community', '/work', '/computingresource', '/newslist',
+  '/community', '/work', '/newslist',
   '/activitylist', '/newsdetail?id=392', '/zone?city=上海',
   '/opclogin', '/opcregister',
 ];

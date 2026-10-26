@@ -29,9 +29,9 @@ const WIDTHS = [
 ];
 
 const PAGES = [
-  '/', '/about', '/about/history', '/about/audience', '/about/partners',
-  '/agents', '/agents/feishu', '/market', '/market/demand-retail-ai-ops',
-  '/academy', '/academy/courses/ai-ecommerce-basics', '/news', '/news/opc-salon-2026-10',
+  // 2026-10-26 口径：原生双路径页已 308 收敛（/agents*→/agent、/academy*→/center、
+  // /news*→/newslist、/market/:slug→/market、about 三子页已删），这里只列活路由。
+  '/', '/about', '/agent', '/market', '/center', '/work', '/newslist', '/activitylist',
   '/empower/space', '/empower/traffic', '/apply', '/traffic',
 ];
 
