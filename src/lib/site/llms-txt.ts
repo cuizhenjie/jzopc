@@ -11,6 +11,7 @@ import {
   stats,
   visions,
 } from '@/lib/site/config';
+import { trafficBase } from '@/lib/data/traffic-base';
 
 /**
  * 生成 `llms.txt`（llmstxt.org 规范）。
@@ -109,6 +110,19 @@ export function buildLlmsTxt(): string {
   L.push(`标签：${academy.tags.join('、')}。`);
   L.push('');
   for (const t of academy.tracks) L.push(`- [${t.name}](${abs('/center')})：${t.desc}`);
+  L.push('');
+
+  // ── 流量超市（AIGC 新媒体流量基地）──
+  L.push('## 流量超市 · 集智AIGC新媒体流量基地');
+  L.push('');
+  L.push(`${trafficBase.slogan}。`);
+  L.push('');
+  for (const b of trafficBase.businesses) {
+    L.push(
+      `- [${b.title}](${abs('/traffic')})：${b.tag}${b.subtitle ? `——${b.subtitle}` : ''}，含 ${b.items.map((i) => i.title).join('、')}。`,
+    );
+  }
+  L.push(`- 合作入口：商务合作 / 院校共建 / 实训报名，页面底部提供留言表单。`);
   L.push('');
 
   // ── 平台优势与愿景 ──
