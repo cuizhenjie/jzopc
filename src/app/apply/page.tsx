@@ -27,7 +27,6 @@ export default function ApplyPage() {
         eyebrow="申请入驻"
         title="申请入驻集智 AI OPC 空间"
         desc="加入集智 AI OPC 产业社区，获取办公空间、全套 AI 智能体能力与八大创业赋能资源，链接 AI 产业伙伴，加速项目落地。填写意向表单，我们将尽快与您对接沟通。"
-        crumbs={[{ label: '首页', href: '/' }, { label: '申请入驻' }]}
       />
 
       <Section>

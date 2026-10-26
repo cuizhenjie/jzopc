@@ -2,6 +2,7 @@ import { publicNavigation } from '@/lib/site/navigation';
 import { site } from '@/lib/site/config';
 import { getReplicaPage, REPLICA_SITE_NAME } from './content';
 import { replicaPaths } from './routes';
+import { trafficBase } from '@/lib/data/traffic-base';
 
 export function buildReplicaLlmsTxt(): string {
   const base = site.url.replace(/\/$/, '');
@@ -17,6 +18,9 @@ export function buildReplicaLlmsTxt(): string {
     '',
     '## 规范入口',
     ...publicNavigation.map(item => `- [${item.label}](${base}${item.href})`),
+    '',
+    // 流量超市已从整页跳转独立站改回站内专页（2026-10-26），给 AI 助手补一句页面定位
+    `流量超市是站内「${trafficBase.name}」专页：${trafficBase.slogan}，提供企业商业交付、FDE AI落地专项、院校产教共建与人才孵化培训，页底附合作留言表单。`,
     '',
     '社区动态列表优先展示数据库已发布内容，查询异常或未配置数据库时回落本地快照。',
     '旧列表 /news 永久重定向到 /newslist；旧查询参数不保留。新闻详情仍可访问。',
