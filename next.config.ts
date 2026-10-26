@@ -46,6 +46,29 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  /**
+   * 旧版原生页下线表（2026-10-26，站点收敛到复刻 opcstore 的科技蓝版本）。
+   *
+   * 背景：首版原生站（DB 驱动的 /agents /academy /news /market/[slug]）在复刻层
+   * 接管主导航后遗留在线，与复刻页形成同一内容两套 URL（新闻详情还双 canonical
+   * 自指，构成重复内容）。这里统一 308 到复刻正主，老链接不落 404。
+   *
+   * 保留不动：/empower/[slug]、/apply、/traffic（它们是导航正主，不是重复页）；
+   * /newslist /activitylist /newsdetail 的 DB 动态渲染与 /admin 后台全部保留。
+   *
+   * 规则按序匹配：/news/opc-<纯数字> 的正则段必须排在通配 /news/* 之前。
+   */
+  async redirects() {
+    return [
+      { source: '/agents', destination: '/agent', permanent: true },
+      { source: '/agents/:slug', destination: '/agent', permanent: true },
+      { source: '/academy', destination: '/center', permanent: true },
+      { source: '/academy/courses/:slug', destination: '/center', permanent: true },
+      { source: '/market/:slug', destination: '/market', permanent: true },
+      { source: '/news/opc-:id(\\d+)', destination: '/newsdetail?id=:id', permanent: true },
+      { source: '/news/:slug*', destination: '/newslist', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

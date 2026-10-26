@@ -27,12 +27,14 @@ describe('one public navigation contract', () => {
     assert.doesNotMatch(JSON.stringify([nav, intros, empowerModules]), /订单市场/);
   });
 
-  test('legacy detail paths still highlight their canonical navigation parent', () => {
-    assert.ok(navigationMatchesPath('/agents/writer', '/agent'));
-    assert.ok(navigationMatchesPath('/academy/courses/aigc', '/center'));
-    assert.ok(navigationMatchesPath('/news/community-launch', '/newslist'));
-    assert.equal(navigationMatchesPath('/agents-unknown', '/agent'), false);
-    assert.equal(navigationMatchesPath('/newsletter', '/newslist'), false);
+  test('旧版原生路径已在配置层 308 收敛，导航高亮不再做旧路径映射', () => {
+    // /agents*、/academy*、/news* 请求会在 next.config redirects() 被截走，
+    // 到不了页面渲染——navigationMatchesPath 不应再认它们。
+    assert.equal(navigationMatchesPath('/agents/writer', '/agent'), false);
+    assert.equal(navigationMatchesPath('/academy/courses/aigc', '/center'), false);
+    assert.equal(navigationMatchesPath('/news/community-launch', '/newslist'), false);
+    // 活路径的前缀匹配仍然有效
+    assert.ok(navigationMatchesPath('/empower/space', '/empower/space'));
   });
 });
 

@@ -7,7 +7,8 @@
  *
  *   - DDL：`news_posts.body_md text`
  *   - 应用类型：`NewsPost.body: string[]`
- *   - 页面：`src/app/news/[slug]/page.tsx` 直接执行 `post.body.map(...)`
+ *   - 页面：新闻详情直接执行 `post.body.map(...)`（当时是 /news/[slug] 原生页；
+ *     2026-10-26 后该页已下线，详情渲染收敛到 /newsdetail，走同一套类型）
  *
  * 接真库时 `post.body` 恒为 `undefined` → 新闻详情页抛错。
  * **本地完全看不出来** —— 因为「未配置 Supabase → 回落到本地种子数据」，
@@ -36,6 +37,10 @@ const sql = readdirSync(migrationDir)
   .map((f) => readFileSync(resolve(migrationDir, f), 'utf8'))
   .join('\n');
 const seedSrc = readFileSync(resolve(repoRoot, 'src/lib/data/seed.ts'), 'utf8');
+// 2026-10-26 第二批清理后，agents/market/courses 的应用侧类型锚点从公开页
+// seed 类型换成后台行类型（公开查询函数已随旧版原生页下线，管理后台是这三张
+// 表的唯一直接消费方）；news 仍锚 seed 的 NewsPost（公开详情也在用）。
+const adminResourcesSrc = readFileSync(resolve(repoRoot, 'src/lib/admin/resources.ts'), 'utf8');
 const leadRouteSrc = readFileSync(resolve(repoRoot, 'src/app/api/leads/route.ts'), 'utf8');
 
 /** 从迁移 SQL 解析出「表 → 列集合」（matchAll 迭代全部建表语句） */
@@ -56,12 +61,12 @@ function parseTables(source: string): Map<string, Set<string>> {
   return tables;
 }
 
-/** 从 seed.ts 提取 `export type X = { field: ... }` 的字段集合 */
+/** 从 seed.ts / admin resources.ts 提取 `export type X = { field: ... }` 的字段集合 */
 function typeFields(typeName: string): Set<string> {
-  const block = [...seedSrc.matchAll(/export type (\w+) = \{([\s\S]*?)\n\};/g)].find(
-    (m) => m[1] === typeName,
-  );
-  assert.ok(block, `seed.ts 里找不到类型 ${typeName}`);
+  const block = [...[seedSrc, adminResourcesSrc].flatMap((src) =>
+    [...src.matchAll(/export type (\w+) = \{([\s\S]*?)\n\};/g)].map((m) => m),
+  )].find((m) => m[1] === typeName);
+  assert.ok(block, `seed.ts / admin resources.ts 里找不到类型 ${typeName}`);
   const fields = new Set<string>();
   for (const line of block[2].split('\n')) {
     const fm = line.match(/^\s*([a-z_][a-z0-9_]*)\??\s*:/);
@@ -78,10 +83,12 @@ describe('数据库 DDL 与应用类型的契约', () => {
   });
 
   // 这张表就是踩过坑的那张：body_md vs body
+  // agents/market/courses 锚后台行类型（AdminXxxRow，snake_case 与 DDL 同形）；
+  // news 锚公开类型 NewsPost（公开详情页在用）。
   const pairs: Array<[string, string]> = [
-    ['agents', 'Agent'],
-    ['market_items', 'MarketItem'],
-    ['courses', 'Course'],
+    ['agents', 'AdminAgentRow'],
+    ['market_items', 'AdminMarketRow'],
+    ['courses', 'AdminCourseRow'],
     ['news_posts', 'NewsPost'],
   ];
 

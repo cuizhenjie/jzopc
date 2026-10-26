@@ -60,14 +60,6 @@ export const nav = publicNavigation;
 /** 已确认的三版简介，与关于页生成器共用一份数据。 */
 export const intros = aboutCopy.intros;
 
-/** 首页指标 */
-export const stats = [
-  { key: 'agents', value: 500, suffix: '+', label: '入驻智能体' },
-  { key: 'creators', value: 1000, suffix: '+', label: '活跃创业者' },
-  { key: 'courses', value: 100, suffix: '+', label: '精品课程' },
-  { key: 'partners', value: 50, suffix: '+', label: '生态伙伴企业' },
-] as const;
-
 /** 八大赋能：编号 / 标题 / 一句话（docx 原文表） */
 export const empowerModules = [
   {
@@ -140,14 +132,6 @@ export const empowerModules = [
 export const advantages = aboutCopy.advantages;
 export const visions = aboutCopy.visions;
 
-/** 供需市场 4 步（docx 原文） */
-export const marketSteps = [
-  { index: '1', title: '供需发布', desc: '发布 AI 项目需求或智能体服务，高效撮合产业合作机会' },
-  { index: '2', title: '智能匹配', desc: '依托社区生态，精准对接开发者、投资方与产业资源' },
-  { index: '3', title: '能力展示', desc: '上架AI产品与落地案例，打造个人与项目品牌影响力' },
-  { index: '4', title: '产业共创', desc: '融入集智 AI 开放社区，携手伙伴共建 AI 智能体产业生态' },
-] as const;
-
 /** 集智商学院 */
 export const academy = {
   title: '集智商学院',
@@ -171,7 +155,7 @@ export const academy = {
   ],
 } as const;
 
-/** 智能体副标与分类 */
+/** 智能体分类（后台资源模块的选项来源，与 agents 表 FK 对齐） */
 export const agentCategories = [
   { slug: 'office', name: '办公' },
   { slug: 'writing', name: '写作' },
@@ -182,17 +166,9 @@ export const agentCategories = [
   { slug: 'audio', name: '音频' },
 ] as const;
 
-export const agentHero = {
-  title: '集智·探索 AI 的无限可能',
-  subtitle:
-    '汇聚全球顶尖 AI 智能体，覆盖办公、写作、编程、设计、图像、视频、音频等全方位场景',
-} as const;
-
-/** 合作企业（参考图素材，真伪待业务方确认） */
-export const partners = [
-  '华为', '阿里巴巴', '腾讯', '字节跳动', '百度', '美团', '京东', '滴滴',
-  '小米', '网易', '哔哩哔哩', '快手', '知乎', '微博', '豆瓣', '携程',
-] as const;
+/** 合作企业名单（16 家）已随公开页展示一起收敛进复刻快照与
+ *  scripts 侧素材管线；后台 partners 表由运营维护，前台暂无消费方
+ *  （2026-10-26 第二批清理时移除本数组，如需运行时化再恢复）。 */
 
 /** 页脚 */
 export const footerNav = [

@@ -102,31 +102,6 @@ body {
   color: transparent;
 }
 
-/* 筛选按钮的选中态。
-   列表页（/agents、/market、/news）为保证 <title>/<meta description> 落在 <head> 内
-   而保持静态渲染，服务端拿不到 searchParams，选中态只能由客户端 FilterRoot 写入
-   data-active；未选中态的底色/字色也一并在这里统一，避免各页重复写条件类名。 */
-[data-filter-option][data-active='true'] {
-  background-color: var(--color-brand-blue-deep);
-  color: #fff;
-}
-[data-filter-option][data-active='false'] {
-  background-color: #fff;
-  color: var(--color-ink-2);
-}
-
-/* 筛选按钮里的计数小字（如「智能体 29」）。
-   ⚠️ **不能用 opacity 压暗**：同一个色值要同时压得住「白底」和「蓝底」两种背景，
-   实测 12px 在白底只有 3.71:1、蓝底只有 3.72:1（Lighthouse color-contrast 判失败）。
-   改为按选中态分别给色：白底用次级灰（浏览器实测 5.62:1），蓝底用 88% 白（4.93:1），
-   既保住「数字比标签弱一档」的层级，又过 AA 4.5:1。 */
-[data-filter-option] .filter-count {
-  color: var(--color-ink-3);
-}
-[data-filter-option][data-active='true'] .filter-count {
-  color: rgb(255 255 255 / 88%);
-}
-
 /* 细网格底纹（科技感，低强度） */
 .bg-grid {
   background-image:

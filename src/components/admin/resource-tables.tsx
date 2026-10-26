@@ -31,7 +31,6 @@ export function AgentsTable({ rows }: { rows: AdminAgentRow[] }) {
       apiBase="/api/admin/agents"
       createHref="/admin/agents/new"
       editHref={(r) => `/admin/agents/${r.id}/edit`}
-      viewHref={(r) => (r.published ? `/agents/${r.slug}` : undefined)}
       nameOf={(r) => r.name}
       emptyTitle="暂无智能体"
       emptyCta="收录第一个智能体"
@@ -48,7 +47,6 @@ export function AgentsTable({ rows }: { rows: AdminAgentRow[] }) {
                 )}
                 {r.name}
               </p>
-              <p className="mt-0.5 truncate text-[11px] text-[var(--color-ink-3)]">/agents/{r.slug}</p>
             </div>
           ),
         },
@@ -76,7 +74,6 @@ export function MarketTable({ rows }: { rows: AdminMarketRow[] }) {
       apiBase="/api/admin/market"
       createHref="/admin/market/new"
       editHref={(r) => `/admin/market/${r.id}/edit`}
-      viewHref={(r) => (r.published ? `/market/${r.slug}` : undefined)}
       nameOf={(r) => r.title}
       emptyTitle="暂无供需信息"
       emptyCta="发布第一条供需"
@@ -88,7 +85,6 @@ export function MarketTable({ rows }: { rows: AdminMarketRow[] }) {
           cell: (r) => (
             <div className="max-w-[300px]">
               <p className="truncate font-medium text-[var(--color-ink)]">{r.title}</p>
-              <p className="mt-0.5 truncate text-[11px] text-[var(--color-ink-3)]">/market/{r.slug}</p>
             </div>
           ),
         },
@@ -126,7 +122,6 @@ export function CoursesTable({ rows }: { rows: AdminCourseRow[] }) {
       apiBase="/api/admin/courses"
       createHref="/admin/courses/new"
       editHref={(r) => `/admin/courses/${r.id}/edit`}
-      viewHref={(r) => (r.published ? `/academy/courses/${r.slug}` : undefined)}
       nameOf={(r) => r.title}
       emptyTitle="暂无课程"
       emptyCta="上架第一门课"
@@ -136,7 +131,6 @@ export function CoursesTable({ rows }: { rows: AdminCourseRow[] }) {
           cell: (r) => (
             <div className="max-w-[300px]">
               <p className="truncate font-medium text-[var(--color-ink)]">{r.title}</p>
-              <p className="mt-0.5 truncate text-[11px] text-[var(--color-ink-3)]">/academy/courses/{r.slug}</p>
             </div>
           ),
         },

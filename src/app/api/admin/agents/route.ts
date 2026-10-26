@@ -9,5 +9,5 @@ export const POST = createResourceCollectionApi({
   table: 'agents',
   schema: agentInputSchema,
   toRow: agentToRow,
-  revalidate: ['/agents', { path: '/agents/[slug]', type: 'page' }],
+  // 公开页 /agents 已下线（308 → /agent 复刻快照，不查本表），无前台缓存可失效
 });

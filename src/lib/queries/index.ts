@@ -1,16 +1,6 @@
 import { cache } from 'react';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
-import {
-  seedAgents,
-  seedCourses,
-  seedMarket,
-  seedNews,
-  type Agent,
-  type Course,
-  type MarketItem,
-  type NewsPost,
-} from '@/lib/data/seed';
-import { agentCategories, empowerModules, partners, stats } from '@/lib/site/config';
+import { seedNews, type NewsPost } from '@/lib/data/seed';
 
 /**
  * 数据访问层：**优先 Supabase，未配置时回落到本地种子数据**。
@@ -20,17 +10,17 @@ import { agentCategories, empowerModules, partners, stats } from '@/lib/site/con
  *   1. **未配置 Supabase**（getSupabaseAdmin() 返回 null）—— 本地开发 / 演示环境无库；
  *   2. **查询出错**（网络抖动、表缺失等）—— 库不可用时用种子兜底，保证页面不 500。
  *
- * 「已配置但查不到数据」**不再回落**。这是本轮修掉的真缺陷：
- *   - 库里某条资讯被下架（status != 'published'）时，查询返回空 → 回落种子里的
- *     同名条目 → 页面照常 200，违反 FR-NEWS-05「下架后详情页 404」；
- *   - 库已连接但该表确实没有数据时回落种子 → FR-AGENT-05 要求的
- *     「真·空态引导」永远不会出现。
+ * 「已配置但查不到数据」**不回落**：
+ * 库里某条资讯被下架（status != 'published'）时，查询返回空——查不到就是查不到，
+ * 列表返回 `[]`、单条返回 `null`（详情走 404），不会拿种子内容顶上。
  *
- * 查不到就是查不到：列表返回 `[]`（页面走 EmptyState 分支），
- * 单条返回 `null`（页面走 notFound() → 404）。
+ * 2026-10-26 第二批清理后本模块只服务**新闻/动态线**（news-runtime →
+ * /newslist /activitylist /newsdetail）。智能体 / 课程 / 供需的公开查询函数
+ * 已随旧版原生页一并下线（页面 308 收敛到复刻页，复刻页不查这三张表；
+ * 后台对这三张表的 CRUD 走 lib/admin/resource-*.ts，不经这里）。
  */
 
-const FALLBACK = { agents: seedAgents, market: seedMarket, courses: seedCourses, news: seedNews };
+const FALLBACK = { news: seedNews };
 
 /**
  * 归一化 DB 行的正文字段。
@@ -47,182 +37,6 @@ function withBody<T extends { body?: unknown }>(row: T): T & { body: string[] } 
     : [];
   return { ...row, body };
 }
-
-/* ── 站点指标 / 合作企业（内容型数据，不涉及「下架即不可见」语义）────────── */
-
-export const getStats = cache(async () => {
-  const sb = getSupabaseAdmin();
-  if (!sb) return stats;
-  try {
-    const { data } = await sb.from('site_stats').select('*').order('sort_order');
-    if (!data || data.length === 0) return stats;
-    return data.map((r) => ({
-      key: r.key as string,
-      value: r.value as number,
-      suffix: (r.suffix ?? '+') as string,
-      label: r.label as string,
-    }));
-  } catch {
-    return stats;
-  }
-});
-
-export const getPartners = cache(async (): Promise<string[]> => {
-  const sb = getSupabaseAdmin();
-  if (!sb) return [...partners];
-  try {
-    const { data } = await sb.from('partners').select('name').eq('published', true).order('sort_order');
-    if (!data || data.length === 0) return [...partners];
-    return data.map((r) => r.name as string);
-  } catch {
-    return [...partners];
-  }
-});
-
-export const getEmpowerModules = cache(async () => [...empowerModules]);
-export const getAgentCategories = cache(async () => [...agentCategories]);
-
-/* ── 智能体 ──────────────────────────────────────────────────────────────── */
-
-export const getAgents = cache(async (category?: string): Promise<Agent[]> => {
-  const sb = getSupabaseAdmin();
-  const pick = (list: Agent[]) => (category ? list.filter((a) => a.category === category) : list);
-  // 未配置 Supabase → 种子数据（本地开发 / 演示环境照常有内容）
-  if (!sb) return pick(FALLBACK.agents);
-  try {
-    const { data, error } = await sb
-      .from('agents')
-      .select('*')
-      .eq('published', true)
-      .order('sort_order', { ascending: true });
-    if (error) {
-      console.error(`[queries:agents] 查询失败，回落种子数据：${error.message}`);
-      return pick(FALLBACK.agents);
-    }
-    // 已配置且查询成功 → 真实结果。**空就是空，不回落**（下架即不可见）
-    return pick((data ?? []) as Agent[]);
-  } catch (e) {
-    console.error('[queries:agents] 查询异常，回落种子数据', e);
-    return pick(FALLBACK.agents);
-  }
-});
-
-export const getAgent = cache(async (slug: string): Promise<Agent | null> => {
-  const sb = getSupabaseAdmin();
-  const seed = FALLBACK.agents.find((a) => a.slug === slug) ?? null;
-  if (!sb) return seed;
-  try {
-    const { data, error } = await sb
-      .from('agents')
-      .select('*')
-      .eq('slug', slug)
-      .eq('published', true)
-      .maybeSingle();
-    if (error) {
-      console.error(`[queries:agents] 查询失败，回落种子数据：${error.message}`);
-      return seed;
-    }
-    // 库内查不到（未收录 / 已下架）→ null → 页面 notFound() → 404
-    return data ? (data as Agent) : null;
-  } catch (e) {
-    console.error('[queries:agents] 查询异常，回落种子数据', e);
-    return seed;
-  }
-});
-
-/* ── 供需市场 ────────────────────────────────────────────────────────────── */
-
-export const getMarketItems = cache(async (type?: 'demand' | 'supply'): Promise<MarketItem[]> => {
-  const sb = getSupabaseAdmin();
-  let list: MarketItem[] = FALLBACK.market;
-  if (sb) {
-    try {
-      const { data, error } = await sb
-        .from('market_items')
-        .select('*')
-        .eq('published', true)
-        .order('published_at', { ascending: false });
-      if (error) {
-        console.error(`[queries:market_items] 查询失败，回落种子数据：${error.message}`);
-      } else {
-        // 已配置且查询成功 → 真实结果。**空就是空，不回落**（下架即不可见）
-        list = (data ?? []).map(withBody);
-      }
-    } catch (e) {
-      console.error('[queries:market_items] 查询异常，回落种子数据', e);
-    }
-  }
-  return type ? list.filter((m) => m.type === type) : list;
-});
-
-export const getMarketItem = cache(async (slug: string): Promise<MarketItem | null> => {
-  const sb = getSupabaseAdmin();
-  const seed = FALLBACK.market.find((m) => m.slug === slug) ?? null;
-  if (!sb) return seed;
-  try {
-    const { data, error } = await sb
-      .from('market_items')
-      .select('*')
-      .eq('slug', slug)
-      .eq('published', true)
-      .maybeSingle();
-    if (error) {
-      console.error(`[queries:market_items] 查询失败，回落种子数据：${error.message}`);
-      return seed;
-    }
-    // 库内查不到（未收录 / 已下架）→ null → 页面 notFound() → 404
-    return data ? withBody(data as MarketItem) : null;
-  } catch (e) {
-    console.error('[queries:market_items] 查询异常，回落种子数据', e);
-    return seed;
-  }
-});
-
-/* ── 课程 ────────────────────────────────────────────────────────────────── */
-
-export const getCourses = cache(async (): Promise<Course[]> => {
-  const sb = getSupabaseAdmin();
-  if (!sb) return FALLBACK.courses;
-  try {
-    const { data, error } = await sb
-      .from('courses')
-      .select('*')
-      .eq('published', true)
-      .order('sort_order');
-    if (error) {
-      console.error(`[queries:courses] 查询失败，回落种子数据：${error.message}`);
-      return FALLBACK.courses;
-    }
-    // 已配置且查询成功 → 真实结果。**空就是空，不回落**
-    return (data ?? []) as Course[];
-  } catch (e) {
-    console.error('[queries:courses] 查询异常，回落种子数据', e);
-    return FALLBACK.courses;
-  }
-});
-
-export const getCourse = cache(async (slug: string): Promise<Course | null> => {
-  const sb = getSupabaseAdmin();
-  const seed = FALLBACK.courses.find((c) => c.slug === slug) ?? null;
-  if (!sb) return seed;
-  try {
-    const { data, error } = await sb
-      .from('courses')
-      .select('*')
-      .eq('slug', slug)
-      .eq('published', true)
-      .maybeSingle();
-    if (error) {
-      console.error(`[queries:courses] 查询失败，回落种子数据：${error.message}`);
-      return seed;
-    }
-    // 库内查不到（未收录 / 已下架）→ null → 页面 notFound() → 404
-    return data ? withBody(data as Course) : null;
-  } catch (e) {
-    console.error('[queries:courses] 查询异常，回落种子数据', e);
-    return seed;
-  }
-});
 
 /* ── 社区动态 ────────────────────────────────────────────────────────────── */
 
@@ -264,7 +78,7 @@ export const getNewsPost = cache(async (slug: string): Promise<NewsPost | null> 
       console.error(`[queries:news_posts] 查询失败，回落种子数据：${error.message}`);
       return seed;
     }
-    // 库内查不到（未收录 / 已下架）→ null → 页面 notFound() → 404
+    // 库内查不到（未收录 / 已下架）→ null → 详情 404
     return data ? withBody(data as NewsPost) : null;
   } catch (e) {
     console.error('[queries:news_posts] 查询异常，回落种子数据', e);

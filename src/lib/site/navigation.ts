@@ -49,8 +49,7 @@ export function publicChromeMode(pathname: string): 'home' | 'page' | 'independe
 export function navigationMatchesPath(pathname: string, href: string): boolean {
   const path = normalizePublicPath(pathname);
   if (path === href || path.startsWith(`${href}/`)) return true;
-  if (href === '/agent') return path === '/agents' || path.startsWith('/agents/');
-  if (href === '/center') return path === '/academy' || path.startsWith('/academy/');
-  if (href === '/newslist') return path === '/news' || path.startsWith('/news/');
+  // 旧版原生路径（/agents、/academy、/news…）已在 next.config redirects()
+  // 里 308 收敛到复刻正主，导航高亮不再需要旧路径映射。
   return false;
 }

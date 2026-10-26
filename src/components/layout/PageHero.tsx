@@ -18,7 +18,7 @@ export type Crumb = { label: string; href?: string };
  *   （"You can omit item for the last breadcrumb"），当前页的 URL 在这里也拿不到 ——
  *   PageHero 必须保持静态服务端组件，不能用 `headers()` / `cookies()` / `usePathname()`
  *   （那会让 15 个内页全部变成动态渲染，`<title>` 与 `<meta name="description">`
- *   会被 Next.js flush 到 `</body>` 之后，搜索引擎读不到，见 `FilterRoot.tsx` 顶部注释）。
+ *   会被 Next.js flush 到 `</body>` 之后，搜索引擎读不到）。
  *   所以**不编造**当前页 URL，只保留 `name` 与 `position`。
  */
 function buildBreadcrumbJsonLd(crumbs: Crumb[]) {

@@ -11,9 +11,8 @@ import assert from 'node:assert/strict';
 import { readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { nav, footerNav, empowerModules, agentCategories, stats } from '@/lib/site/config';
+import { nav, footerNav, empowerModules, agentCategories } from '@/lib/site/config';
 import { empowerDetails } from '@/lib/data/empower';
-import { seedAgents } from '@/lib/data/seed';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const appDir = resolve(repoRoot, 'src/app');
@@ -195,24 +194,6 @@ describe('智能体分类 · 与种子数据一致', () => {
     assert.equal(new Set(slugs).size, slugs.length);
     for (const c of agentCategories) {
       assert.ok(c.name.trim().length > 0, `${c.slug} 缺名称`);
-    }
-  });
-
-  test('种子智能体的 category 都属于已声明分类', () => {
-    const known = new Set<string>(agentCategories.map((c) => c.slug));
-    for (const agent of seedAgents) {
-      assert.ok(known.has(agent.category), `智能体 ${agent.slug} 的分类 ${agent.category} 未声明`);
-    }
-  });
-});
-
-describe('首页指标 · 基本结构', () => {
-  test('指标 key 唯一且数值与文案非空', () => {
-    const keys = stats.map((s) => s.key);
-    assert.equal(new Set(keys).size, keys.length);
-    for (const s of stats) {
-      assert.equal(typeof s.value, 'number');
-      assert.ok(s.label.trim().length > 0, `${s.key} 缺文案`);
     }
   });
 });
