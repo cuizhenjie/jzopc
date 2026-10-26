@@ -236,7 +236,7 @@ try {
   await sleep(350);
   const hoverColor = await evaluate("(()=>{const s=getComputedStyle(document.querySelector('#mobile-navigation a[href=\"/agent\"]'));return {color:s.color,background:s.backgroundColor}})()");
   assert.equal(hoverColor.color, 'rgb(9, 104, 171)');
-  assert.equal(hoverColor.background, 'rgb(237, 244, 252)');
+  assert.equal(hoverColor.background, 'rgb(238, 244, 250)');
   await S('Input.dispatchMouseEvent', { type: 'mouseMoved', x: -10, y: -10 });
   await S('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
   await until("document.querySelector('#mobile-navigation').hidden", 'Scrolled drawer did not close');

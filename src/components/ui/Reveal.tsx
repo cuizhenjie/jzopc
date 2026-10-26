@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { mountReveal } from './reveal-controller';
 
 /**
  * 滚动揭示。
@@ -15,7 +16,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 export function Reveal({
   children,
   delay = 0,
-  y = 18,
+  y = 16,
   className,
 }: {
   children: ReactNode;
@@ -28,39 +29,10 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    document.documentElement.classList.add('js-reveal');
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-      el.dataset.state = 'in';
-      return;
-    }
-
-    // 首屏可见区域（含略下方一点）的内容直接显示，不做动画
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.94) {
-      el.dataset.state = 'in';
-      return;
-    }
-
-    el.dataset.state = 'pending';
-    el.style.setProperty('--reveal-y', `${y}px`);
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            el.dataset.state = 'in';
-            io.disconnect();
-          }
-        }
-      },
-      { rootMargin: '0px 0px -56px 0px', threshold: 0.01 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    return mountReveal(el, y);
   }, [y]);
+
+  const boundedDelay = Number.isFinite(delay) ? Math.max(0, Math.min(0.18, delay)) : 0;
 
   return (
     // ⚠️ 这个包裹 <div> 就是**真正的 grid item**。
@@ -71,7 +43,7 @@ export function Reveal({
     <div
       ref={ref}
       data-reveal=""
-      style={delay ? { transitionDelay: `${delay}s` } : undefined}
+      style={boundedDelay ? { '--reveal-delay': `${boundedDelay}s` } as CSSProperties : undefined}
       className={className}
     >
       {children}
@@ -89,11 +61,14 @@ export function Stagger({
   className?: string;
   step?: number;
 }) {
+  const boundedStep = Number.isFinite(step)
+    ? Math.max(0, Math.min(step, 0.18 / Math.max(1, children.length - 1)))
+    : 0;
   // 外层承载布局（如 grid），每个子项由 Reveal 包一层 div 作为 grid item
   return (
     <div className={className}>
       {children.map((c, i) => (
-        <Reveal key={i} delay={i * step}>
+        <Reveal key={i} delay={i * boundedStep}>
           {c}
         </Reveal>
       ))}

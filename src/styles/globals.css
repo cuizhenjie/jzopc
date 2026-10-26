@@ -138,26 +138,40 @@ body {
 /* 滚动揭示：服务端渲染时内容默认可见，客户端挂载后才可能进入 pending。
    规则见 src/components/ui/Reveal.tsx */
 [data-reveal] {
-  --reveal-y: 18px;
+  --reveal-y: 16px;
   opacity: 1;
   transform: none;
 }
 
-html.js-reveal [data-reveal][data-state='pending'] {
+[data-reveal][data-state='pending'] {
   opacity: 0;
   transform: translateY(var(--reveal-y));
 }
 
-html.js-reveal [data-reveal][data-state='in'] {
+[data-reveal][data-state='in'] {
   opacity: 1;
   transform: none;
   transition:
-    opacity 0.6s var(--ease-out-soft),
-    transform 0.6s var(--ease-out-soft);
+    opacity 0.54s var(--ease-out-soft),
+    transform 0.54s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+[data-reveal][data-reveal-immediate],
+[data-reveal]:focus-within {
+  opacity: 1;
+  transform: none;
+  transition: none;
 }
 
 /* 减弱动效：关掉所有非必要动画 */
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    transition-delay: 0s !important;
+  }
   *,
   *::before,
   *::after {

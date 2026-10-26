@@ -30,13 +30,18 @@
 .opc-replica.opc-replica [data-opc-reveal] { animation: none !important; }
 .opc-replica.opc-replica [data-opc-reveal='pending'] {
   opacity: 0 !important;
-  transform: translateY(18px) !important;
+  transform: translateY(16px) !important;
 }
 .opc-replica.opc-replica [data-opc-reveal='shown'] {
   opacity: 1 !important;
   transform: none !important;
-  transition: opacity 580ms ease, transform 580ms ease, box-shadow 180ms ease, border-color 180ms ease !important;
+  transition: opacity 540ms var(--ease-out-soft, ease), transform 540ms var(--ease-out-soft, ease), box-shadow 180ms ease, border-color 180ms ease !important;
   transition-delay: var(--opc-reveal-delay, 0ms), var(--opc-reveal-delay, 0ms), 0ms, 0ms !important;
+}
+.opc-replica.opc-replica [data-opc-reveal]:focus-within {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
 }
 .opc-replica.opc-replica [data-opc-motion-page-paused='true'] *,
 .opc-replica.opc-replica [data-opc-motion-page-paused='true'] *::before,
@@ -45,86 +50,6 @@
 .opc-replica.opc-replica [data-opc-motion-region-visible='false'] *::before,
 .opc-replica.opc-replica [data-opc-motion-region-visible='false'] *::after { animation-play-state: paused !important; }
 
-/* One navigation breakpoint overrides the original 1280px rule and the old 1100px layer. */
-@media (max-width: 1279px) {
-  .opc-replica.opc-replica .opcheader .container nav { justify-content: space-between !important; }
-  .opc-replica.opc-replica .opcheader .container nav .logo { position: static !important; }
-  .opc-replica.opc-replica .opcheader .container nav .mobile-menu {
-    display: flex !important;
-    position: relative !important;
-    align-items: center;
-    justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
-    color: var(--opc-ink, #142f59) !important;
-    z-index: 101;
-  }
-  .opc-replica.opc-replica .opcheader .container nav.is-home:not(.scrolled) .mobile-menu {
-    color: #fff !important;
-  }
-  .opc-replica.opc-replica .opcheader .container nav .mobile-menu i { color: inherit !important; }
-  .opc-replica.opc-replica .opcheader .container nav .user-area { display: none !important; }
-  .opc-replica.opc-replica .opcheader .container nav .nav-links {
-    display: none !important;
-    position: absolute !important;
-    top: calc(100% + 8px) !important;
-    left: 0 !important;
-    right: 0 !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 0 !important;
-    padding: 12px !important;
-    margin: 0 !important;
-    max-height: calc(100dvh - 112px) !important;
-    overflow-y: auto !important;
-    border-radius: var(--opc-radius-panel, 12px) !important;
-    background: var(--opc-navy, #142f59) !important;
-    box-shadow: var(--opc-shadow-overlay) !important;
-    z-index: 100 !important;
-  }
-  .opc-replica.opc-replica .opcheader.opc-menu-open .container nav .nav-links { display: flex !important; }
-  .opc-replica.opc-replica .opcheader .container nav .nav-links li { display: block !important; width: 100% !important; }
-  .opc-replica.opc-replica .opcheader .container nav .nav-links a {
-    display: flex !important;
-    height: auto !important;
-    min-height: 44px !important;
-    padding: 10px 14px !important;
-    color: #fff !important;
-  }
-  .opc-replica.opc-replica .opcheader .container nav .nav-links a.active::after { display: none !important; }
-  .opc-replica.opc-replica .opcheader .container nav .nav-links a:is(:hover, :focus-visible, .active) {
-    color: #fff !important;
-    background: rgb(255 255 255 / 12%) !important;
-  }
-  .opc-replica.opc-replica .opcheader .container nav .nav-links .loginli { display: block !important; }
-  .opc-replica.opc-replica .opcheader.opc-menu-open .menu-backdrop {
-    display: block !important;
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgb(20 47 89 / 36%);
-    z-index: -1 !important;
-  }
-}
-@media (min-width: 1280px) {
-  .opc-replica.opc-replica .opcheader .container nav .nav-links {
-    display: flex !important;
-    position: static !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-  .opc-replica.opc-replica .opcheader .container nav .mobile-menu,
-  .opc-replica.opc-replica .opcheader .container nav .loginli,
-  .opc-replica.opc-replica .opcheader .menu-backdrop { display: none !important; }
-  .opc-replica.opc-replica .opcheader .container nav .user-area { display: flex !important; }
-}
 @media (prefers-reduced-motion: reduce) {
   .opc-replica.opc-replica *,
   .opc-replica.opc-replica *::before,
