@@ -1265,6 +1265,12 @@
 }/* Kimi 卡片无特性长列表：收起，保持卡片干净 */
 .opc-replica[data-opc-wave] .feature-list {
   display: none !important;
+}/* 旧「十一」段给深底面板的 h1 span 钉了 color:#fff（特异性 (0,3,2)），
+   高于上面 :is(...) 继承组的 (0,3,1)（:is 只取参数最高项，span 是元素级）
+   ——Kimi 卡是白玻璃底，注册页「开启创业之旅」/忘记密码页「重置登录凭证」
+   会白字落在白底上隐形。按本文件双类提权惯例显式压回继承色。 */
+.opc-replica.opc-replica[data-opc-wave] :is(.login-left, .register-left, .forgot-left) h1 span {
+  color: inherit !important;
 }/* 表单区：标题居中、紧凑内边距 */
 .opc-replica[data-opc-wave] :is(.login-right, .register-right, .forgot-right) {
   width: 100% !important;
@@ -1294,9 +1300,13 @@
   font-size: var(--opc-fs-sm) !important;
   color: var(--opc-ink-2) !important;
   margin-bottom: 6px !important;
-}/* 主按钮：全宽 48px、圆角 12px、品牌蓝实心（Kimi 式） */
+}/* 主按钮：全宽 48px、圆角 12px、品牌蓝实心（Kimi 式）。
+   ⚠️ display:flex 必须配 justify/align 居中——匿名文字 flex 项默认
+   flex-start，文字会顶到 48px 按钮的左上角（实测）。 */
 .opc-replica[data-opc-wave] :is(.login-btn, .register-btn, .reset-btn) {
   display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   width: 100% !important;
   height: 48px !important;
   padding: 0 !important;
