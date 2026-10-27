@@ -21,7 +21,6 @@ export type NavKey =
   | 'leads'
   | 'site-stats'
   | 'empower'
-  | 'site-contents'
   | 'media'
   | 'accounts';
 
@@ -60,7 +59,6 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { key: 'site-stats', label: '统计数字', href: '/admin/site-stats', icon: 'chart' },
       { key: 'empower', label: '八大赋能', href: '/admin/empower', icon: 'sparkles' },
-      { key: 'site-contents', label: '页面文案', href: '/admin/site-contents', icon: 'fileText' },
     ],
   },
   {

@@ -12,7 +12,6 @@ import {
   type AdminMarketRow,
   type AdminMediaRow,
   type AdminPartnerRow,
-  type AdminSiteContentRow,
 } from '@/lib/admin/resources';
 import { agentCategoryOptions } from '@/lib/admin/resource-configs';
 
@@ -220,36 +219,6 @@ export function EmpowerTable({ rows }: { rows: AdminEmpowerRow[] }) {
         },
         { head: '一句话介绍', cell: (r) => <span className="line-clamp-2 max-w-[300px] text-[var(--color-ink-2)]">{r.tagline}</span> },
         { head: '关联线索', cell: (r) => r.lead_type ?? '—' },
-        { head: '排序', cell: (r) => r.sort_order, className: 'w-14 text-center text-[var(--color-ink-3)]' },
-      ]}
-    />
-  );
-}
-
-export function SiteContentsTable({ rows }: { rows: AdminSiteContentRow[] }) {
-  return (
-    <ResourceTable
-      rows={rows}
-      apiBase="/api/admin/site-contents"
-      createHref="/admin/site-contents/new"
-      editHref={(r) => `/admin/site-contents/${r.id}/edit`}
-      nameOf={(r) => `${r.section}/${r.slug}`}
-      emptyTitle="暂无文案块"
-      emptyCta="创建第一个文案块"
-      publishLabels={{ on: '下线', off: '上线' }}
-      columns={[
-        {
-          head: '区块 / 标识',
-          cell: (r) => (
-            <div className="max-w-[260px]">
-              <p className="truncate font-medium text-[var(--color-ink)]">{r.title}</p>
-              <p className="mt-0.5 truncate font-mono text-[11px] text-[var(--color-ink-3)]">
-                {r.section} / {r.slug}
-              </p>
-            </div>
-          ),
-        },
-        { head: '副标题', cell: (r) => <span className="line-clamp-1 max-w-[240px] text-[var(--color-ink-2)]">{r.subtitle ?? '—'}</span> },
         { head: '排序', cell: (r) => r.sort_order, className: 'w-14 text-center text-[var(--color-ink-3)]' },
       ]}
     />

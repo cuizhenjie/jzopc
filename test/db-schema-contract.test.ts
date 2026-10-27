@@ -43,7 +43,7 @@ const seedSrc = readFileSync(resolve(repoRoot, 'src/lib/data/seed.ts'), 'utf8');
 const adminResourcesSrc = readFileSync(resolve(repoRoot, 'src/lib/admin/resources.ts'), 'utf8');
 const leadRouteSrc = readFileSync(resolve(repoRoot, 'src/app/api/leads/route.ts'), 'utf8');
 
-/** 从迁移 SQL 解析出「表 → 列集合」（matchAll 迭代全部建表语句） */
+/** 从迁移 SQL 解析出「表 → 列集合」（matchAll 迭代全部建表语句，再应用 drop） */
 function parseTables(source: string): Map<string, Set<string>> {
   const tables = new Map<string, Set<string>>();
   for (const m of source.matchAll(/create table if not exists\s+(\w+)\s*\(([\s\S]*?)\n\);/g)) {
@@ -57,6 +57,10 @@ function parseTables(source: string): Map<string, Set<string>> {
       if (cm) cols.add(cm[1]);
     }
     tables.set(table, cols);
+  }
+  // 后置迁移的 drop table（如 0006 下线 site_contents）要反映到最终形态
+  for (const d of source.matchAll(/drop table if exists\s+(\w+)/g)) {
+    tables.delete(d[1]);
   }
   return tables;
 }
@@ -78,8 +82,8 @@ function typeFields(typeName: string): Set<string> {
 const tables = parseTables(sql);
 
 describe('数据库 DDL 与应用类型的契约', () => {
-  test('12 张业务表全部在迁移脚本中定义', () => {
-    assert.equal(tables.size, 12, `实际解析到 ${tables.size} 张表`);
+  test('11 张业务表全部在迁移脚本中定义（site_contents 已随 0006 下线）', () => {
+    assert.equal(tables.size, 11, `实际解析到 ${tables.size} 张表`);
   });
 
   // 这张表就是踩过坑的那张：body_md vs body
@@ -156,9 +160,8 @@ describe('数据库 DDL 与应用类型的契约', () => {
       !tables.get('news_posts')!.has('published'),
       'news_posts 不应有 published 列（RLS 策略用 status = published）',
     );
-    // 其余内容表用 published
+    // 其余内容表用 published（site_contents 已随 0006 下线）
     for (const t of [
-      'site_contents',
       'empower_modules',
       'agents',
       'market_items',
@@ -167,6 +170,7 @@ describe('数据库 DDL 与应用类型的契约', () => {
     ]) {
       assert.ok(tables.get(t)!.has('published'), `${t} 应有 published 列`);
     }
+    assert.ok(!tables.has('site_contents'), 'site_contents 已随 0006 迁移下线，最终形态不应存在');
   });
 
   test('leads 表带幂等键的部分唯一索引（route.ts 靠 23505 判重复提交）', () => {

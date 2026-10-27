@@ -1,10 +1,11 @@
 /**
  * 复刻区块运行时化层（lib/opc/blocks-runtime）的契约测试。
  *
- * 方式一（2026-10-26）核心语义：
+ * 2026-10-28 起语义（DB 唯一事实源，烘焙兜底移除）：
  *   1. DB 行 → 区块替换后的 HTML 必须与烘焙卡**同结构**（类名/作用域属性不丢，
  *      否则参考 CSS 与设计层全部失配）；
- *   2. 空数组 / 不匹配结构 → **原样返回烘焙 HTML**（回落是区块级语义）；
+ *   2. 空数组 / 未配库 / 查询异常 → 区块**置空**（容器保留、内容清空；
+ *      /agent 例外——重建为「全部」chip + 共 0 个智能体状态行）；
  *   3. 后台可控的文本一律 escapeText 转义；图片 URL 只允许 https 外链或根相对路径。
  */
 import { test, describe } from 'node:test';
@@ -113,10 +114,16 @@ describe('/agent 智能体目录 · applyAgentTools', () => {
     assert.ok(!out.includes('LivePPT'));
   });
 
-  test('空数组或全部行外链不合法 → 烘焙目录原样（233 卡）', () => {
-    assert.equal(applyAgentTools(agentHtml, []), agentHtml);
+  test('空数组或全部行外链不合法 → 重建为空目录（全部 chip + 共 0，烘焙 233 卡清空）', () => {
+    const out = applyAgentTools(agentHtml, []);
+    const chips = [...out.matchAll(/data-opc-action="filter-tools" data-opc-value="([^"]*)"/g)].map((m) => m[1]);
+    assert.deepEqual(chips, ['全部']);
+    assert.ok(out.includes('共 0 个智能体'));
+    assert.equal((out.match(/class="tool-card/g) ?? []).length, 0, '烘焙 233 卡必须清空');
+    assert.ok(!out.includes('LivePPT'), '烘焙卡不得残留');
+    assert.ok(!out.includes('data-opc-agent-group='), '空目录不应有分区');
     const noLink = applyAgentTools(agentHtml, [{ name: 'x', category: 'office', summary: '', external_url: null, icon_url: null }]);
-    assert.equal(noLink, agentHtml);
+    assert.ok(noLink.includes('共 0 个智能体'), '全部行外链不合法同样清空');
     assert.equal((agentHtml.match(/class="tool-card/g) ?? []).length, 233);
   });
 });
@@ -140,14 +147,20 @@ describe('/market 供需卡 · applyMarketItems', () => {
     assert.ok(!out.includes('data-opc-route="/newsdetail?id=0"'));
   });
 
-  test('只录一边：供给有行换供给区，需求区维持烘焙卡', () => {
+  test('只录一边：供给有行换供给区，需求区置空（无烘焙兜底）', () => {
     const onlySupply = applyMarketItems(marketHtml, [rows[0]]);
     assert.ok(onlySupply.includes('验收供给服务'));
-    assert.ok(onlySupply.includes('农资作物长势 AI 识别小程序开发'), '烘焙需求卡必须在');
+    assert.ok(!onlySupply.includes('农资作物长势 AI 识别小程序开发'), '烘焙需求卡必须清空');
+    assert.equal((onlySupply.match(/class="demand-card"/g) ?? []).length, 0, '需求区应置空');
+    assert.equal((onlySupply.match(/class="supply-card"/g) ?? []).length, 1);
   });
 
-  test('空数组 → 两区烘焙原样（22 卡）', () => {
-    assert.equal(applyMarketItems(marketHtml, []), marketHtml);
+  test('空数组 → 两区置空（容器保留，烘焙 22 卡清空）', () => {
+    const out = applyMarketItems(marketHtml, []);
+    assert.ok(out.includes('class="supply-grid"'), '供给区容器必须在');
+    assert.ok(out.includes('class="demand-grid"'), '需求区容器必须在');
+    assert.equal((out.match(/class="supply-card"/g) ?? []).length, 0);
+    assert.equal((out.match(/class="demand-card"/g) ?? []).length, 0);
   });
 
   test('timestamptz 按北京时间取日历日（UTC 前一天 16:00 = 北京次日 0 点）', () => {
@@ -183,8 +196,11 @@ describe('首页统计数字墙 · applyHomeStats', () => {
     assert.ok(out.includes('&lt;script&gt;'));
   });
 
-  test('空数组 → 烘焙 HTML 原样', () => {
-    assert.equal(applyHomeStats(homeHtml, []), homeHtml);
+  test('空数组 → 统计墙置空（容器保留，烘焙数字清空）', () => {
+    const out = applyHomeStats(homeHtml, []);
+    assert.ok(out.includes('hero-stats-row'), '容器必须在');
+    assert.equal((out.match(/class="hero-stat"/g) ?? []).length, 0);
+    assert.ok(!out.includes('>500+</span>'), '烘焙数字不得残留');
   });
 });
 
@@ -209,8 +225,10 @@ describe('/center 课程方向卡 · applyCourseGrid', () => {
     assert.ok(out.includes('course-ai-ecommerce.webp'), '应回落 track 对应烘焙图');
   });
 
-  test('空数组 → 烘焙五卡原样', () => {
-    assert.equal(applyCourseGrid(centerHtml, []), centerHtml);
+  test('空数组 → 课程网格置空（容器保留，烘焙五卡清空）', () => {
+    const out = applyCourseGrid(centerHtml, []);
+    assert.ok(out.includes('opc-academy-course-grid'), '网格容器必须在');
+    assert.equal((out.match(/opc-academy-course-card/g) ?? []).length, 0);
   });
 });
 
@@ -231,13 +249,12 @@ describe('伙伴墙 · applyPartnerGrid', () => {
     assert.equal(cards.length, 2);
   });
 
-  test('全部行都无合法 logo 或空数组 → 烘焙 16 家原样', () => {
-    assert.equal(applyPartnerGrid(homeHtml, []), homeHtml);
-    assert.equal(
-      applyPartnerGrid(homeHtml, [{ name: 'x', logo_url: null }]),
-      homeHtml,
-    );
-    assert.equal((applyPartnerGrid(homeHtml, []).match(/opc-visual-partner-card/g) ?? []).length, 16);
+  test('全部行都无合法 logo 或空数组 → 伙伴墙置空（容器保留，烘焙 16 家清空）', () => {
+    const out = applyPartnerGrid(homeHtml, []);
+    assert.ok(out.includes('opc-visual-partner-grid'), '伙伴墙容器必须在');
+    assert.equal((out.match(/opc-visual-partner-card/g) ?? []).length, 0);
+    const noLogo = applyPartnerGrid(homeHtml, [{ name: 'x', logo_url: null }]);
+    assert.equal((noLogo.match(/opc-visual-partner-card/g) ?? []).length, 0, '无合法 logo 同样置空');
   });
 
   test('三页共用：供需页与工作页的烘焙墙同样可替换', () => {

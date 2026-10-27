@@ -83,26 +83,26 @@ begin
 end;
 $$;
 
--- 1. 表数量
+-- 1. 表数量（0006 下线 site_contents 后为 11 张）
 select pg_temp.assert_true(
-  '12 张业务表全部创建（11 张 + 0004 的 admin_users）',
+  '11 张业务表全部创建（0004 的 admin_users 在内，site_contents 已下线）',
   (select count(*) from information_schema.tables
-    where table_schema = 'public' and table_type = 'BASE TABLE') = 12
+    where table_schema = 'public' and table_type = 'BASE TABLE') = 11
 );
 
 -- 2. RLS 全部开启
 select pg_temp.assert_true(
-  '12 张表全部开启 RLS',
+  '11 张表全部开启 RLS',
   (select count(*) from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
-   where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity) = 12
+   where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity) = 11
 );
 
--- 3. 公开内容表各有一条 select 策略
+-- 3. 公开内容表各有一条 select 策略（site_contents 的策略随表级联删除）
 select pg_temp.assert_true(
-  '10 张公开内容表各有一条 "public read *" 策略',
+  '9 张公开内容表各有一条 "public read *" 策略',
   (select count(*) from pg_policies
-    where schemaname = 'public' and policyname like 'public read %') = 10
+    where schemaname = 'public' and policyname like 'public read %') = 9
 );
 
 -- 4. 核心安全断言：leads 表没有任何策略
@@ -139,10 +139,10 @@ select pg_temp.assert_true(
               where table_name in ('site_stats','agent_categories') and column_name='published')
 );
 select pg_temp.assert_true(
-  'agents / market_items / courses / partners / site_contents / empower_modules 有 published 列',
+  'agents / market_items / courses / partners / empower_modules 有 published 列（site_contents 已下线）',
   (select count(*) from information_schema.columns
-    where table_name in ('agents','market_items','courses','partners','site_contents','empower_modules')
-      and column_name='published') = 6
+    where table_name in ('agents','market_items','courses','partners','empower_modules')
+      and column_name='published') = 5
 );
 
 -- 6. route.ts 的插入列必须全部存在（对齐 src/app/api/leads/route.ts 的 insert）

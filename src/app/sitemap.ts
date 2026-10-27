@@ -2,19 +2,18 @@ import type { MetadataRoute } from 'next';
 import { site } from '@/lib/site/config';
 import { replicaPaths } from '@/lib/opc/routes';
 import { loadPublishedNewsPosts, newsDetailIdOfSlug } from '@/lib/opc/news-runtime';
-import listings from '@/lib/opc/generated/listings.json' with { type: 'json' };
 
-/** /newsdetail 条目：DB 已发布文章优先（id 取值与卡片 data-opc-id 同款），
- *  未配库/查询异常时回落 listings.json 快照（契约第 6 节）。 */
+/** /newsdetail 条目：DB 已发布文章（id 取值与卡片 data-opc-id 同款）。
+ *  未配库/查询异常 → 无文章条目（DB 唯一事实源，不回落 listings 快照）。 */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.url.replace(/\/$/, '');
   const account = new Set(['/opclogin', '/opcregister', '/opcforgotpassword', '/myinfo', '/opcapply', '/newsdetail']);
-  let detailIds = Object.keys(listings.records);
+  let detailIds: string[] = [];
   try {
     const posts = await loadPublishedNewsPosts();
     if (posts) detailIds = posts.map((post) => newsDetailIdOfSlug(post.slug));
   } catch (error) {
-    console.error('[sitemap] 读取 news_posts 失败，回落快照条目', error);
+    console.error('[sitemap] 读取 news_posts 失败，本批不含文章条目', error);
   }
   return [
     ...replicaPaths.filter(path => !account.has(path)).map(path => ({

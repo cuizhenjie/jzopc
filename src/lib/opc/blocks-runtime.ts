@@ -1,19 +1,22 @@
-/** 复刻站区块运行时化层（2026-10-26「方式一」：DB 优先、烘焙兜底、后台保存即时失效）。
+/** 复刻站区块运行时化层（2026-10-28 起：DB 唯一事实源，无烘焙兜底）。
  *
- * 与 news-runtime（docs/14 契约）同一套语义，但目标区块没有构建期占位符——
- * 这里用「括号配平」在烘焙 HTML 上做确定性区块替换：
+ * 演进：2026-10-26 版本是「DB 优先、烘焙兜底」；2026-10-28 起烘焙兜底移除，
+ * 快照内容已由 scripts/seed-baked-blocks.mjs 灌入数据库——空库/查询异常
+ * 一律渲染**空区块**，不再用烘焙内容顶替（后台删空 = 前台真空，彻底联动）。
+ *
+ * 页面外壳（导航/版式/CSS）仍是复刻产物，这里只做区块内容的确定性替换：
  *
  *   - 首页 hero 统计数字墙 ← site_stats（后台「统计数字」模块；保存已 revalidatePath('/')）
- *   - /center 课程方向卡   ← courses（后台课程模块；保存 revalidatePath('/center')）
- *   - 首页 / 供需 / 工作三页伙伴墙 ← partners（后台合作伙伴模块；保存 revalidate 三页）
+ *   - /center 课程方向卡   ← courses（后台课程模块；保存已 revalidatePath('/center')）
+ *   - 首页 / 供需 / 工作三页伙伴墙 ← partners（后台合作伙伴模块；保存已 revalidate 三页）
+ *   - /agent 分类 chips 与分区 ← agents；/market 供需卡 ← market_items
  *
- * 回落规则（区块级）：未配置 Supabase / 查询异常 / 查询结果为空 → **保留烘焙 HTML**。
- * 统计墙与烘焙值本就同源（迁移 0005 种子），伙伴墙与课程卡在空库时维持现状口径。
- *
- * 结构找不到（生成产物结构变更）→ 原样返回，与 news-runtime 的占位符缺失兼容同款。
+ * 空区块语义：DB 无行/未配库/查询异常 → 对应区块容器替换为空（含 chips/状态行的
+ * /agent 除外——它重建为「全部」chip + 共 0 个智能体）。结构找不到（生成产物
+ * 结构变更）→ 该区块原样保留（外壳完整性保护，非数据兜底）。
  *
  * 本模块服务端专用（依赖 supabase admin 客户端）；页面级消费见
- * app/page.tsx、app/center|market|work/page.tsx。
+ * app/page.tsx、app/center|market|work|agent/page.tsx。
  */
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { agentCategories } from '@/lib/site/config';
@@ -57,29 +60,29 @@ export interface MarketItemRow {
   published_at: string | null;
 }
 
-/** site_stats 没有 published 列（全量展示），按 sort_order 排序；失败 → null（区块回落烘焙）。 */
-export async function loadSiteStats(): Promise<StatRow[] | null> {
+/** site_stats 没有 published 列（全量展示），按 sort_order 排序；未配库/异常 → 空数组（区块置空）。 */
+export async function loadSiteStats(): Promise<StatRow[]> {
   const sb = getSupabaseAdmin();
-  if (!sb) return null;
+  if (!sb) return [];
   try {
     const { data, error } = await sb
       .from('site_stats')
       .select('value,suffix,label')
       .order('sort_order', { ascending: true });
     if (error) {
-      console.error(`[blocks-runtime:site_stats] 查询失败，回落烘焙内容：${error.message}`);
-      return null;
+      console.error(`[blocks-runtime:site_stats] 查询失败，区块置空：${error.message}`);
+      return [];
     }
     return (data ?? []) as StatRow[];
   } catch (e) {
-    console.error('[blocks-runtime:site_stats] 查询异常，回落烘焙内容', e);
-    return null;
+    console.error('[blocks-runtime:site_stats] 查询异常，区块置空', e);
+    return [];
   }
 }
 
-export async function loadCourses(): Promise<CourseRow[] | null> {
+export async function loadCourses(): Promise<CourseRow[]> {
   const sb = getSupabaseAdmin();
-  if (!sb) return null;
+  if (!sb) return [];
   try {
     const { data, error } = await sb
       .from('courses')
@@ -87,19 +90,19 @@ export async function loadCourses(): Promise<CourseRow[] | null> {
       .eq('published', true)
       .order('sort_order', { ascending: true });
     if (error) {
-      console.error(`[blocks-runtime:courses] 查询失败，回落烘焙内容：${error.message}`);
-      return null;
+      console.error(`[blocks-runtime:courses] 查询失败，区块置空：${error.message}`);
+      return [];
     }
     return (data ?? []) as CourseRow[];
   } catch (e) {
-    console.error('[blocks-runtime:courses] 查询异常，回落烘焙内容', e);
-    return null;
+    console.error('[blocks-runtime:courses] 查询异常，区块置空', e);
+    return [];
   }
 }
 
-export async function loadPartners(): Promise<PartnerRow[] | null> {
+export async function loadPartners(): Promise<PartnerRow[]> {
   const sb = getSupabaseAdmin();
-  if (!sb) return null;
+  if (!sb) return [];
   try {
     const { data, error } = await sb
       .from('partners')
@@ -107,13 +110,13 @@ export async function loadPartners(): Promise<PartnerRow[] | null> {
       .eq('published', true)
       .order('sort_order', { ascending: true });
     if (error) {
-      console.error(`[blocks-runtime:partners] 查询失败，回落烘焙内容：${error.message}`);
-      return null;
+      console.error(`[blocks-runtime:partners] 查询失败，区块置空：${error.message}`);
+      return [];
     }
     return (data ?? []) as PartnerRow[];
   } catch (e) {
-    console.error('[blocks-runtime:partners] 查询异常，回落烘焙内容', e);
-    return null;
+    console.error('[blocks-runtime:partners] 查询异常，区块置空', e);
+    return [];
   }
 }
 
@@ -190,9 +193,8 @@ function statItemHtml(row: StatRow): string {
   );
 }
 
-/** rows 为空数组时保留烘焙内容（调用方保证非空才进来，这里双保险）。 */
+/** 空数组 → 统计墙置空（容器保留，DB 是唯一事实源）。 */
 export function applyHomeStats(html: string, rows: readonly StatRow[]): string {
-  if (rows.length === 0) return html;
   return replaceBalancedBlock(html, HOME_STATS_OPEN, ['<div', '</div>'], () =>
     rows.map(statItemHtml).join(''),
   );
@@ -231,8 +233,8 @@ function courseCardHtml(row: CourseRow, fallbackImages: Array<{ src: string; tra
   );
 }
 
+/** 空数组 → 课程网格置空。cover 缺失时沿用同 track 的烘焙配图（配图属外壳素材，非数据兜底）。 */
 export function applyCourseGrid(html: string, rows: readonly CourseRow[]): string {
-  if (rows.length === 0) return html;
   return replaceBalancedBlock(html, COURSE_GRID_OPEN, ['<div', '</div>'], (inner) =>
     rows.map((row) => courseCardHtml(row, bakedCourseImages(inner))).join(''),
   );
@@ -243,10 +245,9 @@ export function applyCourseGrid(html: string, rows: readonly CourseRow[]): strin
 const PARTNER_GRID_OPEN = /<ul class="opc-visual-partner-grid"[^>]*>/;
 
 /** 卡片结构完全沿用烘焙卡（img.opc-visual-partner-logo）；logo 不合法的行跳过，
- *  不做文字卡占位——设计层没有对应样式，宁缺毋滥。 */
+ *  不做文字卡占位——设计层没有对应样式，宁缺毋滥。空数组 → 伙伴墙置空。 */
 export function applyPartnerGrid(html: string, rows: readonly PartnerRow[]): string {
   const usable = rows.filter((row) => isSafeImage(row.logo_url) && row.name.trim().length > 0);
-  if (usable.length === 0) return html;
   return replaceBalancedBlock(html, PARTNER_GRID_OPEN, ['<ul', '</ul>'], () =>
     usable
       .map(
@@ -259,9 +260,9 @@ export function applyPartnerGrid(html: string, rows: readonly PartnerRow[]): str
   );
 }
 
-export async function loadAgents(): Promise<AgentRow[] | null> {
+export async function loadAgents(): Promise<AgentRow[]> {
   const sb = getSupabaseAdmin();
-  if (!sb) return null;
+  if (!sb) return [];
   try {
     const { data, error } = await sb
       .from('agents')
@@ -269,19 +270,19 @@ export async function loadAgents(): Promise<AgentRow[] | null> {
       .eq('published', true)
       .order('sort_order', { ascending: true });
     if (error) {
-      console.error(`[blocks-runtime:agents] 查询失败，回落烘焙内容：${error.message}`);
-      return null;
+      console.error(`[blocks-runtime:agents] 查询失败，区块置空：${error.message}`);
+      return [];
     }
     return (data ?? []) as AgentRow[];
   } catch (e) {
-    console.error('[blocks-runtime:agents] 查询异常，回落烘焙内容', e);
-    return null;
+    console.error('[blocks-runtime:agents] 查询异常，区块置空', e);
+    return [];
   }
 }
 
-export async function loadMarketItems(): Promise<MarketItemRow[] | null> {
+export async function loadMarketItems(): Promise<MarketItemRow[]> {
   const sb = getSupabaseAdmin();
-  if (!sb) return null;
+  if (!sb) return [];
   try {
     const { data, error } = await sb
       .from('market_items')
@@ -289,13 +290,13 @@ export async function loadMarketItems(): Promise<MarketItemRow[] | null> {
       .eq('published', true)
       .order('published_at', { ascending: false });
     if (error) {
-      console.error(`[blocks-runtime:market_items] 查询失败，回落烘焙内容：${error.message}`);
-      return null;
+      console.error(`[blocks-runtime:market_items] 查询失败，区块置空：${error.message}`);
+      return [];
     }
     return (data ?? []) as MarketItemRow[];
   } catch (e) {
-    console.error('[blocks-runtime:market_items] 查询异常，回落烘焙内容', e);
-    return null;
+    console.error('[blocks-runtime:market_items] 查询异常，区块置空', e);
+    return [];
   }
 }
 
@@ -361,10 +362,10 @@ function agentCardHtml(row: AgentRow, label: string, tcLink: string): string {
 }
 
 /** DB 智能体接管 /agent：侧栏 chips + 结果区（状态行 + 按分类分区）整体重建。
- *  分类 label 取 site/config 的 agentCategories（与后台表单同源）；外链不合法的行跳过。 */
+ *  分类 label 取 site/config 的 agentCategories（与后台表单同源）；外链不合法的行跳过。
+ *  空库/全部不可用 → 仍重建：仅「全部」chip + 「共 0 个智能体」状态行（无烘焙兜底）。 */
 export function applyAgentTools(html: string, rows: readonly AgentRow[]): string {
   const usable = rows.filter((row) => isSafeExternalUrl(row.external_url) && row.name.trim().length > 0);
-  if (usable.length === 0) return html;
 
   const labelOf = new Map<string, string>(agentCategories.map((c) => [c.slug as string, c.name as string]));
   const groups = new Map<string, AgentRow[]>();
@@ -474,23 +475,18 @@ function demandCardHtml(row: MarketItemRow): string {
   );
 }
 
-/** 分区各自替换：supply 有 DB 行才换供给区，demand 有行才换需求区——
- *  运营可以只录一边，另一边维持烘焙口径。 */
+/** 供需两区**各自整体替换**（空侧 → 置空，不再保留烘焙卡）；
+ *  运营可以只录一边，另一侧显示为空。 */
 export function applyMarketItems(html: string, rows: readonly MarketItemRow[]): string {
   const titled = rows.filter((row) => row.title.trim().length > 0);
   const supply = titled.filter((row) => row.type === 'supply');
   const demand = titled.filter((row) => row.type === 'demand');
-  let out = html;
-  if (supply.length > 0) {
-    out = replaceBalancedBlock(out, SUPPLY_GRID_OPEN, ['<div', '</div>'], () =>
-      supply.map(supplyCardHtml).join(''),
-    );
-  }
-  if (demand.length > 0) {
-    out = replaceBalancedBlock(out, DEMAND_GRID_OPEN, ['<div', '</div>'], () =>
-      demand.map(demandCardHtml).join(''),
-    );
-  }
+  let out = replaceBalancedBlock(html, SUPPLY_GRID_OPEN, ['<div', '</div>'], () =>
+    supply.map(supplyCardHtml).join(''),
+  );
+  out = replaceBalancedBlock(out, DEMAND_GRID_OPEN, ['<div', '</div>'], () =>
+    demand.map(demandCardHtml).join(''),
+  );
   return out;
 }
 
@@ -502,28 +498,25 @@ export async function getRuntimeReplicaPage(pathname: string): Promise<ReplicaPa
   try {
     if (pathname === '/') {
       const [stats, partners] = await Promise.all([loadSiteStats(), loadPartners()]);
-      if (stats && stats.length > 0) html = applyHomeStats(html, stats);
-      if (partners && partners.length > 0) html = applyPartnerGrid(html, partners);
+      html = applyHomeStats(html, stats);
+      html = applyPartnerGrid(html, partners);
     } else if (pathname === '/center') {
-      const courses = await loadCourses();
-      if (courses && courses.length > 0) html = applyCourseGrid(html, courses);
+      html = applyCourseGrid(html, await loadCourses());
     } else if (pathname === '/agent') {
-      const agents = await loadAgents();
-      if (agents && agents.length > 0) html = applyAgentTools(html, agents);
+      html = applyAgentTools(html, await loadAgents());
     } else if (pathname === '/market') {
       const [partners, marketItems] = await Promise.all([loadPartners(), loadMarketItems()]);
-      if (partners && partners.length > 0) html = applyPartnerGrid(html, partners);
-      if (marketItems && marketItems.length > 0) html = applyMarketItems(html, marketItems);
+      html = applyPartnerGrid(html, partners);
+      html = applyMarketItems(html, marketItems);
     } else if (pathname === '/work') {
-      const partners = await loadPartners();
-      if (partners && partners.length > 0) html = applyPartnerGrid(html, partners);
+      html = applyPartnerGrid(html, await loadPartners());
     } else {
       return base;
     }
   } catch (e) {
-    // 兜底承诺：任何 DB 数据形状异常都不能让页面 500 —— 区块级回落到烘焙内容
-    console.error(`[blocks-runtime:${pathname}] 区块替换异常，回落烘焙内容`, e);
-    return base;
+    // 外壳完整性保护（bug 级兜底，非数据兜底）：区块替换本身不应抛错，
+    // 万一抛错也绝不 500 —— 保留替换到一半之前的进度并继续返回页面。
+    console.error(`[blocks-runtime:${pathname}] 区块替换异常，保留已替换进度`, e);
   }
   return { ...base, html };
 }

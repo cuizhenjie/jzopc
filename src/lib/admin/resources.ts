@@ -249,32 +249,6 @@ export type AdminEmpowerRow = {
   published: boolean;
 };
 
-/* ── 页面文案 ───────────────────────────────────────────────────────────── */
-
-export const siteContentInputSchema = z.object({
-  section: z.string().trim().min(1, '区块不能为空').max(40, '区块过长（≤40 字）'),
-  slug: z.string().trim().min(1, '标识不能为空').max(80, '标识过长（≤80 字）').regex(/^[a-z0-9_-]+$/, '标识只能用小写字母、数字、中划线、下划线'),
-  title: z.string().trim().min(1, '标题不能为空').max(120, '标题过长（≤120 字）'),
-  subtitle: z.string().trim().max(200).optional().default(''),
-  body_md: z.string().trim().max(20_000).optional().default(''),
-  meta_json: jsonObjectRefine().optional().default(''),
-  sort_order: z.coerce.number().int().min(0).max(9999).default(0),
-  published: z.boolean().default(false),
-});
-export type SiteContentInput = z.infer<typeof siteContentInputSchema>;
-
-export type AdminSiteContentRow = {
-  id: number;
-  section: string;
-  slug: string;
-  title: string;
-  subtitle: string | null;
-  body_md: string | null;
-  meta: Record<string, unknown> | null;
-  sort_order: number;
-  published: boolean;
-};
-
 /* ── 媒体库 ─────────────────────────────────────────────────────────────── */
 
 export const MEDIA_KINDS = ['image', 'video', 'doc', 'other'] as const;

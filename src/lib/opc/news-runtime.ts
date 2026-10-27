@@ -1,12 +1,11 @@
 /** 复刻站新闻/活动列表与详情的运行时渲染层（P1 动态内容）。
  *
- * 契约：docs/14-动态内容契约.md
+ * 契约：docs/14-动态内容契约.md（2026-10-28 起快照兜底移除，DB 唯一事实源）
  * - /newslist、/activitylist：getReplicaPage 取 shell → 替换构建期占位符；
- *   DB（news_posts）查询成功 → 渲染 DB 卡片；未配库/查询异常 → 注入
- *   generated/list-cards.json 的构建期快照兜底串；占位符不存在（旧产物）→
- *   原样返回，保持向后兼容。
- * - /newsdetail：数字 id → DB slug=opc-N → 遗留 generated/details.json；
- *   slug id → DB；都没有 → 404（null）。
+ *   DB（news_posts）查询成功 → 渲染 DB 卡片；未配库/查询异常 → **空列表**；
+ *   占位符不存在（旧产物）→ 原样返回，保持向后兼容。
+ * - /newsdetail：数字 id → DB slug=opc-N；slug id → 查 DB；
+ *   未配库/查询异常/库内无此文 → 404（null），不再回落遗留快照。
  *
  * 本模块服务端专用（依赖 @/lib/queries → supabase admin 客户端）。
  */
@@ -26,7 +25,6 @@ import {
   NEWSDETAIL_ID_PATTERN,
 } from '@/lib/opc/taxonomy';
 import articleShell from './generated/article-shell.json' with { type: 'json' };
-import listCards from './generated/list-cards.json' with { type: 'json' };
 
 /** 卡片渲染的最小输入面：DB 行与种子行都结构满足（cover_url 仅 DB 行有） */
 export interface NewsCardSource {
@@ -204,7 +202,7 @@ async function loadPostFromDb(slug: string): Promise<NewsArticleSource | null> {
   return post;
 }
 
-/* ── 列表页：占位符替换（DB 优先、快照兜底） ─────────────────────────────── */
+/* ── 列表页：占位符替换（DB 唯一事实源，空库 = 空列表） ──────────────────── */
 
 export type NewsPostLoader = () => Promise<readonly NewsCardSource[] | null>;
 export type NewsPostDetailLoader = (slug: string) => Promise<NewsArticleSource | null>;
@@ -225,12 +223,8 @@ export function replaceListPlaceholder(html: string, channel: ListChannel, cards
   return html.includes(placeholder) ? html.replace(placeholder, () => cards) : html;
 }
 
-/** 兜底串：构建期快照（与改动前烘焙在 pages.json 里的卡片逐字节一致） */
-function fallbackCards(channel: ListChannel): string {
-  return channel === 'news' ? listCards.news : listCards.activities;
-}
-
-/** /newslist、/activitylist 的运行时渲染入口（服务端 async） */
+/** /newslist、/activitylist 的运行时渲染入口（服务端 async）。
+ *  未配库/查询异常 → 渲染空列表（DB 是唯一事实源，无快照兜底）。 */
 export async function getReplicaListPage(
   pathname: string,
   options: ReplicaListOptions = {},
@@ -244,13 +238,12 @@ export async function getReplicaListPage(
   if (!shell.html.includes(placeholder)) return shell; // 旧 pages.json：无占位符，原样返回
 
   const loadPosts = options.loadPosts ?? loadPostsFromDb;
-  let cards: string;
+  let cards = '';
   try {
     const posts = await loadPosts();
-    cards = posts ? renderChannelCards(posts, channel) : fallbackCards(channel);
+    if (posts) cards = renderChannelCards(posts, channel);
   } catch (error) {
-    console.error(`[news-runtime] 读取 news_posts 失败，/${channel === 'news' ? 'newslist' : 'activitylist'} 注入快照兜底串`, error);
-    cards = fallbackCards(channel);
+    console.error(`[news-runtime] 读取 news_posts 失败，/${channel === 'news' ? 'newslist' : 'activitylist'} 渲染空列表`, error);
   }
   return { ...shell, html: replaceListPlaceholder(shell.html, channel, cards) };
 }
@@ -263,12 +256,10 @@ export interface ReplicaDetailOptions {
 }
 
 /**
- * /newsdetail?id= 的运行时解析：
- * 1. id 数字 N → 先查 DB slug=`opc-N`，再回落遗留 generated/details.json[N]
- * 2. id slug 形态 → 查 DB 该 slug（无遗留回落）
- * 3. DB body 纯文本转义为 `<p>`；富文本经允许列表净化后直接注入 article-shell
- * 4. 都没有 → null（页面 404）
- * 查询失败（异常）同样回落 details.json。
+ * /newsdetail?id= 的运行时解析（DB 唯一事实源）：
+ * 1. id 数字 N → 查 DB slug=`opc-N`；id slug 形态 → 查 DB 该 slug
+ * 2. DB body 纯文本转义为 `<p>`；富文本经允许列表净化后直接注入 article-shell
+ * 3. 未配库/查询异常/库内无此文 → null（页面 404）
  */
 export async function getReplicaDetailPage(
   id: string,
@@ -282,7 +273,7 @@ export async function getReplicaDetailPage(
   try {
     post = await loadPost(slug);
   } catch (error) {
-    console.error(`[news-runtime] 读取 news_posts(${slug}) 失败，回落遗留详情快照`, error);
+    console.error(`[news-runtime] 读取 news_posts(${slug}) 失败，详情 404`, error);
   }
 
   const resolved = post;
@@ -297,6 +288,5 @@ export async function getReplicaDetailPage(
         .replace('__OPC_ARTICLE__', () => article),
     };
   }
-  // 遗留兜底：details.json（内部再做 id 校验与存在性检查，查不到 → null）
-  return getReplicaPage('/newsdetail', { id });
+  return null;
 }

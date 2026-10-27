@@ -7,8 +7,9 @@ import { getReplicaDetailPage } from '@/lib/opc/news-runtime';
 
 /**
  * /newsdetail 的显式路由（优先于 catch-all 的同步解析）：
- * 双源解析（契约第 4 节）——数字 id 先查 DB slug=opc-N 再回落遗留快照；
- * slug id 只查 DB。DB 纯文本逐段转义；富文本经允许列表净化后注入 article-shell。
+ * DB 唯一事实源——数字 id 映射 slug=opc-N 查库，slug id 直接查库，
+ * 未配库/查询异常/库内无此文一律 404（2026-10-28 起不再回落遗留快照）。
+ * DB 纯文本逐段转义；富文本经允许列表净化后注入 article-shell。
  * ISR 300s + 后台发布时 revalidatePath 立即失效。
  */
 export const revalidate = 300;

@@ -15,7 +15,7 @@ import { Badge, publishedBadge } from './ui';
  * 「表格 + 上下架开关 + 编辑 + 删除 + 错误条 + 空态」组件化。
  *
  * 面向 `published boolean` 口径的内容表（agents / market_items / courses /
- * partners / site_contents / empower_modules…）；news_posts 的三态 status
+ * partners / empower_modules…）；news_posts 的三态 status
  * 仍走专用 NewsTable（语义不同，不硬塞进来）。
  *
  * 列由使用方声明（cell 是 ReactNode 渲染函数，服务端页面也能拼），

@@ -7,7 +7,6 @@ import type {
   AdminMarketRow,
   AdminMediaRow,
   AdminPartnerRow,
-  AdminSiteContentRow,
   AdminSiteStatRow,
 } from './resources';
 
@@ -107,20 +106,6 @@ export async function getEmpowerBySlug(slug: string): Promise<AdminEmpowerRow | 
   if (!sb) return null;
   const { data } = await sb.from('empower_modules').select('*').eq('slug', slug).maybeSingle();
   return (data as AdminEmpowerRow) ?? null;
-}
-
-export async function listSiteContents(): Promise<AdminSiteContentRow[]> {
-  return listAll<AdminSiteContentRow>('site_contents', [
-    { column: 'section', ascending: true },
-    { column: 'sort_order', ascending: true },
-  ]);
-}
-
-export async function getSiteContentById(id: number): Promise<AdminSiteContentRow | null> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return null;
-  const { data } = await sb.from('site_contents').select('*').eq('id', id).maybeSingle();
-  return (data as AdminSiteContentRow) ?? null;
 }
 
 export async function listMediaAssets(): Promise<AdminMediaRow[]> {

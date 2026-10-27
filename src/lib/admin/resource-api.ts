@@ -8,8 +8,8 @@ import { zodFieldErrors } from '@/lib/admin/news-schema';
 /**
  * 管理后台「资源模块」通用 API 工厂。
  *
- * 八个规划中模块（agents / market / courses / partners / site-stats /
- * empower / site-contents / media）的 REST 语义完全同构：
+ * 七个模块（agents / market / courses / partners / site-stats /
+ * empower / media）的 REST 语义完全同构：
  *   POST   /api/admin/<res>            创建
  *   PATCH  /api/admin/<res>/<pk>       全量更新，或 {published} 快捷上下架
  *   DELETE /api/admin/<res>/<pk>       彻底删除

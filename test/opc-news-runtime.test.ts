@@ -153,23 +153,23 @@ describe('getReplicaListPage：占位符注入', () => {
     assert.ok(!page!.html.includes('class="news-item"'));
   });
 
-  test('未配库（loader 返回 null）→ 注入 list-cards.json 兜底串', async () => {
+  test('未配库（loader 返回 null）→ 空列表（DB 唯一事实源，不回落快照）', async () => {
     const news = await getReplicaListPage('/newslist', { loadShell: shellWithPlaceholder, loadPosts: async () => null });
     const activity = await getReplicaListPage('/activitylist', { loadShell: shellWithPlaceholder, loadPosts: async () => null });
-    assert.ok(news!.html.includes(bakedNewsCard392));
-    assert.equal((news!.html.match(/class="news-item"/g) ?? []).length, 88);
-    assert.equal((activity!.html.match(/class="activity-item"/g) ?? []).length, 22);
-    assert.ok(activity!.html.includes('精彩活动'));
+    assert.ok(news!.html.includes('class="news-list"'), '列表容器必须在');
+    assert.ok(!news!.html.includes('class="news-item"'), '烘焙卡不得注入');
+    assert.ok(!activity!.html.includes('class="activity-item"'));
+    assert.ok(!activity!.html.includes('精彩活动'));
   });
 
-  test('loader 抛异常 → 同样注入兜底串', async () => {
+  test('loader 抛异常 → 同样空列表', async () => {
     const page = await getReplicaListPage('/newslist', {
       loadShell: shellWithPlaceholder,
       loadPosts: async () => {
         throw new Error('db down');
       },
     });
-    assert.ok(page!.html.includes(bakedNewsCard392));
+    assert.ok(!page!.html.includes('class="news-item"'), '异常不得注入烘焙卡');
   });
 
   test('卡片串含 $&/$1 等 replace 特殊串时按字面注入', async () => {
@@ -286,21 +286,18 @@ describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () =>
     assert.doesNotMatch(page.html, /<script\b|<iframe\b|\son\w+\s*=|javascript:/i);
   });
 
-  test('数字 id：DB 未命中 → 回落遗留 details.json', async () => {
+  test('数字 id：DB 未命中 → 404（DB 唯一事实源，不回落 details.json）', async () => {
     const page = await getReplicaDetailPage('392', { loadPost: async () => null });
-    const legacy = getReplicaPage('/newsdetail', { id: '392' })!;
-    assert.equal(page!.title, legacy.title);
-    assert.ok(page!.html.includes('巾帼逐梦正当时'));
-    assert.match(page!.html, /data-opc-article/);
+    assert.equal(page, null);
   });
 
-  test('数字 id：查询异常 → 同样回落 details.json', async () => {
+  test('数字 id：查询异常 → 同样 404', async () => {
     const page = await getReplicaDetailPage('392', {
       loadPost: async () => {
         throw new Error('db down');
       },
     });
-    assert.ok(page!.html.includes('巾帼逐梦正当时'));
+    assert.equal(page, null);
   });
 
   test('slug id：只查 DB（loader 收到原样 slug），未命中无遗留回落 → 404', async () => {

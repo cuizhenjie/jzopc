@@ -10,7 +10,6 @@ import {
   type AdminMarketRow,
   type AdminMediaRow,
   type AdminPartnerRow,
-  type AdminSiteContentRow,
 } from './resources';
 import { agentCategories } from '@/lib/site/config';
 import type { ResourceFieldConfig, ResourceFormValues } from '@/components/admin/crud/ResourceForm';
@@ -333,54 +332,6 @@ export function empowerRowToValues(row: AdminEmpowerRow): ResourceFormValues {
     items_json: row.items?.length ? JSON.stringify(row.items, null, 2) : '',
     highlights_json: row.highlights?.length ? JSON.stringify(row.highlights, null, 2) : '',
     lead_type: row.lead_type ?? '',
-    sort_order: row.sort_order,
-    published: row.published,
-  };
-}
-
-/* ── 页面文案 ───────────────────────────────────────────────────────────── */
-
-export const siteContentFields: ResourceFieldConfig[] = [
-  { name: 'section', label: '页面区块', type: 'text', required: true, max: 40, placeholder: '例：home-hero / about-intro' },
-  { name: 'slug', label: '内容标识', type: 'text', required: true, max: 80, placeholder: '同区块内唯一' },
-  { name: 'title', label: '标题', type: 'text', required: true, max: 120 },
-  { name: 'subtitle', label: '副标题', type: 'text', max: 200, hint: '可选' },
-  { name: 'body_md', label: '正文（Markdown）', type: 'textarea', rows: 8, hint: '可选' },
-  { name: 'meta_json', label: '扩展字段 meta（JSON 对象）', type: 'json', rows: 4, hint: '可选' },
-  { name: 'sort_order', label: '排序（小的在前）', type: 'number' },
-  { name: 'published', label: '发布', type: 'switch', full: true },
-];
-
-export function siteContentToRow(input: {
-  section: string;
-  slug: string;
-  title: string;
-  subtitle: string;
-  body_md: string;
-  meta_json: string;
-  sort_order: number;
-  published: boolean;
-}): Record<string, unknown> {
-  return {
-    section: input.section,
-    slug: input.slug,
-    title: input.title,
-    subtitle: input.subtitle || null,
-    body_md: input.body_md || null,
-    meta: jsonObjectFromFormText(input.meta_json ?? '') ?? {},
-    sort_order: input.sort_order,
-    published: input.published,
-  };
-}
-
-export function siteContentRowToValues(row: AdminSiteContentRow): ResourceFormValues {
-  return {
-    section: row.section,
-    slug: row.slug,
-    title: row.title,
-    subtitle: row.subtitle ?? '',
-    body_md: row.body_md ?? '',
-    meta_json: row.meta && Object.keys(row.meta).length > 0 ? JSON.stringify(row.meta, null, 2) : '',
     sort_order: row.sort_order,
     published: row.published,
   };
