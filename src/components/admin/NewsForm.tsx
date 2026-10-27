@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   NEWS_CATEGORIES,
   NEWS_STATUSES,
@@ -12,6 +12,8 @@ import {
 import type { AdminNewsRow } from '@/lib/admin/data';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import ImageUploadField from '@/components/admin/ImageUploadField';
+import { FieldError, FormCard, GlobalError, SubmitBar, inputClass, labelClass } from './crud/ui';
+import { scrollToFirstError, useFormGuards } from './crud/use-form-guards';
 
 /**
  * 新闻新建 / 编辑共用表单。
@@ -66,13 +68,12 @@ function initialState(row?: AdminNewsRow, presetCategory?: string): FormState {
   };
 }
 
-const inputClass =
-  'w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] text-[var(--color-ink)] outline-none transition-colors focus:border-[var(--color-brand-blue)]';
-const labelClass = 'block text-[13px] font-medium text-[var(--color-ink-2)]';
-
-function FieldError({ msg }: { msg?: string }) {
-  if (!msg) return null;
-  return <p className="mt-1.5 text-[12px] text-red-600">{msg}</p>;
+/** 校验键 → 控件 id：bodyHtml 的编辑器容器是 nf-body，published_at / cover_url 的 id 是连字符短名 */
+function idForErrorKey(key: string): string {
+  if (key === 'bodyHtml') return 'nf-body';
+  if (key === 'published_at') return 'nf-published-at';
+  if (key === 'cover_url') return 'nf-cover';
+  return `nf-${key}`;
 }
 
 export default function NewsForm({
@@ -89,10 +90,19 @@ export default function NewsForm({
   redirectTo?: string;
 }) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState>(() => initialState(row, presetCategory));
+  const formRef = useRef<HTMLFormElement>(null);
+  // 初始快照存 ref：dirty 始终与「挂载时的原始值」比较，不随 re-render 漂移
+  const initialRef = useRef<FormState>(initialState(row, presetCategory));
+  const [form, setForm] = useState<FormState>(() => initialRef.current);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [globalError, setGlobalError] = useState('');
+
+  const dirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(initialRef.current),
+    [form],
+  );
+  useFormGuards({ formRef, dirty, busy });
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -124,6 +134,14 @@ export default function NewsForm({
       if (!res.ok || !data?.ok) {
         setErrors(data?.errors ?? {});
         setGlobalError(data?.message ?? '保存失败，请重试。');
+        // 校验失败定位：等错误文案渲染后再滚动到第一个出错字段；
+        // 只有全局错误（无字段错误）时退而滚动全局错误条。
+        requestAnimationFrame(() => {
+          const scrolled = scrollToFirstError(data?.errors ?? {}, 'nf-', idForErrorKey);
+          if (!scrolled) {
+            document.getElementById('nf-global-error')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        });
         return;
       }
 
@@ -137,8 +155,8 @@ export default function NewsForm({
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-5 rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)]">
+    <form ref={formRef} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <FormCard title="正文内容" desc="标题、摘要与富文本正文">
         <div>
           <label htmlFor="nf-title" className={labelClass}>
             标题 <span className="text-red-500">*</span>
@@ -177,7 +195,8 @@ export default function NewsForm({
               富文本：标题 / 加粗 / 列表 / 引用 / 链接 / 图片
             </span>
           </label>
-          <div className="mt-2">
+          {/* id 挂在包裹层：RichTextEditor 不收 id，bodyHtml 校验失败时滚到这里定位 */}
+          <div id="nf-body" className="mt-2">
             <RichTextEditor
               key={`${mode}-${row?.id ?? 'new'}`}
               value={form.bodyHtml}
@@ -186,10 +205,11 @@ export default function NewsForm({
           </div>
           <FieldError msg={errors.bodyHtml} />
         </div>
-      </div>
+      </FormCard>
 
-      <div className="space-y-5">
-        <div className="space-y-5 rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)]">
+      {/* 侧栏吸顶：滚动容器是内容区，top 参照外壳顶栏高度（带兜底） */}
+      <div className="space-y-5 lg:sticky lg:self-start lg:top-[calc(var(--admin-topbar-h,56px)+1.5rem)]">
+        <FormCard title="发布设置">
           <div>
             <label htmlFor="nf-status" className={labelClass}>
               状态
@@ -267,9 +287,9 @@ export default function NewsForm({
               className={`mt-2 ${inputClass}`}
             />
           </div>
-        </div>
+        </FormCard>
 
-        <div className="space-y-5 rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)]">
+        <FormCard title="链接与封面">
           <div>
             <label htmlFor="nf-slug" className={labelClass}>
               Slug（URL 路径）
@@ -314,29 +334,14 @@ export default function NewsForm({
             />
             <FieldError msg={errors.cover_url} />
           </div>
-        </div>
+        </FormCard>
 
-        {globalError && (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600 ring-1 ring-red-100">{globalError}</p>
-        )}
+        <GlobalError msg={globalError} id="nf-global-error" />
+      </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-xl bg-[var(--color-brand-navy)] px-6 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)] disabled:opacity-50"
-          >
-            {busy ? '保存中…' : mode === 'create' ? '创建' : '保存修改'}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            disabled={busy}
-            className="rounded-xl px-4 py-2.5 text-[14px] font-medium text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-brand-navy)] disabled:opacity-50"
-          >
-            取消
-          </button>
-        </div>
+      {/* 操作栏横跨两栏并吸底：内容区即滚动容器，sticky bottom-3 在其内生效 */}
+      <div className="lg:col-span-2">
+        <SubmitBar busy={busy} mode={mode} dirty={dirty} onCancel={() => router.back()} />
       </div>
     </form>
   );

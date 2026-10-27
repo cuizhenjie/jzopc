@@ -1,5 +1,6 @@
 'use client';
 
+import clsx from 'clsx';
 import { useState, type ReactNode } from 'react';
 
 /**
@@ -46,53 +47,108 @@ export function Field({
   );
 }
 
-export function FormCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+/**
+ * 表单卡片：可选的标题头（title/desc）+ 字段区（保持 space-y-5 不变）。
+ * 加标题头是为了双栏布局下「内容 / 发布设置」分区的语义可读——
+ * 编辑者扫一眼就知道每张卡管什么。
+ */
+export function FormCard({
+  title,
+  desc,
+  children,
+  className,
+}: {
+  title?: string;
+  desc?: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div
-      className={`space-y-5 rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)] ${className}`}
+      className={clsx(
+        'space-y-5 rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)]',
+        className,
+      )}
     >
+      {title && (
+        <div className="-mt-1 mb-1 border-b border-[var(--color-line)] pb-3">
+          <h3 className="text-[14px] font-semibold text-[var(--color-brand-navy)]">{title}</h3>
+          {desc && <p className="mt-0.5 text-[12px] text-[var(--color-ink-3)]">{desc}</p>}
+        </div>
+      )}
       {children}
     </div>
   );
 }
 
-export function GlobalError({ msg }: { msg?: string }) {
+/** id 供校验失败时的滚动定位（rf-global-error / nf-global-error）。 */
+export function GlobalError({ msg, id }: { msg?: string; id?: string }) {
   if (!msg) return null;
   return (
-    <p className="rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600 ring-1 ring-red-100">{msg}</p>
+    <p id={id} className="rounded-xl bg-red-50 px-4 py-3 text-[13px] text-red-600 ring-1 ring-red-100">
+      {msg}
+    </p>
   );
 }
 
+/** 主/次按钮的共享样式：与表单页各处的手写按钮保持同形，便于后续复用。 */
+export const btnPrimary =
+  'rounded-xl bg-[var(--color-brand-navy)] px-6 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)] disabled:opacity-50';
+export const btnGhost =
+  'rounded-xl px-4 py-2.5 text-[14px] font-medium text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-brand-navy)] disabled:opacity-50';
+
+/**
+ * 吸底操作栏：常驻外壳后内容区（而非窗口）是滚动容器，sticky bottom-3
+ * 让保存按钮始终贴在可视区底部，长表单不用滚回页脚找按钮。
+ * 左侧提示脏状态（琥珀点）与 ⌘S 快捷键，右侧取消 + 提交。
+ */
 export function SubmitBar({
   busy,
   createLabel = '创建',
   editLabel = '保存修改',
   mode,
   onCancel,
+  dirty = false,
+  sticky = true,
+  hint,
 }: {
   busy: boolean;
   mode: 'create' | 'edit';
   createLabel?: string;
   editLabel?: string;
   onCancel: () => void;
+  /** 有未保存修改时左侧显示琥珀色提醒点 */
+  dirty?: boolean;
+  /** 吸底（默认开）；内容很短、按钮不会滚出视口的场景可关掉 */
+  sticky?: boolean;
+  /** 自定义快捷键提示文案，默认「⌘/Ctrl + S 保存」 */
+  hint?: string;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <button
-        type="submit"
-        disabled={busy}
-        className="rounded-xl bg-[var(--color-brand-navy)] px-6 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)] disabled:opacity-50"
-      >
-        {busy ? '保存中…' : mode === 'create' ? createLabel : editLabel}
-      </button>
-      <button
-        type="button"
-        onClick={onCancel}
-        disabled={busy}
-        className="rounded-xl px-4 py-2.5 text-[14px] font-medium text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-brand-navy)] disabled:opacity-50"
-      >
-        取消
-      </button>
+    <div
+      data-testid="form-action-bar"
+      className={clsx(
+        'flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-line)] bg-white/85 px-4 py-3 shadow-[var(--shadow-card)] backdrop-blur-md',
+        sticky && 'sticky bottom-3 z-20',
+      )}
+    >
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+        {dirty && (
+          <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-amber-700">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden="true" />
+            有未保存的修改
+          </span>
+        )}
+        <span className="text-[12px] text-[var(--color-ink-3)]">{hint ?? '⌘/Ctrl + S 保存'}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <button type="button" onClick={onCancel} disabled={busy} className={btnGhost}>
+          取消
+        </button>
+        <button type="submit" disabled={busy} className={btnPrimary}>
+          {busy ? '保存中…' : mode === 'create' ? createLabel : editLabel}
+        </button>
+      </div>
     </div>
   );
 }

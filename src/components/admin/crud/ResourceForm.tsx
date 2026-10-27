@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import ImageUploadField from '@/components/admin/ImageUploadField';
+import { useFormGuards, scrollToFirstError } from './use-form-guards';
 import {
   Field,
   FieldError,
@@ -89,10 +90,19 @@ export default function ResourceForm({
   conflictMessage?: string;
 }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [values, setValues] = useState<ResourceFormValues>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [globalError, setGlobalError] = useState('');
+
+  // 脏检测用 JSON 快照对比：values 的键序来自 initial、set() 展开保持不变，
+  // 序列化稳定且对 string[]/boolean/number 都成立，无需逐字段手写比较。
+  const dirty = useMemo(
+    () => JSON.stringify(values) !== JSON.stringify(initial),
+    [values, initial],
+  );
+  useFormGuards({ formRef, dirty, busy });
 
   function set(name: string, v: ResourceFormValues[string]) {
     setValues((prev) => ({ ...prev, [name]: v }));
@@ -120,6 +130,14 @@ export default function ResourceForm({
       if (!res.ok || !data?.ok) {
         setErrors(data?.errors ?? {});
         setGlobalError(data?.message ?? '保存失败，请重试。');
+        // 校验失败定位：等 React 渲染出错误文案节点后再滚动，
+        // 字段 id 统一为 rf-${name}；没有字段错误时退而滚动全局错误条。
+        requestAnimationFrame(() => {
+          const scrolled = scrollToFirstError(data?.errors ?? {}, 'rf-');
+          if (!scrolled) {
+            document.getElementById('rf-global-error')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        });
         return;
       }
 
@@ -241,47 +259,52 @@ export default function ResourceForm({
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-5">
-        <FormCard>
-          {mainFields.map((f) => (
-            <Field
-              key={f.name}
-              label={f.label}
-              required={f.required}
-              hint={f.hint}
-              htmlFor={`rf-${f.name}`}
-              error={errors[f.name]}
-            >
-              {renderControl(f)}
-            </Field>
-          ))}
-        </FormCard>
+    <form ref={formRef} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <FormCard title="内容" desc="正文与主要字段">
+        {mainFields.map((f) => (
+          <Field
+            key={f.name}
+            label={f.label}
+            required={f.required}
+            hint={f.hint}
+            htmlFor={`rf-${f.name}`}
+            error={errors[f.name]}
+          >
+            {renderControl(f)}
+          </Field>
+        ))}
+      </FormCard>
+
+      {/* 侧栏吸顶：滚动容器是内容区，top 参照外壳顶栏高度（带兜底） */}
+      <div className="space-y-5 lg:sticky lg:self-start lg:top-[calc(var(--admin-topbar-h,56px)+1.5rem)]">
+        {sideFields.length > 0 && (
+          <FormCard title="发布设置" desc="状态、排序与展示控制">
+            {sideFields.map((f) => (
+              <Field
+                key={f.name}
+                label={f.label}
+                required={f.required}
+                hint={f.hint}
+                htmlFor={`rf-${f.name}`}
+                error={errors[f.name]}
+              >
+                {renderControl(f)}
+              </Field>
+            ))}
+          </FormCard>
+        )}
+
+        <GlobalError msg={globalError} id="rf-global-error" />
       </div>
 
-      <div className="space-y-5">
-        <FormCard>
-          {sideFields.map((f) => (
-            <Field
-              key={f.name}
-              label={f.label}
-              required={f.required}
-              hint={f.hint}
-              htmlFor={`rf-${f.name}`}
-              error={errors[f.name]}
-            >
-              {renderControl(f)}
-            </Field>
-          ))}
-        </FormCard>
-
-        {globalError && <GlobalError msg={globalError} />}
-
+      {/* 操作栏横跨两栏并吸底：内容区即滚动容器，sticky bottom-3 在其内生效 */}
+      <div className="lg:col-span-2">
         <SubmitBar
           busy={busy}
           mode={mode}
           createLabel={createLabel}
           editLabel={editLabel}
+          dirty={dirty}
           onCancel={() => router.push(redirectTo)}
         />
       </div>

@@ -11,6 +11,10 @@ import { useReducedMotion } from './use-reduced-motion';
  * 组件化收敛点：所有「大面积氛围背景」需求都从这里取，不再各页面手写 WebGL。
  * 预置变体覆盖已知场景；确需定制时传 colors/速度参数，降级链仍然生效。
  *
+ * WebGL 预算纪律：管理后台同屏 MeshGradient ≤ 3
+ * （侧栏 sidebar 1 + 主区 shell 1 + 页头 ShaderAccent 1），
+ * KPI 卡等不再各挂 shader。
+ *
  * 降级链（三级）：
  *   1. WebGL 可用 → 动态 MeshGradient；
  *   2. 用户开启「减弱动效」→ speed=0 静止帧；
@@ -19,7 +23,7 @@ import { useReducedMotion } from './use-reduced-motion';
  * SSR 输出空 div 占位，不阻塞首屏。
  */
 
-export type ShaderBackdropVariant = 'login' | 'shell' | 'brand';
+export type ShaderBackdropVariant = 'login' | 'shell' | 'brand' | 'sidebar';
 
 const VARIANTS: Record<
   string,
@@ -48,6 +52,14 @@ const VARIANTS: Record<
     distortion: 0.35,
     swirl: 0.25,
     className: 'opacity-60',
+  },
+  /** 后台侧栏：深海军蓝低速流动，作为左栏主视觉（只用 brand 常量，守住色板契约） */
+  sidebar: {
+    colors: [brand.navy, brand.navyDeep, brand.navy, brand.gradientFrom],
+    speed: 0.06,
+    distortion: 0.5,
+    swirl: 0.3,
+    className: 'opacity-100',
   },
 };
 

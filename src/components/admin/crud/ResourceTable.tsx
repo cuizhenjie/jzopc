@@ -45,6 +45,8 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
   emptyCta = '新建第一条',
   publishLabels = { on: '下架', off: '发布' },
   confirmArchive,
+  toolbar,
+  countLabel,
 }: {
   rows: T[];
   columns: ResourceColumn<T>[];
@@ -62,6 +64,10 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
   emptyCta?: string;
   publishLabels?: { on: string; off: string };
   confirmArchive?: string;
+  /** 表头右侧工具位（筛选、批量操作等，由使用方注入） */
+  toolbar?: ReactNode;
+  /** 左侧计数文案；默认「共 N 条」 */
+  countLabel?: string;
 }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<number | string | null>(null);
@@ -131,6 +137,11 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
       {error && (
         <p className="border-b border-red-100 bg-red-50 px-4 py-2.5 text-[13px] text-red-600">{error}</p>
       )}
+      {/* 头部条：常驻显示条数（编辑者扫一眼就知道列表规模），右侧留工具位 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-surface)]/60 px-4 py-2.5">
+        <span className="text-[12.5px] text-[var(--color-ink-3)]">{countLabel ?? `共 ${rows.length} 条`}</span>
+        {toolbar && <div className="flex flex-wrap items-center gap-2">{toolbar}</div>}
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[820px] text-left text-[13px]">
           <thead>
@@ -170,6 +181,7 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
                       <Link
                         href={viewHref(row) as string}
                         target="_blank"
+                        title="预览"
                         className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-ink-3)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-brand-navy)]"
                       >
                         预览
@@ -177,6 +189,7 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
                     )}
                     <Link
                       href={editHref(row)}
+                      title="编辑"
                       className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-brand-blue-deep)] transition-colors hover:bg-[var(--color-surface-2)]"
                     >
                       编辑
@@ -186,6 +199,7 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
                       type="button"
                       onClick={() => togglePublish(row)}
                       disabled={busyId === (rowKey ? rowKey(row) : row.id)}
+                      title={row.published ? publishLabels.on : publishLabels.off}
                       className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-brand-navy)] disabled:opacity-50"
                     >
                       {row.published ? publishLabels.on : publishLabels.off}
@@ -195,6 +209,7 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
                       type="button"
                       onClick={() => remove(row)}
                       disabled={busyId === (rowKey ? rowKey(row) : row.id)}
+                      title="删除"
                       className="rounded-md px-2 py-1 text-[12px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                     >
                       删除

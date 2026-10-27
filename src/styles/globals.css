@@ -509,3 +509,6 @@ a, button { -webkit-tap-highlight-color: transparent; }
   .page-hero h1 { font-size: 30px; }
   .page-hero-art { right: -390px; }
 }
+
+/* 管理后台 App Shell 布局变量（AdminChrome 根节点作用域；crud 表单的粘性元素按 var(--admin-topbar-h, 56px) 引用） */
+.admin-app { --admin-sidebar-w: 248px; --admin-sidebar-w-collapsed: 72px; --admin-topbar-h: 56px; }
