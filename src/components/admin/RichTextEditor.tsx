@@ -6,6 +6,17 @@ import Image from '@tiptap/extension-image';
 import { Placeholder } from '@tiptap/extensions';
 import { useId, useState } from 'react';
 import { pickAndUploadImage } from '@/lib/admin/upload-client';
+import { Button } from '@/components/admin/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/admin/ui/dialog';
+import { Input } from '@/components/admin/ui/input';
+import { Label } from '@/components/admin/ui/label';
 
 /**
  * 富文本编辑器（tiptap v3，全后台共用）。
@@ -18,19 +29,79 @@ import { pickAndUploadImage } from '@/lib/admin/upload-client';
  * - 图片：默认走「选文件 → 直传 Supabase Storage（票据 + PUT）→ 插入公开 URL」；
  *   传入 uploadScene 可指定对象 key 场景目录，取消/失败不插入。
  *
- * 注意：链接要求 https?:// 开头，防止 javascript: 注入；上传得到的 URL 天然合规；
+ * 注意：链接要求 https?:// 开头，防止 javascript: 注入（弹窗内行内校验，
+ *   不用 window.prompt/alert）；上传得到的 URL 天然合规；
  *   输出在**前台渲染时**仍统一过 sanitize-html（纵深防御，存储不等于可信）。
  */
 
-function promptLinkUrl(): string | null {
-  const url = window.prompt('链接地址（https://…）');
-  if (!url) return null;
-  const trimmed = url.trim();
-  if (!/^https?:\/\//i.test(trimmed)) {
-    window.alert('仅支持 http(s) 链接');
-    return null;
+const LINK_URL_RE = /^https?:\/\//i;
+
+/** 插入链接弹窗：替代 window.prompt/alert，校验失败行内报错。 */
+function LinkDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (url: string) => void;
+}) {
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState('');
+
+  function close() {
+    setUrl('');
+    setError('');
+    onOpenChange(false);
   }
-  return trimmed;
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = url.trim();
+    if (!LINK_URL_RE.test(trimmed)) {
+      setError(trimmed ? '仅支持 http(s) 链接。' : '请输入链接地址。');
+      return;
+    }
+    onConfirm(trimmed);
+    close();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : close())}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>插入链接</DialogTitle>
+          <DialogDescription>先选中要加链接的文字，再填地址；仅支持 http(s)。</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit} className="grid gap-2">
+          <Label htmlFor="rte-link-url">链接地址</Label>
+          <Input
+            id="rte-link-url"
+            value={url}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              if (error) setError('');
+            }}
+            placeholder="https://example.com"
+            autoFocus
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'rte-link-url-error' : undefined}
+          />
+          {error && (
+            <p id="rte-link-url-error" className="text-[12.5px] text-destructive">
+              {error}
+            </p>
+          )}
+          <DialogFooter className="mt-2">
+            <Button type="button" variant="ghost" onClick={close}>
+              取消
+            </Button>
+            <Button type="submit">插入链接</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function ToolbarButton({
@@ -83,6 +154,7 @@ export default function RichTextEditor({
 }) {
   const editorId = useId();
   const [imageUploading, setImageUploading] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -152,8 +224,7 @@ export default function RichTextEditor({
             editor.chain().focus().unsetLink().run();
             return;
           }
-          const url = promptLinkUrl();
-          if (url) editor.chain().focus().setLink({ href: url }).run();
+          setLinkOpen(true);
         }, editor.isActive('link'))}
         {btn('🖼', imageUploading ? '图片上传中…' : '插入图片（选文件直传）', async () => {
           if (imageUploading) return;
@@ -173,6 +244,13 @@ export default function RichTextEditor({
         editor={editor}
         style={{ minHeight }}
         className="rte-scope px-4 py-3"
+      />
+
+      {/* 插入链接弹窗（editor 选区在弹窗期间保留，确认后回焦插入） */}
+      <LinkDialog
+        open={linkOpen}
+        onOpenChange={setLinkOpen}
+        onConfirm={(url) => editor.chain().focus().setLink({ href: url }).run()}
       />
     </div>
   );

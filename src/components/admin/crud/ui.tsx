@@ -91,12 +91,6 @@ export function GlobalError({ msg, id }: { msg?: string; id?: string }) {
   );
 }
 
-/** 主/次按钮的共享样式（与 shadcn Button default/ghost 变体同形，保留给拼类场合）。 */
-export const btnPrimary =
-  'rounded-xl bg-[var(--color-brand-navy)] px-6 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)] disabled:opacity-50';
-export const btnGhost =
-  'rounded-xl px-4 py-2.5 text-[14px] font-medium text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-brand-navy)] disabled:opacity-50';
-
 /**
  * 吸底操作栏：常驻外壳后内容区（而非窗口）是滚动容器，sticky bottom-3
  * 让保存按钮始终贴在可视区底部，长表单不用滚回页脚找按钮。

@@ -84,4 +84,8 @@ typecheck 0 错；全量测试 316/316（Node 24）；`pnpm verify` 6/6；Playwr
   聚焦语义不变（`rf-*` / `nf-*` 约定保持）。
 - `market-search` 红线照旧：全站禁 `type="search"`（admin/ui 的 Input 不设默认 type）。
 - GET 筛选表单（leads 列表）保留**原生 select**（无 JS 可用）；JS 驱动的行内状态切换用 shadcn Select。
+- 链接式筛选 Tab（NewsStatusTabs，news/activities/community 共用）用 **Button asChild + Link**
+  （选中 default / 未选 outline），**不用 Radix Tabs**——Tab 语义是 GET 跳转，JS 受控组件会破坏无 JS 回退。
+- RichTextEditor 插入链接走内建 `LinkDialog`（Dialog + Input 行内校验）；至此全后台
+  **无 window.prompt/alert/confirm**。
 - LoginForm 是深色 navy 表面，保持自有样式，不套浅色 shadcn 组件。
