@@ -188,7 +188,7 @@ export default function TrafficPage() {
               <p>
                 {trafficMiniappQr
                   ? '请扫描下方二维码，或联系我们的专属顾问。'
-                  : '请联系我们的专属顾问，或通过下方入口前往统一咨询页留言。'}
+                  : '请联系我们的专属顾问，或立即前往留言。'}
               </p>
               <dl className={styles.contactDetails}>
                 <div>
@@ -208,7 +208,7 @@ export default function TrafficPage() {
               )}
               <div className={styles.contactAction}>
                 <ButtonLink href="/apply" size="lg">
-                  前往统一咨询页
+                  前往咨询
                   <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden="true">
                     <path d="M2.5 8h11m0 0L9.5 4m4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
