@@ -1,18 +1,23 @@
 'use client';
 
-import clsx from 'clsx';
 import { useState, type ReactNode } from 'react';
 
+import { Badge as ShadcnBadge } from '@/components/admin/ui/badge';
+import { Button } from '@/components/admin/ui/button';
+import { Card } from '@/components/admin/ui/card';
+import { Input, inputClass } from '@/components/admin/ui/input';
+import { Label } from '@/components/admin/ui/label';
+import { cn } from '@/lib/utils';
+
 /**
- * 管理后台 CRUD 表单的共享原语（从 NewsForm 的既有样式提取，
- * 新模块表单统一从这里取，保证视觉一致）。
- *
- * 页面模板参考 CRMEB 后台的「列表页 + 筛选栏 + 表格 + 表单页」范式，
- * 用 jizhi 既有设计 token 实现。
+ * 管理后台 CRUD 表单的共享原语 —— 2026-10 起 底座切换为 shadcn/ui 组件
+ * （src/components/admin/ui/*），对外 API 保持不变：
+ * NewsForm / ResourceForm / ImageUploadField / resource-tables 均从这里取，
+ * 保证视觉一致。页面模板参考 opendesign CMS 后台的
+ * 「列表页 + 筛选栏 + 表格 + 双栏表单页」范式。
  */
 
-export const inputClass =
-  'w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[14px] text-[var(--color-ink)] outline-none transition-colors focus:border-[var(--color-brand-blue)]';
+export { inputClass };
 export const labelClass = 'block text-[13px] font-medium text-[var(--color-ink-2)]';
 
 export function FieldError({ msg }: { msg?: string }) {
@@ -37,10 +42,10 @@ export function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className={labelClass}>
+      <Label htmlFor={htmlFor} className={cn(labelClass, 'block')}>
         {label} {required && <span className="text-red-500">*</span>}
         {hint && <span className="ml-2 font-normal text-[12px] text-[var(--color-ink-3)]">{hint}</span>}
-      </label>
+      </Label>
       <div className="mt-2">{children}</div>
       <FieldError msg={error} />
     </div>
@@ -49,8 +54,8 @@ export function Field({
 
 /**
  * 表单卡片：可选的标题头（title/desc）+ 字段区（保持 space-y-5 不变）。
- * 加标题头是为了双栏布局下「内容 / 发布设置」分区的语义可读——
- * 编辑者扫一眼就知道每张卡管什么。
+ * 双栏布局下「内容 / 发布设置」分区的语义可读——编辑者扫一眼就知道每张卡管什么。
+ * 底座为 shadcn Card（rounded-2xl / border / shadow-card）。
  */
 export function FormCard({
   title,
@@ -64,20 +69,15 @@ export function FormCard({
   className?: string;
 }) {
   return (
-    <div
-      className={clsx(
-        'space-y-5 rounded-2xl border border-[var(--color-line)] bg-white p-6 shadow-[var(--shadow-card)]',
-        className,
-      )}
-    >
+    <Card className={cn('space-y-5 p-6', className)}>
       {title && (
-        <div className="-mt-1 mb-1 border-b border-[var(--color-line)] pb-3">
+        <div className="-mt-1 mb-1 border-b border-border pb-3">
           <h3 className="text-[14px] font-semibold text-[var(--color-brand-navy)]">{title}</h3>
-          {desc && <p className="mt-0.5 text-[12px] text-[var(--color-ink-3)]">{desc}</p>}
+          {desc && <p className="mt-0.5 text-[12px] text-muted-foreground">{desc}</p>}
         </div>
       )}
       {children}
-    </div>
+    </Card>
   );
 }
 
@@ -91,7 +91,7 @@ export function GlobalError({ msg, id }: { msg?: string; id?: string }) {
   );
 }
 
-/** 主/次按钮的共享样式：与表单页各处的手写按钮保持同形，便于后续复用。 */
+/** 主/次按钮的共享样式（与 shadcn Button default/ghost 变体同形，保留给拼类场合）。 */
 export const btnPrimary =
   'rounded-xl bg-[var(--color-brand-navy)] px-6 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)] disabled:opacity-50';
 export const btnGhost =
@@ -100,7 +100,7 @@ export const btnGhost =
 /**
  * 吸底操作栏：常驻外壳后内容区（而非窗口）是滚动容器，sticky bottom-3
  * 让保存按钮始终贴在可视区底部，长表单不用滚回页脚找按钮。
- * 左侧提示脏状态（琥珀点）与 ⌘S 快捷键，右侧取消 + 提交。
+ * 左侧提示脏状态（琥珀点）与 ⌘S 快捷键，右侧取消 + 提交（shadcn Button）。
  */
 export function SubmitBar({
   busy,
@@ -127,8 +127,8 @@ export function SubmitBar({
   return (
     <div
       data-testid="form-action-bar"
-      className={clsx(
-        'flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-line)] bg-white/85 px-4 py-3 shadow-[var(--shadow-card)] backdrop-blur-md',
+      className={cn(
+        'flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-[var(--shadow-card)] backdrop-blur-md',
         sticky && 'sticky bottom-3 z-20',
       )}
     >
@@ -139,15 +139,15 @@ export function SubmitBar({
             有未保存的修改
           </span>
         )}
-        <span className="text-[12px] text-[var(--color-ink-3)]">{hint ?? '⌘/Ctrl + S 保存'}</span>
+        <span className="text-[12px] text-muted-foreground">{hint ?? '⌘/Ctrl + S 保存'}</span>
       </div>
       <div className="flex items-center gap-3">
-        <button type="button" onClick={onCancel} disabled={busy} className={btnGhost}>
+        <Button type="button" variant="ghost" onClick={onCancel} disabled={busy}>
           取消
-        </button>
-        <button type="submit" disabled={busy} className={btnPrimary}>
+        </Button>
+        <Button type="submit" disabled={busy}>
           {busy ? '保存中…' : mode === 'create' ? createLabel : editLabel}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -170,7 +170,7 @@ export function TagInput({
 }) {
   const [text, setText] = useState(value.join(', '));
   return (
-    <input
+    <Input
       id={id}
       value={text}
       onChange={(e) => {
@@ -183,7 +183,6 @@ export function TagInput({
         );
       }}
       placeholder={placeholder ?? '多个标签用逗号分隔'}
-      className={inputClass}
     />
   );
 }
@@ -195,7 +194,7 @@ export const publishedBadge = (published: boolean) =>
     : 'bg-amber-50 text-amber-700 ring-amber-200';
 
 export function Badge({ className, children }: { className: string; children: ReactNode }) {
-  return <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${className}`}>{children}</span>;
+  return <ShadcnBadge className={className}>{children}</ShadcnBadge>;
 }
 
 export function fmtDate(iso: string | null | undefined): string {

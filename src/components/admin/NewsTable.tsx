@@ -5,13 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { newsStatusLabels } from '@/lib/admin/news-schema';
 import type { AdminNewsRow } from '@/lib/admin/data';
-
-function fmtDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString('zh-CN', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit' });
-}
+import { Button } from '@/components/admin/ui/button';
+import { Card } from '@/components/admin/ui/card';
+import { Empty } from '@/components/admin/ui/empty';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/admin/ui/table';
+import { useConfirm } from '@/components/admin/ui/confirm';
+import { Badge, fmtDate } from './crud/ui';
 
 const statusBadge: Record<string, string> = {
   published: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
@@ -34,6 +33,7 @@ export default function NewsTable({
   const router = useRouter();
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [confirm, confirmDialog] = useConfirm();
 
   const [prevRows, setPrevRows] = useState(rows);
   if (rows !== prevRows) {
@@ -42,7 +42,14 @@ export default function NewsTable({
 
   async function toggleStatus(row: AdminNewsRow) {
     const next = row.status === 'published' ? 'archived' : 'published';
-    if (next === 'archived' && !window.confirm(`确定下架「${row.title}」？前台详情页将立即 404。`)) return;
+    if (next === 'archived') {
+      const ok = await confirm({
+        title: `下架「${row.title}」`,
+        description: '下架后前台详情页将立即 404。日常调整内容请用「编辑」。',
+        actionLabel: '下架',
+      });
+      if (!ok) return;
+    }
     setBusyId(row.id);
     setError('');
     const res = await fetch(`/api/admin/news/${row.id}`, {
@@ -60,7 +67,13 @@ export default function NewsTable({
   }
 
   async function remove(row: AdminNewsRow) {
-    if (!window.confirm(`确定彻底删除「${row.title}」？不可恢复（日常下架请用「下架」按钮）。`)) return;
+    const ok = await confirm({
+      title: `彻底删除「${row.title}」`,
+      description: '不可恢复。日常下架请用「下架」按钮。',
+      actionLabel: '删除',
+      destructive: true,
+    });
+    if (!ok) return;
     setBusyId(row.id);
     setError('');
     const res = await fetch(`/api/admin/news/${row.id}`, { method: 'DELETE' });
@@ -75,92 +88,82 @@ export default function NewsTable({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--color-line)] bg-white px-8 py-16 text-center">
-        <p className="text-[15px] font-medium text-[var(--color-brand-navy)]">{emptyTitle}</p>
-        <Link
-          href={createHref}
-          className="mt-3 inline-block text-[13px] font-medium text-[var(--color-brand-blue-deep)] hover:underline"
-        >
-          {emptyCta} →
-        </Link>
-      </div>
+      <>
+        <Empty
+          title={emptyTitle}
+          action={
+            <Button asChild variant="outline" size="sm">
+              <Link href={createHref}>{emptyCta} →</Link>
+            </Button>
+          }
+        />
+        {confirmDialog}
+      </>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-[var(--shadow-card)]">
+    <Card className="overflow-hidden">
       {error && (
         <p className="border-b border-red-100 bg-red-50 px-4 py-2.5 text-[13px] text-red-600">{error}</p>
       )}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[880px] text-left text-[13px]">
-          <thead>
-            <tr className="border-b border-[var(--color-line)] bg-[var(--color-surface)] text-[12px] text-[var(--color-ink-3)]">
-              <th className="px-4 py-3 font-medium">标题</th>
-              <th className="px-4 py-3 font-medium">分类</th>
-              <th className="px-4 py-3 font-medium">作者</th>
-              <th className="px-4 py-3 font-medium">发布时间</th>
-              <th className="px-4 py-3 font-medium">状态</th>
-              <th className="px-4 py-3 font-medium">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((n) => (
-              <tr key={n.id} className="border-b border-[var(--color-line)] last:border-0 transition-colors hover:bg-[var(--color-surface)]/60">
-                <td className="max-w-[380px] px-4 py-3">
-                  <p className="truncate font-medium text-[var(--color-ink)]">{n.title}</p>
-                  <p className="mt-0.5 truncate text-[11px] text-[var(--color-ink-3)]">/news/{n.slug}</p>
-                </td>
-                <td className="px-4 py-3 text-[var(--color-ink-2)]">{n.category}</td>
-                <td className="px-4 py-3 text-[var(--color-ink-2)]">{n.author ?? '—'}</td>
-                <td className="px-4 py-3 text-[var(--color-ink-3)]">{fmtDate(n.published_at)}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ${statusBadge[n.status] ?? statusBadge.archived}`}
-                  >
-                    {newsStatusLabels[n.status as keyof typeof newsStatusLabels] ?? n.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1.5">
-                    {n.status === 'published' && (
-                      <Link
-                        href={`/news/${n.slug}`}
-                        target="_blank"
-                        className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-ink-3)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-brand-navy)]"
-                      >
+      <Table className="min-w-[880px]">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>标题</TableHead>
+            <TableHead>分类</TableHead>
+            <TableHead>作者</TableHead>
+            <TableHead>发布时间</TableHead>
+            <TableHead>状态</TableHead>
+            <TableHead className="text-right">操作</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((n) => (
+            <TableRow key={n.id}>
+              <TableCell className="max-w-[380px] whitespace-normal">
+                <p className="truncate font-medium text-foreground">{n.title}</p>
+                <p className="mt-0.5 truncate text-[11px] text-muted-foreground">/news/{n.slug}</p>
+              </TableCell>
+              <TableCell className="text-[var(--color-ink-2)]">{n.category}</TableCell>
+              <TableCell className="text-[var(--color-ink-2)]">{n.author ?? '—'}</TableCell>
+              <TableCell className="text-muted-foreground">{fmtDate(n.published_at)}</TableCell>
+              <TableCell>
+                <Badge className={statusBadge[n.status] ?? statusBadge.archived}>
+                  {newsStatusLabels[n.status as keyof typeof newsStatusLabels] ?? n.status}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex items-center justify-end gap-1">
+                  {n.status === 'published' && (
+                    <Button asChild variant="ghost" size="sm">
+                      <Link href={`/news/${n.slug}`} target="_blank">
                         预览
                       </Link>
-                    )}
-                    <Link
-                      href={`/admin/news/${n.id}/edit`}
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-brand-blue-deep)] transition-colors hover:bg-[var(--color-surface-2)]"
-                    >
-                      编辑
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => toggleStatus(n)}
-                      disabled={busyId === n.id}
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-brand-navy)] disabled:opacity-50"
-                    >
-                      {n.status === 'published' ? '下架' : '发布'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => remove(n)}
-                      disabled={busyId === n.id}
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
-                    >
-                      删除
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                    </Button>
+                  )}
+                  <Button asChild variant="ghost" size="sm" className="text-[var(--color-brand-blue-deep)]">
+                    <Link href={`/admin/news/${n.id}/edit`}>编辑</Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => toggleStatus(n)} disabled={busyId === n.id}>
+                    {n.status === 'published' ? '下架' : '发布'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(n)}
+                    disabled={busyId === n.id}
+                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                  >
+                    删除
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {confirmDialog}
+    </Card>
   );
 }

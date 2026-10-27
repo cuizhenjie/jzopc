@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -26,12 +26,7 @@ export default async function AdminAgentsPage() {
       desc="管理 /agents 前台目录：分类来自站点配置的智能体分类，发布后前台立即可见。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/agents/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建智能体
-        </Link>
+        <ActionLink href="/admin/agents/new">+ 新建智能体</ActionLink>
       }
     >
       <div className="mt-1">

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -26,12 +26,7 @@ export default async function AdminMarketPage() {
       desc="管理 /market 前台的供需信息：需求与供给两类，发布后前台立即可见。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/market/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建供需
-        </Link>
+        <ActionLink href="/admin/market/new">+ 新建供需</ActionLink>
       }
     >
       <div className="mt-1">

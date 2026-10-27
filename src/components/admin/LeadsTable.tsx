@@ -8,13 +8,15 @@ import {
   leadTypeLabels,
   type AdminLeadRow,
 } from '@/lib/admin/data';
-
-function fmtDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? iso
-    : d.toLocaleString('zh-CN', { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-}
+import { Badge } from '@/components/admin/ui/badge';
+import { Button } from '@/components/admin/ui/button';
+import { Card } from '@/components/admin/ui/card';
+import { Empty } from '@/components/admin/ui/empty';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/admin/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/admin/ui/table';
+import { Textarea } from '@/components/admin/ui/textarea';
+import { useConfirm } from '@/components/admin/ui/confirm';
+import { fmtDate } from './crud/ui';
 
 export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
   const [savingId, setSavingId] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState<Record<number, string>>({});
   const [error, setError] = useState('');
+  const [confirm, confirmDialog] = useConfirm();
 
   // 外层筛选/翻页后 rows 变化，渲染期同步本地态（router.refresh() 会重新传 props；
   // 这是 React 官方的「render 期调整 state」模式，避免用 effect 造成的多渲染一帧）
@@ -72,7 +75,13 @@ export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
   }
 
   async function removeLead(id: number, name: string) {
-    if (!window.confirm(`确定删除线索「${name}」？此操作不可恢复。`)) return;
+    const ok = await confirm({
+      title: `删除线索「${name}」`,
+      description: '此操作不可恢复。',
+      actionLabel: '删除',
+      destructive: true,
+    });
+    if (!ok) return;
     setSavingId(id);
     setError('');
     const res = await fetch(`/api/admin/leads/${id}`, { method: 'DELETE' });
@@ -88,113 +97,124 @@ export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
 
   if (list.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--color-line)] bg-white px-8 py-16 text-center">
-        <p className="text-[15px] font-medium text-[var(--color-brand-navy)]">没有匹配的线索</p>
-        <p className="mx-auto mt-2 max-w-md text-[13px] text-[var(--color-ink-3)]">
-          表单提交后会自动出现在这里。若已提交但看不到，请检查 Supabase 连接与
-          <code className="mx-1 rounded bg-[var(--color-surface)] px-1.5 py-0.5 text-[12px]">leads</code>
-          表配置。
-        </p>
-      </div>
+      <Empty
+        title="没有匹配的线索"
+        description={
+          <>
+            表单提交后会自动出现在这里。若已提交但看不到，请检查 Supabase 连接与
+            <code className="mx-1 rounded bg-secondary px-1.5 py-0.5 text-[12px]">leads</code>
+            表配置。
+          </>
+        }
+      />
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-[var(--shadow-card)]">
-      {error && (
-        <p className="border-b border-red-100 bg-red-50 px-4 py-2.5 text-[13px] text-red-600">{error}</p>
-      )}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[960px] text-left text-[13px]">
-          <thead>
-            <tr className="border-b border-[var(--color-line)] bg-[var(--color-surface)] text-[12px] text-[var(--color-ink-3)]">
-              <th className="px-4 py-3 font-medium">类型</th>
-              <th className="px-4 py-3 font-medium">姓名</th>
-              <th className="px-4 py-3 font-medium">联系方式</th>
-              <th className="px-4 py-3 font-medium">公司/团队</th>
-              <th className="px-4 py-3 font-medium">来源页</th>
-              <th className="px-4 py-3 font-medium">时间</th>
-              <th className="px-4 py-3 font-medium">状态</th>
-              <th className="px-4 py-3 font-medium" aria-label="操作" />
-            </tr>
-          </thead>
-          <tbody>
+    <>
+      <Card className="overflow-hidden">
+        {error && (
+          <p className="border-b border-red-100 bg-red-50 px-4 py-2.5 text-[13px] text-red-600">{error}</p>
+        )}
+        <Table className="min-w-[960px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>类型</TableHead>
+              <TableHead>姓名</TableHead>
+              <TableHead>联系方式</TableHead>
+              <TableHead>公司/团队</TableHead>
+              <TableHead>来源页</TableHead>
+              <TableHead>时间</TableHead>
+              <TableHead>状态</TableHead>
+              <TableHead aria-label="操作" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {list.map((r) => (
               <Fragment key={r.id}>
-                <tr
-                  className={`border-b border-[var(--color-line)] transition-colors hover:bg-[var(--color-surface)]/60 ${expanded === r.id ? 'bg-[var(--color-surface)]/60' : ''}`}
+                <TableRow
+                  data-state={expanded === r.id ? 'selected' : undefined}
+                  className={expanded === r.id ? 'bg-muted/60' : undefined}
                 >
-                  <td className="px-4 py-3">
-                    <span className="rounded bg-[var(--color-brand-blue)]/8 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand-blue-deep)]">
-                      {leadTypeLabels[r.lead_type] ?? r.lead_type}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-[var(--color-ink)]">{r.name}</td>
-                  <td className="px-4 py-3 text-[var(--color-ink-2)]">
+                  <TableCell>
+                    <Badge variant="info">{leadTypeLabels[r.lead_type] ?? r.lead_type}</Badge>
+                  </TableCell>
+                  <TableCell className="font-medium text-foreground">{r.name}</TableCell>
+                  <TableCell className="text-[var(--color-ink-2)]">
                     {r.contact}
-                    <span className="ml-1.5 text-[11px] text-[var(--color-ink-3)]">
+                    <span className="ml-1.5 text-[11px] text-muted-foreground">
                       {r.contact_type === 'phone' ? '手机' : '邮箱'}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-ink-2)]">
+                  </TableCell>
+                  <TableCell className="text-[var(--color-ink-2)]">
                     {r.org_name ?? '—'}
-                    {r.track && <span className="ml-1.5 text-[11px] text-[var(--color-ink-3)]">{r.track}</span>}
-                  </td>
-                  <td className="px-4 py-3 text-[var(--color-ink-3)]">{r.source_page}</td>
-                  <td className="px-4 py-3 text-[var(--color-ink-3)]">{fmtDate(r.created_at)}</td>
-                  <td className="px-4 py-3">
-                    <select
+                    {r.track && <span className="ml-1.5 text-[11px] text-muted-foreground">{r.track}</span>}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{r.source_page}</TableCell>
+                  <TableCell className="text-muted-foreground">{fmtDate(r.created_at)}</TableCell>
+                  <TableCell>
+                    <Select
                       value={r.status}
+                      onValueChange={(v) => updateStatus(r.id, v)}
                       disabled={savingId === r.id}
-                      onChange={(e) => updateStatus(r.id, e.target.value)}
-                      aria-label={`更新 ${r.name} 的线索状态`}
-                      className="rounded-md border border-[var(--color-line)] bg-white px-2 py-1 text-[16px] outline-none focus:border-[var(--color-brand-blue)] disabled:opacity-50 sm:text-[12px]"
                     >
-                      {LEAD_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {leadStatusLabels[s]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
+                      <SelectTrigger
+                        size="sm"
+                        aria-label={`更新 ${r.name} 的线索状态`}
+                        className="w-[7.5rem]"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {LEAD_STATUSES.map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {leadStatusLabels[s]}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-brand-blue-deep)] transition-colors hover:bg-[var(--color-surface-2)]"
                       aria-expanded={expanded === r.id}
+                      className="text-[var(--color-brand-blue-deep)]"
                     >
                       {expanded === r.id ? '收起' : '详情'}
-                    </button>
-                  </td>
-                </tr>
+                    </Button>
+                  </TableCell>
+                </TableRow>
                 {expanded === r.id && (
-                  <tr className="border-b border-[var(--color-line)] bg-[var(--color-surface)]/50">
+                  <tr className="border-b border-border bg-muted/50">
                     <td colSpan={8} className="px-4 py-5">
                       <div className="grid gap-5 lg:grid-cols-2">
                         <dl className="space-y-2.5 text-[13px]">
                           <div className="flex gap-3">
-                            <dt className="w-20 shrink-0 text-[var(--color-ink-3)]">职务</dt>
+                            <dt className="w-20 shrink-0 text-muted-foreground">职务</dt>
                             <dd className="text-[var(--color-ink-2)]">{r.role ?? '—'}</dd>
                           </div>
                           <div className="flex gap-3">
-                            <dt className="w-20 shrink-0 text-[var(--color-ink-3)]">意向方向</dt>
+                            <dt className="w-20 shrink-0 text-muted-foreground">意向方向</dt>
                             <dd className="text-[var(--color-ink-2)]">
                               {r.subject_type ?? '—'}
-                              {r.team_size != null && <span className="ml-2 text-[12px] text-[var(--color-ink-3)]">团队 {r.team_size} 人</span>}
+                              {r.team_size != null && <span className="ml-2 text-[12px] text-muted-foreground">团队 {r.team_size} 人</span>}
                             </dd>
                           </div>
                           <div className="flex gap-3">
-                            <dt className="w-20 shrink-0 text-[var(--color-ink-3)]">来源引用</dt>
+                            <dt className="w-20 shrink-0 text-muted-foreground">来源引用</dt>
                             <dd className="break-all text-[var(--color-ink-2)]">{r.source_ref ?? '—'}</dd>
                           </div>
                           <div className="flex gap-3">
-                            <dt className="w-20 shrink-0 text-[var(--color-ink-3)]">UTM</dt>
+                            <dt className="w-20 shrink-0 text-muted-foreground">UTM</dt>
                             <dd className="text-[var(--color-ink-2)]">
                               {r.utm && Object.keys(r.utm).length > 0 ? (
                                 <span className="flex flex-wrap gap-1.5">
                                   {Object.entries(r.utm).map(([k, v]) => (
-                                    <span key={k} className="rounded bg-white px-1.5 py-0.5 text-[11px] ring-1 ring-[var(--color-line)]">
+                                    <span key={k} className="rounded bg-card px-1.5 py-0.5 text-[11px] ring-1 ring-border">
                                       {k}={String(v)}
                                     </span>
                                   ))}
@@ -205,11 +225,11 @@ export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
                             </dd>
                           </div>
                           <div className="flex gap-3">
-                            <dt className="w-20 shrink-0 align-top text-[var(--color-ink-3)]">留言</dt>
+                            <dt className="w-20 shrink-0 align-top text-muted-foreground">留言</dt>
                             <dd className="whitespace-pre-wrap leading-relaxed text-[var(--color-ink-2)]">{r.message ?? '—'}</dd>
                           </div>
                           <div className="flex gap-3">
-                            <dt className="w-20 shrink-0 text-[var(--color-ink-3)]">更新时间</dt>
+                            <dt className="w-20 shrink-0 text-muted-foreground">更新时间</dt>
                             <dd className="text-[var(--color-ink-2)]">{fmtDate(r.updated_at)}</dd>
                           </div>
                         </dl>
@@ -217,36 +237,32 @@ export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
                         <div>
                           <label
                             htmlFor={`note-${r.id}`}
-                            className="block text-[12px] font-medium text-[var(--color-ink-3)]"
+                            className="block text-[12px] font-medium text-muted-foreground"
                           >
                             跟进备注
                           </label>
-                          <textarea
+                          <Textarea
                             id={`note-${r.id}`}
                             value={noteDraft[r.id] ?? r.note ?? ''}
                             onChange={(e) => setNoteDraft((d) => ({ ...d, [r.id]: e.target.value }))}
                             rows={5}
                             maxLength={2000}
                             placeholder="记录沟通进展、下一步动作…"
-                            className="mt-2 w-full resize-y rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-[13px] leading-relaxed text-[var(--color-ink)] outline-none focus:border-[var(--color-brand-blue)]"
+                            className="mt-2 text-[13px]"
                           />
                           <div className="mt-3 flex items-center gap-3">
-                            <button
-                              type="button"
-                              onClick={() => saveNote(r.id)}
-                              disabled={savingId === r.id}
-                              className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)] disabled:opacity-50"
-                            >
+                            <Button size="sm" onClick={() => saveNote(r.id)} disabled={savingId === r.id}>
                               {savingId === r.id ? '保存中…' : '保存备注'}
-                            </button>
-                            <button
-                              type="button"
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => removeLead(r.id, r.name)}
                               disabled={savingId === r.id}
-                              className="rounded-lg border border-red-200 px-4 py-2 text-[12px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                             >
                               删除线索
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -255,9 +271,10 @@ export default function LeadsTable({ rows }: { rows: AdminLeadRow[] }) {
                 )}
               </Fragment>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </Card>
+      {confirmDialog}
+    </>
   );
 }

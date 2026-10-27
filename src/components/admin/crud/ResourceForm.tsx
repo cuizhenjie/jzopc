@@ -4,15 +4,17 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import ImageUploadField from '@/components/admin/ImageUploadField';
+import { Input } from '@/components/admin/ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/admin/ui/select';
+import { Switch } from '@/components/admin/ui/switch';
+import { Textarea } from '@/components/admin/ui/textarea';
 import { useFormGuards, scrollToFirstError } from './use-form-guards';
 import {
   Field,
-  FieldError,
   FormCard,
   GlobalError,
   SubmitBar,
   TagInput,
-  inputClass,
 } from './ui';
 
 /**
@@ -158,48 +160,52 @@ export default function ResourceForm({
     switch (f.type) {
       case 'textarea':
         return (
-          <textarea
+          <Textarea
             id={`rf-${f.name}`}
             value={String(v ?? '')}
             onChange={(e) => set(f.name, e.target.value)}
             rows={f.rows ?? 4}
             maxLength={f.max}
             placeholder={f.placeholder}
-            className={`${inputClass} leading-[1.8]`}
           />
         );
       case 'number':
         return (
-          <input
+          <Input
             id={`rf-${f.name}`}
             type="number"
             value={String(v ?? 0)}
             onChange={(e) => set(f.name, e.target.value === '' ? 0 : Number(e.target.value))}
             min={0}
-            className={inputClass}
           />
         );
       case 'select':
         return (
-          <select id={`rf-${f.name}`} value={String(v ?? '')} onChange={(e) => set(f.name, e.target.value)} className={inputClass}>
-            {(f.options ?? []).map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <Select value={String(v ?? '')} onValueChange={(val) => set(f.name, val)}>
+            {/* id 挂 trigger：scrollToFirstError 聚焦的就是这个按钮 */}
+            <SelectTrigger id={`rf-${f.name}`} aria-invalid={errors[f.name] ? true : undefined}>
+              <SelectValue placeholder={f.placeholder ?? '请选择'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {(f.options ?? []).map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         );
       case 'tags':
         return <TagInput id={`rf-${f.name}`} value={(v as string[]) ?? []} onChange={(arr) => set(f.name, arr)} placeholder={f.placeholder} />;
       case 'switch':
         return (
-          <label className="inline-flex cursor-pointer items-center gap-2.5 text-[13px] text-[var(--color-ink-2)]">
-            <input
+          <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-[var(--color-ink-2)]">
+            <Switch
               id={`rf-${f.name}`}
-              type="checkbox"
               checked={Boolean(v)}
-              onChange={(e) => set(f.name, e.target.checked)}
-              className="h-4 w-4 rounded border-[var(--color-line)] accent-[var(--color-brand-navy)]"
+              onCheckedChange={(checked) => set(f.name, checked)}
             />
             {Boolean(v) ? '开启' : '关闭'}
           </label>
@@ -225,34 +231,32 @@ export default function ResourceForm({
         );
       case 'json':
         return (
-          <textarea
+          <Textarea
             id={`rf-${f.name}`}
             value={String(v ?? '')}
             onChange={(e) => set(f.name, e.target.value)}
             rows={f.rows ?? 4}
             placeholder={f.placeholder ?? 'JSON 数组/对象；留空表示空'}
-            className={`${inputClass} font-mono text-[12px] leading-[1.7]`}
+            className="font-mono text-[12px] leading-[1.7]"
           />
         );
       case 'datetime':
         return (
-          <input
+          <Input
             id={`rf-${f.name}`}
             type="datetime-local"
             value={String(v ?? '')}
             onChange={(e) => set(f.name, e.target.value)}
-            className={inputClass}
           />
         );
       default:
         return (
-          <input
+          <Input
             id={`rf-${f.name}`}
             value={String(v ?? '')}
             onChange={(e) => set(f.name, e.target.value)}
             maxLength={f.max}
             placeholder={f.placeholder}
-            className={inputClass}
           />
         );
     }

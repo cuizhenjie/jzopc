@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { uploadImageFile } from '@/lib/admin/upload-client';
-import { inputClass } from '@/components/admin/crud/ui';
+import { Button } from '@/components/admin/ui/button';
+import { Input } from '@/components/admin/ui/input';
 
 /**
  * 图片字段：URL 输入 + 直传按钮 + 缩略预览。
@@ -50,7 +51,7 @@ export default function ImageUploadField({
   return (
     <div className={className}>
       <div className="flex gap-2">
-        <input
+        <Input
           id={id}
           value={value}
           onChange={(e) => {
@@ -58,16 +59,17 @@ export default function ImageUploadField({
             setError('');
           }}
           placeholder={placeholder}
-          className={inputClass}
         />
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           disabled={busy}
           onClick={() => fileRef.current?.click()}
-          className="shrink-0 rounded-xl bg-[var(--color-surface-2)] px-3.5 text-[12px] font-medium text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-line)] hover:text-[var(--color-brand-navy)] disabled:opacity-50"
+          className="shrink-0 self-center"
         >
           {busy ? '上传中…' : '上传图片'}
-        </button>
+        </Button>
         <input
           ref={fileRef}
           type="file"
@@ -82,7 +84,7 @@ export default function ImageUploadField({
         <img
           src={value}
           alt="预览"
-          className="mt-2 h-24 w-auto max-w-full rounded-lg border border-[var(--color-line)] object-cover"
+          className="mt-2 h-24 w-auto max-w-full rounded-lg border border-border object-cover"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).style.display = 'none';
           }}

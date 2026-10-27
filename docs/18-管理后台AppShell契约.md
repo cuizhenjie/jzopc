@@ -64,3 +64,24 @@ typecheck 0 错；全量测试 316/316（Node 24）；`pnpm verify` 6/6；Playwr
 （隔离 dev + OPS_TOKEN 主口令登录）：侧栏 248px/折叠 72px 且 canvas 随宽、顶栏 56px sticky、
 同屏 canvas=3、吸底栏滚底仍在视口、⌘S 触发提交并定位错误字段、折叠跨刷新持久、
 移动端抽屉开/关/路由自动收起、390px 无横向溢出、reduced-motion 正常。
+
+## 6. shadcn/ui 组件层（2026-10-27 第二轮：模板化 + 全面组件化）
+
+后台 UI 底座从手写原语切换为 **shadcn/ui 语义**（vendored，非运行时依赖）：
+
+| 层 | 位置 | 说明 |
+|---|---|---|
+| 基建 | `components.json` + `src/lib/utils.ts`（`cn()`） | shadcn CLI 兼容配置；`ui` 别名指向 `@/components/admin/ui`（**不与前台 `src/components/ui/` 混用**） |
+| 语义 token | `globals.css` `@theme` 尾部 | `--color-{background,foreground,card,popover,primary,secondary,muted,accent,destructive,border,input,ring}` 等，**值全部 var() 映射既有品牌 token**，不引入新色值（品牌色板契约不变）；destructive=语义红 #b42318 |
+| 基础组件 | `src/components/admin/ui/` | button（cva+asChild）/input/textarea/label/select/checkbox/switch/badge/table/card/dialog/alert-dialog/dropdown-menu/separator/tooltip/skeleton/empty/confirm。图标一律内联 SVG（**不引入 lucide-react 等图标库**） |
+| 确认弹窗 | `admin/ui/confirm.tsx` 的 `useConfirm()` | `window.confirm` 的 Promise 化替代（AlertDialog）；表格行删除/下架统一走它 |
+| 表单原语 | `crud/ui.tsx` | **对外导出 API 不变**（Field/FormCard/SubmitBar/TagInput/Badge/inputClass…），内部底座换成 shadcn 组件；`inputClass` 与 `ui/input.tsx` 同源 |
+| 表格 | `crud/ResourceTable.tsx` + `NewsTable/LeadsTable` | shadcn Table/Card/Empty + Button 行操作；空态走 `Empty` |
+| 页面模板 | `templates/page-actions.tsx` 的 `ActionLink` | 列表页页头操作统一入口（default=新建主操作，outline=导出等次操作）；页面不再手写按钮样式字符串 |
+| 定制页 | AccountsManager（window.prompt→Dialog）/ SiteStatsManager / MediaUploader / ImageUploadField | 全部换 shadcn 底座 |
+
+- Select/Switch 等 radix 控件在表单中的 **id 挂在 trigger 上**，`scrollToFirstError`
+  聚焦语义不变（`rf-*` / `nf-*` 约定保持）。
+- `market-search` 红线照旧：全站禁 `type="search"`（admin/ui 的 Input 不设默认 type）。
+- GET 筛选表单（leads 列表）保留**原生 select**（无 JS 可用）；JS 驱动的行内状态切换用 shadcn Select。
+- LoginForm 是深色 navy 表面，保持自有样式，不套浅色 shadcn 组件。

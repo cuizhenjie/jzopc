@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -26,12 +26,7 @@ export default async function AdminCoursesPage() {
       desc="管理 /academy 前台课程目录：按方向分组展示，发布后前台立即可见。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/courses/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建课程
-        </Link>
+        <ActionLink href="/admin/courses/new">+ 新建课程</ActionLink>
       }
     >
       <div className="mt-1">

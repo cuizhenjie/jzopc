@@ -50,6 +50,30 @@
   --shadow-overlay: 0 12px 32px -12px rgb(20 47 89 / 22%);
 
   --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ── shadcn/ui 语义层（src/components/admin/ui 底座）────────────
+     值全部映射既有品牌/中性 token，不引入新色值（品牌色板契约不变）。
+     后台主按钮沿用品牌藏蓝；ring 焦点色与表单 focus 同源（brand-blue）。 */
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-ink);
+  --color-card: #ffffff;
+  --color-card-foreground: var(--color-ink);
+  --color-popover: #ffffff;
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-brand-navy);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-surface-2);
+  --color-secondary-foreground: var(--color-brand-navy);
+  --color-muted: var(--color-surface);
+  --color-muted-foreground: var(--color-ink-3);
+  --color-accent: var(--color-surface-2);
+  --color-accent-foreground: var(--color-brand-navy);
+  /* 语义红：品牌契约白名单内的错误色（b42318） */
+  --color-destructive: #b42318;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--color-line);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-brand-blue);
 }
 
 :root {

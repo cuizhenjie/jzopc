@@ -12,7 +12,11 @@ import {
 import type { AdminNewsRow } from '@/lib/admin/data';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import ImageUploadField from '@/components/admin/ImageUploadField';
-import { FieldError, FormCard, GlobalError, SubmitBar, inputClass, labelClass } from './crud/ui';
+import { Button } from '@/components/admin/ui/button';
+import { Input } from '@/components/admin/ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/admin/ui/select';
+import { Textarea } from '@/components/admin/ui/textarea';
+import { Field, FieldError, FormCard, GlobalError, SubmitBar, labelClass } from './crud/ui';
 import { scrollToFirstError, useFormGuards } from './crud/use-form-guards';
 
 /**
@@ -157,36 +161,26 @@ export default function NewsForm({
   return (
     <form ref={formRef} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <FormCard title="正文内容" desc="标题、摘要与富文本正文">
-        <div>
-          <label htmlFor="nf-title" className={labelClass}>
-            标题 <span className="text-red-500">*</span>
-          </label>
-          <input
+        <Field label="标题" required htmlFor="nf-title" error={errors.title}>
+          <Input
             id="nf-title"
             value={form.title}
             onChange={(e) => set('title', e.target.value)}
             maxLength={120}
             placeholder="例：集智第 3 期 AI 沙龙回顾"
-            className={`mt-2 ${inputClass}`}
           />
-          <FieldError msg={errors.title} />
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="nf-summary" className={labelClass}>
-            摘要 <span className="text-red-500">*</span>
-          </label>
-          <textarea
+        <Field label="摘要" required htmlFor="nf-summary" error={errors.summary}>
+          <Textarea
             id="nf-summary"
             value={form.summary}
             onChange={(e) => set('summary', e.target.value)}
             rows={2}
             maxLength={200}
             placeholder="一句话概括，显示在列表卡片与分享卡片上（≤200 字）"
-            className={`mt-2 ${inputClass}`}
           />
-          <FieldError msg={errors.summary} />
-        </div>
+        </Field>
 
         <div>
           <label htmlFor="nf-body" className={labelClass}>
@@ -210,130 +204,104 @@ export default function NewsForm({
       {/* 侧栏吸顶：滚动容器是内容区，top 参照外壳顶栏高度（带兜底） */}
       <div className="space-y-5 lg:sticky lg:self-start lg:top-[calc(var(--admin-topbar-h,56px)+1.5rem)]">
         <FormCard title="发布设置">
-          <div>
-            <label htmlFor="nf-status" className={labelClass}>
-              状态
-            </label>
-            <select
-              id="nf-status"
-              value={form.status}
-              onChange={(e) => set('status', e.target.value)}
-              className={`mt-2 ${inputClass}`}
-            >
-              {NEWS_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {newsStatusLabels[s]}
-                  {s === 'draft' ? '（前台不可见）' : s === 'archived' ? '（详情页 404）' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Field label="状态" htmlFor="nf-status">
+            <Select value={form.status} onValueChange={(v) => set('status', v)}>
+              <SelectTrigger id="nf-status" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {NEWS_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {newsStatusLabels[s]}
+                    {s === 'draft' ? '（前台不可见）' : s === 'archived' ? '（详情页 404）' : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
 
-          <div>
-            <label htmlFor="nf-category" className={labelClass}>
-              分类 <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="nf-category"
-              value={form.category}
-              onChange={(e) => set('category', e.target.value)}
-              className={`mt-2 ${inputClass}`}
-            >
-              <optgroup label="新闻资讯列表">
-                {NEWS_LIST_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="活动列表">
-                {ACTIVITY_LIST_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
+          <Field label="分类" required htmlFor="nf-category" error={errors.category}>
+            <Select value={form.category} onValueChange={(v) => set('category', v)}>
+              <SelectTrigger id="nf-category" className="w-full" aria-invalid={errors.category ? true : undefined}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>新闻资讯列表</SelectLabel>
+                  {NEWS_LIST_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel>活动列表</SelectLabel>
+                  {ACTIVITY_LIST_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
             <p className="mt-1.5 text-[12px] text-[var(--color-ink-3)]">
               「{NEWS_LIST_CATEGORIES.join(' / ')}」出现在新闻资讯列表；「活动」出现在活动管理列表（共用同一内容池）。
             </p>
-            <FieldError msg={errors.category} />
-          </div>
+          </Field>
 
-          <div>
-            <label htmlFor="nf-published-at" className={labelClass}>
-              发布时间
-            </label>
-            <input
+          <Field label="发布时间" htmlFor="nf-published-at" error={errors.published_at}>
+            <Input
               id="nf-published-at"
               type="datetime-local"
               value={form.published_at}
               onChange={(e) => set('published_at', e.target.value)}
-              className={`mt-2 ${inputClass}`}
             />
-            <FieldError msg={errors.published_at} />
-          </div>
+          </Field>
 
-          <div>
-            <label htmlFor="nf-author" className={labelClass}>
-              作者
-            </label>
-            <input
+          <Field label="作者" htmlFor="nf-author">
+            <Input
               id="nf-author"
               value={form.author}
               onChange={(e) => set('author', e.target.value)}
               maxLength={40}
               placeholder="集智运营团队"
-              className={`mt-2 ${inputClass}`}
             />
-          </div>
+          </Field>
         </FormCard>
 
         <FormCard title="链接与封面">
-          <div>
-            <label htmlFor="nf-slug" className={labelClass}>
-              Slug（URL 路径）
-            </label>
-            <div className="mt-2 flex gap-2">
-              <input
+          <Field label="Slug（URL 路径）" htmlFor="nf-slug" error={errors.slug}>
+            <div className="flex gap-2">
+              <Input
                 id="nf-slug"
                 value={form.slug}
                 onChange={(e) => set('slug', e.target.value.toLowerCase())}
                 placeholder="留空自动生成"
-                className={inputClass}
               />
               {mode === 'create' && (
-                <button
-                  type="button"
-                  onClick={() => set('slug', autoSlug())}
-                  className="shrink-0 rounded-xl bg-[var(--color-surface-2)] px-3 text-[12px] font-medium text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-brand-navy)]"
-                >
+                <Button type="button" variant="secondary" size="sm" className="shrink-0 self-center" onClick={() => set('slug', autoSlug())}>
                   生成
-                </button>
+                </Button>
               )}
             </div>
             <p className="mt-1.5 text-[12px] text-[var(--color-ink-3)]">
               前台地址：/news/{form.slug || '…'}（小写字母/数字/中划线）
             </p>
-            <FieldError msg={errors.slug} />
-          </div>
+          </Field>
 
-          <div>
-            <label htmlFor="nf-cover" className={labelClass}>
-              封面图（可选）
-              <span className="ml-2 font-normal text-[12px] text-[var(--color-ink-3)]">
-                上传直传对象存储，或粘贴外链
-              </span>
-            </label>
+          <Field
+            label="封面图（可选）"
+            hint="上传直传对象存储，或粘贴外链"
+            htmlFor="nf-cover"
+            error={errors.cover_url}
+          >
             <ImageUploadField
               id="nf-cover"
               value={form.cover_url}
               onChange={(url) => set('cover_url', url)}
               scene="covers"
-              className="mt-2"
             />
-            <FieldError msg={errors.cover_url} />
-          </div>
+          </Field>
         </FormCard>
 
         <GlobalError msg={globalError} id="nf-global-error" />

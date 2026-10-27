@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
+import { Button } from '@/components/admin/ui/button';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -64,12 +66,9 @@ export default async function AdminLeadsPage({
       desc={`共 ${result.total} 条线索。状态与备注的修改立即生效。`}
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <a
-          href={exportHref}
-          className="rounded-lg bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-brand-navy)] ring-1 ring-[var(--color-line)] transition-colors hover:bg-[var(--color-surface-2)]"
-        >
+        <ActionLink href={exportHref} variant="outline" external>
           导出 CSV（当前筛选）
-        </a>
+        </ActionLink>
       }
     >
       {/* 筛选：原生 GET 表单，无 JS 也能用 */}
@@ -102,19 +101,9 @@ export default async function AdminLeadsPage({
           aria-label="关键词搜索"
           className={`${selectClass} min-w-[220px] flex-1`}
         />
-        <button
-          type="submit"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          筛选
-        </button>
+        <Button type="submit">筛选</Button>
         {(params.status || params.type || params.q) && (
-          <Link
-            href="/admin/leads"
-            className="rounded-lg px-3 py-2 text-[13px] font-medium text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-brand-navy)]"
-          >
-            重置
-          </Link>
+          <ActionLink href="/admin/leads" variant="ghost">重置</ActionLink>
         )}
       </form>
 
@@ -125,12 +114,7 @@ export default async function AdminLeadsPage({
       {result.pageCount > 1 && (
         <nav aria-label="分页" className="mt-6 flex items-center justify-between">
           {result.page > 1 ? (
-            <Link
-              href={pageHref(params, result.page - 1)}
-              className="rounded-lg bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-brand-navy)] ring-1 ring-[var(--color-line)] transition-colors hover:bg-[var(--color-surface-2)]"
-            >
-              ← 上一页
-            </Link>
+            <ActionLink href={pageHref(params, result.page - 1)} variant="outline">← 上一页</ActionLink>
           ) : (
             <span />
           )}
@@ -138,12 +122,7 @@ export default async function AdminLeadsPage({
             第 {result.page} / {result.pageCount} 页
           </span>
           {result.page < result.pageCount ? (
-            <Link
-              href={pageHref(params, result.page + 1)}
-              className="rounded-lg bg-white px-4 py-2 text-[13px] font-medium text-[var(--color-brand-navy)] ring-1 ring-[var(--color-line)] transition-colors hover:bg-[var(--color-surface-2)]"
-            >
-              下一页 →
-            </Link>
+            <ActionLink href={pageHref(params, result.page + 1)} variant="outline">下一页 →</ActionLink>
           ) : (
             <span />
           )}

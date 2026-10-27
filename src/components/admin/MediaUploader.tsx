@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { pickImageFile, uploadImageFile } from '@/lib/admin/upload-client';
+import { Button } from '@/components/admin/ui/button';
 
 /**
  * 媒体库「真实上传」入口：选图（可多选）→ 票据直传 Supabase Storage →
@@ -69,14 +70,14 @@ export default function MediaUploader() {
 
   return (
     <div>
-      <button
+      <Button
         type="button"
+        variant="outline"
         disabled={busy}
         onClick={() => fileRef.current?.click()}
-        className="rounded-lg border border-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-[var(--color-brand-navy)] transition-colors hover:bg-[var(--color-surface-2)] disabled:opacity-50"
       >
         {busy ? '上传中…' : '⬆ 上传图片'}
-      </button>
+      </Button>
       <input
         ref={fileRef}
         type="file"

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -29,12 +29,7 @@ export default async function AdminMediaPage() {
       actions={
         <div className="flex flex-wrap items-center gap-3">
           <MediaUploader />
-          <Link
-            href="/admin/media/new"
-            className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-          >
-            + 登记资源
-          </Link>
+          <ActionLink href="/admin/media/new">+ 登记资源</ActionLink>
         </div>
       }
     >

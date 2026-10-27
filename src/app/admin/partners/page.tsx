@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -26,12 +26,7 @@ export default async function AdminPartnersPage() {
       desc="管理首页与合作页展示的合作伙伴：按分组与排序展示 Logo，发布后前台立即可见。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/partners/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建合作伙伴
-        </Link>
+        <ActionLink href="/admin/partners/new">+ 新建合作伙伴</ActionLink>
       }
     >
       <div className="mt-1">

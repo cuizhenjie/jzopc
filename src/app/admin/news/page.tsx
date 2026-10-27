@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -32,12 +32,7 @@ export default async function AdminNewsPage({
       desc="发布、编辑与下架社区动态。已发布的改动立即在前台生效。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/news/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建动态
-        </Link>
+        <ActionLink href="/admin/news/new">+ 新建动态</ActionLink>
       }
     >
       <NewsStatusTabs basePath="/admin/news" status={status} />

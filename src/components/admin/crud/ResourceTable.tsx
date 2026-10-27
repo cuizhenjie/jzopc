@@ -3,10 +3,15 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
+import { Button } from '@/components/admin/ui/button';
+import { Card, CardHeader } from '@/components/admin/ui/card';
+import { Empty } from '@/components/admin/ui/empty';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/admin/ui/table';
+import { useConfirm } from '@/components/admin/ui/confirm';
 import { Badge, publishedBadge } from './ui';
 
 /**
- * 通用资源表格：把 NewsTable/LeadsTable 里反复出现的
+ * 通用资源表格（shadcn/ui 底座）：把 NewsTable/LeadsTable 里反复出现的
  * 「表格 + 上下架开关 + 编辑 + 删除 + 错误条 + 空态」组件化。
  *
  * 面向 `published boolean` 口径的内容表（agents / market_items / courses /
@@ -14,7 +19,7 @@ import { Badge, publishedBadge } from './ui';
  * 仍走专用 NewsTable（语义不同，不硬塞进来）。
  *
  * 列由使用方声明（cell 是 ReactNode 渲染函数，服务端页面也能拼），
- * 行操作统一收敛：预览（可选）/ 编辑 / 发布·下架 / 删除。
+ * 行操作统一收敛：预览（可选）/ 编辑 / 发布·下架 / 删除（AlertDialog 确认）。
  */
 
 /**
@@ -72,6 +77,7 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
   const router = useRouter();
   const [busyId, setBusyId] = useState<number | string | null>(null);
   const [error, setError] = useState('');
+  const [confirm, confirmDialog] = useConfirm();
 
   const [prevRows, setPrevRows] = useState(rows);
   if (rows !== prevRows) {
@@ -80,11 +86,14 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
 
   async function togglePublish(row: T) {
     const next = !row.published;
-    if (
-      !next &&
-      !window.confirm(confirmArchive ?? `确定下架「${nameOf(row)}」？前台将立即不可见。`)
-    )
-      return;
+    if (!next) {
+      const okToArchive = await confirm({
+        title: confirmArchive ? '确认下架' : `下架「${nameOf(row)}」`,
+        description: confirmArchive ?? `确定下架「${nameOf(row)}」？前台将立即不可见。`,
+        actionLabel: publishLabels.on,
+      });
+      if (!okToArchive) return;
+    }
     const key = rowKey ? rowKey(row) : row.id;
     setBusyId(key ?? null);
     setError('');
@@ -103,8 +112,13 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
   }
 
   async function remove(row: T) {
-    if (!window.confirm(`确定彻底删除「${nameOf(row)}」？不可恢复（日常下架请用「${publishLabels.on}」按钮）。`))
-      return;
+    const ok = await confirm({
+      title: `彻底删除「${nameOf(row)}」`,
+      description: `不可恢复。日常下架请用「${publishLabels.on}」按钮。`,
+      actionLabel: '删除',
+      destructive: true,
+    });
+    if (!ok) return;
     const key = rowKey ? rowKey(row) : row.id;
     setBusyId(key ?? null);
     setError('');
@@ -120,107 +134,100 @@ export default function ResourceTable<T extends ResourceRow = ResourceRow>({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--color-line)] bg-white px-8 py-16 text-center">
-        <p className="text-[15px] font-medium text-[var(--color-brand-navy)]">{emptyTitle}</p>
-        <Link
-          href={createHref}
-          className="mt-3 inline-block text-[13px] font-medium text-[var(--color-brand-blue-deep)] hover:underline"
-        >
-          {emptyCta} →
-        </Link>
-      </div>
+      <>
+        <Empty
+          title={emptyTitle}
+          action={
+            <Button asChild variant="outline" size="sm">
+              <Link href={createHref}>{emptyCta} →</Link>
+            </Button>
+          }
+        />
+        {confirmDialog}
+      </>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-[var(--shadow-card)]">
+    <Card className="overflow-hidden">
       {error && (
         <p className="border-b border-red-100 bg-red-50 px-4 py-2.5 text-[13px] text-red-600">{error}</p>
       )}
       {/* 头部条：常驻显示条数（编辑者扫一眼就知道列表规模），右侧留工具位 */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-surface)]/60 px-4 py-2.5">
-        <span className="text-[12.5px] text-[var(--color-ink-3)]">{countLabel ?? `共 ${rows.length} 条`}</span>
+      <CardHeader>
+        <span className="text-[12.5px] text-muted-foreground">{countLabel ?? `共 ${rows.length} 条`}</span>
         {toolbar && <div className="flex flex-wrap items-center gap-2">{toolbar}</div>}
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-left text-[13px]">
-          <thead>
-            <tr className="border-b border-[var(--color-line)] bg-[var(--color-surface)] text-[12px] text-[var(--color-ink-3)]">
-              {columns.map((c) => (
-                <th key={c.head} className={`px-4 py-3 font-medium ${c.className ?? ''}`}>
-                  {c.head}
-                </th>
-              ))}
-              <th className="px-4 py-3 font-medium">状态</th>
-              <th className="px-4 py-3 font-medium">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr
-                key={rowKey ? rowKey(row) : row.id}
-                className="border-b border-[var(--color-line)] last:border-0 transition-colors hover:bg-[var(--color-surface)]/60"
-              >
+      </CardHeader>
+      <Table className="min-w-[820px]">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            {columns.map((c) => (
+              <TableHead key={c.head} className={c.className}>
+                {c.head}
+              </TableHead>
+            ))}
+            <TableHead>状态</TableHead>
+            <TableHead className="text-right">操作</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => {
+            const key = rowKey ? rowKey(row) : row.id;
+            return (
+              <TableRow key={key}>
                 {columns.map((c) => (
-                  <td key={c.head} className={`px-4 py-3 ${c.className ?? ''}`}>
+                  <TableCell key={c.head} className={c.className}>
                     {c.cell(row)}
-                  </td>
+                  </TableCell>
                 ))}
-                <td className="px-4 py-3">
+                <TableCell>
                   {typeof row.published === 'boolean' ? (
                     <Badge className={publishedBadge(row.published)}>
                       {row.published ? '已发布' : '草稿'}
                     </Badge>
                   ) : (
-                    <Badge className="bg-[var(--color-surface)] text-[var(--color-ink-2)] ring-[var(--color-line)]">已登记</Badge>
+                    <Badge className="bg-secondary text-[var(--color-ink-2)] ring-border">已登记</Badge>
                   )}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1.5">
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
                     {row.published && viewHref?.(row) && (
-                      <Link
-                        href={viewHref(row) as string}
-                        target="_blank"
-                        title="预览"
-                        className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-ink-3)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-brand-navy)]"
-                      >
-                        预览
-                      </Link>
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href={viewHref(row) as string} target="_blank">
+                          预览
+                        </Link>
+                      </Button>
                     )}
-                    <Link
-                      href={editHref(row)}
-                      title="编辑"
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-brand-blue-deep)] transition-colors hover:bg-[var(--color-surface-2)]"
-                    >
-                      编辑
-                    </Link>
+                    <Button asChild variant="ghost" size="sm" className="text-[var(--color-brand-blue-deep)]">
+                      <Link href={editHref(row)}>编辑</Link>
+                    </Button>
                     {typeof row.published === 'boolean' && (
-                    <button
-                      type="button"
-                      onClick={() => togglePublish(row)}
-                      disabled={busyId === (rowKey ? rowKey(row) : row.id)}
-                      title={row.published ? publishLabels.on : publishLabels.off}
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--color-brand-navy)] disabled:opacity-50"
-                    >
-                      {row.published ? publishLabels.on : publishLabels.off}
-                    </button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => togglePublish(row)}
+                        disabled={busyId === key}
+                      >
+                        {row.published ? publishLabels.on : publishLabels.off}
+                      </Button>
                     )}
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => remove(row)}
-                      disabled={busyId === (rowKey ? rowKey(row) : row.id)}
-                      title="删除"
-                      className="rounded-md px-2 py-1 text-[12px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                      disabled={busyId === key}
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       删除
-                    </button>
+                    </Button>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+      {confirmDialog}
+    </Card>
   );
 }

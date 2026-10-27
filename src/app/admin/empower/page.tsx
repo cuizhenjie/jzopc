@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -26,12 +26,7 @@ export default async function AdminEmpowerPage() {
       desc="管理 /empower/<slug> 赋能模块页：已发布的模块在库内不存在时回落站点内置内容。"
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href="/admin/empower/new"
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建赋能模块
-        </Link>
+        <ActionLink href="/admin/empower/new">+ 新建赋能模块</ActionLink>
       }
     >
       <div className="mt-1">

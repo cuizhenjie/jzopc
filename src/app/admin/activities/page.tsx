@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
@@ -35,12 +35,7 @@ export default async function AdminActivitiesPage({
       desc={`与新闻资讯共用同一内容池，这里只显示分类为「${ACTIVITY_CATEGORY}」的记录。`}
       dbConfigured={isSupabaseConfigured()}
       actions={
-        <Link
-          href={`/admin/news/new?preset=${encodeURIComponent(ACTIVITY_CATEGORY)}`}
-          className="rounded-lg bg-[var(--color-brand-navy)] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-brand-navy-3)]"
-        >
-          + 新建活动
-        </Link>
+        <ActionLink href={`/admin/news/new?preset=${ACTIVITY_CATEGORY}`}>+ 新建活动</ActionLink>
       }
     >
       <NewsStatusTabs basePath="/admin/activities" status={status} />
