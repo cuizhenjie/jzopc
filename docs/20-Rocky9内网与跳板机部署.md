@@ -98,10 +98,10 @@ export NEXT_PUBLIC_SUPABASE_URL='填写生产 Supabase URL'
 export NEXT_PUBLIC_SUPABASE_ANON_KEY='填写生产 anon key'
 
 pnpm install --frozen-lockfile
-pnpm typecheck
-pnpm test
 export RELEASE_ID="$(git rev-parse --short=12 HEAD)-$(date -u +%Y%m%dT%H%M%SZ)"
 bash scripts/build-release.sh
+pnpm typecheck
+pnpm test
 # 产出 release/jizhi-$RELEASE_ID.tar.gz 及同名 .sha256；不要遗漏校验文件。
 
 sudo env PATH="/data/app-home/toolchain/node22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" APP_PORT=4000 \
@@ -112,6 +112,8 @@ sudo systemctl status jizhi --no-pager
 sudo journalctl -u jizhi -n 80 --no-pager
 curl -fsS http://127.0.0.1:4000/robots.txt
 ```
+
+干净克隆时先构建，再运行独立类型检查和测试：`next-env.d.ts` 引用的 `.next/types/routes.d.ts` 需要由构建生成，构建本身也执行类型校验。全部检查通过后才发布。
 
 发布命令显式指定独立 Node 的 PATH，避免 sudo 切回系统 Node。发布失败不要反复覆盖同名目录，使用新的唯一 `RELEASE_ID`。脚本会在服务启动或基础 HTTP 探活失败时尝试回滚；首次发布没有旧版本可恢复。
 
@@ -129,7 +131,24 @@ curl -s -o /dev/null -w '%{http_code}\n' http://192.168.10.179:4000/api/leads
 
 域名 DNS 的 A/AAAA 记录应指向外层 Nginx 的公网入口；仅在 IPv6 公网路径已配置时设置 AAAA。TLS 证书覆盖 `www.jizhiai.net.cn`，证书和私钥只放跳板机。
 
-若已有公司证书，修改 `infra/nginx/jizhi.conf` 的两条证书路径。若使用 Let's Encrypt 且尚无证书，先只安装 HTTP 引导配置，不能提前加载引用不存在证书的 HTTPS 配置：
+本次使用跳板机已有证书，正式模板已对应以下路径：
+
+- 证书链：`/usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem`
+- 私钥：`/usr/local/nginx/conf/ssl/www.jizhiai.net.cn.key`
+
+在跳板机核对证书域名、有效期以及公钥匹配；两条摘要应一致，不输出私钥内容：
+
+```bash
+sudo openssl x509 -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem -noout -dates -subject -ext subjectAltName
+sudo openssl x509 -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem -pubkey -noout | openssl pkey -pubin -outform DER | sha256sum
+sudo openssl pkey -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.key -pubout -outform DER | sha256sum
+```
+
+核验通过后直接执行第 6 节，沿用现有证书续期流程。**本次不需要执行下面的 ACME 首次签发步骤，也不需要替换成 HTTP 临时站点。**
+
+### 附加说明：仅供未来无证书的新环境
+
+只有尚无可用证书并决定使用 Let's Encrypt 时，才先安装 HTTP 引导配置，不能提前加载引用不存在证书的 HTTPS 配置：
 
 ```nginx
 server {
@@ -141,11 +160,11 @@ server {
 }
 ```
 
-把以上内容保存为该域名的临时站点配置，`nginx -t` 通过后 reload，再使用跳板机已有的 Certbot/ACME 工具签发。例如已安装 Certbot 的环境：
+该域名已有配置时先按第 6 节备份到 `conf.d` 外；仅在确需首次签发且无可用证书时，将 HTTP 引导内容写入现有 `/usr/local/nginx/conf/conf.d/www.jizhiai.net.cn.conf`。配置检查通过后 reload，再使用跳板机已有的 Certbot/ACME 工具签发。例如已安装 Certbot 的环境：
 
 ```bash
 sudo mkdir -p /var/www/html
-sudo nginx -t && sudo systemctl reload nginx
+sudo /usr/local/nginx/sbin/nginx -t && sudo /usr/local/nginx/sbin/nginx -s reload
 sudo certbot certonly --webroot -w /var/www/html -d www.jizhiai.net.cn
 ```
 
@@ -153,12 +172,22 @@ sudo certbot certonly --webroot -w /var/www/html -d www.jizhiai.net.cn
 
 ## 6. 跳板机：安装正式 Nginx 配置
 
-把仓库中的 `infra/nginx/jizhi.conf` 复制到跳板机，在实际配置目录安装。先检查已有域名配置，避免重复；若目标文件已存在，先备份到 `conf.d` 以外。
+跳板机的 Nginx 二进制为 `/usr/local/nginx/sbin/nginx`，本域名已有配置 `/usr/local/nginx/conf/conf.d/www.jizhiai.net.cn.conf`。仓库 `infra/nginx/jizhi.conf` 已使用本机现有 `.pem` / `.key` 证书路径；完成第 5 节证书核验后，替换现有文件，不能另建重复域名配置。
 
 ```bash
-# 在存放 jizhi.conf 的目录执行；如 Nginx 目录不同，请使用实际路径。
-sudo install -m 0644 jizhi.conf /etc/nginx/conf.d/jizhi.conf
-sudo nginx -t && sudo systemctl reload nginx
+# 在存放仓库正式 jizhi.conf 的目录执行；证书须已通过核验。
+# 备份必须放 conf.d 外，避免备份文件也被 Nginx include。
+nginx_site=/usr/local/nginx/conf/conf.d/www.jizhiai.net.cn.conf
+nginx_backup="/usr/local/nginx/conf/backups/www.jizhiai.net.cn.$(date +%Y%m%dT%H%M%S).conf"
+sudo install -d -m 0755 /usr/local/nginx/conf/backups
+sudo cp -p "$nginx_site" "$nginx_backup"
+sudo install -m 0644 jizhi.conf "$nginx_site"
+if sudo /usr/local/nginx/sbin/nginx -t; then
+    sudo /usr/local/nginx/sbin/nginx -s reload
+else
+    sudo cp -p "$nginx_backup" "$nginx_site"
+    echo '配置检查失败，已恢复原配置；未 reload。' >&2
+fi
 ```
 
 正式模板已设置 `192.168.10.179:4000`，所有页面、静态资源、API 和后台都转发给 Node；无需把静态文件复制到跳板机。入口覆盖转发头，保留真实客户端 IP，禁止缓存动态响应并关闭响应缓冲。若 Nginx 前面还有 CDN/LB，需要先配置仅信任该代理来源的 `real_ip`，否则限流会按 CDN 的 IP 聚合。
