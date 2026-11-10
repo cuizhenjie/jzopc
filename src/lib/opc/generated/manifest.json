@@ -5,15 +5,15 @@
   "routeCount": 10,
   "images": 26,
   "checksums": {
-    "/": "ea576a3a74c877f8",
-    "/about": "02263798f8f308e7",
+    "/": "3fe599e3b90972ba",
+    "/about": "4b6f17f126b1f5b3",
     "/health": "e0b37d34e081bac2",
-    "/empower": "70ed7fba49e2202d",
+    "/empower": "68a27b97dc14d7a0",
     "/market": "ecf759e4f8e0d621",
     "/growth": "773df848a3a1bd50",
     "/academy": "763133f97405438f",
     "/news": "288430aadf9ee92a",
-    "/apply": "2d98fcbbe59175c0",
+    "/apply": "0c7638344d3985ed",
     "/agent": "7c2fe9e4564753bf"
   }
 }

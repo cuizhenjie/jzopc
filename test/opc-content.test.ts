@@ -245,7 +245,7 @@ test('站点名口径唯一：REPLICA_SITE_NAME 贯穿标题与详情标题', ()
 test('参考站关键区块的内容在烘焙产物里完整保留', () => {
   const home = pagesSource['/'].html;
   assert.match(home, /集智 · 大健康\+<em>AI<\/em> OPC 社区/);
-  assert.match(home, /北京丰台大红门 {2}\| 健康管理 · AI赋能 · <span class="nowrap">社区连接<\/span>/);
+  assert.match(home, /北京市丰台区集美家居大红门店3号厅2层 集智OPC社区 {2}\| 健康管理 · AI赋能 · <span class="nowrap">社区连接<\/span>/);
   assert.match(home, /<p class="hero__meta">3000\+ m² 首期空间　·　5 个月 工位免租期　·　8 大 赋能体系　·　4 类 订单来源<\/p>/);
   const heroEnd = home.indexOf('</section>');
   const hero = home.slice(0, heroEnd);

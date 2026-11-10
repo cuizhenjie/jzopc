@@ -51,7 +51,7 @@ describe('llms.txt · 规范结构', () => {
 
   test('站点名与全站口径一致', () => {
     assert.equal(lines[0], '# 集智 AI OPC 社区');
-    assert.ok(txt.includes('北京丰台大红门'));
+    assert.ok(txt.includes('北京市丰台区集美家居大红门店3号厅2层 集智OPC社区'));
   });
 });
 

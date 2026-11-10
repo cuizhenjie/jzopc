@@ -381,7 +381,7 @@ function markDynamicBlocks(route, html) {
       <div class="card rv vis" data-d="2">
         <span class="card__no" style="font-size:34px">03</span>
         <h3>首期 3000+ ㎡ 空间启用</h3>
-        <p>首期 3000+ ㎡ 共享空间落地北京丰台大红门，八大赋能一站式配齐。</p>
+        <p>首期 3000+ ㎡ 共享空间落地北京市丰台区集美家居大红门店3号厅2层 集智OPC社区，八大赋能一站式配齐。</p>
       </div>
     </div>
   </div>
@@ -439,7 +439,7 @@ function buildArticleShell() {
     html: `<section class="sec sec--bg">
   <div class="wrap">
     <article class="news-detail">
-      <span class="ntag">社区动态</span>
+      <span class="ntag">__OPC_CATEGORY__</span>
       <h1 class="news-detail__title">__OPC_TITLE__</h1>
       <time class="news-detail__date">__OPC_DATE__</time>
       <div class="news-detail__body">__OPC_ARTICLE__</div>

@@ -167,7 +167,7 @@ def safe_style(value):
 SITE_URL = "https://www.jizhiai.net.cn"
 SITE_DOMAIN = "www.jizhiai.net.cn"
 # 2026-10-23 文案菜单对齐契约 §2.Req3：地址口径收敛为「北京丰台大红门」。
-SITE_ADDRESS = "北京市丰台区大红门"
+SITE_ADDRESS = "北京市丰台区集美家居大红门店3号厅2层 集智OPC社区"
 SITE_PHONE = "400-006-5858"
 SITE_EMAIL = "developer@jimei.com.cn"
 
@@ -642,9 +642,9 @@ def apply_word_about_copy(root):
     lead = first(root, "strength-lead")
     if lead:
         # Word「平台优势」主段（与 site.config 的 advantages 引言同源）；
-        # 契约 §2.Req3：引言段地址口径 →「位于北京丰台大红门」。
+        # 契约 §2.Req3：引言段地址口径 →「位于北京市丰台区集美家居大红门店3号厅2层 集智OPC社区」。
         lead.children = [
-            "集美科技旗下的一站式 AI 应用综合赋能平台，位于北京丰台大红门，首期 3000 余平米。"
+            "集美科技旗下的一站式 AI 应用综合赋能平台，位于北京市丰台区集美家居大红门店3号厅2层 集智OPC社区，首期 3000 余平米。"
             "场地、工具、算力、人才、服务、订单、流量、资金，八件事装进同一个社区。"
         ]
 
