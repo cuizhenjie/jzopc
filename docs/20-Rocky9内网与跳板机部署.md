@@ -129,7 +129,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://192.168.10.179:4000/api/leads
 # GET /api/leads 应为 405；这是只接受 POST 的业务接口。
 ```
 
-域名 DNS 的 A/AAAA 记录应指向外层 Nginx 的公网入口；仅在 IPv6 公网路径已配置时设置 AAAA。TLS 证书覆盖 `www.jizhiai.net.cn`，证书和私钥只放跳板机。
+域名 DNS 的 A/AAAA 记录应指向外层 Nginx 的公网入口；仅在 IPv6 公网路径已配置时设置 AAAA。TLS 证书覆盖 `www.jizhiai.net.cn` 和 `jizhiai.net.cn`，证书和私钥只放跳板机。本次核验的证书有效期为 2026-11-10 至 2027-02-07；后续发布应重新检查到期时间。
 
 本次使用跳板机已有证书，正式模板已对应以下路径：
 
@@ -139,7 +139,8 @@ curl -s -o /dev/null -w '%{http_code}\n' http://192.168.10.179:4000/api/leads
 在跳板机核对证书域名、有效期以及公钥匹配；两条摘要应一致，不输出私钥内容：
 
 ```bash
-sudo openssl x509 -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem -noout -dates -subject -ext subjectAltName
+sudo openssl x509 -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem -noout -dates -subject
+sudo openssl x509 -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem -text -noout | sed -n '/X509v3 Subject Alternative Name/{n;p;}'
 sudo openssl x509 -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.pem -pubkey -noout | openssl pkey -pubin -outform DER | sha256sum
 sudo openssl pkey -in /usr/local/nginx/conf/ssl/www.jizhiai.net.cn.key -pubout -outform DER | sha256sum
 ```
@@ -189,6 +190,8 @@ else
     echo '配置检查失败，已恢复原配置；未 reload。' >&2
 fi
 ```
+
+正式模板匹配当前 Nginx 1.18.0 / OpenSSL 1.0.2k-fips：使用 `listen 443 ssl http2` 和 `ssl_protocols TLSv1.2`，升级支持 TLS 1.3 的 OpenSSL/Nginx 后再开启 TLS 1.3。HTTP 与 HTTPS 都保留 `www.jizhiai.net.cn`、`jizhiai.net.cn`，HTTP 统一跳转到 HTTPS 的 www 地址；保留原有 100m 请求体限制和一条一年期 `includeSubDomains` HSTS 响应头。
 
 正式模板已设置 `192.168.10.179:4000`，所有页面、静态资源、API 和后台都转发给 Node；无需把静态文件复制到跳板机。入口覆盖转发头，保留真实客户端 IP，禁止缓存动态响应并关闭响应缓冲。若 Nginx 前面还有 CDN/LB，需要先配置仅信任该代理来源的 `real_ip`，否则限流会按 CDN 的 IP 聚合。
 
