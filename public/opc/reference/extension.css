@@ -361,3 +361,15 @@
   .opc-site .hero__nav--next{right:10px}
   .opc-site .hero__steps{bottom:16px;max-width:calc(100% - 128px)}
 }
+/* 横幅第三行是静态事实句。不放进 home-stats，统计数字查询失败时不会把这行清掉。 */
+.opc-site .hero__meta{
+  margin:16px auto 0;
+  max-width:980px;
+  padding:0 8px;
+  font-size:clamp(14px,1.55vw,18px);
+  font-weight:600;
+  line-height:1.65;
+  letter-spacing:.02em;
+  color:rgba(222,234,246,.92);
+  text-align:center;
+}

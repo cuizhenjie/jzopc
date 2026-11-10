@@ -244,7 +244,13 @@ test('站点名口径唯一：REPLICA_SITE_NAME 贯穿标题与详情标题', ()
 
 test('参考站关键区块的内容在烘焙产物里完整保留', () => {
   const home = pagesSource['/'].html;
-  assert.match(home, /集智\s*<em>AI<\/em>\s*OPC 社区/);
+  assert.match(home, /集智 · 大健康\+<em>AI<\/em> OPC 社区/);
+  assert.match(home, /北京丰台大红门 {2}\| 健康管理 · AI赋能 · <span class="nowrap">社区连接<\/span>/);
+  assert.match(home, /<p class="hero__meta">3000\+ m² 首期空间　·　5 个月 工位免租期　·　8 大 赋能体系　·　4 类 订单来源<\/p>/);
+  const heroEnd = home.indexOf('</section>');
+  const hero = home.slice(0, heroEnd);
+  assert.ok(hero.indexOf('class="hero__meta"') < hero.indexOf('data-opc-block="home-stats"'));
+  assert.doesNotMatch(hero, /首期 3000\+ ㎡ 共享空间|“八大赋能”助力|大健康垂类AI OPC社区/);
   assert.match(home, /八大赋能/);
   assert.match(home, /订单市场/);
   assert.match(home, /大健康/);
