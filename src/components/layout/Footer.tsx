@@ -1,83 +1,71 @@
 import Link from 'next/link';
-import { footerNav, site } from '@/lib/site/config';
-import BrandMark from '@/components/ui/BrandMark';
+import { site } from '@/lib/site/config';
 
+/** 参考站页脚：结构与 class 对齐参考站 DOM（.ft / .ft__top / .ft__links / .ft__ct）。 */
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-[var(--color-line)] bg-[var(--color-surface)]">
-      <div className="mx-auto w-full max-w-[1280px] px-5 py-14 sm:px-8 sm:py-16">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <footer className="ft">
+      <div className="wrap">
+        <div className="ft__top">
           <div>
-            <div className="flex items-center gap-2.5">
-              {/* 品牌徽记取自 logo.svg（浅底版），详见 components/ui/BrandMark */}
-              <BrandMark />
-              <span className="flex flex-col leading-none">
-                <span className="text-[15px] font-semibold text-[var(--color-brand-navy)]">集智 AI</span>
-                <span className="mt-0.5 text-[11px] tracking-[0.18em] text-[var(--color-ink-3)]">
-                  JIZHI · AI
-                </span>
+            <Link className="brand" href="/">
+              <img className="brand__mark" src="/opc/reference/img/logo-icon.png" alt="集智 AI OPC 社区" width={40} height={40} />
+              <span className="brand__txt">
+                <span className="brand__cn">集智 <span style={{ color: '#3FE0F8' }}>AI</span></span>
+                <span className="brand__en">JIZHI · AI</span>
               </span>
-            </div>
-            <p className="mt-5 max-w-xs text-[13px] leading-relaxed text-[var(--color-ink-2)]">
-              {site.slogan}。{site.company}旗下，面向 AI 创业团队的一站式 AI 应用综合赋能平台。
+            </Link>
+            <p className="ft__desc">
+              集智 · 大健康+AI OPC 社区<br />
+              健康管理 · AI 赋能 · 社区连接
             </p>
-            <p className="mt-4 text-[13px] leading-relaxed text-[var(--color-ink-3)]">
-              {site.address} · 首期 {site.area} · {site.launch}启动运营
-            </p>
-            {/* 联系方式（PRD FR-HOME-09）：**有值才渲染**。
-                `site.contact` 目前为空值 —— 业务方尚未提供对外电话/邮箱，
-                不得臆造；填好配置后这里会自动出现对应条目。 */}
-            {(site.contact.phone || site.contact.email) && (
-              <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-ink-3)]">
-                {site.contact.phone && <span>电话 {site.contact.phone}</span>}
-                {site.contact.phone && site.contact.email && <span> · </span>}
-                {site.contact.email && <span>邮箱 {site.contact.email}</span>}
-              </p>
-            )}
           </div>
 
-          {footerNav.map((col) => (
-            <div key={col.title}>
-              {/* 页脚分组标题用 h2：部分页面（如 /ops/leads 的口令页）正文只有 h1，
-                  用 h3 会造成 h1 → h3 跳级，违反 heading 层级规则 */}
-              <h2 className="text-[13px] font-semibold text-[var(--color-brand-navy)]">{col.title}</h2>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l.href}>
-                    <Link
-                      href={l.href}
-                      // inline-block + py-1：链接原本只有 15px 高（AA 要求 24×24）
-                      className="inline-block py-1 text-[13px] text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-brand-blue-deep)]"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div>
+            <h5>平台</h5>
+            <ul className="ft__links">
+              <li><Link href="/health">大健康+AI</Link></li>
+              <li><Link href="/empower">八大赋能</Link></li>
+              <li><Link href="/market">供需发布</Link></li>
+              <li><Link href="/growth">流量赋能</Link></li>
+              <li><Link href="/academy">集智商学院</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h5>了解我们</h5>
+            <ul className="ft__links">
+              <li><Link href="/about#intro">集智简介</Link></li>
+              <li><Link href="/about#who">服务对象</Link></li>
+              <li><Link href="/news">社区动态</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h5>联系我们</h5>
+            <ul className="ft__ct">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>{site.address} · 首期 {site.area}</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+                <span>周一至周五 9:30 – 18:00</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-[var(--color-line)] pt-6 text-[13px] text-[var(--color-ink-3)] sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {year} {site.company} · 集智 AI OPC 社区
-          </p>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            {/* inline-block + py-0.5：底部链接原本 20px 高，补到 24px（WCAG 2.5.8 AA） */}
-            <Link
-              href="/about"
-              className="inline-block py-1 transition-colors hover:text-[var(--color-brand-blue-deep)]"
-            >
-              关于我们
-            </Link>
-            <Link
-              href="/apply"
-              className="inline-block py-1 transition-colors hover:text-[var(--color-brand-blue-deep)]"
-            >
-              申请入驻
-            </Link>
-          </div>
+        <div className="ft__bt">
+          <span>© {year} {site.company}　保留所有权利</span>
+          <span>{site.icp}</span>
         </div>
       </div>
     </footer>

@@ -1,125 +1,150 @@
 /**
- * 流量超市（/traffic）页面契约。
+ * 流量赋能页（/growth）契约。
  *
- * /traffic 的历史：先是有内容的站内页 → 2026-10-23 整页跳转独立站 th.jimei.cn →
- * 2026-10-26 改回站内页面（集智AIGC新媒体流量基地七大板块）。
- * 这里锁死三件事：
- *   1. **不得再跳转**——导航「流量超市」是顶层入口，整页 redirect 会把它变成死入口；
- *   2. **文案事实不丢**——案例数字、合规声明等关键事实必须逐字在数据文件里；
- *   3. **二维码位诚实**——图片没提供时不得渲染「扫描下方二维码」的引导。
- * 2026-10-26 追加：banner 面包屑与页底留言表单下线，留资统一收敛到 /apply 统一留资页。
+ * ── 2026-11-10 全站复刻后的变化 ─────────────────────────────────────────
+ *   /traffic 已下线（308 → /growth）。流量赋能现在是**参考站快照页**
+ *   （scripts/opc-reference/pages/growth.html → generated/pages.json['/growth']），
+ *   页面内容（基地介绍 / 业务生态 / 标杆战报 / 合作邀请）全部来自参考站原件。
+ *
+ * 删除的旧断言（逐条说明）：
+ *   - 「/traffic 页面不再 redirect 到独立站、不再引用 th.jimei.cn」
+ *     → /traffic 页面文件已删除，改由 next.config 的 308 收敛到 /growth；
+ *   - 「页面使用站内统一版式（PageHero + Section）、面包屑与内嵌表单已下线」
+ *     → 页面现在是参考站快照，版式由参考站 CSS 提供；
+ *   - 「traffic-base.ts 的七大板块 / 优势四项 / 人才阶梯 / 基地网络 / 案例战报」
+ *     → 这些数据是旧站独立页的数据源，参考站的对应内容改由 growth.html 提供；
+ *     数据文件 src/lib/data/traffic-base.ts 已不再被任何页面引用（死数据）。
+ *
+ * 现在锁死的是：
+ *   1. /growth 路由存在，且内容确实来自参考站 growth 快照；
+ *   2. 旧 /traffic 在 next.config.ts 里 308 到 /growth；
+ *   3. 参考站 growth 页的关键战报数据（八马茶业 / 康师傅 / 立白 / 卫龙 …）
+ *      在烘焙产物里逐字保留。
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
-import { trafficBase, trafficMiniappQr } from '@/lib/data/traffic-base';
+import { join, resolve } from 'node:path';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const pageSource = readFileSync(resolve(repoRoot, 'src/app/traffic/page.tsx'), 'utf8');
+const read = (rel: string) => readFileSync(resolve(repoRoot, rel), 'utf8');
 
-describe('流量超市页面 · 不再跳转', () => {
-  test('页面不再 redirect 到独立站，也不再引用 th.jimei.cn', () => {
-    assert.ok(!pageSource.includes('th.jimei.cn'), '不得引用独立站地址');
-    assert.ok(!/\bredirect\s*\(/.test(pageSource), '不得调用 next/navigation 的 redirect');
-    assert.ok(!/permanentRedirect/.test(pageSource), '不得调用 permanentRedirect');
+const pages = JSON.parse(read('src/lib/opc/generated/pages.json')) as Record<string, { title: string; html: string }>;
+const growth = pages['/growth'].html;
+const referenceGrowth = read('scripts/opc-reference/pages/growth.html');
+
+describe('/growth · 路由与来源', () => {
+  test('/growth 路由存在，页面用参考站快照渲染', () => {
+    assert.ok(existsSync(resolve(repoRoot, 'src/app/growth/page.tsx')), '缺少 /growth 页面');
+    const source = read('src/app/growth/page.tsx');
+    assert.match(source, /getReplicaPage\('\/growth'\)|pathname="\/growth"/, '/growth 应渲染参考站快照');
+    // 标题由编译期从参考站 <title> 提取，逐字一致（参考站口径带中缀「集智 AIGC 新媒体流量基地」）
+    assert.equal(
+      pages['/growth'].title,
+      '流量赋能 · 集智 AIGC 新媒体流量基地 · 集智 AI OPC 社区',
+    );
   });
 
-  test('页面使用站内统一版式（PageHero + Section），面包屑与内嵌表单已下线', () => {
-    assert.ok(pageSource.includes('PageHero'));
-    assert.ok(pageSource.includes('<Section'));
-    assert.ok(!pageSource.includes('crumbs='), 'banner 不再挂面包屑（2026-10-26 下线）');
-    assert.ok(!pageSource.includes('<LeadForm'), '页底不再内嵌留资表单（2026-10-26 下线）');
-    assert.ok(pageSource.includes('href="/apply"'), '留资入口必须统一指向 /apply');
-    assert.ok(pageSource.includes("canonical: '/traffic'"));
+  test('growth 页内容确实来自参考站 growth.html（关键段落一致）', () => {
+    assert.ok(growth.length > 5000, 'growth 页内容过短');
+    // 参考站原件里的关键文案必须出现在烘焙产物里
+    for (const fragment of ['不讲方法论，先看战报', '三种身份，三种进来', '标杆案例']) {
+      assert.ok(referenceGrowth.includes(fragment), `参考站原件缺少「${fragment}」`);
+      assert.ok(growth.includes(fragment), `烘焙产物缺少「${fragment}」`);
+    }
+    // 参考站 growth 页的锚点全部保留
+    assert.deepEqual(
+      [...growth.matchAll(/<section\b[^>]*id="([^"]+)"/g)].map((match) => match[1]),
+      ['base', 'adv', 'biz', 'path', 'cases', 'join'],
+    );
+  });
+});
+
+describe('/traffic → /growth 的 308 收敛', () => {
+  test('next.config.ts 里 /traffic 永久重定向到 /growth', () => {
+    const config = read('next.config.ts');
+    assert.ok(config.includes("source: '/traffic'"), '收敛表缺少 /traffic');
+    assert.ok(config.includes("destination: '/growth'"), '收敛表缺少目标 /growth');
+    const entry = config.match(/\{ source: '\/traffic', destination: '\/growth', permanent: (\w+) \}/);
+    assert.ok(entry, '/traffic 的 308 规则形状不符');
+    assert.equal(entry![1], 'true', '/traffic 必须 permanent（308）');
   });
 
-  test('二维码位：图片未提供时不承诺「扫描二维码」', () => {
-    if (trafficMiniappQr === null) {
-      // 条件分支在页面里：只有 trafficMiniappQr 为真才出现扫码引导
-      assert.ok(/trafficMiniappQr\s*\?/.test(pageSource), '扫码引导必须以二维码位存在为前提');
-      assert.ok(pageSource.includes('href="/apply"'), '无二维码时仍须有 /apply 留资入口');
+  test('旧 /traffic 页面文件已删除', () => {
+    assert.equal(existsSync(resolve(repoRoot, 'src/app/traffic/page.tsx')), false);
+    assert.equal(existsSync(resolve(repoRoot, 'src/app/traffic')), false);
+  });
+
+  test('导航指向 /growth（不再是 /traffic）', () => {
+    const navigation = read('src/lib/site/navigation.ts');
+    assert.ok(navigation.includes("href: '/growth'"), '导航应指向 /growth');
+    assert.ok(!navigation.includes("href: '/traffic'"), '导航不得再指向 /traffic');
+  });
+});
+
+describe('参考站 growth 页 · 战报数据逐字保留', () => {
+  test('战报表格存在且包含表头 + 5 行案例', () => {
+    const table = growth.match(/<table class="gw-tb">([\s\S]*?)<\/table>/)?.[1];
+    assert.ok(table, '缺少战报表格');
+    // 1 行表头 + 5 行案例（四家品牌 + 大健康垂类 IP）
+    assert.equal((table!.match(/<tr[^>]*>/g) ?? []).length, 6, '表头 + 5 行案例');
+  });
+
+  test('五家战报品牌与关键数字完整保留', () => {
+    const cases: Array<[string, string[]]> = [
+      ['八马茶业', ['中秋超品日', '2400 万+', '5 亿+', '茶类目 TOP1']],
+      ['康师傅', ['双播专场', '200 万+', '1900%']],
+      ['立白', ['品牌自播', '100 万+', '630 万+']],
+      ['卫龙', ['品牌矩阵直播间', 'GMV 破百万']],
+      ['大健康垂类 IP', ['公私域全域变现', '300 万+', '20–30 万']],
+    ];
+    for (const [brand, facts] of cases) {
+      assert.ok(growth.includes(brand), `缺少战报品牌：${brand}`);
+      for (const fact of facts) {
+        assert.ok(growth.includes(fact), `${brand} 缺少关键数字：${fact}`);
+      }
+    }
+  });
+
+  test('战报数据在参考站原件与烘焙产物里逐字一致', () => {
+    const table = growth.match(/<table class="gw-tb">([\s\S]*?)<\/table>/)?.[1] ?? '';
+    const referenceTable = referenceGrowth.match(/<table class="gw-tb">([\s\S]*?)<\/table>/)?.[1] ?? '';
+    assert.ok(referenceTable.length > 100, '参考站原件里没有战报表格');
+    const cells = (html: string) =>
+      [...html.matchAll(/<td>([\s\S]*?)<\/td>/g)].map((match) => match[1].replace(/<[^>]+>/g, '').trim());
+    assert.deepEqual(cells(table), cells(referenceTable));
+  });
+
+  test('数据口径注记保留（不夸大战报）', () => {
+    assert.ok(growth.includes('数据取自项目战报，统计口径与时间以结案报告为准'));
+  });
+
+  test('流量赋能页的图片全部来自参考站素材目录', () => {
+    const images = [...growth.matchAll(/<img\b[^>]*\ssrc="([^"]+)"/g)].map((match) => match[1]);
+    assert.ok(images.length > 0, 'growth 页应至少有一张图');
+    for (const src of images) {
+      assert.ok(src.startsWith('/opc/reference/img/'), src);
+      assert.ok(existsSync(resolve(repoRoot, `public${src}`)), src);
     }
   });
 });
 
-describe('流量基地数据 · 七大板块完整', () => {
-  test('基地简介：使命 / 愿景 / 核心价值观与产业资源齐备', () => {
-    assert.equal(trafficBase.intro.pillars.length, 3);
-    assert.deepEqual(
-      trafficBase.intro.pillars.map((p) => p.label),
-      ['使命', '愿景', '核心价值观'],
-    );
-    assert.deepEqual(trafficBase.intro.values, ['实战育人', '商业共生', '务实创新', '多方共赢']);
-    assert.ok(trafficBase.intro.industries.includes('大健康'));
-    assert.match(trafficBase.intro.paragraph, /集美控股集团旗下北京集美科技有限公司/);
-    assert.match(trafficBase.intro.paragraph, /40余年产业积淀/);
-  });
-
-  test('核心优势四项，关键事实逐字保留', () => {
-    assert.equal(trafficBase.advantages.length, 4);
-    const joined = trafficBase.advantages.map((a) => a.desc).join('');
-    for (const fact of ['300余家头部企业', '10亿级战略并购', '月产数万条商业短视频', '双端小程序系统']) {
-      assert.ok(joined.includes(fact), `优势里缺少事实：${fact}`);
-    }
-  });
-
-  test('业务生态：B/S/C 三端四条线，每条服务项都有说明', () => {
-    assert.equal(trafficBase.businesses.length, 4);
-    assert.deepEqual(
-      trafficBase.businesses.map((b) => b.tag),
-      ['B端服务', 'B端服务', 'S端服务', 'C端服务'],
-    );
-    for (const b of trafficBase.businesses) {
-      assert.ok(b.title.length > 0);
-      assert.ok(b.items.length >= 3, `${b.title} 服务项过少`);
-      for (const item of b.items) {
-        assert.ok(item.title && item.desc, `${b.title} 存在空服务项`);
+describe('旧流量基线数据已下线', () => {
+  test('traffic-base.ts 不再被任何页面引用（死数据）', () => {
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(resolve(repoRoot, dir), { withFileTypes: true })) {
+        const rel = `${dir}/${entry.name}`;
+        if (entry.isDirectory()) {
+          walk(rel);
+          continue;
+        }
+        if (!/\.tsx?$/.test(entry.name)) continue;
+        if (read(rel).includes('traffic-base')) offenders.push(rel);
       }
-    }
-    const fde = trafficBase.businesses[1];
-    assert.match(fde.title, /FDE/);
-    assert.match(fde.lead ?? '', /Forward Deployed Engineer/);
-  });
-
-  test('人才成长闭环：六级阶梯顺序不可乱', () => {
-    assert.deepEqual(trafficBase.growth.ladder, [
-      '实训学员', '商业交付师', '签约员工', '助教', '带教', '项目合伙人',
-    ]);
-    assert.equal(trafficBase.growth.points.length, 2);
-  });
-
-  test('基地网络：三大基地 + 拓展中 + 合规注记', () => {
-    assert.deepEqual(
-      trafficBase.network.bases.map((b) => b.name),
-      ['北京总部基地', '常熟流量基地', '上海流量基地'],
-    );
-    assert.match(trafficBase.network.more, /持续拓展中/);
-    assert.match(trafficBase.network.note, /保障学生权益与数据安全/);
-  });
-
-  test('案例战报：五家品牌，主数字必须与事实列表一致', () => {
-    assert.equal(trafficBase.cases.length, 5);
-    for (const c of trafficBase.cases) {
-      assert.ok(c.brand && c.facts.length >= 2, `${c.brand} 案例事实不完整`);
-      // 主数字是事实列表中某一条的放大：数字必须真的出现在事实里
-      const numberInFacts = c.facts.some((f) => f.includes(String(c.metric.value)));
-      assert.ok(numberInFacts, `${c.brand} 的主数字 ${c.metric.value} 未出现在事实列表中`);
-    }
-    const bama = trafficBase.cases[0];
-    assert.equal(bama.brand, '八马茶业');
-    assert.ok(bama.facts.join('').includes('2400万+'));
-    assert.ok(bama.facts.join('').includes('5亿+'));
-  });
-
-  test('合作邀请：三类受众、三条通道、合规声明逐字保留', () => {
-    assert.deepEqual(
-      trafficBase.invitation.audiences.map((a) => a.to),
-      ['致企业', '致院校', '致学员'],
-    );
-    assert.deepEqual(trafficBase.invitation.channels, ['商务合作', '院校共建', '实训报名']);
-    assert.match(trafficBase.invitation.compliance, /不向学生收取培训费、押金、设备费/);
-    assert.match(trafficBase.invitation.compliance, /未经学校书面同意/);
+    };
+    walk('src');
+    assert.deepEqual(offenders, [], `这些文件仍在引用旧流量基线数据：${offenders.join(', ')}`);
   });
 });

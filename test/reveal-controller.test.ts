@@ -1,6 +1,75 @@
+/**
+ * 进场（reveal）动画的两层契约。
+ *
+ * ── 2026-11-10 全站复刻后的分工 ─────────────────────────────────────────
+ *   1. **公开站**（参考站快照）：进场由 `src/components/opc/ReferenceInteractions.tsx`
+ *      按参考站语义接管 —— `.rv` 元素进入视口后加 `.vis` 类，
+ *      `data-d` 属性决定阶梯延迟；`prefers-reduced-motion` 或缺少
+ *      IntersectionObserver 时**直接置为 vis**（不做动画，也不隐藏内容）。
+ *      样式在 public/opc/reference/main.css（`.opc-site .rv` / `.opc-site .rv.vis`）。
+ *   2. **后台 / 原生页**：`src/components/ui/reveal-controller.ts` 的 mountReveal
+ *      （data-state / data-reveal-immediate 协议）—— 这一层**保持不变**，
+ *      下面的渐进式 Reveal 生命周期用例继续守它。
+ *
+ * 删除的旧断言：无（旧的 visual-motion.ts / parallax-motion.ts 已随旧站下线，
+ * 但那份文件里本来就没有被本测试覆盖；本文件原有的 mountReveal 用例全部保留）。
+ */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { mountReveal } from '@/components/ui/reveal-controller';
+
+const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+const read = (rel: string) => readFileSync(resolve(repoRoot, rel), 'utf8');
+const interactions = read('src/components/opc/ReferenceInteractions.tsx');
+const referenceCss = read('public/opc/reference/main.css');
+
+describe('公开站进场约定 · ReferenceInteractions', () => {
+  test('进场目标是 .rv，进入视口后加 .vis', () => {
+    assert.match(interactions, /querySelectorAll<HTMLElement>\('\.rv'\)/, '必须按 .rv 选取进场元素');
+    assert.match(interactions, /el\.classList\.add\('vis'\)/, '进入视口后必须加 .vis');
+    assert.match(interactions, /io\.unobserve\(el\)/, '进场后必须停止观察（只触发一次）');
+  });
+
+  test('data-d 决定阶梯延迟（每档 70ms）', () => {
+    assert.match(interactions, /getAttribute\('data-d'\) \?\? '0'\) \* 70/, '延迟应为 data-d × 70ms');
+    assert.match(interactions, /el\.style\.transitionDelay = `\$\{delay\}ms`/, '延迟必须写进 transitionDelay');
+  });
+
+  test('prefers-reduced-motion 时直接置为 vis（不做动画，也不隐藏内容）', () => {
+    assert.match(interactions, /isReducedMotion\(\)/, '必须探测 prefers-reduced-motion');
+    assert.match(
+      interactions,
+      /if \(!\('IntersectionObserver' in window\) \|\| noAnim \|\| isReducedMotion\(\)\) \{\s*revealTargets\.forEach\(\(el\) => el\.classList\.add\('vis'\)\);/,
+      '减弱动效 / 缺少 IntersectionObserver / noanim 时必须一次性全部置为 vis',
+    );
+  });
+
+  test('IntersectionObserver 的触发阈值与观察视口固定', () => {
+    assert.match(interactions, /threshold: 0\.12/, '进场阈值应为 0.12');
+    assert.match(interactions, /rootMargin: '0px 0px -8% 0px'/, '观察视口下边距应固定为 -8%');
+  });
+
+  test('noanim 查询参数可关闭动画（测试与截图用）', () => {
+    assert.match(interactions, /const noAnim = \/noanim\/\.test\(window\.location\.search\)/);
+  });
+
+  test('样式侧 .rv 初始隐藏、.vis 复位（缺 JS 时内容仍可见）', () => {
+    assert.match(referenceCss, /\.opc-site \.rv\{opacity:0/, '.rv 初始应隐藏');
+    assert.match(referenceCss, /\.opc-site \.rv\.vis\{opacity:1;transform:none\}/, '.vis 应复位');
+  });
+
+  test('减弱动效下 .rv 直接可见（CSS 兜底，不依赖 JS）', () => {
+    assert.match(
+      referenceCss,
+      /\.opc-site \.rv\{opacity:1;transform:none\}/,
+      'prefers-reduced-motion 下 .rv 必须直接可见',
+    );
+  });
+});
+
 
 class TrackedTarget extends EventTarget {
   listeners = new Map<string, Set<EventListenerOrEventListenerObject>>();

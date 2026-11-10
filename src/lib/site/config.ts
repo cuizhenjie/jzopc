@@ -21,13 +21,14 @@ export const site = {
    * 联系方式（PRD FR-HOME-09 要求页脚展示）。
    *
    * 2026-10-22 业务方已提供电话与邮箱，此处如实填写。
-   * ⚠️ **ICP 备案号业务方未提供** —— 页脚与关于页一律不渲染备案位，
-   * 不用任何来源的备案号顶替。
+   * 2026-11-10 业务方提供 ICP 备案号，页脚按工信部格式展示。
    */
   contact: {
     phone: '400-006-5858',
     email: 'developer@jimei.com.cn',
   },
+  /** ICP 备案号（页脚展示；业务方 2026-11-10 提供） */
+  icp: '京ICP备2023030613号',
 } as const;
 
 /** 品牌色（logo.svg 实测），供 canvas/shader 与内联样式使用 */
@@ -105,7 +106,7 @@ export const empowerModules = [
   {
     slug: 'market',
     index: '06',
-    title: '供需市场',
+    title: '订单市场',
     tagline: '社区内撮合，外部接 1000+ 家企业需求，把能力直接变成收入。',
     href: '/empower/market',
     leadType: null,
@@ -135,15 +136,35 @@ export const visions = aboutCopy.visions;
 /** 集智商学院文案已随原生 /academy 页下线（2026-10-26）删除——
  *  /center 复刻页的课程卡由 courses 表运行时化（blocks-runtime），不再需要静态 tracks/steps。 */
 
-/** 智能体分类（后台资源模块的选项来源，与 agents 表 FK 对齐；/agent 运行时化的分区名同源） */
+/** 智能体分类（后台资源模块的选项来源，与 agents 表 FK 对齐；/agent 运行时化的分区名同源）。
+ *
+ * ⚠️ **slug 必须与数据库 `agent_categories` 表逐字一致** —— 后台分类是事实源：
+ * 前台 chips 的 `data-cat`、卡片的 `data-opc-categories` 与后台表单选项
+ * 都以这份 slug 串起来；slug 对不上，前台 chips 就会显示英文原文而不是中文名。
+ *
+ * 2026-11-10 全站复刻后对齐数据库实际值（参考站的 18 个分类，
+ * 其中 office/writing/coding/design/image/video/audio 是早期 7 类的历史 slug）。
+ * 前台只渲染**后台有已发布条目**的分类，因此空分类不会出现在页面上。
+ */
 export const agentCategories = [
+  { slug: 'hot', name: '热门工具' },
+  { slug: 'agent', name: 'AI智能体' },
   { slug: 'office', name: '办公' },
   { slug: 'writing', name: '写作' },
+  { slug: 'search', name: 'AI搜索工具' },
   { slug: 'coding', name: '编程' },
-  { slug: 'design', name: '设计' },
-  { slug: 'image', name: '图像' },
-  { slug: 'video', name: '视频' },
+  { slug: 'chat', name: 'AI聊天对话' },
   { slug: 'audio', name: '音频' },
+  { slug: 'video', name: '视频' },
+  { slug: 'image', name: '图像' },
+  { slug: 'design', name: '设计' },
+  { slug: 'prompt', name: 'AI指令提示' },
+  { slug: 'translate', name: 'AI翻译工具' },
+  { slug: 'detect', name: 'AI内容检测' },
+  { slug: 'legal', name: 'AI法律助手' },
+  { slug: 'opensource', name: 'AI开源模型' },
+  { slug: 'learning', name: 'AI学习网站' },
+  { slug: 'framework', name: 'AI开发框架' },
 ] as const;
 
 /** 合作企业名单（16 家）已随公开页展示一起收敛进复刻快照与

@@ -1,14 +1,19 @@
 {
-  "source": "https://opcstore.com/webNew/index.html#/",
-  "capturedAt": "2026-10-22",
-  "pageCount": 18,
-  "detailCount": 158,
-  "tools": 233,
-  "categories": {
-    "10": 88,
-    "14": 22,
-    "15": 13,
-    "16": 22,
-    "17": 13
+  "source": "https://jizhi-ai-opc.app.workbuddy.host/",
+  "capturedBy": "scripts/fetch-opc-reference.mjs",
+  "compiledBy": "scripts/build-opc-reference.mjs",
+  "routeCount": 10,
+  "images": 26,
+  "checksums": {
+    "/": "38030aa434d6ab61",
+    "/about": "02263798f8f308e7",
+    "/health": "e0b37d34e081bac2",
+    "/empower": "70ed7fba49e2202d",
+    "/market": "aaf24cdad250ce33",
+    "/growth": "773df848a3a1bd50",
+    "/academy": "763133f97405438f",
+    "/news": "288430aadf9ee92a",
+    "/apply": "2d98fcbbe59175c0",
+    "/agent": "7c2fe9e4564753bf"
   }
 }

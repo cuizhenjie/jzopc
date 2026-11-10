@@ -20,7 +20,7 @@ const validNews = {
   title: '集智第 3 期 AI 沙龙回顾',
   slug: 'salon-3-recap',
   summary: '一期沙龙的完整回顾。',
-  category: '沙龙',
+  category: '行业观察',
   author: '集智运营',
   status: 'published',
   cover_url: '',
@@ -67,7 +67,10 @@ describe('newsInputSchema', () => {
     }
   });
 
-  test('分类必须是沙龙/活动/资讯', () => {
+  test('分类只允许参考站的三个类目', () => {
+    for (const category of ['行业观察', '政策资讯', '赛事活动']) {
+      assert.equal(newsInputSchema.safeParse({ ...validNews, category }).success, true, `${category} 应合法`);
+    }
     assert.equal(newsInputSchema.safeParse({ ...validNews, category: '公告' }).success, false);
   });
 
@@ -176,5 +179,19 @@ describe('CSV 导出', () => {
     for (const must of ['status', 'note', 'utm', 'contact', 'message', 'created_at']) {
       assert.ok(keys.includes(must), `CSV 缺少关键列：${must}`);
     }
+  });
+});
+
+describe('新闻预览与缓存刷新路由', () => {
+  test('后台预览、slug 说明与缓存刷新都指向现行 /newsdetail?id= 路由', async () => {
+    const { readFileSync } = await import('node:fs');
+    const table = readFileSync('src/components/admin/NewsTable.tsx', 'utf8');
+    const form = readFileSync('src/components/admin/NewsForm.tsx', 'utf8');
+    const server = readFileSync('src/lib/admin/news-server.ts', 'utf8');
+    assert.ok(table.includes('/newsdetail?id=${encodeURIComponent(n.slug)}'));
+    assert.ok(!table.includes('href={`/news/${n.slug}`}'));
+    assert.ok(form.includes('前台地址：/newsdetail?id='));
+    assert.ok(server.includes("revalidatePath('/newsdetail')"));
+    assert.ok(!server.includes('revalidatePath(`/news/${slug}`)'));
   });
 });

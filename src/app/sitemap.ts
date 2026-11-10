@@ -7,7 +7,7 @@ import { loadPublishedNewsPosts, newsDetailIdOfSlug } from '@/lib/opc/news-runti
  *  未配库/查询异常 → 无文章条目（DB 唯一事实源，不回落 listings 快照）。 */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.url.replace(/\/$/, '');
-  const account = new Set(['/opclogin', '/opcregister', '/opcforgotpassword', '/myinfo', '/opcapply', '/newsdetail']);
+  const account = new Set(['/newsdetail']);
   let detailIds: string[] = [];
   try {
     const posts = await loadPublishedNewsPosts();
@@ -16,12 +16,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('[sitemap] 读取 news_posts 失败，本批不含文章条目', error);
   }
   return [
-    ...replicaPaths.filter(path => !account.has(path)).map(path => ({
+    ...replicaPaths.filter((path) => !account.has(path)).map((path) => ({
       url: `${base}${path}`,
       changeFrequency: 'weekly' as const,
       priority: path === '/' ? 1 : 0.8,
     })),
-    ...detailIds.map(id => ({
+    ...detailIds.map((id) => ({
       url: `${base}/newsdetail?id=${encodeURIComponent(id)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.6,

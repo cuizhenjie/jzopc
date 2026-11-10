@@ -78,8 +78,8 @@
 | 科技蓝样式与本地素材（复现态） | 完成 | `reference-blue.css` + 875素材映射 |
 | 页面交互重写 | 完成 | 搜索/筛选/分页/弹窗/表单 |
 | 视觉基线审计 | 完成 | `scripts/opc-design-audit.mjs`，32→8 档字号等 8 项量化 |
-| 设计 token 层 | 完成 | `src/styles/opc-tokens.css` |
-| 组件样式层 | 完成 | `src/styles/opc-components.css` |
+| 设计 token 层 | 完成 | `src/styles/globals.css`（旧 opc-tokens.css 已删除） |
+| 组件样式层 | 完成 | `public/opc/reference/main.css`（旧 opc-components.css 已删除） |
 | 品牌替换（3719 处）+ logo 注入 | 完成 | `build-opc-content.py` 生成期替换 |
 | 关键页结构重构 | 完成 | 首页 hero / 内页 hero / page-header / 登录页 |
 | 科技蓝主视觉 | 完成 | `public/opc/hero-*.svg` × 4，共 9.6KB |
@@ -125,7 +125,7 @@
 | `.stat-description` 2.39:1（原站 `#a3a3a3`） | 设计层**完全没覆盖**这个类 → 原站色值直接生效 | 显式收口到 `--opc-ink-3`（同底 5.32:1） |
 | 对比度审计漏报（滚动中后段整段没采到） | 只采 `scroll=0` 与 `0.45` 两个位置；`.stat-description` 与 5 处「白字压品牌色」都落在采样区外 | 采样点扩到 4 个（`0/0.3/0.6/0.9`），采样量 1352 → **2746** |
 | 对比度审计假失败（2.49:1） | 入场过渡未结束时采到**中间态**颜色（`.city-btn.active` 底色正从白过渡到深蓝） | 采样前把有限动画 `finish()` 到终态 |
-| **站点联系方式**全部换成业务方提供的值 | 原站电话/邮箱/域名/地址/备案号已整项删除，业务方当时未提供 | 电话 `400-006-5858`、邮箱 `developer@jimei.com.cn`、地址 `北京市丰台区西马场甲14号`、域名 `www.jizhiai.net.cn`；**备案号未提供 → 一律不渲染** |
+| **站点联系方式**全部换成业务方提供的值 | 原站电话/邮箱/域名/地址/备案号已整项删除，业务方当时未提供 | 电话 `400-006-5858`、邮箱 `developer@jimei.com.cn`、地址 `北京市丰台区大红门`、域名 `www.jizhiai.net.cn`；备案号 `京ICP备2023030613号`（2026-11-10 业务方补充，页脚已渲染） |
 | 「算力超市」外链仍指向原站 | `https://ai.opcstore.com`（30 处）未进品牌替换映射 | 映射到 `https://th.jimei.cn`；原站另一个域名 `t.3cool.cc`（53 处）一并换成本站域名 |
 | 首页 banner **只显示第一张**、没有指示器 | SSR 静态 HTML 里 `el-carousel__item` 的 transform 是**写死的内联值**，无 Vue 运行时 → 永不切换；指示器是运行时渲染的 | 运行期实现轮播：opacity+z-index 淡入淡出、自动播放 5.6s、指示器可点击、悬停暂停、触摸滑动、尊重 `prefers-reduced-motion` |
 | 全站区块留白**不统一且过大**（0~110px，且叠加 72px margin） | 原站各 section 的 padding-bottom 不一致，设计层又加了一条 `margin-bottom:72px` → 双重留白，最坏 172px | 留白只由 padding 表达：`margin-bottom:0` + 统一 `padding: 72px 0`（新增 `--opc-section-pad` token） |

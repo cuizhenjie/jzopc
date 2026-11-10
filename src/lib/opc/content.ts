@@ -1,12 +1,9 @@
-/** Public reference content, compiled and sanitized at generation time.
- * Keep this module on the server: only the selected page/article reaches users.
+/** 公开站静态内容（参考站快照编译产物）。
+ *
+ * 事实源：scripts/opc-reference/ → scripts/build-opc-reference.mjs → generated/pages.json
+ * 运行时只把**被选中的那一页**送到浏览器（服务端专用模块）。
  */
 import pagesSource from './generated/pages.json' with { type: 'json' };
-import detailsSource from './generated/details.json' with { type: 'json' };
-import articleShell from './generated/article-shell.json' with { type: 'json' };
-import zonePagesSource from './generated/zone-cities.json' with { type: 'json' };
-import { isReplicaPath } from '@/lib/opc/routes';
-import { NEWSDETAIL_ID_PATTERN } from '@/lib/opc/taxonomy';
 
 export interface ReplicaPageContent {
   html: string;
@@ -21,11 +18,9 @@ export interface ReplicaArticle {
   html: string;
 }
 
-type Query = Record<string, string | string[] | undefined>;
-type ArticleRecord = ReplicaArticle & { date: string };
-const pages = pagesSource as Record<string, ReplicaPageContent>;
-const details = detailsSource as Record<string, ArticleRecord>;
-const zonePages = zonePagesSource as Record<string, ReplicaPageContent>;
+type Query = Record<string, string | undefined | string[]>;
+
+const pages = pagesSource as unknown as Record<string, ReplicaPageContent>;
 
 /**
  * 复刻站对外的站点名。
@@ -36,7 +31,7 @@ const zonePages = zonePagesSource as Record<string, ReplicaPageContent>;
  */
 export const REPLICA_SITE_NAME = '集智 AI OPC 社区';
 
-/** HTML 文本/属性值转义（news-runtime 的运行时卡片渲染复用同一实现） */
+/** HTML 文本/属性值转义（运行时卡片渲染复用同一实现） */
 export function escapeText(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 }
@@ -45,36 +40,15 @@ function firstQuery(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-/** /newsdetail 的 id 在不可变查表前先过形态校验（数字或 slug，见 taxonomy）；不做任何文件路径拼接。 */
-export function getReplicaArticle(id: string | number): ReplicaArticle | null {
-  const key = String(id);
-  if (!NEWSDETAIL_ID_PATTERN.test(key) || !Object.hasOwn(details, key)) return null;
-  const article = details[key];
-  return { id: article.id, title: article.title, html: article.html };
+/** 取某一路由的烘焙页面；路径不在快照内 → null（由路由层决定 404）。 */
+export function getReplicaPage(pathname: string, _query: Query = {}): ReplicaPageContent | null {
+  const path = pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  if (!Object.hasOwn(pages, path)) return null;
+  const page = pages[path];
+  return { ...page, path };
 }
 
-export function getReplicaPage(pathname: string, query: Query = {}): ReplicaPageContent | null {
-  const path = pathname.toLowerCase().replace(/\/+$/, '') || '/';
-  if (!isReplicaPath(path) || !Object.hasOwn(pages, path)) return null;
-  if (path === '/newsdetail') {
-    const identifier = firstQuery(query.id) ?? '392';
-    const article = getReplicaArticle(identifier);
-    if (!article) return null;
-    const record = details[String(article.id)];
-    return {
-      path,
-      id: article.id,
-      title: `${article.title} - ${REPLICA_SITE_NAME}`,
-      html: articleShell.html
-        .replace('__OPC_TITLE__', escapeText(article.title))
-        .replace('__OPC_DATE__', escapeText(record.date))
-        .replace('__OPC_ARTICLE__', article.html),
-    };
-  }
-  const page = pages[path];
-  const city = firstQuery(query.city);
-  if (path === '/zone' && city && Object.hasOwn(zonePages, city)) {
-    return { ...zonePages[city] };
-  }
-  return { ...page };
+/** 快照里存在的全部公开路由（sitemap / llms.txt / 校验脚本共用）。 */
+export function listReplicaPaths(): string[] {
+  return Object.keys(pages).sort();
 }

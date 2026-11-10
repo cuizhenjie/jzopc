@@ -14,7 +14,17 @@ import { z } from 'zod';
  * - `published_at` 用 datetime-local 的值（yyyy-MM-ddTHH:mm），入库存 timestamptz。
  */
 
-export const NEWS_CATEGORIES = ['沙龙', '活动', '资讯', '社区'] as const;
+/**
+ * 社区动态的分类词表 —— 与公开站 /news 的筛选 chips **逐字一致**。
+ *
+ * 2026-11-10 全站复刻后，参考站把 /news 的类目收敛为三个：
+ * 行业观察 / 政策资讯 / 赛事活动，前台 chips 直接用这三个词。
+ * 后台表单的枚举必须与之一致，否则：
+ *   - 运营发布不了参考站类目的文章（zod 枚举会拒）；
+ *   - 前台 chips 点了某个类目却一篇都没有。
+ * （旧的「沙龙 / 活动 / 资讯 / 社区」是旧站双列表时代的词表，随 /activitylist 下线而废弃。）
+ */
+export const NEWS_CATEGORIES = ['行业观察', '政策资讯', '赛事活动'] as const;
 export const NEWS_STATUSES = ['draft', 'published', 'archived'] as const;
 
 export const newsStatusLabels: Record<(typeof NEWS_STATUSES)[number], string> = {

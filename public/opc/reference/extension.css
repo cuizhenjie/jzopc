@@ -1,0 +1,257 @@
+/* ============================================================
+   参考站扩展样式（2026-11-10）
+   ------------------------------------------------------------
+   参考站 main.css 覆盖了它自身的绝大多数类，但有 29 个类**在参考站
+   自己就没有样式**（课程卡、就业流程、入驻要求、增长率墙、新闻配图等），
+   在参考站上这些区块是「裸奔」的。
+
+   本文件按参考站的设计语言（同一套 token：--navy / --blue / --mint /
+   --line / --bg / --r / --shadow）补齐这些类，并新增后台动态区块的样式：
+   生态伙伴墙（partners）、社区供需榜（market_items）。
+
+   作用域与 main.css 一致：全部限定在 .opc-site 内。
+   ============================================================ */
+
+/* ---------- 导航下拉箭头 ---------- */
+.opc-site .chev{width:12px;height:12px;opacity:.5;margin-left:-1px;flex:0 0 auto}
+
+/* ---------- 关于页：图注 ---------- */
+.opc-site .ab-cap{margin-top:16px;font-size:13px;color:var(--gray-2);text-align:center}
+
+/* ---------- 集智商学院：课程体系卡 ---------- */
+.opc-site .ac-crs{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+.opc-site .ac-crs__i{
+  display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden;transition:transform .28s,box-shadow .28s,border-color .28s;
+}
+.opc-site .ac-crs__i:hover{transform:translateY(-4px);border-color:#C9DCF3;box-shadow:var(--shadow)}
+.opc-site .ac-crs__ph{aspect-ratio:16/10;overflow:hidden;background:#EDF3FB;flex:0 0 auto}
+.opc-site .ac-crs__ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.opc-site .ac-crs__i:hover .ac-crs__ph img{transform:scale(1.05)}
+.opc-site .ac-crs__bd{display:flex;flex-direction:column;gap:8px;padding:18px 18px 20px;flex:1}
+.opc-site .ac-crs__bd h3{font-size:16.5px;font-weight:800;color:var(--navy)}
+.opc-site .ac-crs__bd p{font-size:13.2px;color:var(--gray);line-height:1.72;flex:1}
+.opc-site .ac-crs__bd .tag{align-self:flex-start;margin-bottom:0}
+
+/* ---------- 集智商学院：一站式就业服务 ---------- */
+.opc-site .ac-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.opc-site .ac-fl{
+  position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:22px 18px 20px;transition:transform .28s,box-shadow .28s,border-color .28s;
+}
+.opc-site .ac-fl:hover{transform:translateY(-4px);border-color:#C9DCF3;box-shadow:var(--shadow)}
+.opc-site .ac-fl__d{
+  display:inline-grid;place-items:center;width:40px;height:40px;border-radius:11px;
+  background:rgba(47,123,255,.1);color:var(--btn);font-size:14px;font-weight:900;letter-spacing:.02em;
+}
+.opc-site .ac-fl h3{margin-top:12px;font-size:16px;font-weight:800;color:var(--ink)}
+.opc-site .ac-fl p{margin-top:6px;font-size:13px;color:var(--gray);line-height:1.7}
+
+/* ---------- 流量赋能：增长率墙 ---------- */
+.opc-site .gw-band{
+  margin-top:34px;border-radius:var(--r-lg);padding:34px 30px;color:#fff;
+  background:linear-gradient(135deg,#0D2B6E 0%,#0B2A6B 55%,#2F5C8F 100%);
+  position:relative;overflow:hidden;
+}
+.opc-site .gw-band::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(63,224,248,.28),transparent 70%);
+}
+/* 图注：原来用 --mint（#3FE0F8）压浅色 section 底，只有 1.46:1，等于看不见。
+   改用 --gray（#5B6B82），白底 5.14:1。 */
+.opc-site .gw-cap{
+  position:relative;z-index:1;text-align:center;font-size:13px;font-weight:800;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-bottom:20px;
+}
+/* 成长路径（实训学员 → … → 项目合伙人）
+   ⚠️ 这几条曾经是按「深色块内部的数字栅格」写的：文字用近白 rgba(226,238,252,.78)，
+   而 .gw-flow 实际落在浅色 section（--bg #F6F9FD）上 —— 字色与底色几乎同色，
+   实测采样时剔除字形像素后背景桶为空，文字完全不可见；
+   同时 display:grid + repeat(4,1fr) 会把 6 个步骤 + 5 个箭头拆成 4 列，行尾还会断箭头。
+   现按参考站 growth.html 自己的内联样式还原为「白色胶囊 + 深蓝字」的横向流程条。 */
+.opc-site .gw-flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:22px}
+.opc-site .gw-flow span{
+  padding:8px 15px;border-radius:999px;background:#fff;border:1px solid var(--line);
+  font-size:13px;font-weight:800;color:var(--navy);box-shadow:0 1px 2px rgba(13,43,110,.04);
+}
+.opc-site .gw-flow i{color:var(--gray);font-weight:800;font-style:normal;font-size:13px}
+/* 表下小注：同样是近白色压浅底（rgba(200,216,236,.72)），改为 --gray */
+.opc-site .gw-note{
+  margin-top:22px;font-size:12.5px;color:var(--gray);text-align:center;
+}
+.opc-site .gw-motto{
+  margin-top:28px;text-align:center;font-size:17px;font-weight:800;color:var(--navy);line-height:1.7;
+}
+.opc-site .gw-tbwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+.opc-site .gw-tb{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+.opc-site .gw-tb th,.opc-site .gw-tb td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line-2)}
+.opc-site .gw-tb th{background:var(--bg);font-size:12.5px;font-weight:800;color:var(--navy);letter-spacing:.04em}
+.opc-site .gw-tb tbody tr:last-child td{border-bottom:0}
+.opc-site .gw-tb tbody tr:hover{background:#FCFDFF}
+.opc-site .gw-tb b{color:var(--btn);font-weight:900}
+
+/* ---------- 入驻页：要求 / 权益 / 流程 ---------- */
+.opc-site .join-split{gap:48px}
+.opc-site .jblk{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px 26px 28px;
+  box-shadow:var(--shadow);
+}
+.opc-site .jblk__t{margin-top:10px;font-size:21px;font-weight:900;color:var(--navy)}
+.opc-site .jblk__s{margin-top:8px;font-size:14px;color:var(--gray);line-height:1.8}
+.opc-site .jreq{display:grid;gap:12px;margin-top:20px;counter-reset:req}
+.opc-site .jreq li{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--text);line-height:1.75}
+.opc-site .jreq i{
+  flex:0 0 auto;font-style:normal;font-weight:900;font-size:12px;color:var(--btn);
+  background:rgba(47,123,255,.1);border-radius:8px;padding:5px 8px;line-height:1;
+}
+.opc-site .jben{display:grid;gap:12px;margin-top:20px}
+.opc-site .jben li{
+  display:flex;gap:12px;align-items:baseline;font-size:14px;color:var(--gray);line-height:1.7;
+  padding-bottom:12px;border-bottom:1px dashed var(--line);
+}
+.opc-site .jben li:last-child{border-bottom:0;padding-bottom:0}
+.opc-site .jben b{
+  flex:0 0 auto;color:var(--ink);font-weight:800;font-size:14.5px;
+  background:var(--bg);border-radius:7px;padding:3px 9px;
+}
+.opc-site .jflow{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.opc-site .jfl{
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 18px 20px;
+  position:relative;transition:transform .28s,box-shadow .28s;
+}
+.opc-site .jfl:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.opc-site .jfl__d{
+  display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--btn) 0%,#38D6F5 100%);color:#fff;
+  font-size:13px;font-weight:900;letter-spacing:.02em;
+}
+.opc-site .jfl h3{margin-top:12px;font-size:15.5px;font-weight:800;color:var(--ink)}
+.opc-site .jfl p{margin-top:6px;font-size:13px;color:var(--gray);line-height:1.7}
+
+/* ---------- 社区动态：转载说明 / 配图 / 原文 ---------- */
+.opc-site .nnotice{
+  display:block;padding:14px 18px;border-radius:12px;background:rgba(47,123,255,.06);
+  border:1px solid rgba(47,123,255,.18);font-size:13px;color:var(--gray);line-height:1.8;margin-bottom:26px;
+}
+.opc-site .nnotice b{color:var(--ink);font-weight:800;margin-right:6px}
+.opc-site .nfig{margin:20px 0}
+.opc-site .nfig img{width:100%;border-radius:12px;border:1px solid var(--line-2)}
+.opc-site .nfig figcaption{margin-top:9px;font-size:12.5px;color:var(--gray-2);text-align:center}
+.opc-site .nsrc{margin-top:18px;padding-top:14px;border-top:1px solid var(--line-2);font-size:13px;color:var(--gray-2)}
+.opc-site .nsrc b{color:var(--gray);font-weight:800}
+.opc-site .nsrc a{color:var(--btn);font-weight:700}
+
+/* ---------- 生态伙伴墙（后台 partners） ---------- */
+.opc-site .partner-wall{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:8px}
+.opc-site .partner-wall__i{
+  display:grid;place-items:center;min-height:76px;padding:14px 10px;background:#fff;
+  border:1px solid var(--line);border-radius:12px;transition:border-color .25s,box-shadow .25s,transform .25s;
+}
+.opc-site .partner-wall__i:hover{border-color:#C9DCF3;box-shadow:var(--shadow);transform:translateY(-3px)}
+.opc-site .partner-wall__i img{max-height:40px;width:auto;object-fit:contain}
+.opc-site .partner-wall__txt{font-size:15px;font-weight:800;color:var(--navy);letter-spacing:.02em;text-align:center}
+
+/* ---------- 社区供需榜（后台 market_items） ---------- */
+.opc-site .sd-board{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:8px}
+.opc-site .sd-board__col{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px 24px 26px;
+}
+.opc-site .sd-board__t{
+  font-size:17px;font-weight:800;color:var(--navy);margin-bottom:16px;
+  padding-bottom:12px;border-bottom:1px solid var(--line-2);
+}
+.opc-site .sd-board__list{display:grid;gap:12px}
+.opc-site .sd-card{
+  border:1px solid var(--line-2);border-radius:12px;padding:16px 16px 18px;background:#FCFDFF;
+  transition:border-color .25s,box-shadow .25s;
+}
+.opc-site .sd-card:hover{border-color:#C9DCF3;box-shadow:var(--shadow)}
+.opc-site .sd-card__hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.opc-site .sd-card__av{
+  display:grid;place-items:center;width:34px;height:34px;border-radius:10px;flex:0 0 auto;
+  font-size:14px;font-weight:900;color:var(--navy);
+}
+.opc-site .sd-card__hd b{display:block;font-size:13.5px;font-weight:800;color:var(--ink)}
+.opc-site .sd-card__hd span{display:block;font-size:12px;color:var(--gray-2);font-weight:600}
+.opc-site .sd-card h3{font-size:15.5px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.opc-site .sd-card p{font-size:13.2px;color:var(--gray);line-height:1.72}
+.opc-site .sd-card__tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.opc-site .sd-card__tags .tag{margin-bottom:0}
+
+/* ---------- 回到顶部 ---------- */
+.opc-site .totop{
+  position:fixed;right:22px;bottom:22px;z-index:50;width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line);background:#fff;color:var(--btn);display:grid;place-items:center;
+  box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .25s,transform .25s,visibility .25s;cursor:pointer;
+}
+.opc-site .totop.on{opacity:1;visibility:visible;transform:translateY(0)}
+.opc-site .totop svg{width:20px;height:20px}
+
+/* ---------- 入驻页：多选 chip（编译期已由 <span> 提升为 <label>）---------- */
+.opc-site .needchip{
+  display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:#42566E;
+  background:#FCFDFF;border:1px solid #E4EBF5;border-radius:9px;padding:8px 13px;cursor:pointer;
+  min-height:24px;transition:border-color .2s,background .2s;
+}
+.opc-site .needchip:hover{border-color:#BFD8F6;background:#F6F9FD}
+.opc-site .needchip:has(input:checked){border-color:#2F7BFF;background:rgba(47,123,255,.06);color:#1E63E8}
+.opc-site .needchip input{width:16px;height:16px;margin:0;accent-color:#2F7BFF;flex:0 0 auto}
+.opc-site .needchip:focus-within{outline:2px solid rgba(46,130,200,.45);outline-offset:2px}
+/* 同意条款：整行都是点击热区（参考站原文点文字不勾选） */
+.opc-site .agree-check{
+  display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#5B6B82;
+  line-height:1.7;cursor:pointer;min-height:24px;
+}
+.opc-site .agree-check input{width:17px;height:17px;margin-top:3px;flex:0 0 auto;accent-color:#2F7BFF}
+.opc-site .agree-check:focus-within{outline:2px solid rgba(46,130,200,.45);outline-offset:2px}
+
+/* 动态卡标题链接：多行时行高不足 24px（WCAG 2.2 SC 2.5.8 AA 触控目标下限） */
+.opc-site .nitem__bd h3 a{
+  display:inline-block;min-height:24px;padding:1px 0;line-height:1.6;
+}
+
+/* ---------- 可达性修正（继承项目既有门槛）----------
+   参考站有几处字号 < 12px、页脚链接触控区 < 24px，
+   与本项目既有的「正文不小于 12px」「触控目标 ≥ 24×24」门槛冲突，这里统一抬到门槛值。
+   （参考站视觉不因此变形：字号只上调 0.2–1.5px，触控区用纵向 padding 补足） */
+.opc-site .hlist .d{font-size:12px}
+.opc-site .card__en{font-size:12px;letter-spacing:.06em}
+.opc-site .ntag{font-size:12px}
+.opc-site .ft__links a,
+.opc-site .ft__ct a,
+.opc-site .ft__ct span,
+.opc-site .mnav a{
+  display:inline-block;min-height:24px;padding:3px 0;
+}
+.opc-site .ft__links li{margin-bottom:2px}
+
+/* ---------- 表单状态与键盘可达性 ---------- */
+.opc-site .form + .okbox{margin-top:16px}
+.opc-site .sdout.is-error{border-color:#E0807C;background:var(--navy)}
+.opc-site .sdout.is-error .sdout__hd span{color:#E0807C}
+.opc-site button:disabled{opacity:.62;cursor:wait;transform:none!important;box-shadow:none}
+.opc-site a:focus-visible,
+.opc-site button:focus-visible,
+.opc-site input:focus-visible,
+.opc-site select:focus-visible,
+.opc-site textarea:focus-visible,
+.opc-site [tabindex]:focus-visible{outline:3px solid rgba(47,123,255,.5);outline-offset:3px}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:1080px){
+  .opc-site .ac-crs{grid-template-columns:repeat(3,1fr)}
+  .opc-site .ac-flow,.opc-site .jflow{grid-template-columns:repeat(3,1fr)}
+  .opc-site .partner-wall{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:820px){
+  .opc-site .ac-crs{grid-template-columns:repeat(2,1fr)}
+  .opc-site .ac-flow,.opc-site .jflow{grid-template-columns:repeat(2,1fr)}
+  .opc-site .partner-wall{grid-template-columns:repeat(3,1fr)}
+  .opc-site .sd-board{grid-template-columns:1fr}
+  .opc-site .join-split{gap:32px}
+}
+@media (max-width:560px){
+  .opc-site .ac-crs,.opc-site .ac-flow,.opc-site .jflow{grid-template-columns:1fr}
+  .opc-site .partner-wall{grid-template-columns:repeat(2,1fr)}
+}

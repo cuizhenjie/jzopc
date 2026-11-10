@@ -6,7 +6,7 @@ import type { IconName } from './AdminIcons';
  * 2026-10 App Shell 拆分时从 AdminShell 迁出：AdminSidebar（菜单）、
  * AdminTopbar（面包屑 / 快速跳转）、AdminPageHeader（子页返回链接）
  * 共用这一份结构，保证三处的高亮/归属永远一致。
- * 「规划中」占位概念已移除 —— 全部 14 个模块均已落地。
+ * 「规划中」占位概念已移除 —— 全部 13 个模块均已落地。
  */
 
 export type NavKey =

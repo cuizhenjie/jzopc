@@ -123,7 +123,7 @@ export default function NewsTable({
             <TableRow key={n.id}>
               <TableCell className="max-w-[380px] whitespace-normal">
                 <p className="truncate font-medium text-foreground">{n.title}</p>
-                <p className="mt-0.5 truncate text-[11px] text-muted-foreground">/news/{n.slug}</p>
+                <p className="mt-0.5 truncate text-[11px] text-muted-foreground">/newsdetail?id={n.slug}</p>
               </TableCell>
               <TableCell className="text-[var(--color-ink-2)]">{n.category}</TableCell>
               <TableCell className="text-[var(--color-ink-2)]">{n.author ?? '—'}</TableCell>
@@ -137,7 +137,7 @@ export default function NewsTable({
                 <div className="flex items-center justify-end gap-1">
                   {n.status === 'published' && (
                     <Button asChild variant="ghost" size="sm">
-                      <Link href={`/news/${n.slug}`} target="_blank">
+                      <Link href={`/newsdetail?id=${encodeURIComponent(n.slug)}`} target="_blank">
                         预览
                       </Link>
                     </Button>

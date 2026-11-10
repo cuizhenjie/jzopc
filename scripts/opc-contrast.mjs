@@ -42,6 +42,12 @@ const PAGES = [
   '/community', '/work', '/newslist',
   '/activitylist', '/newsdetail?id=392', '/zone?city=上海',
   '/opclogin', '/opcregister',
+  // 2026-11-10 补：/growth 的 .gw-flow 曾因色值压错底色导致整段文字不可见，
+  // 而本页一直不在清单里 → 一直没被测到。**新页面必须同步加进这个清单**，
+  // 否则对比度回归不会被发现。
+  // ⚠️ 本页另有 3 处**既存**的临界项（.eyebrow 3.31:1、.card__no 3.1:1、.gw-tb b 3.89:1，
+  // 均在全站共用的设计 token 上），待全站 token 统一调整时一并处理。
+  '/growth',
 ];
 
 /** 断点：桌面 + 移动。多断点是必须的 —— 背景会动，结论随位置变。 */

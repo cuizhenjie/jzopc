@@ -457,8 +457,12 @@ def inject_site_contact(tree):
 
     业务方 2026-10-22 提供：
       电话 400-006-5858 / 邮箱 developer@jimei.com.cn
-    备案号**未提供** → 一律不渲染（原运营方的「苏ICP备2026012874号」已删除，
-    不顶替、不编造）。
+    备案号：2026-11-10 业务方提供 `京ICP备2023030613号`（此前未提供时一律不渲染）；
+    原运营方的「苏ICP备2026012874号」始终删除，不顶替、不编造。
+
+    注：本脚本属于 2026-10 的旧 opcstore 复刻管线，已于 2026-11-10 下线
+    （现行管线见 scripts/build-opc-reference.mjs）。保留它是因为
+    scripts/migrate-opc-news.mjs 与其测试仍用这里的 rebrand 规则做历史数据迁移。
     """
     # 页脚「联系我们」：<div class="footer-item"> 里的 <ul>
     for item in by_class(tree, "footer-item"):

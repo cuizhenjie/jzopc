@@ -22,17 +22,14 @@
     "build:deploy": "NEXT_OUTPUT_STANDALONE=1 next build",
     "prepare:deploy": "node scripts/prepare-deploy.mjs",
     "start:deploy": "node deploy/server.js",
-    "opc:content": "python3 scripts/build-opc-content.py",
-    "opc:styles": "node scripts/build-opc-styles.mjs",
-    "opc:hero": "node scripts/build-opc-hero.mjs",
-    "opc:icons": "node scripts/build-opc-icons.mjs",
-    "opc:media": "node scripts/build-opc-visual-media.mjs",
-    "opc:visual": "npm run opc:icons && npm run opc:media && npm run opc:content",
     "opc:audit:design": "node scripts/opc-design-audit.mjs",
     "opc:audit:style": "node scripts/opc-style-conflict.mjs",
     "opc:audit:contrast": "node scripts/opc-contrast.mjs",
     "opc:audit:brand": "node scripts/opc-brand-audit.mjs",
-    "opc:audit:responsive": "node scripts/responsive-audit.mjs"
+    "opc:audit:responsive": "node scripts/responsive-audit.mjs",
+    "reference:fetch": "node scripts/fetch-opc-reference.mjs",
+    "reference:build": "node scripts/build-opc-reference.mjs",
+    "reference:seed": "node scripts/seed-reference-content.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

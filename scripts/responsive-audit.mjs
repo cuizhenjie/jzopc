@@ -29,10 +29,9 @@ const WIDTHS = [
 ];
 
 const PAGES = [
-  // 2026-10-26 口径：原生双路径页已 308 收敛（/agents*→/agent、/academy*→/center、
-  // /news*→/newslist、/market/:slug→/market、about 三子页已删），这里只列活路由。
-  '/', '/about', '/agent', '/market', '/center', '/work', '/newslist', '/activitylist',
-  '/empower/space', '/empower/traffic', '/apply', '/traffic',
+  // 2026-11-10 全站复刻后公开路由：与参考站一致的 10 个页面 + 八大赋能详情页
+  '/', '/about', '/health', '/empower', '/market', '/growth',
+  '/academy', '/news', '/apply', '/agent', '/empower/space',
 ];
 
 /* ── 启动 headless Chrome ─────────────────────────────────────────────── */

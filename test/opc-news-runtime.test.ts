@@ -1,71 +1,81 @@
 /**
- * 运行时渲染层（src/lib/opc/news-runtime.ts）的契约测试。
- * 契约：docs/14-动态内容契约.md
+ * 社区动态运行时渲染层（src/lib/opc/news-runtime.ts）的契约测试。
+ *
+ * ── 2026-11-10 全站复刻后的契约 ─────────────────────────────────────────
+ *   - /news：单一列表通道（旧的 /newslist + /activitylist 双通道已下线），
+ *     列表容器由编译期打的 `data-opc-block="news-list"` 标记定位；
+ *   - 卡片形态对齐参考站 .nitem（折叠卡：日期拆成「日 + 年月」、类目 tag、
+ *     标题链到 /newsdetail?id=<slug>）；
+ *   - /newsdetail?id=：数字 id → slug=opc-N；slug → 原样；
+ *     DB 未命中 / 查询异常 / 非法 id → 404（null）；
+ *   - 纯文本正文转义成段落；富文本经 sanitize-html 允许列表净化。
  *
  * 全部用 fixture + 依赖注入，**不连库、不依赖构建管线再生成**：
  * DB 加载器通过 options.loadPosts / options.loadPost 注入。
+ *
+ * 删除的旧断言（逐条说明）：
+ *   - 「news-item 卡与烘焙卡逐字节对拍」→ 卡结构换成参考站 .nitem，
+ *     且列表不再烘焙卡（DB 唯一事实源），没有可比对的烘焙物；
+ *   - 「renderActivityCard 活动卡模板」→ 活动通道已下线，API 已删除；
+ *   - 「replaceListPlaceholder / LIST_PLACEHOLDER 占位符替换」
+ *     → news 列表改用 data-opc-block 标记，占位符机制整体下线；
+ *   - 「getReplicaPage('/newsdetail', {id}) / getReplicaArticle」
+ *     → content.ts 已删除这两个 API（详情改由 news-runtime 异步解析）；
+ *   - 「scripts/opc-source/public-content.json 的 371 号长文快照」
+ *     → 旧站快照数据源已随旧站下线。
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { getReplicaPage, getReplicaArticle } from '@/lib/opc/content';
 import type { ReplicaPageContent } from '@/lib/opc/content';
-import { LIST_PLACEHOLDER } from '@/lib/opc/taxonomy';
 import {
   formatNewsDate,
   getReplicaDetailPage,
   getReplicaListPage,
   newsDetailIdOfSlug,
-  renderActivityCard,
+  renderArticleBody,
   renderNewsCard,
-  replaceListPlaceholder,
   type NewsArticleSource,
   type NewsCardSource,
 } from '@/lib/opc/news-runtime';
 
-const listCards = JSON.parse(readFileSync('src/lib/opc/generated/list-cards.json', 'utf8')) as {
-  news: string;
-  activities: string;
+const articleShell = JSON.parse(readFileSync('src/lib/opc/generated/article-shell.json', 'utf8')) as {
+  html: string;
 };
 
-/** 与改动前烘焙在 pages.json 里的第一张 news-item 卡（id=392）逐字节对拍 */
-const bakedNewsCard392 =
-  '<div data-v-83dfbbe5="" class="news-item"' + listCards.news.split('<div data-v-83dfbbe5="" class="news-item"')[1];
-
-const post392: NewsCardSource = {
+const newsPost: NewsCardSource = {
   slug: 'opc-392',
-  title: '巾帼逐梦正当时，集智 AI OPC女性赋能计划第三期圆满收官！',
-  summary:
-    '数字技术浪潮汹涌，AI工具正在重塑商业底层逻辑。继8月二期AIGC微视频实训后，10月17日下午，由鼓楼区妇联、鼓楼高新区妇联主办，集智 AI OPC 社区承办的“集智 AI OPC 社区+女性赋能计划”第三期路演活动，在鼓楼集智 AI OPC 社区圆满举办。',
-  category: '资讯',
+  title: '集智 AI OPC 女性赋能计划第三期圆满收官',
+  summary: '数字技术浪潮汹涌，AI 工具正在重塑商业底层逻辑。',
+  category: '行业观察',
   published_at: '2026-10-22',
-  cover_url: '/opc/assets/ebe827906d3808f9.webp',
+  cover_url: '/opc/reference/img/news-wuzhen-opc.jpg',
 };
 
-describe('卡片渲染器：与契约第 2 节模板逐属性对拍', () => {
-  test('news-item 输出与烘焙卡 id=392 逐字节一致', () => {
-    assert.equal(renderNewsCard(post392), bakedNewsCard392);
+describe('卡片渲染器 · renderNewsCard（参考站 .nitem 折叠卡）', () => {
+  test('日期拆成「日 + 年月」两段，类目成 tag，标题链到详情页', () => {
+    const html = renderNewsCard(newsPost);
+    assert.ok(html.includes('<div class="nitem__date"><b>22</b><span>2026-10</span></div>'));
+    assert.ok(html.includes('<span class="ntag">行业观察</span>'));
+    assert.ok(html.includes('<h3><a href="/newsdetail?id=392">集智 AI OPC 女性赋能计划第三期圆满收官</a></h3>'));
+    assert.ok(html.includes('class="nitem rv"'));
+    assert.ok(html.includes('data-news-cat="行业观察"'));
+    assert.ok(html.includes('data-opc-id="392"'));
   });
 
-  test('activity-item 输出与模板串逐属性一致（类名/scoped 属性/徽标/信息格）', () => {
-    const post: NewsCardSource = {
-      slug: 'opc-197',
-      title: '活动标题X',
-      summary: '活动简介Y',
-      category: '活动',
-      published_at: '2026-08-04T09:30:00+08:00',
-      cover_url: null,
-    };
-    assert.equal(
-      renderActivityCard(post),
-      '<div data-v-0bb519df="" class="activity-item" data-opc-id="197" data-opc-action="navigate" data-opc-route="/newsdetail?id=197" role="button" tabindex="0" data-opc-category="活动">'
-        + '<div data-v-0bb519df="" class="activity-image"><div data-v-0bb519df="" class="el-image activity-image-img"><img src="/opc/visual/reference-city-blue-960.webp" class="el-image__inner" style="object-fit:cover" alt="" loading="lazy" decoding="async"></div></div>'
-        + '<div data-v-0bb519df="" class="activity-content"><span data-v-0bb519df="" class="activity-badge">精彩活动</span><h3 data-v-0bb519df="" class="activity-title">活动标题X</h3><p data-v-0bb519df="" class="activity-description">活动简介Y</p>'
-        + '<div data-v-0bb519df="" class="activity-info"><div data-v-0bb519df=""><i data-v-0bb519df="" class="fas fa-calendar"></i> 2026-08-04</div><div data-v-0bb519df=""><i data-v-0bb519df="" class="fas fa-map-marker-alt"></i> 集智 AI OPC 社区</div><div data-v-0bb519df=""><i data-v-0bb519df="" class="fas fa-users"></i> 50+</div><span data-v-0bb519df="" class="activity-read-more"> 查看详情 <i data-v-0bb519df="" class="fas fa-arrow-right"></i></span></div></div></div>',
-    );
+  test('展开区带首段正文与「阅读全文」入口', () => {
+    const html = renderNewsCard({ ...newsPost, body: ['第一段正文', '第二段正文'] });
+    assert.ok(html.includes('<div class="nitem__body"><p>第一段正文</p>'));
+    assert.ok(html.includes('<p class="nsrc"><b>阅读全文：</b><a href="/newsdetail?id=392">'));
   });
 
-  test('全部文本插值经 HTML 转义（标题/摘要/类目/日期/slug）', () => {
+  test('slug 形态的 id 原样透出（不是 opc-N 时不转数字）', () => {
+    const html = renderNewsCard({ ...newsPost, slug: 'salon-2026-10' });
+    assert.ok(html.includes('data-opc-id="salon-2026-10"'));
+    assert.ok(html.includes('href="/newsdetail?id=salon-2026-10"'));
+  });
+
+  test('全部文本插值经 HTML 转义（标题 / 摘要 / 类目 / slug）', () => {
     const hostile: NewsCardSource = {
       slug: 'opc-<b>&"',
       title: '<script>alert(1)</script> & "引号" \'单引号\'',
@@ -73,34 +83,30 @@ describe('卡片渲染器：与契约第 2 节模板逐属性对拍', () => {
       category: '<活动>',
       published_at: '2026-01-02',
     };
-    const news = renderNewsCard(hostile);
-    const activity = renderActivityCard(hostile);
-    for (const html of [news, activity]) {
-      assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;引号&quot; &#39;单引号&#39;'));
-      assert.ok(html.includes('&lt;img src=x onerror=alert(2)&gt;'));
-      assert.doesNotMatch(html, /<script\b|\son\w+=\(/);
-    }
-    assert.ok(activity.includes('data-opc-category="&lt;活动&gt;"'));
-    // slug 里的特殊字符同样转义（属性值安全）
-    assert.ok(news.includes('data-opc-id="opc-&lt;b&gt;&amp;&quot;"'));
-    assert.ok(news.includes('data-opc-route="/newsdetail?id=opc-&lt;b&gt;&amp;&quot;"'));
+    const html = renderNewsCard(hostile);
+    assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;引号&quot; &#39;单引号&#39;'));
+    assert.ok(html.includes('&lt;img src=x onerror=alert(2)&gt;'));
+    assert.ok(!html.includes('<script'), '不得出现真实 script 标签');
+    // 事件属性只允许出现在标签内部；转义后的文本不算
+    assert.doesNotMatch(html, /<[a-zA-Z][^>]*\son[a-z]+\s*=/i);
+    assert.ok(html.includes('data-opc-id="opc-&lt;b&gt;&amp;&quot;"'));
+    assert.ok(html.includes('data-news-cat="&lt;活动&gt;"'));
   });
 
-  test('cover_url 缺省/非法回落占位图，https 与站内相对路径放行', () => {
-    const base = { ...post392 };
-    assert.ok(renderNewsCard({ ...base, cover_url: undefined }).includes('src="/opc/visual/reference-city-blue-960.webp"'));
-    assert.ok(renderNewsCard({ ...base, cover_url: '' }).includes('src="/opc/visual/reference-city-blue-960.webp"'));
-    assert.ok(renderNewsCard({ ...base, cover_url: 'javascript:alert(1)' }).includes('src="/opc/visual/reference-city-blue-960.webp"'));
-    assert.ok(renderNewsCard({ ...base, cover_url: 'http://insecure.example/x.webp' }).includes('src="/opc/visual/reference-city-blue-960.webp"'));
-    assert.ok(renderNewsCard({ ...base, cover_url: 'https://cdn.example.com/x.webp' }).includes('src="https://cdn.example.com/x.webp"'));
-    assert.ok(renderNewsCard({ ...base, cover_url: '/opc/assets/other.webp' }).includes('src="/opc/assets/other.webp"'));
+  test('cover_url 缺省 / 非法回落站内占位图，https 与站内相对路径放行', () => {
+    const base = { ...newsPost };
+    assert.ok(renderNewsCard({ ...base, cover_url: undefined }).includes('src="/opc/reference/img/news-wuzhen-opc.jpg"'));
+    assert.ok(renderNewsCard({ ...base, cover_url: '' }).includes('src="/opc/reference/img/news-wuzhen-opc.jpg"'));
+    assert.ok(renderNewsCard({ ...base, cover_url: 'javascript:alert(1)' }).includes('src="/opc/reference/img/news-wuzhen-opc.jpg"'));
+    assert.ok(renderNewsCard({ ...base, cover_url: 'http://insecure.example/x.jpg' }).includes('src="/opc/reference/img/news-wuzhen-opc.jpg"'));
+    assert.ok(renderNewsCard({ ...base, cover_url: 'https://cdn.example.com/x.jpg' }).includes('src="https://cdn.example.com/x.jpg"'));
+    assert.ok(renderNewsCard({ ...base, cover_url: '/opc/reference/img/hero-banner-1.jpg' }).includes('src="/opc/reference/img/hero-banner-1.jpg"'));
   });
 
-  test('卡片是可直接作为 .news-list/.activity-list 子节点的单根元素', () => {
-    // 容器直接子节点必须是完整卡（ReplicaInteractions 的筛选/加载更多依赖）
-    const fragment = renderNewsCard(post392) + renderNewsCard(post392);
-    assert.equal(fragment.split('<div data-v-83dfbbe5="" class="news-item"').length - 1, 2);
-    assert.equal((fragment.match(/<\/div>/g) ?? []).length, (fragment.match(/<div\b/g) ?? []).length);
+  test('卡片是可直接作为列表容器子节点的单根元素', () => {
+    const fragment = renderNewsCard(newsPost) + renderNewsCard(newsPost);
+    assert.equal((fragment.match(/<article class="nitem rv"/g) ?? []).length, 2);
+    assert.equal((fragment.match(/<\/article>/g) ?? []).length, 2);
   });
 });
 
@@ -120,95 +126,60 @@ describe('字段映射工具', () => {
   });
 });
 
-describe('getReplicaListPage：占位符注入', () => {
+describe('getReplicaListPage：/news 列表渲染', () => {
   const shellOf = (path: string, html: string): ReplicaPageContent => ({ path, title: `标题${path}`, html });
-  const shellWithPlaceholder = (path: string): ReplicaPageContent =>
-    shellOf(path, `<div class="${path === '/newslist' ? 'news-list' : 'activity-list'}">${path === '/newslist' ? LIST_PLACEHOLDER.news : LIST_PLACEHOLDER.activity}</div>`);
 
-  const newsPost: NewsCardSource = { slug: 'opc-1', title: '资讯甲', summary: '甲摘要', category: '资讯', published_at: '2026-02-01' };
-  const salonPost: NewsCardSource = { slug: 'salon-x', title: '沙龙乙', summary: '乙摘要', category: '沙龙', published_at: '2026-02-02' };
-  const activityPost: NewsCardSource = { slug: 'opc-3', title: '活动丙', summary: '丙摘要', category: '活动', published_at: '2026-02-03' };
-
-  test('按 channelOfCategory 分流：newslist 只收 资讯/沙龙，activitylist 只收 活动', async () => {
-    const loadPosts = async () => [activityPost, newsPost, salonPost];
-    const news = await getReplicaListPage('/newslist', { loadShell: shellWithPlaceholder, loadPosts });
-    const activity = await getReplicaListPage('/activitylist', { loadShell: shellWithPlaceholder, loadPosts });
-    assert.ok(news!.html.includes('资讯甲'));
-    assert.ok(news!.html.includes('沙龙乙'));
-    assert.ok(!news!.html.includes('活动丙'));
-    assert.ok(activity!.html.includes('活动丙'));
-    assert.ok(!activity!.html.includes('资讯甲'));
-    assert.ok(!activity!.html.includes('沙龙乙'));
-    // 未分流到任何列表页的类目（如未知类目）不渲染
-    const unknown = await getReplicaListPage('/newslist', {
-      loadShell: shellWithPlaceholder,
-      loadPosts: async () => [{ ...newsPost, category: '未知类目' }],
+  test('注入的 fixture 渲染成 .nitem 卡（日期 / 类目 / 标题链接齐备）', async () => {
+    const page = await getReplicaListPage('/news', {
+      loadShell: () => shellOf('/news', '<div class="newslist" data-opc-block="news-list">OLD</div>'),
+      loadPosts: async () => [newsPost],
     });
-    assert.ok(!unknown!.html.includes('class="news-item"'));
+    assert.ok(page);
+    assert.ok(page!.html.includes('class="newslist"'), '容器必须在');
+    assert.ok(page!.html.includes('data-opc-block="news-list"'), '容器标记必须在');
+    assert.ok(page!.html.includes('<div class="nitem__date"><b>22</b><span>2026-10</span></div>'));
+    assert.ok(page!.html.includes('<span class="ntag">行业观察</span>'));
+    assert.ok(page!.html.includes('<h3><a href="/newsdetail?id=392">'));
+    assert.ok(!page!.html.includes('OLD'), '旧内容必须被替换掉');
   });
 
-  test('DB 查询成功但为空 → 渲染空卡片串（下架即不可见，不回落快照）', async () => {
-    const page = await getReplicaListPage('/newslist', { loadShell: shellWithPlaceholder, loadPosts: async () => [] });
-    assert.ok(page!.html.includes('class="news-list"'));
-    assert.ok(!page!.html.includes('class="news-item"'));
+  test('DB 返回 null（未配库）→ 空列表（容器保留，不回落快照）', async () => {
+    const page = await getReplicaListPage('/news', {
+      loadShell: () => shellOf('/news', '<div class="newslist" data-opc-block="news-list">SNAPSHOT</div>'),
+      loadPosts: async () => null,
+    });
+    assert.ok(page!.html.includes('class="newslist"'), '列表容器必须在');
+    assert.ok(!page!.html.includes('SNAPSHOT'), '快照内容不得注入');
+    assert.ok(!page!.html.includes('class="nitem rv"'));
   });
 
-  test('未配库（loader 返回 null）→ 空列表（DB 唯一事实源，不回落快照）', async () => {
-    const news = await getReplicaListPage('/newslist', { loadShell: shellWithPlaceholder, loadPosts: async () => null });
-    const activity = await getReplicaListPage('/activitylist', { loadShell: shellWithPlaceholder, loadPosts: async () => null });
-    assert.ok(news!.html.includes('class="news-list"'), '列表容器必须在');
-    assert.ok(!news!.html.includes('class="news-item"'), '烘焙卡不得注入');
-    assert.ok(!activity!.html.includes('class="activity-item"'));
-    assert.ok(!activity!.html.includes('精彩活动'));
-  });
-
-  test('loader 抛异常 → 同样空列表', async () => {
-    const page = await getReplicaListPage('/newslist', {
-      loadShell: shellWithPlaceholder,
+  test('loader 抛异常 → 同样空列表（不 500）', async () => {
+    const page = await getReplicaListPage('/news', {
+      loadShell: () => shellOf('/news', '<div class="newslist" data-opc-block="news-list">SNAPSHOT</div>'),
       loadPosts: async () => {
         throw new Error('db down');
       },
     });
-    assert.ok(!page!.html.includes('class="news-item"'), '异常不得注入烘焙卡');
+    assert.ok(page, '异常不得让页面 500');
+    assert.ok(!page!.html.includes('SNAPSHOT'));
+    assert.ok(!page!.html.includes('class="nitem rv"'));
   });
 
-  test('卡片串含 $&/$1 等 replace 特殊串时按字面注入', async () => {
-    const dollar: NewsCardSource = { ...newsPost, title: '价格$&优惠$1' };
-    const page = await getReplicaListPage('/newslist', { loadShell: shellWithPlaceholder, loadPosts: async () => [dollar] });
-    assert.ok(page!.html.includes('价格$&amp;优惠$1'));
-  });
-
-  test('占位符不在 shell 中（旧版 pages.json 产物）→ 原样返回且不触发 DB 加载', async () => {
-    let loaded = false;
-    // pages.json 由构建管线并行演进（当前已带占位符），兼容分支用无占位符的合成 shell 锁行为
-    const legacyHtml = '<div data-v-83dfbbe5="" class="news-list"><div data-v-83dfbbe5="" class="news-item" data-opc-id="392"></div></div>';
-    const page = await getReplicaListPage('/newslist', {
-      loadShell: () => shellOf('/newslist', legacyHtml),
-      loadPosts: async () => {
-        loaded = true;
-        return [newsPost];
-      },
+  test('DB 查询成功但为空 → 空列表', async () => {
+    const page = await getReplicaListPage('/news', {
+      loadShell: () => shellOf('/news', '<div class="newslist" data-opc-block="news-list">X</div>'),
+      loadPosts: async () => [],
     });
-    assert.equal(page!.html, legacyHtml);
-    assert.equal(loaded, false);
+    assert.ok(page!.html.includes('class="newslist"'));
+    assert.ok(!page!.html.includes('class="nitem rv"'));
   });
 
-  test('当前真实 shell（pages.json 占位符状态由构建管线决定）可解析且只替换占位符区间', async () => {
-    // 真实 shell 无论是否带占位符都必须可解析：带 → 注入后不含占位符；不带 → 原样
-    const page = await getReplicaListPage('/newslist', { loadPosts: async () => [newsPost] });
+  test('真实 shell（烘焙产物）可解析，容器被替换且保留外层说明文案', async () => {
+    const page = await getReplicaListPage('/news', { loadPosts: async () => [newsPost] });
     assert.ok(page);
-    assert.ok(page.html.length > 1000);
-    assert.ok(!page.html.includes(LIST_PLACEHOLDER.news));
-    assert.ok(!page.html.includes(LIST_PLACEHOLDER.activity));
-    // 页头/页脚等 shell 结构保留
-    assert.ok(page.html.includes('class="newslist"'));
-  });
-
-  test('replaceListPlaceholder：无占位符原样返回；shell 的标题与路径字段保持', async () => {
-    assert.equal(replaceListPlaceholder('<div>无占位符</div>', 'news', '<card/>'), '<div>无占位符</div>');
-    const page = await getReplicaListPage('/newslist', { loadShell: shellWithPlaceholder, loadPosts: async () => [newsPost] });
-    assert.equal(page!.title, '标题/newslist');
-    assert.equal(page!.path, '/newslist');
+    assert.ok(page!.html.length > 1000);
+    assert.ok(page!.html.includes('class="newslist"'));
+    assert.ok(page!.html.includes('class="nitem rv"'));
   });
 
   test('非列表路径 → null', async () => {
@@ -217,18 +188,18 @@ describe('getReplicaListPage：占位符注入', () => {
   });
 });
 
-describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () => {
+describe('getReplicaDetailPage：DB 唯一事实源', () => {
   const dbPost: NewsArticleSource = {
     slug: 'opc-392',
     title: 'DB 里的新文章',
     summary: '摘要',
-    category: '资讯',
+    category: '行业观察',
     published_at: '2026-10-23T10:00:00Z',
     cover_url: null,
     body: ['第一段<b>加粗</b>', '第二段&引号"'],
   };
 
-  test('数字 id：先查 DB slug=opc-N，富文本保留标签而纯文本仍逐段转义', async () => {
+  test('数字 id：查 DB slug=opc-N，正文注入文章外壳', async () => {
     const slugs: string[] = [];
     const page = await getReplicaDetailPage('392', {
       loadPost: async (slug) => {
@@ -238,69 +209,14 @@ describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () =>
     });
     assert.deepEqual(slugs, ['opc-392']);
     assert.equal(page!.title, 'DB 里的新文章 - 集智 AI OPC 社区');
-    assert.ok(page!.html.includes('class="article-title">DB 里的新文章</h1>'));
+    assert.equal(page!.path, '/newsdetail');
+    assert.ok(page!.html.includes('>DB 里的新文章</h1>'));
     assert.ok(page!.html.includes('2026-10-23'));
     assert.ok(page!.html.includes('第一段<b>加粗</b>'));
-    assert.ok(page!.html.includes('<p style="line-height:2"><span style="font-size:22px">第二段&amp;引号&quot;</span></p>'));
     assert.doesNotMatch(page!.html, /__OPC_(?:TITLE|DATE|ARTICLE)__/);
-    assert.ok(!page!.html.includes('第一段&lt;b&gt;'));
   });
 
-  test('id=371：迁移后的完整富文本直接渲染段落与正文图片', async () => {
-    const snapshot = JSON.parse(readFileSync('scripts/opc-source/public-content.json', 'utf8')) as {
-      records: Record<string, { content: { sort: number; content: string }[] }>;
-    };
-    const body = snapshot.records['371'].content
-      .filter((item) => item.sort !== -1)
-      .sort((a, b) => a.sort - b.sort)
-      .map((item) => item.content);
-    const page = await getReplicaDetailPage('371', {
-      loadPost: async () => ({ ...dbPost, slug: 'opc-371', body }),
-    });
-    assert.ok(page);
-    assert.ok(!page.html.includes('&lt;p'));
-    assert.ok(!page.html.includes('&lt;img'));
-    assert.equal((page.html.match(/<img\b/g) ?? []).length, 5);
-    assert.ok(page.html.includes('src="https://www.opcstore.com/opc/20261009/e11b3d94e2476cbbf57cb8157c9ad4b3.jpg"'));
-    assert.ok(page.html.includes('人工智能AIGC技术正以前所未有的速度'));
-  });
-
-  test('富文本净化：保留安全格式，移除脚本、事件属性与危险协议', async () => {
-    const page = await getReplicaDetailPage('392', {
-      loadPost: async () => ({
-        ...dbPost,
-        body: [
-          '<p>安全<strong>加粗</strong><a href="https://example.com" target="_blank">链接</a>'
-            + '<a href="javascript:alert(1)">危险链接</a>'
-            + '<img src="https://example.com/a.jpg" onerror="alert(1)">'
-            + '<img src="javascript:alert(2)"><script>alert(3)</script>'
-            + '<iframe src="https://example.com"></iframe></p>',
-        ],
-      }),
-    });
-    assert.ok(page);
-    assert.ok(page.html.includes('<strong>加粗</strong>'));
-    assert.ok(page.html.includes('href="https://example.com"'));
-    assert.ok(page.html.includes('rel="noopener noreferrer"'));
-    assert.ok(page.html.includes('src="https://example.com/a.jpg"'));
-    assert.doesNotMatch(page.html, /<script\b|<iframe\b|\son\w+\s*=|javascript:/i);
-  });
-
-  test('数字 id：DB 未命中 → 404（DB 唯一事实源，不回落 details.json）', async () => {
-    const page = await getReplicaDetailPage('392', { loadPost: async () => null });
-    assert.equal(page, null);
-  });
-
-  test('数字 id：查询异常 → 同样 404', async () => {
-    const page = await getReplicaDetailPage('392', {
-      loadPost: async () => {
-        throw new Error('db down');
-      },
-    });
-    assert.equal(page, null);
-  });
-
-  test('slug id：只查 DB（loader 收到原样 slug），未命中无遗留回落 → 404', async () => {
+  test('slug id：只查 DB（loader 收到原样 slug）', async () => {
     const slugs: string[] = [];
     const hit = await getReplicaDetailPage('my-new-post', {
       loadPost: async (slug) => {
@@ -310,9 +226,20 @@ describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () =>
     });
     assert.deepEqual(slugs, ['my-new-post']);
     assert.equal(hit!.title, 'DB 里的新文章 - 集智 AI OPC 社区');
+  });
 
-    const miss = await getReplicaDetailPage('my-new-post', { loadPost: async () => null });
-    assert.equal(miss, null);
+  test('库里没有 → null（404），不回落任何快照', async () => {
+    assert.equal(await getReplicaDetailPage('392', { loadPost: async () => null }), null);
+    assert.equal(await getReplicaDetailPage('my-new-post', { loadPost: async () => null }), null);
+  });
+
+  test('查询异常 → 同样 404（不 500）', async () => {
+    const page = await getReplicaDetailPage('392', {
+      loadPost: async () => {
+        throw new Error('db down');
+      },
+    });
+    assert.equal(page, null);
   });
 
   test('非法 id：直接 404，不触发 DB 查询', async () => {
@@ -326,23 +253,103 @@ describe('getReplicaDetailPage：双源解析顺序（契约第 4 节）', () =>
     }
     assert.equal(loaded, false);
   });
+
+  test('数字 0 不是合法数字 id，但作为 slug 形态按原样查库', async () => {
+    const slugs: string[] = [];
+    const page = await getReplicaDetailPage('0', {
+      loadPost: async (slug) => {
+        slugs.push(slug);
+        return { ...dbPost, slug };
+      },
+    });
+    assert.deepEqual(slugs, ['0'], '0 走 slug 通道，不做 opc- 前缀转换');
+    assert.ok(page);
+  });
+
+  test('纯文本 body 转义成段落', async () => {
+    const page = await getReplicaDetailPage('392', {
+      loadPost: async () => ({ ...dbPost, body: ['普通段落 & 引号"', '第二段'] }),
+    });
+    assert.ok(page);
+    assert.ok(page!.html.includes('<p>普通段落 &amp; 引号&quot;</p>'));
+    assert.ok(page!.html.includes('<p>第二段</p>'));
+  });
+
+  test('含标签的段落经净化：script 标签连同内容剔除，事件属性剥离', async () => {
+    const page = await getReplicaDetailPage('392', {
+      loadPost: async () => ({ ...dbPost, body: ['<script>alert(1)</script>', '<p onclick="alert(2)">段落</p>'] }),
+    });
+    assert.ok(page);
+    assert.ok(!page!.html.includes('<script'), '不得出现真实 script 标签');
+    assert.ok(!page!.html.includes('alert(1)'), 'script 内容一并剔除（不落 DOM）');
+    assert.doesNotMatch(page!.html, /<[a-zA-Z][^>]*\son[a-z]+\s*=/i);
+    assert.ok(page!.html.includes('<p>段落</p>'), '事件属性被剥离，标签保留');
+  });
+
+  test('富文本经允许列表净化：保留安全标签，剔除 script / 事件属性 / javascript:', async () => {
+    const page = await getReplicaDetailPage('392', {
+      loadPost: async () => ({
+        ...dbPost,
+        body: [
+          '<p>安全<strong>加粗</strong><a href="https://example.com" target="_blank">链接</a>'
+            + '<a href="javascript:alert(1)">危险链接</a>'
+            + '<img src="https://example.com/a.jpg" onerror="alert(1)">'
+            + '<img src="javascript:alert(2)"><script>alert(3)</script>'
+            + '<iframe src="https://example.com"></iframe></p>',
+        ],
+      }),
+    });
+    assert.ok(page);
+    assert.ok(page!.html.includes('<strong>加粗</strong>'));
+    assert.ok(page!.html.includes('href="https://example.com"'));
+    assert.ok(page!.html.includes('rel="noopener noreferrer"'));
+    assert.ok(page!.html.includes('src="https://example.com/a.jpg"'));
+    assert.doesNotMatch(page!.html, /<script\b|<iframe\b|\son\w+\s*=|javascript:/i);
+  });
+
+  test('标题与日期也经过转义', async () => {
+    const page = await getReplicaDetailPage('392', {
+      loadPost: async () => ({ ...dbPost, title: '<script>alert(1)</script>' }),
+    });
+    assert.ok(page);
+    assert.ok(!page!.html.includes('<script>alert(1)</script>'));
+    assert.ok(page!.html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+  });
+
+  test('文章外壳的三个占位符都被替换掉', async () => {
+    const page = await getReplicaDetailPage('392', { loadPost: async () => dbPost });
+    assert.ok(page);
+    for (const token of ['__OPC_TITLE__', '__OPC_DATE__', '__OPC_ARTICLE__']) {
+      assert.ok(!page!.html.includes(token), token);
+    }
+    // 外壳自身的结构保留
+    assert.ok(page!.html.includes('class="nitem"'));
+    assert.ok(page!.html.includes('class="nitem__body"'));
+  });
 });
 
-describe('content.ts：/newsdetail id 校验放宽后的同步行为', () => {
-  test('数字 id 行为不变（392 仍可解析）', () => {
-    assert.ok(getReplicaArticle('392'));
-    assert.ok(getReplicaPage('/newsdetail', { id: '392' }));
+describe('renderArticleBody：正文渲染入口', () => {
+  test('纯文本逐段转义成 <p>', () => {
+    const html = renderArticleBody(['第一段', '第二段']);
+    assert.equal(html, '<p>第一段</p><p>第二段</p>');
   });
 
-  test('slug 形态通过校验但 details.json 无此键 → null（DB 解析交给 async 路径）', () => {
-    assert.equal(getReplicaArticle('my-new-post'), null);
-    assert.equal(getReplicaPage('/newsdetail', { id: 'my-new-post' }), null);
+  test('富文本段经净化后保留允许的标签', () => {
+    const html = renderArticleBody(['<p>有<b>标签</b></p>']);
+    assert.ok(html.includes('<b>标签</b>'));
+    assert.doesNotMatch(html, /<script\b|\son\w+\s*=/i);
   });
 
-  test('历史拒绝用例不回归', () => {
-    for (const id of ['../392', '392/../1', '__proto__', '0', '-1', '1e2', '9999999999']) {
-      assert.equal(getReplicaArticle(id), null, id);
-    }
-    assert.equal(getReplicaPage('/newsdetail', { id: '../392' }), null);
+  test('空数组 → 空串', () => {
+    assert.equal(renderArticleBody([]), '');
+  });
+});
+
+describe('文章外壳产物本身', () => {
+  test('外壳只保留占位符，不含脚本与事件属性', () => {
+    assert.doesNotMatch(articleShell.html, /<script\b|\son[a-z]+\s*=/i);
+    assert.ok(articleShell.html.includes('__OPC_TITLE__'));
+    assert.ok(articleShell.html.includes('__OPC_DATE__'));
+    assert.ok(articleShell.html.includes('__OPC_ARTICLE__'));
   });
 });

@@ -48,8 +48,8 @@ describe('新闻列表查询回落种子数据', () => {
     assert.ok(news.every((n) => n.category === category));
   });
 
-  test('种子的 category 都是合法类目（沙龙/活动/资讯）', async () => {
-    const valid = new Set(['沙龙', '活动', '资讯']);
+  test('种子的 category 都是合法类目（参考站三类目）', async () => {
+    const valid = new Set(['行业观察', '政策资讯', '赛事活动']);
     for (const n of seedNews) {
       assert.ok(valid.has(n.category), `资讯 ${n.slug} 的分类 ${n.category} 不合法`);
     }

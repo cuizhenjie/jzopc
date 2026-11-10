@@ -173,6 +173,52 @@ describe('数据库 DDL 与应用类型的契约', () => {
     assert.ok(!tables.has('site_contents'), 'site_contents 已随 0006 迁移下线，最终形态不应存在');
   });
 
+  test('运行时区块层用到的表、列、过滤列都必须在 DDL 里存在', () => {
+    // 2026-11-10 实测踩到的坑：blocks-runtime 的 loadHomeNews 写成
+    //   `.from('news_posts').select(...).eq('published', true)`
+    // 而 news_posts **没有 published 列**（它用 status）。
+    // PostgREST 对未知列返回 42703 → 查询失败 → 区块静默置空，
+    // 页面上表现为「动态四卡一直是空的」，本地无库时完全看不出来。
+    //
+    // 这条门禁把「运行时层引用了 DDL 里不存在的列」变成 CI 红灯。
+    const runtimeFiles = [
+      'src/lib/opc/blocks-runtime.ts',
+      'src/lib/opc/news-runtime.ts',
+    ];
+    const offenders: string[] = [];
+
+    for (const file of runtimeFiles) {
+      const src = readFileSync(resolve(repoRoot, file), 'utf8');
+      // 形如 .from('news_posts') … .select('a,b') … .eq('col', …)
+      const statements = src.split(/\.from\(/).slice(1);
+      for (const statement of statements) {
+        const table = statement.match(/^'([a-z_]+)'/)?.[1];
+        if (!table) continue;
+        if (!tables.has(table)) {
+          offenders.push(`${file}: 表 ${table} 不在迁移脚本里`);
+          continue;
+        }
+        const columns = tables.get(table)!;
+        const select = statement.match(/\.select\('([^']*)'\)/)?.[1];
+        if (select) {
+          for (const col of select.split(',').map((c) => c.trim()).filter(Boolean)) {
+            if (!columns.has(col)) offenders.push(`${file}: ${table}.${col} 不存在（select）`);
+          }
+        }
+        for (const filter of statement.matchAll(/\.(?:eq|neq|gt|gte|lt|lte|like|ilike|in)\('([a-z_]+)'/g)) {
+          const col = filter[1];
+          if (!columns.has(col)) offenders.push(`${file}: ${table}.${col} 不存在（过滤条件）`);
+        }
+      }
+    }
+
+    assert.deepEqual(
+      offenders,
+      [],
+      `运行时区块层引用了 DDL 里不存在的表/列（查询会静默失败 → 区块置空）：\n  ${offenders.join('\n  ')}`,
+    );
+  });
+
   test('leads 表带幂等键的部分唯一索引（route.ts 靠 23505 判重复提交）', () => {
     assert.match(
       sql,

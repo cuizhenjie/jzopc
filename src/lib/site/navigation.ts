@@ -1,33 +1,31 @@
-/** Small, shared public navigation. Safe to import from a client component. */
+/** 公开导航与外壳模式。参考站菜单的唯一事实源（2026-11-10 全站复刻对齐）。
+ *
+ * 菜单与参考站 https://jizhi-ai-opc.app.workbuddy.host/ 逐项一致：
+ *   首页 / 关于集智(4 项下拉) / 大健康+AI / 八大赋能 / 供需发布 / 流量赋能 /
+ *   集智商学院 / 社区动态 / 申请入驻(CTA)
+ *
+ * 旧路由（/newslist、/center、/traffic、/work…）由 next.config.ts 的 redirects()
+ * 以 308 收敛到这里声明的正式路由，老链接不落 404。
+ */
 export type NavChild = { label: string; href: string };
 export type NavItem = NavChild & { children?: NavChild[]; cta?: boolean };
 
 export const publicNavigation: NavItem[] = [
-  // 关于集智的四个子页（简介/历程/服务对象/生态伙伴）已于 2026-10-23 下线，
-  // 内容统一收敛进 /about 单页 —— 导航只保留顶层入口。
-  { label: '关于集智', href: '/about' },
+  { label: '首页', href: '/' },
   {
-    label: '八大赋能', href: '/empower/space', children: [
-      { label: '集智空间', href: '/empower/space' },
-      { label: '智能体', href: '/empower/agents' },
-      { label: '算力超市', href: '/empower/compute' },
-      { label: '集智学院', href: '/empower/academy' },
-      { label: '企服超市', href: '/empower/enterprise' },
-      { label: '供需市场', href: '/empower/market' },
-      { label: '流量赋能', href: '/empower/traffic' },
-      { label: '资本政策', href: '/empower/capital' },
+    label: '关于集智', href: '/about', children: [
+      { label: '集智简介', href: '/about#intro' },
+      { label: '发展历程', href: '/about#history' },
+      { label: '服务对象', href: '/about#who' },
+      { label: '生态伙伴', href: '/about#eco' },
     ],
   },
-  { label: '智能体', href: '/agent' },
-  { label: '供需市场', href: '/market' },
-  { label: '流量超市', href: '/traffic' },
-  { label: '集智商学院', href: '/center' },
-  {
-    label: '社区动态', href: '/newslist', children: [
-      { label: '沙龙', href: '/newslist' },
-      { label: '活动资讯', href: '/activitylist' },
-    ],
-  },
+  { label: '大健康+AI', href: '/health' },
+  { label: '八大赋能', href: '/empower' },
+  { label: '供需发布', href: '/market' },
+  { label: '流量赋能', href: '/growth' },
+  { label: '集智商学院', href: '/academy' },
+  { label: '社区动态', href: '/news' },
   { label: '申请入驻', href: '/apply', cta: true },
 ];
 
@@ -35,21 +33,18 @@ export function normalizePublicPath(pathname: string): string {
   return pathname.toLowerCase().replace(/\/+$/, '') || '/';
 }
 
-const independentPaths = new Set([
-  '/opclogin', '/opcregister', '/opcforgotpassword', '/myinfo', '/opcapply',
-]);
-
-/** Account shells and both operations areas own their chrome and scroll layout. */
+/** 后台与运营区自带外壳，不吃公开站的导航/页脚。 */
 export function publicChromeMode(pathname: string): 'home' | 'page' | 'independent' {
   const path = normalizePublicPath(pathname);
-  if (/^\/(?:admin|ops)(?:\/|$)/.test(path) || independentPaths.has(path)) return 'independent';
-  return path === '/' || path === '/webnew/index.html' ? 'home' : 'page';
+  if (/^\/(?:admin|ops)(?:\/|$)/.test(path)) return 'independent';
+  return path === '/' ? 'home' : 'page';
 }
 
+/** 导航高亮：路径完全相等，或落在子路径下。锚点（#xxx）不参与匹配。 */
 export function navigationMatchesPath(pathname: string, href: string): boolean {
   const path = normalizePublicPath(pathname);
-  if (path === href || path.startsWith(`${href}/`)) return true;
-  // 旧版原生路径（/agents、/academy、/news…）已在 next.config redirects()
-  // 里 308 收敛到复刻正主，导航高亮不再需要旧路径映射。
-  return false;
+  const target = normalizePublicPath(href.split('#')[0]);
+  if (!target) return false;
+  if (path === target) return true;
+  return path.startsWith(`${target}/`);
 }

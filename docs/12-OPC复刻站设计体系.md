@@ -1,10 +1,16 @@
 # OPC 复刻站 · 设计体系规范
+> ⚠️ **历史文档（2026-10 的 opcstore 复刻方案，已下线）**
+> 2026-11-10 全站复刻改为参考站 https://jizhi-ai-opc.app.workbuddy.host/ 的快照后，
+> 本文描述的旧事实源 / 旧 DOM / 旧路由已不再生效。
+> 当前契约见 `docs/19-全站复刻与参考站快照管线.md`、`docs/17-区块运行时化契约.md`、
+> `docs/14-动态内容契约.md`。本文保留作历史依据。
+
 
 | 项 | 内容 |
 |---|---|
 | 版本 | v1.0 |
 | 日期 | 2026-10-22 |
-| 关联 | `docs/06-视觉方案与3D动效规范.md`（主站规范）、`docs/11-OPC参考站科技蓝复现.md`（复现范围）、`src/styles/opc-tokens.css`、`src/styles/opc-components.css` |
+| 关联 | `docs/06-视觉方案与3D动效规范.md`（主站规范）、`docs/11-OPC参考站科技蓝复现.md`（复现范围）、旧设计层（opc-tokens.css / opc-components.css，**2026-11-10 已删除**）→ 现行视觉基线 `public/opc/reference/main.css` |
 | 目标 | 把复刻页从「原站 CSS 机器改色」升级为「有设计体系的站点」，且不改动既有功能结构 |
 
 ---
@@ -16,7 +22,7 @@
 
 | 维度 | 复现态 | 重设计后 | 收敛依据 |
 |---|---|---|---|
-| 字号档位 | 32 档（11 → 130px） | 8 档 + 1 数字档 | `opc-tokens.css` 的 `--opc-fs-*` |
+| 字号档位 | 32 档（11 → 130px） | 8 档 + 1 数字档 | 旧 opc-tokens.css 的 `--opc-fs-*`（已删除） |
 | 字重档位 | 6 档 | 3 档 | `--opc-fw-normal/medium/bold` |
 | 文字色 | 24 档 | 5 档 | `--opc-ink*` |
 | 背景色 | 11 档 | 4 档 | `--opc-surface*` |
@@ -250,7 +256,7 @@ eyebrow 用**纯文字小标**：`text 12px / 500 / letter-spacing 0.12em / 品�
 | `https://t.3cool.cc`（原运营方的另一个站点域名） | `https://www.jizhiai.net.cn` |
 | `https://ai.opcstore.com`（「算力超市」外链） | `https://th.jimei.cn` |
 | `南京市鼓楼区古平岗4号智梦园B座` | `北京市丰台区西马场甲14号` |
-| `苏ICP备2026012874号` | **未提供 → 不显示**（不顶替、不编造） |
+| `苏ICP备2026012874号`（原运营方） | **整项删除**；本站页脚渲染业务方提供的 `京ICP备2023030613号`（不顶替、不编造） |
 
 处理原则（写在 `scripts/build-opc-content.py` 的 `replace_operator_contact()` 与
 `inject_site_contact()` 里）：
@@ -268,8 +274,8 @@ eyebrow 用**纯文字小标**：`text 12px / 500 / letter-spacing 0.12em / 品�
    （`asset-map.json` 的键是 `https://www.tongcc.com/uploads/...`），
    品牌规则若先改了 `src`，本地化就查不到映射，
    图片会变成指向本站不存在路径的远程链接。
-4. **备案号**：业务方未提供 → 联系位**不渲染备案位**。
-   主站 `src/lib/site/config.ts` 的 `site.contact` 里也**没有** ICP 字段，
+4. **备案号**：2026-11-10 业务方已提供 → 页脚渲染 `京ICP备2023030613号`（此前未提供时不渲染）。
+   主站 `src/lib/site/config.ts` 的 `site.icp` 字段（2026-11-10 起有值），
    两边行为一致。
 
 > 守护：`test/opc-content.test.ts` 的
@@ -475,8 +481,8 @@ await Promise.all(inView.map(async (i) => {
 
 ```
 public/opc/reference-blue.css   ← 机器生成的原站结构基线（pnpm opc:styles 会重跑覆盖）
-src/styles/opc-tokens.css       ← 手写设计 token
-src/styles/opc-components.css   ← 手写组件样式
+src/styles/opc-tokens.css       ← 手写设计 token（2026-11-10 已删除）
+src/styles/opc-components.css   ← 手写组件样式（2026-11-10 已删除）
 src/styles/opc-interactions.css ← 手写交互态（弹窗、表单、菜单）
 ```
 
@@ -509,7 +515,7 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 > Next.js 只允许全局 CSS 在根布局 import，在 Server Component 里 import 会被**静默丢弃**
 > （实测打包后整层设计样式完全没进产物，页面还是原站配色）。
 >
-> **正确位置是客户端组件 `ReplicaInteractions.tsx`** ——
+> **正确位置是客户端组件 `src/components/opc/ReferenceInteractions.tsx`** ——
 > 客户端组件的 CSS 落在页面产物（page.css），而它在加载顺序上排最后。
 > 顺带的好处：设计层不再进主站所有路由的 layout 产物。
 
@@ -750,7 +756,7 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 > 实测现象：首页滚到内容区后，页头已经变成白底，
 > 但导航项与 logo **仍然是白色** —— 白字落在白底上，两者都不可读。
 
-**根因**：运行期（`ReplicaInteractions.tsx`）把 `scrolled` 加在 **`<nav>`** 上
+**根因**：运行期（`src/components/opc/ReferenceInteractions.tsx`）把 `scrolled` 加在 **`<nav>`** 上
 （与原站一致）。原站的白字规则写作：
 
 ```css
@@ -881,7 +887,7 @@ SSR 静态 HTML 里每个 `.el-carousel__item` 的位移是**写死的内联值*
 而 Element Plus 的**指示器与箭头是运行时渲染的**，
 所以静态产物里连 `.el-carousel__indicator` 都不存在。
 
-**修法**（`src/components/opc/ReplicaInteractions.tsx`）：
+**修法**（`src/components/opc/ReferenceInteractions.tsx`）：
 
 - 原站 CSS 把 item 定位成 `position:absolute` 叠放（`width/height:100%`），
   所以**改用 opacity + z-index 做淡入淡出**，比改 transform 位移稳；
@@ -990,8 +996,9 @@ SSR 静态 HTML 里每个 `.el-carousel__item` 的位移是**写死的内联值*
 这属于**内容资产**而非设计层问题，处理方式有三个选项：
 保留原图 / 压暗处理 / 替换为集智AI 实际活动图。待业务方决定。
 
-**本站 ICP 备案号**。业务方尚未提供 —— 页脚与关于页**一律不渲染备案位**，
-原运营方的「苏ICP备2026012874号」已整项删除，不顶替、不编造。
+**本站 ICP 备案号**。2026-11-10 业务方已提供 `京ICP备2023030613号`，
+页脚按 `site.icp` 渲染（见 `src/lib/site/config.ts`）；
+原运营方的「苏ICP备2026012874号」仍整项删除，不顶替、不编造。
 提供后填入 `src/lib/site/config.ts` 的 `site.contact.icp` 即可恢复渲染。
 （电话 `400-006-5858`、邮箱 `developer@jimei.com.cn`、
 地址 `北京市丰台区西马场甲14号`、域名 `www.jizhiai.net.cn` 已于 2026-10-22 落地。）
@@ -1026,6 +1033,7 @@ SSR 静态 HTML 里每个 `.el-carousel__item` 的位移是**写死的内联值*
 hr@tongcheng.ai           -> 0      南京市鼓楼区古平岗4号   -> 0
 www.tongcc.com           -> 0      t.3cool.cc             -> 0
 ai.opcstore.com           -> 0      同橙（运行期）          -> 0
+占位备案号（京 ICP + X 占位串） -> 0   （2026-11-10 已全库替换为真实备案号）
 ```
 
 新值全部就位：
@@ -1041,7 +1049,7 @@ https://th.jimei.cn       -> 29 处
 | 需求 | 实测证据 |
 |---|---|
 | section 上下空白统一 | 首页 8 个 section 一致 `padding-top:72px / padding-bottom:72px / margin-bottom:0` |
-| 备案号删除 | 页脚与关于页**不再渲染任何备案位**（业务方未提供 → 不顶替、不编造） |
+| 备案号替换 | 页脚渲染业务方提供的 `京ICP备2023030613号`（原运营方备案号已删除，不顶替、不编造） |
 | 电话 / 邮箱 / 地址 / 域名替换 | 29 / 55 / 30 / 57 处，见 §12.2 |
 | `ai.opcstore.com` 替换 | 29 处 `https://th.jimei.cn`，旧域名 0 |
 | 首页 banner 多图 | 4 张（`hero-grid / flow / orbit / waves`），指示器 4 个，`aria-selected` 同步 |
@@ -1058,7 +1066,7 @@ dev 模式与生产模式的产物并非同一份 HTML —— 生产走 SSG/SSR 
 | 首页 carousel 高 | 900px = 视口高 | **900px = 视口高** |
 | 首页 slides / 指示器 | 4 / 4 | **4 / 4** |
 | 运行时旧品牌信息 | 0 | **0**（`tongcheng`/`tongcc`/`025-86551126`/`古平岗`/`ai.opcstore` 全 false） |
-| 运行时备案号 | 不渲染 | **不渲染** |
+| 运行时备案号 | 不渲染 | **京ICP备2023030613号**（2026-11-10 业务方提供） |
 | `nextjs-portal` 数量 | 1（污染采样） | **0** |
 | 横向溢出 | 0 | **0** |
 | 响应式审计 | 72 组合 0 问题 | **72 组合 0 问题** |

@@ -1,238 +1,74 @@
+/**
+ * 公开站样式契约测试。
+ *
+ * ── 2026-11-10 全站复刻后的样式架构 ─────────────────────────────────────
+ *   公开站的视觉真源是**参考站样式**：
+ *     - public/opc/reference/main.css      参考站样式原件，**编译期加了 .opc-site 作用域前缀**
+ *                                        （见 scripts/build-opc-reference.mjs 的 scopeCss）
+ *     - public/opc/reference/extension.css 我们自己的扩展样式（补齐参考站自身缺失的类
+ *                                        + 后台动态区块样式 + 可达性修正）
+ *   src/styles/globals.css               Tailwind + 品牌 token（后台 / 原生页用）
+ *   src/styles/admin-rich-text.css       后台富文本排版基线
+ *
+ * 旧的「opc-*.css 设计层」（opc-tokens / opc-components / opc-layout-refresh /
+ * opc-polish / opc-visual / opc-interactions / opc-visual-motion）与
+ * public/opc/reference-blue.css 已全部删除 —— 它们是为 opcstore.com 的旧 DOM 写的，
+ * 与参考站 DOM 的同名类（.hero / .cta / .btn / .form…）冲突。
+ *
+ * 删除的旧断言（逐条说明）：
+ *   - 「opc-tokens.css 的 token 全集 / 色板 / WCAG 对比度 / 字号档位 / 间距圆角档位」
+ *     → token 文件已删除；字号与色板的守卫改到 extension.css 与 src/styles/** 上；
+ *   - 「组件层用双层 .opc-replica.opc-replica 提权压过参考 CSS」
+ *     → 旧设计层已下线，参考站样式靠 .opc-site 作用域隔离（而不是提权）；
+ *   - 「opc-components.css 里每个类名都要在复刻 DOM 里存在」
+ *     → 旧设计层文件已删除；现在守卫的是 extension.css 引用的类；
+ *   - 「首页深底规则必须带 :not(.scrolled)」「agent banner 搜索面板 width/max-width 配对」
+ *     → 旧 DOM（.opcheader / .agent-store / .hero-search）已不存在；
+ *   - 「CSS 注释块完整 / 选择器无中文」→ 改到 extension.css 上继续守。
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-/**
- * OPC 复刻站设计体系契约测试。
- *
- * 这套设计层（`src/styles/opc-tokens.css` + `opc-components.css`）是手写的，
- * 而底层 `public/opc/reference-blue.css` 是**机器生成的产物**
- * （`pnpm opc:styles` 会重跑并覆盖它）。
- *
- * 因此这里把设计体系的关键契约固化成测试：
- * 1. token 必须在，且值来自 `logo.svg` 实测色板（不得臆造新色）；
- * 2. 字号 / 间距 / 圆角必须收敛到有限档位（否则视觉层级会重新碎裂）；
- * 3. 组件层必须用双层 `.opc-replica.opc-replica` 提权
- *    —— 否则原站 `data-v-*` 规则会按加载顺序反向压过设计层。
- */
+const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+const read = (rel: string) => readFileSync(resolve(repoRoot, rel), 'utf8');
 
-const tokens = readFileSync('src/styles/opc-tokens.css', 'utf8');
-const components = readFileSync('src/styles/opc-components.css', 'utf8');
+const MAIN_CSS = 'public/opc/reference/main.css';
+const EXTENSION_CSS = 'public/opc/reference/extension.css';
 
-test('design tokens declare the full colour, type, spacing and radius scale', () => {
-  const required = [
-    '--opc-blue', '--opc-blue-deep', '--opc-blue-dark', '--opc-navy',
-    '--opc-cyan', '--opc-teal',
-    '--opc-ink', '--opc-ink-2', '--opc-ink-3', '--opc-ink-muted',
-    '--opc-surface', '--opc-surface-2', '--opc-surface-blue',
-    '--opc-line', '--opc-line-strong',
-    '--opc-font-sans', '--opc-font-mono',
-    '--opc-fs-display', '--opc-fs-h1', '--opc-fs-h2', '--opc-fs-h3',
-    '--opc-fs-body', '--opc-fs-sm', '--opc-fs-xs', '--opc-fs-num',
-    '--opc-space-1', '--opc-space-2', '--opc-space-3', '--opc-space-4',
-    '--opc-space-6', '--opc-space-8', '--opc-space-12', '--opc-space-16',
-    '--opc-radius-tag', '--opc-radius-control', '--opc-radius-panel', '--opc-radius-card',
-  ];
-  for (const name of required) {
-    assert.ok(tokens.includes(`${name}:`), `missing token ${name}`);
-  }
-});
-
-test('brand colours come from the measured logo palette and introduce no new hues', () => {
-  // 与 test/brand-palette.test.ts 的既有约束保持一致：
-  // 品牌色板 ∪ 中性阶梯 ∪ 语义色。不得臆造新色。
-  // 本测试的价值在于**覆盖 opc-tokens.css**——
-  // 既有的色板守卫只扫 Tailwind 任意值与 globals.css 的 --color-brand* token，
-  // 不会检查本轮新增的 --opc-* token 文件。
-  const BRAND = new Set([
-    '1d7fba', '142f59', '152e56', '172d56', '0e3769',
-    '57b6a5', '57b6a6', '1aa8d3', '1fabbe',
-    '0968ab', '64c4d9', '4d5153',
-  ]);
-  const NEUTRAL = new Set(['1a2333', '4d5153', '5f6878', 'e3e9f2', 'eef4fa', 'f6f9fc', 'ffffff']);
-  const SEMANTIC = new Set(['b42318']);
-  const ALLOWED = new Set([...BRAND, ...NEUTRAL, ...SEMANTIC]);
-
-  const hexes = [...tokens.matchAll(/#[0-9a-f]{3,8}\b/gi)].map((m) => m[0].slice(1).toLowerCase());
-  assert.ok(hexes.length > 0, 'no colours found in the token file');
-  for (const hex of hexes) {
-    // 允许 alpha 变体（#rrggbbaa）
-    const base = hex.slice(0, 6);
-    assert.ok(ALLOWED.has(base) || ALLOWED.has(hex), `undeclared colour #${hex}`);
-  }
-});
-
-test('every text colour token meets WCAG AA on the surfaces it is used on', () => {
-  const luminance = (hex: string) => {
-    const channels = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
-      .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
-    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
-  };
-  const ratio = (a: string, b: string) => {
-    const [l1, l2] = [luminance(a), luminance(b)];
-    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-  };
-  const value = (name: string) => {
-    const match = tokens.match(new RegExp(`${name}:\\s*(#[0-9a-f]{6})`, 'i'));
-    assert.ok(match, `missing ${name}`);
-    return match[1].toLowerCase();
-  };
-  // 浅底上承载正文的四级文字，全部需 ≥ 4.5:1（WCAG AA）
-  for (const name of ['--opc-ink', '--opc-ink-2', '--opc-ink-3', '--opc-ink-muted']) {
-    const colour = value(name);
-    const onWhite = ratio(colour, '#ffffff');
-    const onSurface = ratio(colour, value('--opc-surface'));
-    assert.ok(onWhite >= 4.5, `${name} on white is ${onWhite.toFixed(2)}:1`);
-    assert.ok(onSurface >= 4.5, `${name} on surface is ${onSurface.toFixed(2)}:1`);
-  }
-  // 品牌蓝：浅底小字用 --opc-blue-deep（≥4.5:1），主蓝只用于大字/边框
-  assert.ok(ratio(value('--opc-blue-deep'), '#ffffff') >= 4.5);
-  // 白字承载的品牌底
-  assert.ok(ratio('#ffffff', value('--opc-blue-deep')) >= 4.5);
-});
-
-test('type scale stays within the declared number of steps', () => {
-  const sizes = [...tokens.matchAll(/--opc-fs-[a-z0-9]+:\s*(\d+)px/g)].map((m) => Number(m[1]));
-  assert.ok(sizes.length <= 10, `too many font-size steps: ${sizes.length}`);
-  assert.ok(sizes.length >= 8, 'font-size scale is too coarse');
-  // 正文与标题两族各自单调：标题档递减、正文档递减，
-  // 两族之间允许交错（数字档 34px 用于指标数字，与标题族独立）。
-  const headings = sizes.filter((s) => s >= 19).sort((a, b) => b - a);
-  const bodies = sizes.filter((s) => s < 19).sort((a, b) => b - a);
-  for (const family of [headings, bodies]) {
-    assert.ok(new Set(family).size === family.length, 'duplicate font-size steps');
-  }
-  assert.ok(headings.length >= 4, 'heading scale is too coarse');
-  assert.ok(bodies.length >= 3, 'body scale is too coarse');
-});
-
-test('spacing and radius scales stay small', () => {
-  const spaces = [...tokens.matchAll(/--opc-space-\d+:\s*(\d+)px/g)].map((m) => Number(m[1]));
-  assert.ok(spaces.length <= 8, `too many spacing steps: ${spaces.length}`);
-  const radii = [...tokens.matchAll(/--opc-radius-[a-z]+:\s*(\d+)px/g)].map((m) => Number(m[1]));
-  assert.ok(radii.length <= 4, `too many radius steps: ${radii.length}`);
-  assert.ok(radii.every((r) => r <= 16), 'radius exceeds the 16px ceiling');
-});
-
-test('component layer raises specificity so it wins over the generated reference CSS', () => {
-  // 双层写法把特异性抬到 (0,3,0)，压过原站的 data-v-* 限定规则。
-  // 单层写法会被原站按加载顺序反向压过 —— 实测已发生。
-  const single = components.match(/^\.opc-replica (?![\w-]*opc-replica)/gm);
-  assert.equal(single, null, `component layer still has single-level selectors: ${single?.length ?? 0}`);
-  assert.ok(components.includes('.opc-replica.opc-replica'), 'no raised-specificity selector found');
-});
-
-test('no component style declares a font size below the 12px floor', () => {
-  // 11px 是复现态遗留的最小字号档，实测被响应式审计抓出（交易市场 .sc-tag）。
-  // 12px 是中文界面的可读下限。
-  const offenders: string[] = [];
-  for (const match of components.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g)) {
-    if (Number(match[1]) < 12) offenders.push(match[0]);
-  }
-  assert.deepEqual(offenders, [], `component layer declares sub-12px font sizes: ${offenders.join(', ')}`);
-});
-
-test('token layer keeps variable declarations on the single-level root selector', () => {
-  // 变量靠继承传递；写成双层会要求根元素同时有两个类，过于脆弱。
-  // 但排版规则必须提权。这里只校验「变量块单层、规则块双层」这一约定存在。
-  const variableBlock = tokens.match(/\.opc-replica \{[\s\S]*?--opc-blue:/);
-  assert.ok(variableBlock, 'token variables must be declared on .opc-replica');
-  assert.ok(tokens.includes('.opc-replica.opc-replica h1'), 'heading rules must raise specificity');
-});
-
-test('focus ring and reduced motion are preserved for keyboard and motion users', () => {
-  // 焦点环定义在 token 层（设计 token 的归属），组件层与交互层复用它。
-  assert.ok(tokens.includes(':focus-visible'), 'focus-visible styling is missing in tokens');
-  assert.ok(tokens.includes('--opc-focus'), 'focus colour token is missing');
-  // 减弱动效由 globals.css 统一处理，组件层不得覆盖掉它
-  assert.ok(!components.includes('animation-duration'), 'component layer must not override reduced-motion');
-});
-
-test('every class the design layer targets actually exists in the replica DOM', () => {
-  // ⚠️ 这一条是为了防「死规则」。
-  //
-  // 设计层写错一个类名，那一整段样式就**静默失效** ——
-  // 不报错、不报警、测试全绿，只是从来没生效过。
-  // 实测踩过两次：
-  //   1. 页脚整段写成 `.footer` / `.opcfooter`，而复刻 DOM 真实容器是
-  //      `.opcbottom` —— 页脚底色还是原站紫黑，链接字号还是 14px；
-  //   2. 「记住我 / 忘记密码」写成 `.login-options` / `.form-options`，
-  //      真实类名是 `.form-actions`。
-  //
-  // 所以这里把设计层引用的每个类名与生成产物的真实类名对账。
-  // 只有「运行期由 JS 注入 / React 渲染」的类名可以豁免（见下方白名单）。
-  const interactions = readFileSync('src/styles/opc-interactions.css', 'utf8');
-  const css = [tokens, components, interactions].join('\n');
-
-  // 注释里的类名不算（注释不参与渲染）
-  const noComments = css.replace(/\/\*[\s\S]*?\*\//g, ' ');
-
-  // 只取选择器部分，并去掉属性选择器与伪类
-  const selectors: string[] = [];
-  for (const match of noComments.matchAll(/([^{}]+)\{[^{}]*\}/g)) {
-    selectors.push(match[1]);
-  }
-  const cleaned = selectors
-    .join(' , ')
-    .replace(/\[[^\]]*\]/g, ' ')        // [data-v-*] / [class*="bg-"] / [style*=...]
-    .replace(/::?[a-z-]+(\([^()]*\))?/gi, ' '); // :hover / :not(...) / :where(...)
-
-  const referenced = new Set<string>();
-  for (const match of cleaned.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)) referenced.add(match[1]);
-
-  // 复刻 DOM 里真实存在的类名
-  const domClasses = new Set<string>();
-  // list-cards：P1 动态内容契约（docs/14）后 /newslist、/activitylist 的卡片快照，
-  // 页面运行时注入的兜底串与原烘焙卡逐字节一致 —— 类名守卫需把它纳入 DOM 来源。
-  for (const file of ['pages', 'details', 'article-shell', 'zone-cities', 'directory', 'listings', 'list-cards']) {
-    const raw = readFileSync(`src/lib/opc/generated/${file}.json`, 'utf8');
-    for (const match of raw.matchAll(/class=\\?"([^"\\]*)\\?"/g)) {
-      for (const name of match[1].split(/\s+/)) if (name) domClasses.add(name);
+/** 剥掉 @keyframes 块（其内部是百分比，不是选择器）。 */
+function stripKeyframes(css: string): string {
+  let out = '';
+  let index = 0;
+  while (index < css.length) {
+    const at = css.indexOf('@keyframes', index);
+    const atWebkit = css.indexOf('@-webkit-keyframes', index);
+    const start = at < 0 ? atWebkit : atWebkit < 0 ? at : Math.min(at, atWebkit);
+    if (start < 0) {
+      out += css.slice(index);
+      break;
     }
+    out += css.slice(index, start);
+    const braceAt = css.indexOf('{', start);
+    if (braceAt < 0) {
+      out += css.slice(start);
+      break;
+    }
+    let depth = 0;
+    let cursor = braceAt;
+    for (; cursor < css.length; cursor += 1) {
+      if (css[cursor] === '{') depth += 1;
+      else if (css[cursor] === '}') {
+        depth -= 1;
+        if (depth === 0) break;
+      }
+    }
+    index = cursor + 1;
   }
-
-  /**
-   * 豁免白名单 —— 每一条都要写清「这个类从哪来」。
-   * 新增条目时必须同时说明来源，否则等于把守卫关掉。
-   */
-  const runtimeOnly = new Set([
-    // ReplicaInteractions.tsx 在运行期注入的弹窗/校验/状态类
-    'opc-dialog', 'opc-dialog-close', 'opc-dialog-content', 'opc-dialog-footer',
-    'opc-dialog-header', 'opc-empty-results', 'opc-field-error', 'opc-form-error',
-    'opc-form-status', 'opc-invalid', 'opc-live-status', 'opc-menu-open',
-    // ReplicaInteractions.tsx 在运行期注入的首页主视觉轮播指示器
-    'opc-carousel-dots', 'opc-carousel-dot',
-    // 页头滚动时由 JS 加上的状态类
-    'scrolled',
-    // React 侧渲染的复刻根容器
-    'opc-replica',
-  ]);
-
-  const dead = [...referenced]
-    .filter((name) => !domClasses.has(name) && !runtimeOnly.has(name))
-    .sort();
-
-  assert.deepEqual(
-    dead,
-    [],
-    `design layer targets classes that do not exist in the replica DOM (dead rules):\n  ${dead.join('\n  ')}`,
-  );
-});
-
-/**
- * ── CSS 文本层守卫 ──────────────────────────────────────────────────────
- *
- * 背景：2026-10-22 发生过一次真实事故 —— 把一条单行闭合的 CSS 注释
- * （形如「斜杠 星号 … 星号 斜杠」）拆成多行说明时，中间几行掉出了注释块，
- * 被浏览器当成**非法选择器**，整条规则（含 left/right）被静默丢弃，
- * 表现为「设计层声明存在但计算值不符」。
- *
- * CSS 解析器不会报错：非法选择器只是被忽略，页面照常渲染。
- * 因此只能靠静态检查守住，规则有两条：
- *   1. 注释块结构必须完整（不嵌套、剥离后不残留注释终止符）；
- *   2. 剥离注释后，**选择器里不许出现中文/全角符号** ——
- *      中文只允许出现在注释里，一旦出现在选择器位置就说明注释被拆断了。
- */
+  return out;
+}
 
 /** 正确剥离 CSS 注释：逐字符扫描，跳过字符串字面量，不处理注释嵌套。 */
 function stripCssComments(src: string): string {
@@ -265,132 +101,234 @@ function stripCssComments(src: string): string {
   return out;
 }
 
-const CSS_FILES = [
-  'src/styles/opc-tokens.css',
-  'src/styles/opc-components.css',
-  'src/styles/opc-interactions.css',
-];
+/** 取出所有规则的「选择器部分 + 声明块」。 */
+function rulesOf(css: string): Array<{ selector: string; body: string }> {
+  const stripped = stripKeyframes(stripCssComments(css));
+  const rules: Array<{ selector: string; body: string }> = [];
+  for (const match of stripped.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const part of match[1].split(',')) {
+      const trimmed = part.trim();
+      if (trimmed) rules.push({ selector: trimmed, body: match[2] });
+    }
+  }
+  return rules;
+}
 
-test('design layer CSS keeps comment blocks intact and selectors free of stray prose', () => {
-  for (const file of CSS_FILES) {
-    const raw = readFileSync(file, 'utf8');
+/** 只取选择器部分。 */
+function selectorsOf(css: string): string[] {
+  return rulesOf(css).map((rule) => rule.selector);
+}
+
+/** 从 HTML / TSX 源码里收集真实存在的类名。 */
+function classTokens(source: string): string[] {
+  const tokens: string[] = [];
+  const pattern = /class(?:Name)?=\s*(?:"([^"]*)"|'([^']*)'|`([^`]*)`|\{\s*`([^`]*)`\s*\})/g;
+  for (const match of source.matchAll(pattern)) {
+    const raw = match[1] ?? match[2] ?? match[3] ?? match[4] ?? '';
+    // 模板字面量只取静态前缀（`mnav${open ? ' on' : ''}` → mnav）
+    const literal = raw.split('${')[0];
+    for (const token of literal.split(/[\s"'`]+/)) if (token) tokens.push(token);
+  }
+  // 运行期状态类同样属于真实 DOM，例如 classList.toggle('is-error', failed)。
+  const dynamicPattern = /classList\.(?:add|remove|toggle)\(\s*['"]([^'"]+)['"]/g;
+  for (const match of source.matchAll(dynamicPattern)) tokens.push(match[1]);
+  return tokens;
+}
+
+const pages = JSON.parse(read('src/lib/opc/generated/pages.json')) as Record<string, { html: string }>;
+const articleShell = JSON.parse(read('src/lib/opc/generated/article-shell.json')) as { html: string };
+
+/**
+ * 站内真实存在的类名来源：
+ *   1. 烘焙产物（参考站快照正文 + 文章外壳）；
+ *   2. React 外壳（Header / Footer / SiteChrome）；
+ *   3. 运行期区块渲染器（blocks-runtime / news-runtime）与交互组件。
+ * 三者合起来就是**前台 DOM 能出现的全部类名**。
+ */
+function domClasses(): Set<string> {
+  const classes = new Set<string>();
+  for (const page of Object.values(pages)) for (const token of classTokens(page.html)) classes.add(token);
+  for (const token of classTokens(articleShell.html)) classes.add(token);
+  for (const file of [
+    'src/components/layout/Header.tsx',
+    'src/components/layout/Footer.tsx',
+    'src/components/layout/SiteChrome.tsx',
+    'src/lib/opc/blocks-runtime.ts',
+    'src/lib/opc/news-runtime.ts',
+    'src/components/opc/ReferenceInteractions.tsx',
+  ]) {
+    for (const token of classTokens(read(file))) classes.add(token);
+  }
+  return classes;
+}
+
+test('参考站样式原件存在，且所有选择器都被 .opc-site 限定', () => {
+  assert.ok(existsSync(resolve(repoRoot, MAIN_CSS)), '缺少参考站样式原件');
+  const css = read(MAIN_CSS);
+  const selectors = selectorsOf(css);
+  assert.ok(selectors.length > 100, `参考站样式规则过少：${selectors.length}`);
+  const unscoped = selectors.filter((selector) => !selector.startsWith('.opc-site'));
+  // 只允许 html 级规则例外（scroll-behavior / scroll-padding-top 与作用域无关）
+  assert.deepEqual(
+    unscoped.sort(),
+    ['html'],
+    `参考站样式里有脱离 .opc-site 作用域的选择器：${unscoped.join(' | ')}`,
+  );
+});
+
+test('参考站样式不得出现裸的全局重置（body / h1 / p / ul 等）', () => {
+  const css = read(MAIN_CSS);
+  const bare: string[] = [];
+  for (const selector of selectorsOf(css)) {
+    if (selector.startsWith('.opc-site')) continue;
+    const head = selector.split(/[\s>+~,]/)[0];
+    if (['body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'img', 'button', 'a', 'input', 'table'].includes(head)) {
+      bare.push(selector);
+    }
+  }
+  assert.deepEqual(bare, [], `参考站样式里的裸全局重置：${bare.join(' | ')}`);
+});
+
+test('参考站样式变量定义在作用域根（:root → .opc-site）', () => {
+  const css = read(MAIN_CSS);
+  assert.match(css, /\.opc-site\s*\{[^}]*--navy/, '作用域根上应有 --navy 等 token');
+  assert.doesNotMatch(css, /(^|[,}\s]):root\s*\{/m, '不应残留未作用域化的 :root');
+});
+
+test('扩展样式里的类名在站内 DOM 里真实存在（防死规则）', () => {
+  assert.ok(existsSync(resolve(repoRoot, EXTENSION_CSS)), '缺少扩展样式');
+  const css = read(EXTENSION_CSS);
+  const classes = domClasses();
+  const referenced = new Set<string>();
+  for (const selector of selectorsOf(css)) {
+    const cleaned = selector.replace(/\[[^\]]*\]/g, ' ').replace(/::?[a-z-]+(\([^()]*\))?/gi, ' ');
+    for (const match of cleaned.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)) referenced.add(match[1]);
+  }
+  referenced.delete('opc-site');
+  const dead = [...referenced].filter((name) => !classes.has(name)).sort();
+  assert.deepEqual(
+    dead,
+    [],
+    `扩展样式指向了站内不存在的类（死规则）：\n  ${dead.join('\n  ')}`,
+  );
+  assert.ok(referenced.size > 20, `扩展样式引用的类过少：${referenced.size}`);
+});
+
+test('扩展样式补齐了参考站自身缺失的类（课程卡 / 就业流程 / 入驻页 / 新闻配图）', () => {
+  const css = read(EXTENSION_CSS);
+  for (const name of [
+    'ac-crs', 'ac-crs__i', 'ac-flow', 'ac-fl', 'gw-band', 'gw-tb',
+    'jblk', 'jben', 'jfl', 'jreq', 'nfig', 'nnotice', 'nsrc', 'ab-cap', 'chev',
+    'partner-wall', 'sd-board', 'sd-card', 'totop',
+  ]) {
+    assert.ok(css.includes(`.${name}`), `扩展样式缺少 .${name}`);
+  }
+});
+
+test('我们自己写的样式里没有小于 12px 的 font-size', () => {
+  const files = [
+    ...readdirSync(resolve(repoRoot, 'src/styles')).map((name) => `src/styles/${name}`),
+    EXTENSION_CSS,
+  ];
+  const offenders: string[] = [];
+  for (const file of files) {
+    const css = read(file);
+    for (const match of css.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g)) {
+      if (Number(match[1]) < 12) offenders.push(`${file} → ${match[0]}`);
+    }
+  }
+  assert.deepEqual(offenders, [], `自有样式声明了小于 12px 的字号：\n  ${offenders.join('\n  ')}`);
+});
+
+test('交互控件自身的触控区不小于 24px', () => {
+  const css = read(EXTENSION_CSS);
+  const rules = rulesOf(css);
+  // 我们在扩展样式里自己写的交互控件
+  const controls = ['totop', 'needchip', 'agree-check'];
+  for (const control of controls) {
+    const own = rules.find((rule) => rule.selector.endsWith(`.${control}`));
+    assert.ok(own, `扩展样式缺少 .${control} 的规则`);
+    const box = /(?:^|;)\s*(?:min-)?(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px/.exec(own!.body);
+    assert.ok(box, `.${control} 必须显式声明触控尺寸`);
+    assert.ok(Number(box![1]) >= 24, `.${control} 的触控区只有 ${box![1]}px`);
+  }
+});
+
+test('小于 24px 的尺寸只落在控件内部的装饰元素上，不落在控件本体', () => {
+  const css = read(EXTENSION_CSS);
+  const controls = new Set(['totop', 'needchip', 'agree-check', 'btn', 'chip', 'button', 'a']);
+  const offenders: string[] = [];
+  for (const rule of rulesOf(css)) {
+    for (const match of rule.body.matchAll(/(?:^|;)\s*(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px/g)) {
+      if (Number(match[1]) >= 24) continue;
+      // 允许的：小图标 / 勾选框指示器（它们被包在 ≥24px 的控件里）
+      const tail = rule.selector.split(/[\s>+~,]/).pop() ?? '';
+      const isDecoration = /^(svg|input|i|em|b|span|\.chev)$/.test(tail);
+      if (isDecoration) continue;
+      const own = controls.has(tail.replace(/^\./, ''));
+      if (own) offenders.push(`${rule.selector} → ${match[0].trim()}`);
+    }
+  }
+  assert.deepEqual(offenders, [], `交互控件本体被声明为小于 24px：\n  ${offenders.join('\n  ')}`);
+});
+
+test('焦点可见：参考站与自有样式都有 :focus-visible 兜底', () => {
+  assert.ok(read(MAIN_CSS).includes(':focus-visible'), '参考站样式缺少 :focus-visible');
+  assert.ok(read('src/styles/globals.css').includes(':focus-visible'), 'globals.css 缺少 :focus-visible');
+});
+
+test('减弱动效：参考站与自有样式都有 prefers-reduced-motion 兜底', () => {
+  const main = read(MAIN_CSS);
+  assert.ok(main.includes('prefers-reduced-motion'), '参考站样式缺少 prefers-reduced-motion');
+  // 参考站的进场动效在减弱动效下必须直接可见（.rv 复位）
+  const block = /@media\s*\(prefers-reduced-motion:reduce\)\s*\{([^}]*)\}/.exec(main)?.[1] ?? '';
+  assert.match(main, /\.opc-site \.rv\{opacity:1;transform:none\}/, '减弱动效下 .rv 必须直接可见');
+  assert.ok(read('src/styles/globals.css').includes('prefers-reduced-motion'), 'globals.css 缺少 prefers-reduced-motion');
+});
+
+test('滚动进场约定 .rv → .vis 在参考站样式里成立', () => {
+  const css = read(MAIN_CSS);
+  assert.match(css, /\.opc-site \.rv\{opacity:0/, '.rv 初始应透明');
+  assert.match(css, /\.opc-site \.rv\.vis\{opacity:1;transform:none\}/, '.vis 应复位');
+});
+
+test('CSS 注释块完整，选择器里不出现中文 / 全角标点', () => {
+  for (const file of [MAIN_CSS, EXTENSION_CSS, 'src/styles/globals.css', 'src/styles/admin-rich-text.css']) {
+    const raw = read(file);
     const stripped = stripCssComments(raw);
-
-    // ① 注释被拆断的痕迹：剥完还剩 `*/` 或 `/*`
-    assert.ok(!stripped.includes('*/'), `${file}: stray "*/" left after stripping comments`);
-    assert.ok(!stripped.includes('/*'), `${file}: stray "/*" left after stripping comments`);
-
-    // ② 选择器里出现中文 / 全角标点 = 说明正文掉出了注释块
-    //    （CSS 标识符不可能合法地包含中文）
-    const selectors = [...stripped.matchAll(/([^{}]+)\{[^{}]*\}/g)].map((m) => m[1].trim());
-    assert.ok(selectors.length > 0, `${file}: no rules parsed`);
-    for (const selector of selectors) {
+    assert.ok(!stripped.includes('*/'), `${file}: 剥完注释还剩 "*/"`);
+    assert.ok(!stripped.includes('/*'), `${file}: 剥完注释还剩 "/*"`);
+    for (const selector of selectorsOf(raw)) {
       assert.ok(
         !/[\u2E80-\u9FFF\u3000-\u303F\uFF00-\uFFEF]/.test(selector),
-        `${file}: selector contains CJK/full-width text (comment block was split):\n  ${selector.slice(0, 120)}`,
+        `${file}: 选择器含中文 / 全角字符（注释块可能被拆断）：\n  ${selector.slice(0, 120)}`,
       );
     }
   }
 });
 
-test('absolutely positioned pseudo-elements never leave width to the cascade', () => {
-  /**
-   * 原站 `reference-blue.css` 写着
-   *   .nav-links a.active[data-v-…]:after { width: 100% }
-   * 设计层若只覆盖 left/right 而不覆盖 width，`width:100%` 会因属性级联存活；
-   * 而绝对定位同时给 left + right + width 属于**过度约束**，
-   * 浏览器会忽略 right（LTR），伪元素右缘溢出宿主元素 → 压到相邻导航项，
-   * 并让 scrollWidth > clientWidth（被响应式审计判为「文本硬裁」）。
-   *
-   * 规则：凡声明了 position:absolute 且同时给 left/right 的伪元素，
-   * 必须显式声明 width。
-   */
-  const raw = readFileSync('src/styles/opc-components.css', 'utf8');
-  const stripped = stripCssComments(raw);
-  const blocks = [...stripped.matchAll(/([^{}]*)\{([^{}]*)\}/g)];
-
-  let checked = 0;
-  for (const [, selector, body] of blocks) {
-    if (!/::?(after|before)/.test(selector)) continue;
-    if (!/position\s*:\s*absolute/.test(body)) continue;
-    const hasLeft = /(?:^|;)\s*left\s*:/.test(body);
-    const hasRight = /(?:^|;)\s*right\s*:/.test(body);
-    if (!hasLeft || !hasRight) continue;
-    assert.ok(
-      /(?:^|;)\s*width\s*:/.test(body),
-      `pseudo-element pins left+right but not width (over-constrained → right is ignored):\n  ${selector.trim().slice(0, 120)}`,
-    );
-    checked += 1;
+test('旧设计层文件已彻底下线（不再与参考站同名类冲突）', () => {
+  for (const file of [
+    'src/styles/opc-components.css',
+    'src/styles/opc-interactions.css',
+    'src/styles/opc-layout-refresh.css',
+    'src/styles/opc-polish.css',
+    'src/styles/opc-tokens.css',
+    'src/styles/opc-visual-motion.css',
+    'src/styles/opc-visual.css',
+    'public/opc/reference-blue.css',
+  ]) {
+    assert.equal(existsSync(resolve(repoRoot, file)), false, `${file} 应已删除`);
   }
-  assert.ok(checked > 0, 'no absolutely positioned pseudo-element found to check');
+  // src/styles/ 现在只剩 globals.css 与 admin-rich-text.css
+  assert.deepEqual(readdirSync(resolve(repoRoot, 'src/styles')).sort(), ['admin-rich-text.css', 'globals.css']);
 });
 
-test('首页深底规则必须带 :not(.scrolled) 限定', () => {
-  /**
-   * 运行期（`ReplicaInteractions.tsx`）把 `scrolled` 加在 `<nav>` 上 ——
-   * 与原站 `nav.is-home:not(.scrolled)` 的机制一致。
-   *
-   * 首页页头未滚动时是透明底 + 白字（浮在深色主视觉上），
-   * 滚动后变成白底 —— 白字必须退出，否则**白字落在白底上**，
-   * 导航项与 logo 同时不可读（2026-10-22 实测）。
-   *
-   * 漏掉 `:not(.scrolled)` 的选择器一律视为缺陷。
-   */
-  const raw = readFileSync('src/styles/opc-components.css', 'utf8');
-  const stripped = stripCssComments(raw);
-  const offenders = [...stripped.matchAll(/[^{}]*\.opcheader:has\(nav\.is-home\)(?!\:not)[^{}]*\{/g)]
-    .map((m) => m[0].trim().slice(0, 130));
-  assert.deepEqual(
-    offenders,
-    [],
-    `首页深底规则缺少 :not(.scrolled) 限定（滚动后白字落在白底上）:\n  ${offenders.join('\n  ')}`,
-  );
-});
-
-test('agent banner 搜索面板：width 覆盖必须连带解除 max-width 钳制，输入框保持透明填充层', () => {
-  /**
-   * 2026-10-26 实测的同源隐性缺陷固化：
-   *
-   * 原站基线给 `.hero-search` 留了 `max-width: 480px`（不带 !important）。
-   * 刷新层只写 `width: min(580px,100%) !important` 时，CSS 的跨属性钳制
-   * （used width = min(width, max-width)）会把 580px **静默压回 480px** ——
-   * 不报错、审计看不见：`scripts/opc-style-conflict.mjs` 只对账
-   * color / font-size / background-color / border-radius / font-weight
-   * 五个属性，width 与 max-width 的博弈不在它的视野里。
-   * 所以 width 与 max-width 必须**成对**覆盖，缺一即回归。
-   *
-   * 同一块里的第二条契约：banner 搜索输入框是「透明填充层」——
-   * `opc-components.css` 六、表单控件给所有 input[type=text] 上了
-   * !important 的 `padding: 10px 14px` + 自带描边/圆角（那条规则本身
-   * 是对的，登录/注册等真表单靠它）。若不在刷新层把它中和掉，输入框会
-   * ① 正文钻进右侧 ↵ 徽章下（徽章占 12+28=40px > 14px 内距）、
-   * ② 自带白底/描边叠在面板白底上（背景重叠、框中框）、
-   * ③ 44px 行内框顶在 52px 面板里垂直偏上。
-   * 左内距 18px 是面板级内距（放大镜图标已随构建期摘除，见
-   * test/opc-content.test.ts 的 hero-search-icon 守卫）；右内距 52px
-   * 为 ↵ 徽章让位，不得缩小。
-   */
-  const raw = readFileSync('src/styles/opc-layout-refresh.css', 'utf8');
-
-  const panel = raw.match(/\.agent-store \.hero-search \{[^}]*\}/);
-  assert.ok(panel, 'refresh layer 缺少 .agent-store .hero-search 面板规则块');
-  assert.ok(
-    /width:\s*min\(580px,\s*100%\)\s*!important/.test(panel[0]),
-    '面板 width 声明丢失',
-  );
-  assert.ok(
-    /max-width:\s*min\(580px,\s*100%\)\s*!important/.test(panel[0]),
-    'width 覆盖没有连带覆盖 max-width —— 会被原站遗留的 max-width:480px 静默钳回 480px',
-  );
-
-  const input = raw.match(/\.agent-store \.hero-search \.hero-search-input \{[^}]*\}/);
-  assert.ok(input, 'refresh layer 缺少 .hero-search-input 中和规则块');
-  assert.ok(
-    /padding:\s*0 52px 0 18px\s*!important/.test(input[0]),
-    '输入框左右内距（18px 面板内距 / 52px ↵ 徽章让位值）被改动',
-  );
-  assert.ok(
-    /border:\s*0\s*!important/.test(input[0]),
-    '输入框自带描边会在面板里形成框中框',
-  );
+test('参考站样式与扩展样式都被根布局引入，且作用域根是 .opc-site', () => {
+  const layout = read('src/app/layout.tsx');
+  assert.ok(layout.includes('/opc/reference/main.css'), '根布局必须引入参考站样式');
+  assert.ok(layout.includes('/opc/reference/extension.css'), '根布局必须引入扩展样式');
+  const chrome = read('src/components/layout/SiteChrome.tsx');
+  assert.ok(chrome.includes('className="opc-site"'), '公开站外壳根节点必须是 .opc-site');
+  assert.ok(chrome.includes('className="opc-independent"'), '后台/运营区必须是 .opc-independent');
 });

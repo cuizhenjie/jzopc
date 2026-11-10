@@ -1,9 +1,13 @@
 /**
- * 本地种子数据（新闻线）—— 与 `supabase/seed.sql` 同源。
+ * 本地种子数据（社区动态线）。
  *
- * 仅保留社区动态种子：news-runtime → /newslist /activitylist /newsdetail 在
- * 未配置 Supabase 或查询出错时用它兜底。智能体 / 课程 / 供需的种子已随
- * 旧版原生页下线（2026-10-26 第二批清理）删除——复刻页不查这几张表。
+ * 仅在**未配置 Supabase** 时作为 `getNewsPosts()` 的回落值。
+ * 注意：news-runtime 识别出「拿到的就是这份种子」时会**渲染空列表**（DB 唯一事实源），
+ * 所以这些条目在公开站并不可见 —— 它们只是让未接库的本地环境有个自洽的数据形状。
+ *
+ * 分类词表与后台 `src/lib/admin/news-schema.ts` 的 NEWS_CATEGORIES、
+ * 前台 /news 的筛选 chips **同一套**（行业观察 / 政策资讯 / 赛事活动）；
+ * 2026-11-10 全站复刻前这里用的是旧站的「沙龙 / 活动 / 资讯」。
  */
 
 export type NewsPost = {
@@ -11,7 +15,7 @@ export type NewsPost = {
   title: string;
   summary: string;
   body: string[];
-  category: '沙龙' | '活动' | '资讯';
+  category: '行业观察' | '政策资讯' | '赛事活动';
   author: string;
   published_at: string;
 };
@@ -29,7 +33,7 @@ export const seedNews: NewsPost[] = [
       '第三位讲的是踩坑：早期把精力放在做平台而不是做交付，三个月没有现金流入。这是 OPC 最常见的问题，社区之后会专门做交付方法论的分享。',
       '沙龙固定每月举办，报名方式见「社区动态」页面的订阅入口。',
     ],
-    category: '沙龙',
+    category: '行业观察',
     author: '集智 AI OPC 社区',
     published_at: '2026-10-15',
   },
@@ -43,7 +47,7 @@ export const seedNews: NewsPost[] = [
       '算力券补贴同步开放申请，审核按团队阶段与项目情况分档。',
       '需要注意的是：算力不是越多越好。社区会先了解你的项目阶段与月度预算，再给建议，避免团队一上来就囤算力。',
     ],
-    category: '资讯',
+    category: '行业观察',
     author: '集智 AI OPC 社区',
     published_at: '2026-10-09',
   },
@@ -57,7 +61,7 @@ export const seedNews: NewsPost[] = [
       'AIGC 认证与研学班同步开放申请。认证面向已有实操经验、希望对外证明能力的学员；研学班面向刚起步、需要一个完整项目的学员。',
       '课程与认证均采用线下授课 + 项目制的方式，社区内企业会提供真实项目作为练习素材。',
     ],
-    category: '活动',
+    category: '赛事活动',
     author: '集智商学院',
     published_at: '2026-10-02',
   },
@@ -71,7 +75,7 @@ export const seedNews: NewsPost[] = [
       '丰台区人力资源服务中心与青创会已驻场，办事窗口就在楼里，不用再跑几个地方。',
       '入驻方式：提交意向表单后由社区对接沟通，确认需求与工位类型后安排看房。',
     ],
-    category: '资讯',
+    category: '行业观察',
     author: '集智 AI OPC 社区',
     published_at: '2026-09-25',
   },

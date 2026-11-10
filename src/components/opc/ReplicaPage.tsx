@@ -1,48 +1,45 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getReplicaPage } from '@/lib/opc/content';
-import ReplicaInteractions from './ReplicaInteractions';
-import HashRouteBridge from './HashRouteBridge';
-import WaveField from '@/components/three/WaveField';
-// 设计层（opc-tokens.css / opc-components.css）在 Root Layout 导入 ——
-// Next.js 只允许全局 CSS 在根布局里 import。
-
-/** 登录 / 注册 / 忘记密码三页共用一套认证壳：
- * 波海背景层（openhex wave-grid 呼吸海面）挂在这些路由上，
- * 表单卡改为浮在波海上的玻璃卡（见 opc-components.css 的 [data-opc-wave] 组）。 */
-const WAVE_AUTH_PATHS = new Set(['/opclogin', '/opcregister', '/opcforgotpassword']);
+import ReferenceInteractions from './ReferenceInteractions';
 
 export type ReplicaQuery = Record<string, string | string[] | undefined>;
 
-export function replicaMetadata(pathname: string, query: ReplicaQuery = {}): Metadata {
-  const page = getReplicaPage(pathname, query);
-  if (!page) return { title: { absolute: '页面未找到 · 集智AI' } };
+/**
+ * 参考站页面的元数据。
+ * 标题来自烘焙产物（编译期取自参考站 <title>），描述与关键词为全站统一口径。
+ */
+export function replicaMetadata(pathname: string, _query: ReplicaQuery = {}): Metadata {
+  const page = getReplicaPage(pathname);
+  if (!page) return { title: { absolute: '页面未找到 · 集智 AI' } };
   return {
     title: { absolute: page.title },
-    description: '集智 AI OPC 社区，线上虚拟平台与线下实体空间，为 OPC 创业者提供全生命周期服务。',
-    keywords: ['集智AI', 'OPC', 'AI 创业', '智能体', '供需市场', '创业社区', '科技蓝'],
-    alternates: { canonical: pathname === '/newsdetail' && query.id ? `${pathname}?id=${encodeURIComponent(String(query.id))}` : pathname },
-    openGraph: { type: 'website', locale: 'zh_CN', title: page.title, siteName: '集智AI', images: [] },
+    description:
+      '集智 AI OPC 社区 —— 集美科技旗下，位于北京丰台大红门的一站式 AI 应用综合赋能平台，以八大赋能体系服务 AI 创业团队与一人公司。',
+    keywords: ['集智AI', 'OPC', 'AI 创业', '一人公司', '智能体', '供需发布', '大健康', '算力超市', '集智商学院', '北京丰台'],
+    alternates: { canonical: pathname },
+    openGraph: { type: 'website', locale: 'zh_CN', title: page.title, siteName: '集智 AI OPC 社区', images: [] },
     twitter: { card: 'summary', title: page.title, images: [] },
   };
 }
 
-export default function ReplicaPage({ pathname, query = {} }: { pathname: string; query?: ReplicaQuery }) {
-  const page = getReplicaPage(pathname, query);
+/**
+ * 复刻页外壳。
+ *
+ * 页面主体是编译期烘焙的快照（generated/pages.json），带 `data-opc-block` 标记的
+ * 容器会在服务端由 blocks-runtime / news-runtime 换成后台数据；
+ * 客户端行为由 ReferenceInteractions 按参考站语义接管。
+ *
+ * 样式：/opc/reference/main.css（参考站基线，已在编译期加 `.opc-site` 作用域前缀）
+ * 与 /opc/reference/extension.css（补齐参考站自身缺失样式的部分）。
+ */
+export default function ReplicaPage({ pathname }: { pathname: string; query?: ReplicaQuery }) {
+  const page = getReplicaPage(pathname);
   if (!page) notFound();
-  return <>
-    {/* 顺序要紧：reference-blue.css 是原站结构基线，设计 token 与组件层在其后覆盖 */}
-    <link rel="stylesheet" href="/opc/reference-blue.css" precedence="opc-reference" />
-    {/* 双类名（opc-replica opc-replica）用于提升设计层选择器特异性。
-        原站参考 CSS 的选择器带 data-v-* 属性限定（特异性 0,2,0），
-        与单层 .opc-replica X 相同；两表都带 !important 时会按加载顺序决胜，
-        而加载顺序不受 import 语句控制。双类名把设计层抬到 0,3,0，
-        使设计层始终胜出，不依赖样式表注入顺序。 */}
-    <div className="opc-replica opc-replica" data-opc-replica data-opc-wave={WAVE_AUTH_PATHS.has(page.path) ? '' : undefined}>
+  return (
+    <div className="opc-replica" data-opc-replica>
       <div id="opc-page-content" data-opc-page={page.path} dangerouslySetInnerHTML={{ __html: page.html }} />
-      <ReplicaInteractions key={page.path + JSON.stringify(query)} route={page.path} />
-      <HashRouteBridge />
+      <ReferenceInteractions route={page.path} />
     </div>
-    {WAVE_AUTH_PATHS.has(page.path) && <WaveField />}
-  </>;
+  );
 }

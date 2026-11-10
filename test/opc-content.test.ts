@@ -1,360 +1,335 @@
+/**
+ * 公开站烘焙产物（src/lib/opc/generated/pages.json）的契约测试。
+ *
+ * ── 为什么整份重写（2026-11-10 全站复刻替换）────────────────────────────
+ *
+ * 旧版断言的是 **opcstore.com 旧快照**的契约：
+ *   - 18 条路由、每页 `data-v-*` 作用域属性、233 张工具卡、158 条公开新闻、
+ *     22 条供需卡、/zone 城市变体、details.json / listings.json / list-cards.json
+ *     三套烘焙产物、build-opc-content.py 的净化器自测……
+ *
+ * 这些**全部随旧站下线**（旧产物 details.json / zone-cities.json / directory.json /
+ * listings.json / list-cards.json 已不再被任何运行期代码消费），
+ * 因此对应断言在新架构下**已无意义**，逐条删除并在下面标注原因。
+ *
+ * 新契约（参考站 https://jizhi-ai-opc.app.workbuddy.host/ 的快照复刻）：
+ *   1. 事实源是 scripts/opc-reference/ → scripts/build-opc-reference.mjs
+ *      → generated/pages.json（10 个路由）；
+ *   2. 页面正文**不含外壳**（导航/页脚由 React 渲染）；
+ *   3. 页面正文**不含脚本 / 事件属性 / 编辑器残留**；
+ *   4. 图片只指向站内参考站素材目录，且文件真实存在；
+ *   5. 站内链接只指向已声明的公开路由或该页真实存在的锚点；
+ *   6. 全站无旧站品牌与旧口径残留。
+ *
+ * 删除的旧断言（逐条说明）：
+ *   - 「18 条路由 + data-v-* 作用域属性 + 233 张工具卡 + /center 课程卡」
+ *     → 旧站结构，随旧站下线；
+ *   - 「getReplicaArticle / listings.json 158 条记录」→ API 已删除（见
+ *     src/lib/opc/content.ts：只剩 getReplicaPage），详情改由 DB 驱动；
+ *   - 「list-cards.json 快照对拍 / listings.json 分类完整性」
+ *     → 双列表通道（/newslist + /activitylist）已下线，改为单一 /news；
+ *   - 「/zone 城市变体」→ 参考站无该页；
+ *   - 「首页 500+/1000+/100+/50+ 指标、ftr-node 特性卡、合作企业 16 家」
+ *     → 旧站文案与结构；
+ *   - 「build-opc-content.py 净化器自测」→ 净化器已换成
+ *     scripts/build-opc-reference.mjs（sanitize-html 白名单）；
+ *   - 「opcheader / nav-links / mobile-menu 类名」→ 换成参考站外壳类名
+ *     （.nav / .menu / .ft），见下方「页面正文不含第二套导航」。
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { extname } from 'node:path';
-import { execFileSync } from 'node:child_process';
-import { getReplicaArticle, getReplicaPage } from '@/lib/opc/content';
+import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { escapeText, getReplicaPage, listReplicaPaths, REPLICA_SITE_NAME } from '@/lib/opc/content';
 import { replicaPaths } from '@/lib/opc/routes';
-import { intros, advantages, visions, empowerModules } from '@/lib/site/config';
 
-test('every public route has a substantive local page and preserves original scoped layout', () => {
-  assert.equal(replicaPaths.length, 18); // GPU资源页已下线
-  for (const path of replicaPaths) {
-    const page = getReplicaPage(path);
+const pagesSource = JSON.parse(readFileSync('src/lib/opc/generated/pages.json', 'utf8')) as Record<
+  string,
+  { title: string; html: string }
+>;
+const manifest = JSON.parse(readFileSync('src/lib/opc/generated/manifest.json', 'utf8')) as {
+  source: string;
+  routeCount: number;
+  images: number;
+  checksums: Record<string, string>;
+};
+
+/** 路由 → 参考站页面原件（与 scripts/build-opc-reference.mjs 的 ROUTES 同表）。 */
+const REFERENCE_SOURCE: Record<string, string> = {
+  '/': 'index.html',
+  '/about': 'about.html',
+  '/health': 'health.html',
+  '/empower': 'empower.html',
+  '/market': 'market.html',
+  '/growth': 'growth.html',
+  '/academy': 'academy.html',
+  '/news': 'news.html',
+  '/apply': 'join.html',
+  '/agent': 'agent.html',
+};
+
+/** 已声明的公开路由（烘焙快照里的 10 条 + DB 驱动的 /newsdetail）。 */
+const PUBLIC_ROUTES: Set<string> = new Set(replicaPaths);
+
+/** 参考站外壳类名 —— 出现在正文里就说明「第二个导航」漏进来了。 */
+const SHELL_CLASSES = ['nav', 'menu', 'mlink', 'drop', 'burger', 'mnav', 'ft', 'ft__links', 'ft__ct', 'brand'];
+
+test('烘焙产物覆盖参考站的 10 个路由，每页都有非空 html 与 title', () => {
+  assert.equal(Object.keys(pagesSource).length, 10, '参考站快照应是 10 个路由');
+  for (const path of Object.keys(pagesSource)) {
+    const page = pagesSource[path];
     assert.ok(page, path);
-    assert.ok(page.html.length > 1500, path);
-    assert.ok(page.title.length > 2, path);
-    assert.match(page.html, /data-v-[a-z0-9]+/, path);
-    assert.doesNotMatch(page.html, /(?:href="#\/|<script\b|<iframe\b|\son\w+=|javascript:)/i, path);
+    assert.ok(page.html.trim().length > 1000, `${path} 的 html 过短`);
+    assert.ok(page.title.trim().length > 2, `${path} 缺 title`);
+    assert.ok(page.title.includes(REPLICA_SITE_NAME), `${path} 的 title 口径不符：${page.title}`);
+  }
+  // 10 条路由与参考站页面原件一一对应
+  assert.deepEqual(Object.keys(pagesSource).sort(), Object.keys(REFERENCE_SOURCE).sort());
+});
+
+test('/newsdetail 是唯一不入快照的公开路由（详情由 DB 驱动）', () => {
+  assert.ok(PUBLIC_ROUTES.has('/newsdetail'));
+  assert.ok(!Object.hasOwn(pagesSource, '/newsdetail'), '/newsdetail 不应烘焙静态页');
+  assert.equal(getReplicaPage('/newsdetail'), null);
+  // 快照里的 10 条都在公开路由表里
+  for (const path of Object.keys(pagesSource)) assert.ok(PUBLIC_ROUTES.has(path), path);
+});
+
+test('getReplicaPage 只认已烘焙路由，未知路由返回 null 且大小写/尾斜杠归一', () => {
+  for (const path of Object.keys(pagesSource)) {
+    assert.ok(getReplicaPage(path), path);
+    assert.ok(getReplicaPage(path.toUpperCase()), path);
+    assert.ok(getReplicaPage(`${path}/`), path);
+    assert.equal(getReplicaPage(path)?.path, path);
+  }
+  for (const path of ['/unknown', '/newslist', '/center', '/traffic', '/zone', '/opclogin', '/opcapply']) {
+    assert.equal(getReplicaPage(path), null, path);
   }
 });
 
-test('article lookup resolves all published records and rejects traversal or missing IDs', () => {
-  const source = JSON.parse(readFileSync('src/lib/opc/generated/listings.json', 'utf8'));
-  assert.equal(Object.keys(source.records).length, 158);
-  for (const record of Object.values(source.records) as { id: number; title: string }[]) {
-    const article = getReplicaArticle(record.id);
-    assert.equal(article?.title, record.title);
-    assert.ok(article?.html.length, String(record.id));
-    assert.doesNotMatch(article!.html, /<(?:script|iframe|object|embed)\b|\son\w+=|javascript:|expression\(/i);
-  }
-  for (const id of ['../392', '392/../1', '__proto__', '0', '-1', '1e2', '9999999999']) {
-    assert.equal(getReplicaArticle(id), null, id);
-  }
-  assert.equal(getReplicaPage('/newsdetail', { id: '../392' }), null);
-  assert.match(getReplicaPage('/newsdetail', { id: '392' })!.html, /data-opc-article/);
-  assert.equal(getReplicaPage('/unknown'), null);
+test('listReplicaPaths 与 pages.json 的键完全一致', () => {
+  assert.deepEqual(listReplicaPaths(), Object.keys(pagesSource).sort());
 });
 
-test('all list pages contain every public record beyond the first captured page', () => {
-  const source = JSON.parse(readFileSync('src/lib/opc/generated/listings.json', 'utf8'));
-  // P1 动态内容契约（docs/14）：/newslist、/activitylist 的卡片改为运行时注入，
-  // pages.json 只留占位符；构建期快照 list-cards.json 与改动前烘焙卡逐字节一致，
-  // 完整性守卫改对拍快照串（/market 的卡片仍烘焙在 pages.json）。
-  const snapshot = JSON.parse(readFileSync('src/lib/opc/generated/list-cards.json', 'utf8'));
-  for (const [path, category, html] of [
-    ['/newslist', '10', snapshot.news],
-    ['/activitylist', '16', snapshot.activities],
-    ['/market', '14', getReplicaPage('/market')!.html],
-  ] as const) {
-    const ids = new Set([...html.matchAll(/data-opc-id="(\d+)"/g)].map(match => Number(match[1])));
-    for (const id of source.categories[category].ids) assert.ok(ids.has(id), `${path}: ${id}`);
-    assert.equal(ids.size, source.categories[category].total);
-  }
-});
-
-test('city variants retain their source descriptions and global contact address', () => {
-  const page = getReplicaPage('/zone', { city: '上海' })!;
-  assert.match(page.html, /上海作为国际化大都市/);
-  // 联系地址是**全站统一**的那一个（不是按城市变的）。
-  // ⚠️ 原站运营方（同橙）的地址已换成本站地址 —— 见 build-opc-content.py 的
-  // replace_operator_contact()；本站地址与 src/lib/site/config.ts 的 site.address 一致
-  // （2026-10-23 契约 docs/15：地址口径收敛为「北京丰台大红门」）。
-  assert.match(page.html, /北京市丰台区大红门/);
-  assert.doesNotMatch(page.html, /西马场/);
-  assert.doesNotMatch(page.html, /上海市鼓楼区/);
-  // 社区名里的运营方品牌已换成本站品牌（OPC 作为业务概念词保留）
-  assert.match(page.html, /松江大学城科创源·集智 AI OPC 社区/);
-  assert.equal(getReplicaPage('/zone', { city: '<script>' })?.title, getReplicaPage('/zone')?.title);
-});
-
-test('SSR metrics contain final values instead of captured animation frames', () => {
-  const home = getReplicaPage('/')!.html;
-  // 2026-10-23 契约 docs/15 §2.Req2：指标换为 500+/1000+/100+/50+。
-  for (const value of ['500+', '1000+', '100+', '50+']) assert.ok(home.includes(value));
-  for (const label of ['入驻智能体', '活跃创业者', '精品课程', '生态伙伴企业']) assert.ok(home.includes(label));
-  assert.doesNotMatch(home, /496\+|992\+|198\+|1,000\+/);
-  const work = getReplicaPage('/work')!.html;
-  assert.match(work, /class="count-num"[^>]*>500<\/span>/);
-  assert.match(work, /class="count-num"[^>]*>10,000<\/span>/);
-  assert.match(work, /class="count-num"[^>]*>5,000,000<\/span>/);
-});
-
-test('captured forms never submit passwords or personal fields through native GET navigation', () => {
-  for (const path of ['/opclogin', '/opcregister', '/opcforgotpassword', '/starjoin', '/opcapply']) {
-    const page = getReplicaPage(path)!;
-    assert.doesNotMatch(page.html, /<form\b|type="submit"|\saction=|\smethod=/i);
-    assert.match(page.html, /role="form"/);
-  }
-});
-
-test('account navigation remains keyboard and no-JavaScript accessible', () => {
-  const cases = {
-    '/opclogin': { '忘记密码？': '/opcforgotpassword', '立即注册': '/opcregister', '返回首页': '/' },
-    '/opcregister': { '立即登录': '/opclogin', '返回首页': '/' },
-    '/opcforgotpassword': { '返回登录': '/opclogin', '返回首页': '/' },
-  };
-  for (const [path, expected] of Object.entries(cases)) {
-    const anchors = [...getReplicaPage(path)!.html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
-    for (const [label, destination] of Object.entries(expected)) {
-      const anchor = anchors.find(match => match[2].replace(/<[^>]+>/g, '').trim() === label);
-      assert.ok(anchor, `${path}: ${label}`);
-      assert.ok(anchor[1].includes(`href="${destination}"`), `${path}: ${label}`);
-    }
-  }
-});
-
-test('appended supply cards use their own dates, authors and avatar initials', () => {
-  const page = getReplicaPage('/market')!.html;
-  for (const [id, author, initial] of [['33', 'OPC服务团队', 'O'], ['34', 'AI漫剧社', 'A']]) {
-    const card = page.match(new RegExp(`<article\\b[^>]*data-opc-id="${id}"[^>]*>([\\s\\S]*?)<\\/article>`))?.[1];
-    assert.ok(card, id);
-    assert.match(card, /class="sc-date">2026\/4\/8<\/span>/);
-    assert.ok(card.includes(`class="sc-author-name">${author}</span>`));
-    assert.ok(card.includes(`class="sc-avatar">${initial}</div>`));
-    assert.doesNotMatch(card, /2026\/6\/25|class="sc-avatar">詹/);
-  }
-});
-
-test('all homepage feature entries have native links matching the public source', () => {
-  const home = getReplicaPage('/')!.html;
-  const entries = [...home.matchAll(/<a\b([^>]*class="ftr-node[^>]*)>([\s\S]*?)<\/a>/g)];
-  // GPU资源特性卡已随 /computingresource 页面下线（2026-10），7 张卡自动回流
-  assert.equal(entries.length, 7);
-  const destinations = entries.map(match => match[1].match(/href="([^"]+)"/)?.[1]);
-  assert.deepEqual(destinations, ['/agent', '/market', '/center', '/starproject', '/community', '/work', 'https://th.jimei.cn']);
-  const external = entries.find(match => match[1].includes('https://th.jimei.cn'))!;
-  assert.match(external[1], /target="_blank"/);
-  assert.match(external[1], /rel="noopener noreferrer"/);
-});
-
-test('generated public bodies, article shell and city variants contain no second navigation', () => {
-  for (const name of ['pages', 'zone-cities', 'article-shell']) {
-    const raw = JSON.parse(readFileSync(`src/lib/opc/generated/${name}.json`, 'utf8'));
-    const records = name === 'article-shell' ? [raw] : Object.values(raw) as { html: string }[];
-    for (const record of records) {
-      assert.doesNotMatch(record.html, /class="[^"]*\b(?:opcheader|menu-backdrop|nav-links|mobile-menu)\b/);
-      assert.doesNotMatch(record.html, /data-opc-action="menu"/);
-    }
-  }
-  const compiler = readFileSync('scripts/build-opc-content.py', 'utf8');
-  assert.doesNotMatch(compiler, /def rebuild_nav|NAV_ABOUT_ITEMS|NAV_EMPOWER_ITEMS|NAV_COMMUNITY_ITEMS/);
-});
-
-test('about follows the reference composition while every company claim stays in approved Jizhi copy', () => {
-  const page = getReplicaPage('/about')!;
-  const html = page.html;
-  const shared = JSON.parse(readFileSync('src/lib/site/about-copy.json', 'utf8'));
-  assert.deepEqual(shared.intros, intros);
-  assert.deepEqual(shared.advantages, advantages);
-  assert.deepEqual(shared.visions, visions);
-  assert.equal(page.title, '关于集智 - 集智 AI OPC 社区');
-  assert.match(html, /data-opc-about-page/);
-  assert.equal([...html.matchAll(/<h1\b/g)].length, 1);
-  assert.equal([...html.matchAll(/class="hero-section opc-visual-hero has-visual"/g)].length, 1);
-  assert.equal([...html.matchAll(/class="opcbottom"/g)].length, 1);
-  for (const copy of [...intros.v3, ...advantages, ...visions]) assert.ok(html.includes(copy), copy);
-  for (const forbidden of ['江苏', '南京', '研究院', '成果转化项目', '基金直投企业', '订单市场']) {
-    assert.ok(!html.includes(forbidden), forbidden);
-  }
-  const sections = ['opc-about-overview', 'opc-about-drivers', 'opc-about-enablers', 'opc-about-journey', 'opc-about-vision', 'opcbottom'];
-  const positions = sections.map(name => html.indexOf(name));
-  assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
-  assert.equal([...html.matchAll(/class="opc-about-driver"/g)].length, 3);
-  const enablers = html.match(/<ul\b[^>]*class="opc-about-enabler-list"[^>]*>([\s\S]*?)<\/ul>/)?.[1];
-  assert.ok(enablers);
-  assert.equal([...enablers.matchAll(/<a\b/g)].length, 8);
-  for (const module of empowerModules) {
-    assert.ok(enablers.includes(`href="${module.href}"`), module.href);
-    assert.ok(enablers.includes(module.title), module.title);
-  }
-  assert.deepEqual([...html.matchAll(/<time\b[^>]*datetime="([^"]+)"/g)].map(match => match[1]), ['2026-10']);
-  assert.match(html, /更多发展节点持续整理中/);
-  assert.match(html, /窗外城市景观/);
-  assert.doesNotMatch(html, /集智(?:园区|空间)实景/);
-  for (const paragraph of intros.v2.split('\n')) assert.ok(getReplicaPage('/')!.html.includes(paragraph));
-  assert.doesNotMatch(getReplicaPage('/')!.html, /订单市场/);
-});
-
-test('agent layout preserves every tool and filter action in SSR, academy courses lead directly into employment', () => {
-  const agent = getReplicaPage('/agent')!.html;
-  for (const marker of ['data-opc-agent-layout', 'data-opc-agent-sidebar', 'data-opc-agent-results', 'data-opc-agent-status']) {
-    assert.equal([...agent.matchAll(new RegExp(`\\s${marker}(?:=|\\s|>)`, 'g'))].length, 1, marker);
-  }
-  assert.equal([...agent.matchAll(/class="tool-card[^"]*"/g)].length, 233);
-  assert.equal([...agent.matchAll(/data-opc-agent-group="/g)].length, 18);
-  assert.equal([...agent.matchAll(/data-opc-action="filter-tools"/g)].length, 19);
-  assert.match(agent, /data-opc-agent-status=""[^>]*role="status"[^>]*aria-live="polite"/);
-  assert.match(agent, /共 233 个智能体/);
-  assert.match(agent, /data-opc-search="tools"/);
-  // 2026-10-26：banner 搜索框的放大镜图标构建期摘除（绝对定位叠在 input 上，
-  // 会压占位文字；drop_agent_search_icon）。回归即重新出现 hero-search-icon。
-  assert.ok(!agent.includes('hero-search-icon'));
-  assert.doesNotMatch(agent, /data-opc-action="filter-category"/);
-  const center = getReplicaPage('/center')!.html;
-  assert.match(center, /data-opc-academy-layout/);
-  assert.equal([...center.matchAll(/class="opc-academy-course-card"/g)].length, 5);
-  assert.equal([...center.matchAll(/class="opc-employ-num"/g)].length, 6);
-  const courses = center.indexOf('class="opc-academy-course-grid"');
-  const employment = center.indexOf('class="opc-employ-steps"');
-  const gallery = center.indexOf('data-opc-gallery="academy"');
-  assert.ok(courses > 0 && employment > courses && gallery > employment);
-  for (const name of ['AI电商', 'AIGC', 'AI漫剧', '大数据工程师', '短视频运营', '职业测评', '技能培训', '项目实战', '求职面试', '就业推荐', '入职跟踪']) {
-    assert.ok(center.includes(name), name);
-  }
-});
-
-test('contract copy lands on the rewritten sections', () => {
-  // 首页 banner（Req2）
-  const home = getReplicaPage('/')!.html;
-  assert.ok(home.includes('一站式 AI 应用综合赋能平台，为创业者提供空间、算力、技术、培训、流量、订单、企业服务、资本政策全方位的支持。'));
-  // 关于文案（Req3）
-  assert.ok(home.includes('北京集美科技有限公司 · 2026 年 10 月启动运营'));
-  assert.ok(home.includes('位于北京丰台大红门'));
-  // 合作企业 16 家（Req6，首页与 /work 共用 visual_ecosystem）
-  for (const source of ['/', '/work']) {
-    const html = getReplicaPage(source)!.html;
-    assert.ok(html.includes('COOPERATIVE ENTERPRISES') && html.includes('合作企业'), source);
-    const grid = html.slice(html.indexOf('opc-visual-partner-grid'));
-    for (const partner of ['华为', '字节跳动', '哔哩哔哩', '豆瓣', '携程']) {
-      assert.ok(grid.includes(partner), `${source}: ${partner}`);
-    }
-    assert.equal((grid.match(/opc-visual-partner-card/g) ?? []).length, 16, source);
-    assert.ok(!html.includes('AI ECOSYSTEM') && !html.includes('opc-visual-logo-card'), source);
-  }
-  // /agent（Req4）
-  assert.ok(getReplicaPage('/agent')!.html.includes('集智·探索 AI 的无限可能'));
-  // /market 加入区（Req5+Req7）
-  const market = getReplicaPage('/market')!.html;
-  assert.ok(market.includes('加入集智 AI 供需市场'));
-  assert.ok(market.includes('上架智能体能力，发布项目需求，链接产业伙伴，共筑 AI 产业新生态'));
-  for (const step of ['供需发布', '智能匹配', '能力展示', '产业共创']) assert.ok(market.includes(step), step);
-  // 集智商学院四段（Req8）
-  const center = getReplicaPage('/center')!.html;
-  assert.ok(center.includes('hero-slogan') && center.includes('学AI技能拿高薪Offer让未来，从这里开始'));
-  assert.ok(center.includes('提供AI人才培养与就业服务，助力个人成长与企业数字化升级'));
-  for (const feature of ['实战教学', 'AIGC认证', '研学班', '项目驱动', '名企合作']) {
-    assert.ok(center.includes(feature), feature);
-  }
-  assert.ok(!center.includes('视频教学'));
-  assert.ok(center.includes('培训课程体系') && center.includes('紧跟行业需求，打造系统化AI人才培养体系'));
-  assert.ok(center.includes('AI电商') && center.includes('Hadoop、Spark、Flink 技术栈'));
-  assert.ok(!center.includes('category-tab') && !center.includes('course-detail'), 'old course tabs/cards removed');
-  assert.ok(center.includes('一站式就业服务') && center.includes('从学习到就业，全程陪伴，让每一次努力都有结果'));
-  for (const step of ['职业测评', '技能培训', '项目实战', '求职面试', '就业推荐', '入职跟踪']) {
-    assert.ok(center.includes(step), step);
-  }
-  assert.ok(center.includes('STEP 06'));
-});
-
-test('HTML compiler rejects adversarial elements, attributes, CSS and URLs', () => {
-  const output = execFileSync('python3', ['scripts/build-opc-content.py', '--test'], { encoding: 'utf8' });
-  assert.match(output, /sanitizer checks passed/);
-});
-
-test('every generated page and article image resolves to a present local asset', () => {
+test('每页的图片都指向站内参考站素材目录，且文件真实存在', () => {
   let images = 0;
-  // 本站自有媒体（品牌标记与科技蓝主视觉）来自 public/ 根目录，
-  // 其余素材来自原站镜像，统一落在 public/opc/assets/。
-  const localRoots = ['/opc/assets/', '/logo-mark', '/opc/hero-'];
-  const visualManifest = JSON.parse(readFileSync('scripts/opc-source/visual-media.json', 'utf8'));
-  const visualPaths = new Set(visualManifest.assets.flatMap((asset: { variants: { url: string }[] }) => asset.variants.map(variant => variant.url)));
-  for (const name of ['pages', 'details', 'zone-cities']) {
-    const records = JSON.parse(readFileSync(`src/lib/opc/generated/${name}.json`, 'utf8')) as Record<string, { html: string }>;
-    for (const record of Object.values(records)) {
-      for (const match of record.html.matchAll(/\ssrc="([^"]+)"/g)) {
-        assert.ok(visualPaths.has(match[1]) || localRoots.some((root) => match[1].startsWith(root)), match[1]);
-        assert.ok(existsSync(`public${match[1]}`), match[1]);
-        images += 1;
-      }
+  for (const [path, page] of Object.entries(pagesSource)) {
+    for (const match of page.html.matchAll(/<img\b[^>]*\ssrc="([^"]+)"/g)) {
+      const src = match[1];
+      assert.ok(src.startsWith('/opc/reference/img/'), `${path} 的图片不在站内素材目录：${src}`);
+      assert.ok(!src.startsWith('//'), `${path} 的图片不得是协议相对路径：${src}`);
+      assert.ok(existsSync(`public${src}`), `${path} 的图片缺失：${src}`);
+      images += 1;
     }
   }
-  assert.ok(images > 700);
+  assert.ok(images >= 20, `参考站图片引用过少：${images}`);
 });
 
-test('the reference operator brand is fully replaced by this site brand', () => {
-  // 「同橙」是参考站运营方品牌，「OPC Store」是参考站站点名，
-  // 两者都不允许出现在本站的任何生成内容里。
-  // 注意：OPC 本身是业务概念词（One Person Company），不应被替换。
-  for (const name of ['pages', 'details', 'zone-cities', 'directory', 'listings', 'article-shell']) {
-    const raw = readFileSync(`src/lib/opc/generated/${name}.json`, 'utf8');
-    assert.ok(!raw.includes('同橙'), `${name} still contains 同橙`);
-    assert.ok(!raw.includes('OPC Store'), `${name} still contains OPC Store`);
-    assert.ok(!raw.includes('OPCStore'), `${name} still contains OPCStore`);
-    // 原站域名与运营方身份信息（电话/邮箱/地址/备案号）都不是本站的
-    for (const residue of ['tongcc', 'tongcheng', '025-86551126', 'hr@tongcheng.ai',
-      '南京市鼓楼区古平岗4号', '苏ICP备2026012874号']) {
-      assert.ok(!raw.includes(residue), `${name} still contains ${residue}`);
-    }
+test('页面 HTML 不含脚本、编辑器节点属性与内联事件属性', () => {
+  for (const [path, page] of Object.entries(pagesSource)) {
+    assert.doesNotMatch(page.html, /<script\b/i, `${path} 含脚本`);
+    assert.doesNotMatch(page.html, /<iframe\b|<object\b|<embed\b/i, `${path} 含嵌入元素`);
+    assert.doesNotMatch(page.html, /data-page-node-id/i, `${path} 含编辑器节点属性`);
+    assert.doesNotMatch(page.html, /\son[a-z]+\s*=/i, `${path} 含内联事件属性`);
+    assert.doesNotMatch(page.html, /javascript:/i, `${path} 含 javascript: 协议`);
   }
 });
 
-test('site contact surfaces carry this site identity and never the reference operator identity', () => {
-  // 本站自己的联系位（页脚「联系我们」、关于页联系卡）必须换成本站信息，
-  // 且不得出现原运营方（同橙）的电话 / 邮箱 / 域名 / 备案号 / 总部地址。
-  // 2026-10-22 业务方已提供电话与邮箱 → 这两项**应当**出现在联系位里；
-  // **备案号未提供** → 一律不渲染（原运营方的备案号已删除，不顶替）。
-  for (const path of ['/', '/about', '/zone']) {
-    const page = getReplicaPage(path)!;
-    assert.match(page.html, /北京市丰台区大红门/, path);
-    assert.match(page.html, /400-006-5858/, path);
-    assert.match(page.html, /developer@jimei\.com\.cn/, path);
-    assert.match(page.html, /www\.jizhiai\.net\.cn/, path);
-    for (const residue of ['025-86551126', 'tongcheng', 'tongcc', 't.3cool.cc',
-      'ai.opcstore.com', '苏ICP备2026012874号', '南京市鼓楼区古平岗4号', 'ICP备案']) {
-      assert.ok(!page.html.includes(residue), `${path} still contains ${residue}`);
-    }
-  }
-});
-
-test('runtime source files contain no reference-site brand residue', () => {
-  // ⚠️ 生成期替换只覆盖 scripts/build-opc-content.py 产出的 JSON；
-  // **运行期拼出来的文案不经过那套替换** ——
-  // 实测新闻详情页 <title> 漏出过「同橙OPC社区平台」，
-  // /llms.txt 的抬头也是「OPC Store · 同橙OPC社区」。
-  // 上一条用例只看生成产物，天然看不见这类泄漏，这里把 src/ 全量纳入守卫。
-  const exts = new Set(['.ts', '.tsx', '.json', '.txt']);
-  const skipDirs = new Set(['src/lib/opc/generated']); // 已由上一条用例覆盖
-  const hits: string[] = [];
-
-  /**
-   * 去掉注释再扫。
-   *
-   * 注释里经常要写「原站叫『同橙』」这类说明（那正是本文件要记录的历史），
-   * 但注释不会出现在产物里，不该算残留。
-   * 只扫注释之外的内容 —— 字符串字面量仍会被命中，这正是我们要抓的。
-   */
-  const stripComments = (raw: string) => raw
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/(^|[^:])\/\/.*$/gm, '$1');
-
-  const walk = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const p = `${dir}/${entry.name}`;
-      if (entry.isDirectory()) {
-        if (!skipDirs.has(p)) walk(p);
-        continue;
-      }
-      if (!exts.has(extname(entry.name))) continue;
-      const raw = stripComments(readFileSync(p, 'utf8'));
-      for (const word of ['同橙', 'OPC Store', 'OPCStore', 'tongcc', 'tongcheng']) {
-        if (raw.includes(word)) hits.push(`${p} → ${word}`);
-      }
-    }
+test('站内链接只指向已声明的公开路由或该页真实存在的锚点', () => {
+  const idsOf = (path: string): Set<string> => {
+    const page = pagesSource[path];
+    if (!page) return new Set();
+    return new Set([...page.html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
   };
-  walk('src');
-
-  assert.deepEqual(hits, [], `brand residue in runtime source:\n${hits.join('\n')}`);
+  for (const [path, page] of Object.entries(pagesSource)) {
+    for (const match of page.html.matchAll(/<a\b[^>]*\shref="([^"]+)"/g)) {
+      const href = match[1];
+      if (/^https?:\/\//i.test(href)) continue; // 外链单独校验
+      const [target, fragment] = href.split('#');
+      const targetPath = target || path;
+      assert.ok(PUBLIC_ROUTES.has(targetPath), `${path} 的站内链接指向未声明路由：${href}`);
+      if (fragment) {
+        assert.ok(
+          idsOf(targetPath).has(fragment),
+          `${path} 的站内链接指向不存在的锚点：${href}`,
+        );
+      }
+    }
+  }
 });
 
-test('replica page titles and llms.txt carry this site brand', () => {
-  // 运行期拼出来的标题与 llms.txt 也必须是本站品牌。
-  const article = getReplicaArticle('392');
-  assert.ok(article, 'article 392 should resolve');
-  const detail = getReplicaPage('/newsdetail', { id: '392' });
-  assert.ok(detail, 'newsdetail should resolve');
-  assert.match(detail.title, /集智 ?AI/);
-  assert.doesNotMatch(detail.title, /同橙/);
-  // 站名口径以《集智AI 网站.docx》为准：集智 AI OPC 社区（无「平台」后缀）
-  assert.ok(detail.title.endsWith('集智 AI OPC 社区'), detail.title);
+test('外链一律带 rel=noopener noreferrer，且不带 javascript: 协议', () => {
+  for (const [path, page] of Object.entries(pagesSource)) {
+    for (const match of page.html.matchAll(/<a\b([^>]*)>/g)) {
+      const attributes = match[1];
+      const href = /href="([^"]*)"/.exec(attributes)?.[1] ?? '';
+      if (!/^https?:\/\//i.test(href)) continue;
+      assert.match(attributes, /rel="noopener noreferrer"/, `${path} 的外链缺少 rel：${href}`);
+    }
+  }
+});
+
+test('页面正文不含第二套导航外壳（外壳由 React 渲染）', () => {
+  for (const [path, page] of Object.entries(pagesSource)) {
+    const classes = new Set<string>();
+    for (const match of page.html.matchAll(/class="([^"]*)"/g)) {
+      for (const name of match[1].split(/\s+/)) if (name) classes.add(name);
+    }
+    const shell = SHELL_CLASSES.filter((name) => classes.has(name));
+    assert.deepEqual(shell, [], `${path} 的正文里出现了外壳结构（第二个导航）：${shell.join(', ')}`);
+    // 旧站的页头 / 页脚容器名也不允许残留
+    assert.doesNotMatch(page.html, /class="[^"]*\b(?:opcheader|opcbottom|nav-links|mobile-menu)\b/, path);
+  }
+});
+
+test('全站无旧站品牌与旧口径残留', () => {
+  const forbidden = [
+    'opcstore.com', 'OPC Store', 'OPCStore', '同橙', 'tongcheng', 'tongcc',
+    // 旧口径词（参考站复刻后已下线）
+    '西马场', '豆包', '星计划企业', '1,000+', 'AI ECOSYSTEM',
+  ];
+  for (const [path, page] of Object.entries(pagesSource)) {
+    for (const word of forbidden) {
+      assert.ok(!page.html.includes(word), `${path} 仍含旧站残留：${word}`);
+    }
+  }
+  // 产物文件本身（不只是 html 字段）同样干净
+  const raw = readFileSync('src/lib/opc/generated/pages.json', 'utf8');
+  for (const word of forbidden) assert.ok(!raw.includes(word), `pages.json 仍含旧站残留：${word}`);
+});
+
+test('烘焙产物的 title 与参考站 <title> 逐字一致', () => {
+  for (const [path, source] of Object.entries(REFERENCE_SOURCE)) {
+    const raw = readFileSync(`scripts/opc-reference/pages/${source}`, 'utf8');
+    const reference = /<title>([^<]*)<\/title>/.exec(raw)?.[1];
+    assert.ok(reference, `${source} 没有 <title>`);
+    // 标题由编译期从参考站 <title> 直接提取（scripts/build-opc-reference.mjs），
+    // 因此这里要求**逐字相等**——参考站改标题时产物自动跟随，不允许本地二次归一。
+    assert.equal(pagesSource[path].title, reference, `${path} 的标题与参考站不一致`);
+  }
+});
+
+test('manifest 记录来源、路由数、素材数与逐页校验和', () => {
+  assert.match(manifest.source, /^https:\/\/jizhi-ai-opc\.app\.workbuddy\.host\//);
+  assert.equal(manifest.routeCount, Object.keys(pagesSource).length);
+  assert.equal(manifest.images, 26);
+  for (const [path, page] of Object.entries(pagesSource)) {
+    const digest = createHash('sha256').update(page.html).digest('hex').slice(0, 16);
+    assert.equal(manifest.checksums[path], digest, `${path} 的校验和与产物不一致`);
+  }
+});
+
+test('文章外壳保留三个占位符，且不含未替换的脚本', () => {
+  const shell = JSON.parse(readFileSync('src/lib/opc/generated/article-shell.json', 'utf8')) as { html: string };
+  for (const token of ['__OPC_TITLE__', '__OPC_DATE__', '__OPC_ARTICLE__']) {
+    assert.ok(shell.html.includes(token), `文章外壳缺少占位符 ${token}`);
+  }
+  assert.doesNotMatch(shell.html, /<script\b|data-page-node-id|\son[a-z]+\s*=/i);
+});
+
+test('escapeText 转义全部五个危险字符，站内文案渲染安全', () => {
+  assert.equal(escapeText('<script>'), '&lt;script&gt;');
+  assert.equal(escapeText('a&b'), 'a&amp;b');
+  assert.equal(escapeText('"q"'), '&quot;q&quot;');
+  assert.equal(escapeText("'s'"), '&#39;s&#39;');
+  assert.equal(escapeText('a<b>&"\'"'), 'a&lt;b&gt;&amp;&quot;&#39;&quot;');
+});
+
+test('站点名口径唯一：REPLICA_SITE_NAME 贯穿标题与详情标题', () => {
+  assert.equal(REPLICA_SITE_NAME, '集智 AI OPC 社区');
+  for (const page of Object.values(pagesSource)) {
+    assert.ok(page.title.includes(REPLICA_SITE_NAME), page.title);
+  }
+});
+
+test('参考站关键区块的内容在烘焙产物里完整保留', () => {
+  const home = pagesSource['/'].html;
+  assert.match(home, /集智\s*<em>AI<\/em>\s*OPC 社区/);
+  assert.match(home, /八大赋能/);
+  assert.match(home, /订单市场/);
+  assert.match(home, /大健康/);
+  const growth = pagesSource['/growth'].html;
+  for (const brand of ['八马茶业', '康师傅', '立白', '卫龙']) {
+    assert.ok(growth.includes(brand), `流量赋能页缺少战报品牌：${brand}`);
+  }
+  const academy = pagesSource['/academy'].html;
+  for (const name of ['AI 电商', 'AIGC', 'AI 漫剧', '大数据工程师']) {
+    assert.ok(academy.includes(name), `集智商学院缺少课程方向：${name}`);
+  }
+  const empower = pagesSource['/empower'].html;
+  for (const module of ['空间', '智能体', '算力', '学院', '企业', '订单', '流量', '资本']) {
+    assert.ok(empower.includes(module), `八大赋能缺少模块：${module}`);
+  }
+});
+
+test('动态区块的 data-opc-block 标记在目标页恰好出现一次', () => {
+  const expected: Record<string, string[]> = {
+    '/': ['home-stats', 'home-news'],
+    '/about': ['partners', 'partner-grid'],
+    '/academy': ['course-grid'],
+    '/news': ['news-list'],
+    '/agent': ['agent-grid'],
+    '/market': ['market-board', 'market-items', 'market-supply', 'market-demand'],
+  };
+  for (const [path, markers] of Object.entries(expected)) {
+    for (const marker of markers) {
+      const hits = (pagesSource[path].html.match(new RegExp(`data-opc-block="${marker}"`, 'g')) ?? []).length;
+      assert.equal(hits, 1, `${path} 的 ${marker} 标记应恰好一次（实际 ${hits}）`);
+    }
+  }
+  // 没有动态区块的页面不得带标记
+  for (const path of ['/health', '/empower', '/growth', '/apply']) {
+    assert.ok(!pagesSource[path].html.includes('data-opc-block'), `${path} 不应有动态区块标记`);
+  }
+});
+
+test('需要接后台的交互节点（表单 / 智能体目录 / 供需榜）在产物里唯一存在', () => {
+  const idsOf = (path: string) =>
+    new Set([...pagesSource[path].html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
+  assert.deepEqual([...idsOf('/apply')].sort(), ['joinForm', 'joinOk']);
+  assert.deepEqual([...idsOf('/agent')].sort(), ['agentChips', 'agentCount', 'agentGrid', 'agentMore', 'agentSearch']);
+  assert.deepEqual([...idsOf('/market')].sort(), ['publish', 'sdCopy', 'sdGive', 'sdNeed', 'sdOut', 'sdText']);
+});
+
+test('供需页初始只展示供给表单，需求表单与结果卡保留 hidden 状态', () => {
+  const html = pagesSource['/market'].html;
+  const need = /<form\b[^>]*id="sdNeed"[^>]*>/.exec(html)?.[0] ?? '';
+  const give = /<form\b[^>]*id="sdGive"[^>]*>/.exec(html)?.[0] ?? '';
+  const out = /<div\b[^>]*id="sdOut"[^>]*>/.exec(html)?.[0] ?? '';
+  assert.match(need, /\shidden(?:=|\s|>)/, '需求表单初始必须隐藏');
+  assert.doesNotMatch(give, /\shidden(?:=|\s|>)/, '供给表单初始必须展示');
+  assert.match(out, /\shidden(?:=|\s|>)/, '结果卡初始必须隐藏');
+});
+
+test('供需结果卡不再宣称是静态演示，说明与真实后台提交一致', () => {
+  const html = pagesSource['/market'].html;
+  assert.ok(!html.includes('这是静态演示版'));
+  assert.ok(html.includes('运营审核'));
+});
+
+test('入驻结果提示位于表单外，成功隐藏表单后仍然可见', () => {
+  const html = pagesSource['/apply'].html;
+  const formStart = html.indexOf('id="joinForm"');
+  const formEnd = html.indexOf('</form>', formStart);
+  const result = html.indexOf('id="joinOk"');
+  assert.ok(formStart >= 0 && formEnd > formStart, '入驻表单必须完整存在');
+  assert.ok(result > formEnd, '结果提示不能位于成功后会被隐藏的表单内部');
+});
+
+test('新闻筛选项与后台允许的分类完全一致', () => {
+  const filters = [...pagesSource['/news'].html.matchAll(/data-news-filter="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(filters, ['all', '行业观察', '政策资讯', '赛事活动']);
+});
+
+test('/news 列表底部不再渲染「订阅提示卡」', () => {
+  // 参考站原文在列表下方有一张「资讯由社区运营团队维护……留下联系方式」的卡片，
+  // 用户 2026-11-10 要求删掉该布局（编译期 removeNewsSubscribeCard）。
+  const html = pagesSource['/news'].html;
+  assert.ok(!html.includes('资讯由社区运营团队维护'), '/news 不应残留订阅提示文案');
+  assert.ok(!html.includes('留下联系方式'), '/news 不应残留订阅按钮');
+  // 卡片整块被移除：不得留下孤立的空卡片容器
+  assert.ok(!html.includes('background:#F7FAFF'), '/news 不应残留该卡片容器');
+  // 列表本身必须完好
+  assert.ok(html.includes('class="newslist"'), '动态列表容器必须保留');
+  assert.ok(html.includes('class="nitem rv"'), '动态条目必须保留');
 });

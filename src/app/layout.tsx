@@ -1,22 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
-import '@/styles/public-chrome.css';
 // 管理后台富文本编辑器/前台富文本正文的排版基线（.rte-scope / .rte-body 作用域内）
 import '@/styles/admin-rich-text.css';
-// ⚠️ OPC 复刻页的设计层（token + 组件）**不在这里导入**。
+// ⚠️ 公开站的视觉基线是**参考站样式表**（/opc/reference/main.css），
+// 由 scripts/build-opc-reference.mjs 从参考站快照编译并加上 `.opc-site` 作用域前缀，
+// 因此在根布局用 <link> 全局引入也不会影响后台（后台不在 .opc-site 内）。
 //
-// 原因有二：
-//  1. Next.js 只允许全局 CSS 在根布局 import —— 在 Server Component
-//     （ReplicaPage）里 import 会被**静默丢弃**（实测打包后 page.css 里
-//     只有 opc-interactions.css，设计层完全没进去）。
-//  2. 更重要的是**加载顺序**：手写设计层走 Next.js 的打包链路，
-//     原站基线 `public/opc/reference-blue.css` 走 `<link precedence="opc-reference">`，
-//     实测顺序是 layout.css → reference-blue.css → page.css。
-//     把设计层放进客户端组件（page.css）后，设计层排到**最后**，
-//     同特异性时直接由加载顺序决胜，设计层稳赢。
-//     见 src/components/opc/ReplicaInteractions.tsx。
-//
-// 所有选择器都限定在 .opc-replica 作用域内，不会影响主站页面。
+// 旧版「opc-*.css 设计层」已随全站复刻下线（2026-11-10）：
+// 它是为 opcstore.com 的旧 DOM 写的，与参考站 DOM 冲突（.hero/.cta/.btn/.form 等同名类）。
 import SiteChrome from '@/components/layout/SiteChrome';
 import { site } from '@/lib/site/config';
 
@@ -87,6 +78,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* 面向 LLM 的站点摘要（llmstxt.org）：告诉 AI 助手「这个站是什么、有哪些入口」 */}
         <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM 站点摘要" />
+        {/* 参考站视觉基线（已加 .opc-site 作用域前缀）+ 扩展样式（补齐参考站缺失的类） */}
+        <link rel="stylesheet" href="/opc/reference/main.css" precedence="opc-reference" />
+        <link rel="stylesheet" href="/opc/reference/extension.css" precedence="opc-reference-extension" />
       </head>
       <body className="min-h-screen bg-white antialiased">
         <a

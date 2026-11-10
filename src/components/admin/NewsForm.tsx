@@ -14,7 +14,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor';
 import ImageUploadField from '@/components/admin/ImageUploadField';
 import { Button } from '@/components/admin/ui/button';
 import { Input } from '@/components/admin/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/admin/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/admin/ui/select';
 import { Textarea } from '@/components/admin/ui/textarea';
 import { Field, FieldError, FormCard, GlobalError, SubmitBar, labelClass } from './crud/ui';
 import { scrollToFirstError, useFormGuards } from './crud/use-form-guards';
@@ -24,14 +24,12 @@ import { scrollToFirstError, useFormGuards } from './crud/use-form-guards';
  * 正文编辑模型：一段一行（body 在库里是 jsonb 段落数组，与前台渲染同形）。
  *
  * 新闻与活动共用 news_posts 表（仅 category 不同）：
- * - 资讯 / 沙龙 → 出现在「新闻资讯」列表；
+ * - 资讯 / 沙龙 / 社区 → 出现在「新闻资讯」列表；
  * - 活动 → 出现在「活动管理」列表。
  * 从活动管理入口进来时传 presetCategory="活动"，保存后跳回活动列表。
  */
 
 /** 落在「新闻资讯」列表的分类 / 落在「活动管理」列表的分类（从 schema 枚举派生，不重复声明）。 */
-const NEWS_LIST_CATEGORIES = NEWS_CATEGORIES.filter((c) => c !== '活动');
-const ACTIVITY_LIST_CATEGORIES = NEWS_CATEGORIES.filter((c) => c === '活动');
 
 function isKnownCategory(v: string | undefined): boolean {
   return !!v && (NEWS_CATEGORIES as readonly string[]).includes(v);
@@ -226,26 +224,16 @@ export default function NewsForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>新闻资讯列表</SelectLabel>
-                  {NEWS_LIST_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectGroup>
-                  <SelectLabel>活动列表</SelectLabel>
-                  {ACTIVITY_LIST_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
+                {/* 分类词表与公开站 /news 的筛选 chips 同源（见 news-schema.ts） */}
+                {NEWS_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <p className="mt-1.5 text-[12px] text-[var(--color-ink-3)]">
-              「{NEWS_LIST_CATEGORIES.join(' / ')}」出现在新闻资讯列表；「活动」出现在活动管理列表（共用同一内容池）。
+              分类决定公开站 /news 的筛选项，与前台 chips 同源（行业观察 / 政策资讯 / 赛事活动）。
             </p>
           </Field>
 
@@ -285,7 +273,7 @@ export default function NewsForm({
               )}
             </div>
             <p className="mt-1.5 text-[12px] text-[var(--color-ink-3)]">
-              前台地址：/news/{form.slug || '…'}（小写字母/数字/中划线）
+              前台地址：/newsdetail?id={form.slug || '…'}（小写字母/数字/中划线）
             </p>
           </Field>
 

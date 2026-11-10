@@ -1,186 +1,191 @@
+/**
+ * 参考站素材管线的契约测试。
+ *
+ * ── 2026-11-10 全站复刻后，素材管线整体换轨 ────────────────────────────
+ *
+ * 旧管线（旧站素材，**已下线**）：
+ *   scripts/opc-source/visual-media.json   素材清单（66 个源 / 70 个本地变体）
+ *   scripts/build-opc-visual-media.mjs     生成 webp 变体
+ *   scripts/build-opc-icons.mjs             生成工具图标
+ *   scripts/build-opc-content.py            编译 HTML + safe_url / safe_srcset 净化
+ *   public/opc/visual/*、public/opc/assets/*  旧站运行时素材
+ *   src/lib/opc/generated/{details,zone-cities,directory,listings,list-cards}.json
+ *
+ * 新管线（参考站素材）：
+ *   scripts/opc-reference/assets/img/*      参考站图片原件（事实源）
+ *   scripts/opc-reference/assets/css/main.css 参考站样式原件
+ *   scripts/opc-reference/pages/*.html      参考站页面原件（10 个）
+ *   scripts/build-opc-reference.mjs          编译 → generated/pages.json + public/opc/reference/*
+ *
+ * 删除的旧断言（逐条说明）：
+ *   - 「visual-media.json 的 66 源 / 70 变体清单与 sha256」
+ *     → 旧站素材管线已下线，素材清单不再是事实源；
+ *   - 「build-opc-visual-media.mjs / build-opc-icons.mjs 的符号链接防护」
+ *     → 这两个脚本属于旧管线，新管线（build-opc-reference.mjs）只做拷贝，
+ *       不写用户目录，无符号链接逃逸面；
+ *   - 「build-opc-content.py 的 safe_url / safe_srcset 净化自测」
+ *     → 净化器已换成 sanitize-html 白名单（在 build-opc-reference.mjs 里）；
+ *   - 「首页轮播 4 张本地图 / about 背景图 / 合作企业 16 家」
+ *     → 旧站首页结构，已换成参考站首页。
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { tmpdir } from 'node:os';
-import { getReplicaPage } from '@/lib/opc/content';
-import { publicNavigation } from '@/lib/site/navigation';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-type Variant = { url: string; width: number; height: number; bytes: number; sha256: string };
-type Asset = { id: string; source: string; sourceType: string; tool?: string; kind: string; alt: string; slots: string[]; original: { sha256: string; width: number; height: number; bytes: number }; variants: Variant[] };
-const manifest = JSON.parse(readFileSync('scripts/opc-source/visual-media.json', 'utf8')) as { assets: Asset[] };
-const variants = new Map(manifest.assets.flatMap(asset => asset.variants.map(variant => [variant.url, variant] as const)));
+const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+const read = (rel: string) => readFileSync(resolve(repoRoot, rel), 'utf8');
 
-test('icon and media generation reject symlinked output ancestors before creating or writing outside a temporary repository', () => {
-  const temporary = mkdtempSync(join(tmpdir(), 'opc-media-symlink-'));
-  const initialManifest = JSON.stringify({ schemaVersion: 1, assets: [] });
-  const fixture = (name: string) => {
-    const root = join(temporary, name);
-    mkdirSync(join(root, 'scripts/opc-source'), { recursive: true });
-    copyFileSync('scripts/build-opc-visual-media.mjs', join(root, 'scripts/build-opc-visual-media.mjs'));
-    copyFileSync('scripts/build-opc-icons.mjs', join(root, 'scripts/build-opc-icons.mjs'));
-    writeFileSync(join(root, 'scripts/opc-source/visual-media.json'), initialManifest);
-    symlinkSync(resolve('node_modules'), join(root, 'node_modules'), 'dir');
-    return root;
+const SOURCE_IMG_DIR = resolve(repoRoot, 'scripts/opc-reference/assets/img');
+const RUNTIME_IMG_DIR = resolve(repoRoot, 'public/opc/reference/img');
+
+const pages = JSON.parse(read('src/lib/opc/generated/pages.json')) as Record<string, { html: string }>;
+const manifest = JSON.parse(read('src/lib/opc/generated/manifest.json')) as {
+  source: string;
+  capturedBy: string;
+  compiledBy: string;
+  routeCount: number;
+  images: number;
+};
+
+test('参考站图片原件与运行时副本一一对应（文件名集合相同）', () => {
+  const source = readdirSync(SOURCE_IMG_DIR).sort();
+  const runtime = readdirSync(RUNTIME_IMG_DIR).sort();
+  assert.ok(source.length > 0, '参考站图片原件目录为空');
+  assert.deepEqual(runtime, source, '运行时素材目录与原件目录不一致');
+  assert.equal(manifest.images, source.length, 'manifest 的图片数与实际不符');
+});
+
+test('参考站图片逐文件字节一致（原件未被改写）', () => {
+  for (const name of readdirSync(SOURCE_IMG_DIR)) {
+    const source = readFileSync(join(SOURCE_IMG_DIR, name));
+    const runtime = readFileSync(join(RUNTIME_IMG_DIR, name));
+    assert.equal(runtime.length, source.length, `${name} 字节数不一致`);
+    assert.equal(
+      createHash('sha256').update(runtime).digest('hex'),
+      createHash('sha256').update(source).digest('hex'),
+      `${name} 内容不一致`,
+    );
+  }
+});
+
+test('运行时素材不是空壳（每个文件都有实际内容）', () => {
+  for (const name of readdirSync(RUNTIME_IMG_DIR)) {
+    const size = statSync(join(RUNTIME_IMG_DIR, name)).size;
+    assert.ok(size > 200, `${name} 只有 ${size} 字节，疑似空文件`);
+  }
+});
+
+test('页面引用的图片全部落在运行时素材目录里，且文件真实存在', () => {
+  const referenced = new Set<string>();
+  for (const [path, page] of Object.entries(pages)) {
+    for (const match of page.html.matchAll(/<img\b[^>]*\ssrc="([^"]+)"/g)) {
+      const src = match[1];
+      assert.ok(src.startsWith('/opc/reference/img/'), `${path} 的图片不在参考站素材目录：${src}`);
+      assert.ok(existsSync(resolve(repoRoot, `public${src}`)), `${path} 引用的图片缺失：${src}`);
+      referenced.add(src);
+    }
+  }
+  assert.ok(referenced.size >= 20, `页面引用的图片过少：${referenced.size}`);
+  // 引用的图片必须是素材目录的子集（不得引用目录外的东西）
+  const available = new Set(readdirSync(RUNTIME_IMG_DIR).map((name) => `/opc/reference/img/${name}`));
+  for (const src of referenced) {
+    assert.ok(available.has(src), `页面引用了素材目录里没有的文件：${src}`);
+  }
+});
+
+test('没有任何页面引用旧站素材目录（/opc/assets/ 与 /opc/visual/）', () => {
+  for (const [path, page] of Object.entries(pages)) {
+    assert.ok(!page.html.includes('/opc/assets/'), `${path} 仍引用 /opc/assets/ 下的旧素材`);
+    assert.ok(!page.html.includes('/opc/visual/'), `${path} 仍引用 /opc/visual/ 下的旧素材`);
+  }
+  // 产物文件本身同样干净
+  const raw = read('src/lib/opc/generated/pages.json');
+  assert.ok(!raw.includes('/opc/assets/'), 'pages.json 仍引用 /opc/assets/');
+  assert.ok(!raw.includes('/opc/visual/'), 'pages.json 仍引用 /opc/visual/');
+});
+
+test('参考站样式：原件保持原样，运行时副本被加上 .opc-site 作用域', () => {
+  const source = read('scripts/opc-reference/assets/css/main.css');
+  const runtime = read('public/opc/reference/main.css');
+  assert.ok(source.length > 1000, '参考站样式原件异常');
+  assert.ok(runtime.length > source.length, '运行时副本应比原件长（多了作用域前缀）');
+  // 原件里没有 .opc-site（它是我们加的）
+  assert.ok(!source.includes('.opc-site'), '参考站样式原件不应含 .opc-site 前缀');
+  // 运行时副本里全是 .opc-site
+  assert.ok(runtime.includes('.opc-site'), '运行时副本应含 .opc-site 前缀');
+  // 变量定义从 :root 搬到了作用域根
+  assert.match(source, /:root\s*\{/, '原件应有 :root 变量块');
+  assert.match(runtime, /\.opc-site\s*\{[^}]*--navy/, '运行时副本应在作用域根定义变量');
+});
+
+test('favicon 也被复制到运行时目录', () => {
+  assert.ok(existsSync(resolve(repoRoot, 'scripts/opc-reference/assets/img/favicon.svg')));
+  assert.ok(existsSync(resolve(repoRoot, 'public/opc/reference/favicon.svg')));
+  assert.equal(
+    createHash('sha256').update(read('public/opc/reference/favicon.svg')).digest('hex'),
+    createHash('sha256').update(read('scripts/opc-reference/assets/img/favicon.svg')).digest('hex'),
+    'favicon 副本与原件不一致',
+  );
+});
+
+test('manifest 记录的是参考站来源与参考站编译管线', () => {
+  assert.match(manifest.source, /^https:\/\/jizhi-ai-opc\.app\.workbuddy\.host\//);
+  assert.equal(manifest.capturedBy, 'scripts/fetch-opc-reference.mjs');
+  assert.equal(manifest.compiledBy, 'scripts/build-opc-reference.mjs');
+  assert.equal(manifest.routeCount, Object.keys(pages).length);
+});
+
+test('旧素材管线的产物不再被运行期消费', () => {
+  // 旧站烘焙产物仍在仓库里（历史遗留），但没有任何运行期源码再引用它们。
+  const legacyImports = [
+    'generated/details.json',
+    'generated/zone-cities.json',
+    'generated/directory.json',
+    'generated/listings.json',
+    'generated/list-cards.json',
+  ];
+  const offenders: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(resolve(repoRoot, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) {
+        walk(rel);
+        continue;
+      }
+      if (!/\.(tsx|ts)$/.test(entry.name)) continue;
+      const source = read(rel);
+      for (const legacy of legacyImports) {
+        if (source.includes(legacy)) offenders.push(`${rel} → ${legacy}`);
+      }
+    }
   };
-  try {
-    for (const [index, target] of ['public', 'public/opc', 'public/opc/visual'].entries()) {
-      const root = fixture(`reject-${index}`);
-      const outside = join(temporary, `outside-${index}`);
-      mkdirSync(outside);
-      mkdirSync(dirname(join(root, target)), { recursive: true });
-      symlinkSync(outside, join(root, target), 'dir');
-      assert.throws(() => execFileSync('node', [join(root, 'scripts/build-opc-icons.mjs')], { encoding: 'utf8', stdio: 'pipe' }), /canonical repository directory/);
-      assert.throws(() => execFileSync('node', [join(root, 'scripts/build-opc-visual-media.mjs')], { encoding: 'utf8', stdio: 'pipe' }), /canonical repository directory/);
-      assert.deepEqual(readdirSync(outside), [], `${target}: no directory or file may be created through the symlink`);
-      assert.equal(readFileSync(join(root, 'scripts/opc-source/visual-media.json'), 'utf8'), initialManifest);
+  walk('src');
+  assert.deepEqual(offenders, [], `运行期仍在消费旧站烘焙产物：\n  ${offenders.join('\n  ')}`);
+});
+
+test('运行期只消费新产物（pages.json / article-shell.json / manifest.json）', () => {
+  const offenders: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(resolve(repoRoot, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) {
+        walk(rel);
+        continue;
+      }
+      if (!/\.(tsx|ts)$/.test(entry.name)) continue;
+      const source = read(rel);
+      if (!source.includes("generated/")) continue;
+      for (const match of source.matchAll(/generated\/([a-z-]+)\.json/g)) {
+        const file = match[1];
+        if (!['pages', 'article-shell', 'manifest'].includes(file)) {
+          offenders.push(`${rel} → generated/${file}.json`);
+        }
+      }
     }
-    const root = fixture('create-missing-directories');
-    assert.match(execFileSync('node', [join(root, 'scripts/build-opc-visual-media.mjs')], { encoding: 'utf8' }), /Built 0 visual sources \/ 0 local variants/);
-    assert.deepEqual(readdirSync(join(root, 'public/opc/visual')), []);
-    assert.match(execFileSync('node', [join(root, 'scripts/build-opc-icons.mjs')], { encoding: 'utf8' }), /Generated 8 service icons/);
-    const icons = readdirSync(join(root, 'public/opc/visual'));
-    assert.equal(icons.length, 8);
-    for (const icon of icons) assert.deepEqual(readFileSync(join(root, 'public/opc/visual', icon)), readFileSync(join('public/opc/visual', icon)));
-  } finally {
-    rmSync(temporary, { recursive: true, force: true });
-  }
-});
-
-test('all provided media are inventoried and derivatives match their audited dimensions and hashes', () => {
-  const sources: string[] = [];
-  function visit(folder: string) {
-    for (const entry of readdirSync(folder, { withFileTypes: true })) {
-      const path = join(folder, entry.name);
-      if (entry.isDirectory()) visit(path);
-      else if (/\.(png|jpe?g|webp)$/i.test(entry.name)) sources.push(path);
-    }
-  }
-  visit('webimages');
-  assert.equal(sources.length, 36);
-  assert.deepEqual(manifest.assets.filter(asset => asset.sourceType === 'user-provided').map(asset => asset.source).sort(), sources.sort());
-  assert.equal(manifest.assets.length, 66);
-  assert.equal(variants.size, 70);
-  for (const asset of manifest.assets) {
-    assert.ok(asset.slots.length, asset.id);
-    assert.match(asset.original.sha256, /^[a-f\d]{64}$/);
-    for (const variant of asset.variants) {
-      assert.match(variant.url, /^\/opc\/visual\/[a-z\d-]+\.(?:webp|svg)$/);
-      const bytes = readFileSync(`public${variant.url}`);
-      assert.equal(bytes.length, variant.bytes);
-      assert.equal(createHash('sha256').update(bytes).digest('hex'), variant.sha256);
-      assert.ok(variant.width <= asset.original.width && variant.height <= asset.original.height);
-    }
-  }
-  const banner = manifest.assets.find(asset => asset.id === 'computing-banner')!;
-  assert.equal(banner.sourceType, 'generated');
-  assert.equal(banner.tool, 'image_gen');
-  assert.match(execFileSync('node', ['scripts/build-opc-visual-media.mjs', '--check'], { encoding: 'utf8' }), /Verified 66 visual sources \/ 70 local variants/);
-});
-
-test('homepage carousel uses four responsive local images with a single high priority frame', () => {
-  const home = getReplicaPage('/')!.html;
-  const slides = [...home.matchAll(/<img\b[^>]*src="(\/opc\/visual\/(?:hero-city-\d+|computing-banner)-1920.webp)"[^>]*>/g)].map(match => match[0]);
-  assert.equal(slides.length, 4);
-  const order = ['computing-banner', 'hero-city-12', 'hero-city-11', 'hero-city-13'];
-  assert.deepEqual(slides.map(slide => slide.match(/src="([^"]+)"/)![1]), order.map(name => `/opc/visual/${name}-1920.webp`));
-  for (const [index, id] of order.entries()) {
-    assert.ok(manifest.assets.find(asset => asset.id === id)!.slots.includes(`home.hero.${index + 1}`));
-  }
-  assert.equal(slides.filter(slide => slide.includes('fetchpriority="high"')).length, 1);
-  assert.match(slides[0], /fetchpriority="high"/);
-  assert.match(slides[0], /loading="eager"/);
-  for (const slide of slides.slice(1)) {
-    assert.match(slide, /loading="lazy"/);
-    assert.match(slide, /fetchpriority="auto"/);
-  }
-  for (const slide of slides) {
-    assert.match(slide, /alt=""/);
-    assert.match(slide, /width="1920"/);
-    const set = slide.match(/srcset="([^"]+)"/)![1];
-    for (const candidate of set.split(', ')) {
-      const [url, width] = candidate.split(' ');
-      assert.equal(variants.get(url)?.width, parseInt(width));
-    }
-  }
-  const fullHeroBytes = ['hero-city-12', 'hero-city-11', 'hero-city-13'].reduce((sum, id) => sum + manifest.assets.find(asset => asset.id === id)!.variants.at(-1)!.bytes, 0);
-  assert.ok(fullHeroBytes < 400_000);
-  const actions = home.match(/<div class="opc-home-actions">([\s\S]*?)<\/div>/)?.[1];
-  assert.ok(actions, 'homepage shortcuts are present in the server-rendered HTML');
-  assert.match(actions, /href="\/agent">探索智能体<\/a>/);
-  assert.match(actions, /href="\/apply">申请入驻<\/a>/);
-  assert.equal([...home.matchAll(/class="opc-home-actions"/g)].length, 1);
-  assert.equal([...home.matchAll(/class="hero-stat"/g)].length, 4);
-});
-
-test('homepage about background uses the provided blue city image as a decorative replacement', () => {
-  const home = getReplicaPage('/')!.html;
-  const asset = manifest.assets.find(asset => asset.id === 'reference-city-blue')!;
-  assert.ok(asset.slots.includes('home.about.background'));
-  assert.equal(asset.source, 'webimages/大图参考素材/u=2420042102,3108515115&fm=253&fmt=auto&app=138&f=JPEG.webp');
-  const images = [...home.matchAll(/<div\b[^>]*class="[^\"]*\babout-bg-el\b[^\"]*"[^>]*>\s*(<img\b[^>]*>)/g)];
-  assert.equal(images.length, 1);
-  const image = images[0][1];
-  assert.match(image, /src="\/opc\/visual\/reference-city-blue.webp"/);
-  assert.match(image, /class="el-image__inner"/);
-  assert.match(image, /width="915"/);
-  assert.match(image, /height="500"/);
-  assert.match(image, /alt=""/);
-  assert.match(image, /loading="lazy"/);
-  assert.match(image, /decoding="async"/);
-  assert.doesNotMatch(image, /srcset=|sizes=/);
-  assert.match(home, /class="about-bg-img"[^>]*aria-hidden="true"/);
-  assert.ok(!home.includes('/opc/assets/4d1f526a0478fe30.webp'));
-  assert.equal([...home.matchAll(/fetchpriority="high"/g)].length, 1);
-});
-
-test('captured public pages defer navigation to the shared React header', () => {
-  const compute = publicNavigation.flatMap(item => item.children ?? [])
-    .find(item => item.label === '算力超市');
-  assert.equal(compute?.href, '/empower/compute');
-  for (const path of ['/', '/agent', '/market', '/center', '/community', '/work', '/about']) {
-    const html = getReplicaPage(path)!.html;
-    assert.doesNotMatch(html, /class="[^"]*\b(?:opcheader|nav-links|mobile-menu)\b/, path);
-  }
-  // 首页特性卡的算力超市入口保持外部直达（th.jimei.cn，新窗口打开）。
-  const feature = [...getReplicaPage('/')!.html.matchAll(/<a\b([^>]*class="ftr-node[^>]*)>([\s\S]*?)<\/a>/g)]
-    .find(match => match[2].includes('算力超市'))!;
-  assert.match(feature[1], /href="https:\/\/th\.jimei\.cn"/);
-  assert.match(feature[1], /target="_blank"/);
-  assert.match(feature[1], /rel="noopener noreferrer"/);
-});
-
-test('learning and overview photos are independent of factual articles; cooperative enterprises keep sixteen entries', () => {
-  const home = getReplicaPage('/')!.html;
-  const gallery = home.match(/<section\b[^>]*data-opc-gallery="learning"[^>]*>([\s\S]*?)<\/section>/)?.[1];
-  assert.ok(gallery);
-  assert.equal([...gallery.matchAll(/<figure\b/g)].length, 6);
-  assert.match(gallery, /学习与交流/);
-  const academy = getReplicaPage('/center')!.html.match(/<section\b[^>]*data-opc-gallery="academy"[^>]*>([\s\S]*?)<\/section>/)?.[1];
-  assert.equal([...academy!.matchAll(/<figure\b/g)].length, 3);
-  assert.match(getReplicaPage('/community')!.html, /data-opc-gallery="scene"/);
-  const overview = getReplicaPage('/about')!.html.match(/<figure class="opc-about-overview-media">([\s\S]*?)<\/figure>/)?.[1];
-  assert.ok(overview);
-  assert.match(overview, /src="\/opc\/visual\/reference-city-window\.webp"/);
-  assert.match(overview, /<figcaption>连接城市与产业，让 AI 创业在此生长<\/figcaption>/);
-  for (const path of ['/', '/work']) {
-    const html = getReplicaPage(path)!.html;
-    // 2026-10-23 契约 docs/15 §2.Req6：AI生态 logo 墙重写为「合作企业」
-    // 16 家文字卡（无图资产；logo-01..12 不再被页面引用，manifest 保留）。
-    const grid = html.match(/<ul\b[^>]*opc-visual-partner-grid[^>]*>([\s\S]*?)<\/ul>/)?.[1];
-    assert.ok(grid, path);
-    assert.equal([...grid.matchAll(/<li\b[^>]*opc-visual-partner-card/g)].length, 16, path);
-    assert.match(html, /合作企业/);
-    assert.ok(!/\/opc\/visual\/logo-\d+\.webp/.test(html), path);
-  }
-  const icons = [...home.matchAll(/<img\b[^>]*class="opc-visual-service-icon"[^>]*>/g)];
-  assert.equal(icons.length, 7); // GPU资源特性卡已下线，服务图标 8→7
-  assert.ok(icons.every(icon => icon[0].includes('alt=""')));
-});
-
-test('compiler only preserves verified srcset paths and never turns a missing local visual into a remote request', () => {
-  const script = `import importlib.util,sys\ns=importlib.util.spec_from_file_location('opc','scripts/build-opc-content.py')\nm=importlib.util.module_from_spec(s);sys.modules[s.name]=m;s.loader.exec_module(m)\nm.load_visual_media()\nassert m.safe_url('/opc/visual/absent.webp', media=True)==''\nassert m.safe_url('/opc/visual/hero-city-12-960.webp?x=1', media=True)==''\nassert m.safe_srcset('https://evil.test/a.webp 960w')==''\nassert m.safe_srcset('/opc/visual/hero-city-12-960.webp 1920w')==''\nassert m.safe_srcset('/opc/visual/hero-city-12-960.webp 960w, /opc/visual/hero-city-12-960.webp 960w')==''\nassert m.safe_srcset('/opc/visual/hero-city-12-960.webp 960w')\nprint('precise visual media checks passed')`;
-  assert.match(execFileSync('python3', ['-c', script], { encoding: 'utf8' }), /precise visual media checks passed/);
+  };
+  walk('src');
+  assert.deepEqual(offenders, [], `运行期引用了非参考站产物：\n  ${offenders.join('\n  ')}`);
 });

@@ -1,22 +1,34 @@
-/** Public OPC navigation only. Backend, account data and third-party sub-sites are excluded.
- * `/computingresource`（GPU资源）已于 2026-10 下线：菜单、特性卡与页面一并移除。 */
+/** 公开站路由表。
+ *
+ * 2026-11-10 全站复刻对齐参考站后，公开路由就是参考站的 10 个页面
+ * （+ DB 驱动的 /newsdetail）。八大赋能的 8 个详情页是**原生路由**
+ * （src/app/empower/[slug]），不在复刻快照内。
+ *
+ * 旧路由（/newslist、/center、/traffic、/work、/starproject…）由
+ * next.config.ts 的 redirects() 以 308 收敛到这里声明的正式路由。
+ */
 export const replicaPaths = [
-  '/', '/agent', '/market', '/center', '/starproject', '/community', '/work',
-  '/about', '/newslist', '/activitylist', '/newsdetail',
-  '/zone', '/starjoin', '/opcapply', '/opclogin', '/opcregister',
-  '/opcforgotpassword', '/myinfo',
+  '/', '/about', '/health', '/empower', '/market',
+  '/growth', '/academy', '/news', '/newsdetail',
+  '/apply', '/agent',
 ] as const;
 
 export type ReplicaPath = (typeof replicaPaths)[number];
 const paths = new Set<string>(replicaPaths);
-const referenceHosts = new Set(['opcstore.com', 'www.opcstore.com']);
-const queryKeys = new Set(['id', 'formType', 'city', 'tab', 'category', 'q', 'page', 'type', 'courseId', 'serverName', 'serverCompute', 'serverPrice', 'rentalType']);
+
+/** 参考站域名（抓取快照时的来源站）。 */
+const referenceHosts = new Set([
+  'jizhi-ai-opc.app.workbuddy.host',
+  'jizhi-ai-opc.app',
+]);
+
+const queryKeys = new Set(['id', 'city', 'cat', 'q', 'page']);
 
 export function isReplicaPath(pathname: string): pathname is ReplicaPath {
   return paths.has(pathname.toLowerCase().replace(/\/$/, '') || '/');
 }
 
-/** Converts observed reference URLs to local navigation; never returns an external URL. */
+/** 把参考站 URL 规整为站内地址；任何外部地址都不会被原样返回。 */
 export function resolveReferenceLocation(input: string): string | null {
   if (!input || /[\u0000-\u0020\u007f\\]/.test(input)) return null;
   let candidate = input;
@@ -24,20 +36,16 @@ export function resolveReferenceLocation(input: string): string | null {
     let url: URL;
     try { url = new URL(candidate); } catch { return null; }
     if (!referenceHosts.has(url.hostname) || url.username || url.password || url.port) return null;
-    candidate = url.hash || url.pathname + url.search;
+    candidate = url.pathname + url.search;
   }
-  if (/^\/webnew\/index\.html#/i.test(candidate)) {
-    candidate = candidate.slice(candidate.indexOf('#') + 1);
-  } else if (candidate.startsWith('#/')) candidate = candidate.slice(1);
+  if (candidate.startsWith('#/')) candidate = candidate.slice(1);
   if (!candidate.startsWith('/') || candidate.startsWith('//') || candidate.includes('#')) return null;
   const question = candidate.indexOf('?');
   const rawPath = question < 0 ? candidate : candidate.slice(0, question);
   let pathname: string;
   try { pathname = decodeURIComponent(rawPath).toLowerCase().replace(/\/$/, '') || '/'; }
   catch { return null; }
-  if (/[\s%?#:\\]/.test(pathname) || pathname.split('/').some(p => p === '.' || p === '..')) return null;
-  // Retire only the exact old list; never alias details or carry obsolete filters.
-  if (pathname === '/news') return '/newslist';
+  if (/[\s%?#:\\]/.test(pathname) || pathname.split('/').some((p) => p === '.' || p === '..')) return null;
   if (!isReplicaPath(pathname)) return null;
   const source = new URLSearchParams(question < 0 ? '' : candidate.slice(question + 1));
   const query = new URLSearchParams();

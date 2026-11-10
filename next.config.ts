@@ -47,26 +47,33 @@ const nextConfig: NextConfig = {
     ];
   },
   /**
-   * 旧版原生页下线表（2026-10-26，站点收敛到复刻 opcstore 的科技蓝版本）。
+   * 旧路由收敛表（2026-11-10 全站复刻对齐参考站后）。
    *
-   * 背景：首版原生站（DB 驱动的 /agents /academy /news /market/[slug]）在复刻层
-   * 接管主导航后遗留在线，与复刻页形成同一内容两套 URL（新闻详情还双 canonical
-   * 自指，构成重复内容）。这里统一 308 到复刻正主，老链接不落 404。
-   *
-   * 保留不动：/empower/[slug]、/apply、/traffic（它们是导航正主，不是重复页）；
-   * /newslist /activitylist /newsdetail 的 DB 动态渲染与 /admin 后台全部保留。
-   *
-   * 规则按序匹配：/news/opc-<纯数字> 的正则段必须排在通配 /news/* 之前。
+   * 公开站的路由 slug 已改为与参考站一致（/health、/growth、/academy、/news…），
+   * 旧链接一律 308 到正式路由，老链接不落 404、也不产生重复内容。
    */
   async redirects() {
     return [
+      // 集智商学院
+      { source: '/center', destination: '/academy', permanent: true },
+      // 流量赋能
+      { source: '/traffic', destination: '/growth', permanent: true },
+      // 社区动态
+      { source: '/newslist', destination: '/news', permanent: true },
+      { source: '/activitylist', destination: '/news', permanent: true },
+      // 申请入驻（参考站 join.html → 站内 /apply）
+      { source: '/join', destination: '/apply', permanent: true },
+      // 供需市场 → 供需发布
+      { source: '/orders', destination: '/market', permanent: true },
+      // 旧版原生页
       { source: '/agents', destination: '/agent', permanent: true },
       { source: '/agents/:slug', destination: '/agent', permanent: true },
-      { source: '/academy', destination: '/center', permanent: true },
-      { source: '/academy/courses/:slug', destination: '/center', permanent: true },
+      { source: '/academy/courses/:slug', destination: '/academy', permanent: true },
       { source: '/market/:slug', destination: '/market', permanent: true },
       { source: '/news/opc-:id(\\d+)', destination: '/newsdetail?id=:id', permanent: true },
-      { source: '/news/:slug*', destination: '/newslist', permanent: true },
+      // ⚠️ 必须用 `:slug+`（一段及以上）而不是 `:slug*`（可为空）——
+      // 否则 `/news` 会被本条规则匹配到并 308 到自身，形成重定向环。
+      { source: '/news/:slug+', destination: '/news', permanent: true },
     ];
   },
 };
