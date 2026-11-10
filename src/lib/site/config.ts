@@ -10,13 +10,13 @@ export const site = {
   slogan: '集众智之力，启 AI 未来',
   tagline: '一站式 AI 应用综合赋能平台',
   company: '北京集美科技有限公司',
-  address: '北京市丰台区大红门',
+  address: '北京市丰台区集美家居大红门店3号厅2层 集智OPC社区',
   area: '3000+ ㎡',
   launch: '2026 年 10 月',
   // 生产根地址（用户确认）。本地开发可用 NEXT_PUBLIC_SITE_URL 覆盖。
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.jizhiai.net.cn',
   description:
-    '集美科技旗下，面向 AI 创业团队的一站式 AI 应用综合赋能平台。位于北京丰台大红门，首期 3000 余平米，以八大赋能体系为核心，整合产业资源，赋能 AI 创业团队。',
+    '集美科技旗下，面向 AI 创业团队的一站式 AI 应用综合赋能平台。位于北京市丰台区集美家居大红门店3号厅2层 集智OPC社区，首期 3000 余平米，以八大赋能体系为核心，整合产业资源，赋能 AI 创业团队。',
   /**
    * 联系方式（PRD FR-HOME-09 要求页脚展示）。
    *
