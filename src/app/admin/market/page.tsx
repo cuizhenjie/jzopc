@@ -8,7 +8,7 @@ import AdminShell from '@/components/admin/AdminShell';
 import { MarketTable } from '@/components/admin/resource-tables';
 
 export const metadata: Metadata = {
-  title: '供需市场 · 管理后台',
+  title: '供需数据 · 管理后台',
   robots: { index: false, follow: false },
 };
 
@@ -22,7 +22,7 @@ export default async function AdminMarketPage() {
   return (
     <AdminShell
       active="market"
-      title="供需市场"
+      title="供需数据"
       desc="管理 /market 前台的供需信息：需求与供给两类，发布后前台立即可见。"
       dbConfigured={isSupabaseConfigured()}
       actions={

@@ -8,12 +8,11 @@ import { zodFieldErrors } from '@/lib/admin/news-schema';
 /**
  * 管理后台「资源模块」通用 API 工厂。
  *
- * 七个模块（agents / market / courses / partners / site-stats /
- * empower / media）的 REST 语义完全同构：
+ * 供需数据（market）等 REST 语义同构的资源模块统一由本工厂生成：
  *   POST   /api/admin/<res>            创建
  *   PATCH  /api/admin/<res>/<pk>       全量更新，或 {published} 快捷上下架
  *   DELETE /api/admin/<res>/<pk>       彻底删除
- * 统一由本工厂生成，路由文件只做一行装配 —— 增改模块不再复制粘贴。
+ * 路由文件只做一行装配 —— 增改模块不再复制粘贴。
  *
  * 统一行为（同时是 2026-10-24 测试发现的 P3 修复基准）：
  *   - 更新/删除不存在的 pk → 404（而不是 500 / 静默 200）；

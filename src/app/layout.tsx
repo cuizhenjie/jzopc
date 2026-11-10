@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       '@type': 'PostalAddress',
       addressLocality: '北京市',
       addressRegion: '丰台区',
-      streetAddress: '大红门',
+      streetAddress: '集美家居大红门店3号厅2层 集智OPC社区',
     },
   };
   const websiteJsonLd = {

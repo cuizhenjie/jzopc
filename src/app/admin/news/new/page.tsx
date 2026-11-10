@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminNewsNewPage({
   searchParams,
 }: {
-  /** preset：预置分类（活动管理入口传「活动」），非法值忽略。 */
+  /** preset：预置分类（例如从分类筛选入口带过来的「活动」），非法值忽略。 */
   searchParams: Promise<{ preset?: string }>;
 }) {
   if (!(await isAdminAuthed())) redirect('/admin/login');
@@ -27,20 +27,12 @@ export default async function AdminNewsNewPage({
 
   return (
     <AdminShell
-      active={presetCategory === '活动' ? 'activities' : 'news'}
-      title={presetCategory === '活动' ? '新建活动' : '新建动态'}
-      desc={
-        presetCategory === '活动'
-          ? '分类已预置为「活动」，保存后出现在「内容管理 → 活动管理」列表。状态选「已发布」立即在前台可见。'
-          : '状态选「已发布」保存后立即在前台可见；选「草稿」则仅后台可见。'
-      }
+      active="news"
+      title="新建动态"
+      desc="状态选「已发布」保存后立即在前台可见；选「草稿」则仅后台可见。"
       dbConfigured={isSupabaseConfigured()}
     >
-      <NewsForm
-        mode="create"
-        presetCategory={presetCategory}
-        redirectTo={presetCategory === '活动' ? '/admin/activities' : '/admin/news'}
-      />
+      <NewsForm mode="create" presetCategory={presetCategory} redirectTo="/admin/news" />
     </AdminShell>
   );
 }

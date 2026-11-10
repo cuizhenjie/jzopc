@@ -15,7 +15,7 @@ export function replicaMetadata(pathname: string, _query: ReplicaQuery = {}): Me
   return {
     title: { absolute: page.title },
     description:
-      '集智 AI OPC 社区 —— 集美科技旗下，位于北京丰台大红门的一站式 AI 应用综合赋能平台，以八大赋能体系服务 AI 创业团队与一人公司。',
+      '集智 AI OPC 社区 —— 集美科技旗下，位于北京市丰台区集美家居大红门店3号厅2层 集智OPC社区的一站式 AI 应用综合赋能平台，以八大赋能体系服务 AI 创业团队与一人公司。',
     keywords: ['集智AI', 'OPC', 'AI 创业', '一人公司', '智能体', '供需发布', '大健康', '算力超市', '集智商学院', '北京丰台'],
     alternates: { canonical: pathname },
     openGraph: { type: 'website', locale: 'zh_CN', title: page.title, siteName: '集智 AI OPC 社区', images: [] },

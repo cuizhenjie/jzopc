@@ -6,23 +6,18 @@ import type { IconName } from './AdminIcons';
  * 2026-10 App Shell 拆分时从 AdminShell 迁出：AdminSidebar（菜单）、
  * AdminTopbar（面包屑 / 快速跳转）、AdminPageHeader（子页返回链接）
  * 共用这一份结构，保证三处的高亮/归属永远一致。
- * 「规划中」占位概念已移除 —— 全部 14 个模块均已落地。
+ * 2026-11 后台瘦身：仅保留 6 个维护模块（仪表盘 / 新闻资讯 / banner 管理 /
+ * 线索列表 / 供需数据 / 管理员账号），其余维护功能已下线
+ * （活动、社区、智能体、课程、合作伙伴、统计数字、八大赋能、媒体库）。
+ * 前台公开页仍直接从数据库读取对应数据，不受影响。
  */
 
 export type NavKey =
   | 'overview'
   | 'news'
-  | 'activities'
-  | 'community'
-  | 'agents'
   | 'market'
-  | 'courses'
-  | 'partners'
   | 'leads'
   | 'banners'
-  | 'site-stats'
-  | 'empower'
-  | 'media'
   | 'accounts';
 
 export type NavItem = {
@@ -43,12 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: '内容管理',
     items: [
       { key: 'news', label: '新闻资讯', href: '/admin/news', icon: 'newspaper' },
-      { key: 'activities', label: '活动管理', href: '/admin/activities', icon: 'calendar' },
-      { key: 'community', label: '社区专区', href: '/admin/community', icon: 'users' },
-      { key: 'agents', label: '智能体工具', href: '/admin/agents', icon: 'bot' },
-      { key: 'market', label: '供需市场', href: '/admin/market', icon: 'store' },
-      { key: 'courses', label: '课程管理', href: '/admin/courses', icon: 'graduation' },
-      { key: 'partners', label: '合作伙伴', href: '/admin/partners', icon: 'handshake' },
+      { key: 'market', label: '供需数据', href: '/admin/market', icon: 'store' },
     ],
   },
   {
@@ -57,18 +47,11 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     title: '站点配置',
-    items: [
-      { key: 'banners', label: '首页 Banner', href: '/admin/banners', icon: 'image' },
-      { key: 'site-stats', label: '统计数字', href: '/admin/site-stats', icon: 'chart' },
-      { key: 'empower', label: '八大赋能', href: '/admin/empower', icon: 'sparkles' },
-    ],
+    items: [{ key: 'banners', label: '首页 Banner', href: '/admin/banners', icon: 'image' }],
   },
   {
     title: '系统',
-    items: [
-      { key: 'media', label: '媒体库', href: '/admin/media', icon: 'image' },
-      { key: 'accounts', label: '管理员账号', href: '/admin/accounts', icon: 'shield' },
-    ],
+    items: [{ key: 'accounts', label: '管理员账号', href: '/admin/accounts', icon: 'shield' }],
   },
 ];
 

@@ -33,7 +33,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   if (!page) return { title: { absolute: '页面未找到 · 集智 AI' } };
   return {
     title: { absolute: page.title },
-    description: '集智 AI OPC 社区 —— 集美科技旗下，位于北京丰台大红门的一站式 AI 应用综合赋能平台。',
+    description: '集智 AI OPC 社区 —— 集美科技旗下，位于北京市丰台区集美家居大红门店3号厅2层 集智OPC社区的一站式 AI 应用综合赋能平台。',
     keywords: ['集智AI', 'OPC', 'AI 创业', '社区动态', '北京丰台'],
     alternates: { canonical: `/newsdetail?id=${encodeURIComponent(id)}` },
     openGraph: { type: 'website', locale: 'zh_CN', title: page.title, siteName: '集智 AI OPC 社区', images: [] },
