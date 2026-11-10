@@ -414,6 +414,7 @@ export type Database = {
           status: string;
           note: string | null;
           idempotency_key: string | null;
+          form_payload: Json | null;
           created_at: string;
           updated_at: string;
         };
@@ -435,6 +436,7 @@ export type Database = {
           status?: string;
           note?: string | null;
           idempotency_key?: string | null;
+          form_payload?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -456,6 +458,7 @@ export type Database = {
           status?: string;
           note?: string | null;
           idempotency_key?: string | null;
+          form_payload?: Json | null;
           created_at?: string;
           updated_at?: string;
         };

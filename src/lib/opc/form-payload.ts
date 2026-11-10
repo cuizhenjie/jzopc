@@ -109,6 +109,8 @@ export interface LeadPayload {
   agreeTerms?: boolean;
   sourcePage: string;
   sourceRef: string;
+  /** 表单原始取值（仅供需发布表单携带），入库 leads.form_payload 供后台结构化展示。 */
+  formPayload?: Record<string, unknown>;
 }
 
 /** 「需要哪些赋能」在 message 里的固定行首。 */
@@ -212,6 +214,8 @@ export function buildMarketCardText(kind: MarketFormKind, values: MarketFormValu
  *
  * 供需发布不进 leads 的富字段，只把「发布文案」整体作为 message；
  * sourceRef 用 market:need / market:give 区分两栏。
+ * 表单原始取值随 formPayload 入库（leads.form_payload），
+ * 供 /admin/market 结构化展示——不从 message 文案反解。
  */
 export function buildMarketLeadPayload(kind: MarketFormKind, values: MarketFormValues): LeadPayload {
   return {
@@ -224,6 +228,49 @@ export function buildMarketLeadPayload(kind: MarketFormKind, values: MarketFormV
     message: buildMarketCardText(kind, values),
     sourcePage: '/market',
     sourceRef: kind === 'need' ? 'market:need' : 'market:give',
+    formPayload: { kind, ...values },
+  };
+}
+
+/** 从 leads.form_payload 解析出的供需表单取值（parseMarketFormPayload 的返回类型）。 */
+export type MarketFormPayload = {
+  kind: MarketFormKind;
+  values: MarketFormValues;
+};
+
+const strOf = (v: unknown): string => (typeof v === 'string' ? v : '');
+const strListOf = (v: unknown): string[] =>
+  Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+
+/**
+ * leads.form_payload（jsonb）→ 供需表单取值面。
+ *
+ * 写库前已过了 zod（src/lib/lead/schema.ts 的 formPayload），理论上形态可靠；
+ * 这里仍按「宽容读取」处理：非对象 / kind 非法 → null，
+ * 调用方回退展示 message 原文（2026-11-10 前的旧数据没有 payload 列）。
+ */
+export function parseMarketFormPayload(raw: unknown): MarketFormPayload | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  if (o.kind !== 'need' && o.kind !== 'give') return null;
+  return {
+    kind: o.kind,
+    values: {
+      org: strOf(o.org),
+      oneline: strOf(o.oneline),
+      contact: strOf(o.contact),
+      tel: strOf(o.tel),
+      needTypes: strListOf(o.needTypes),
+      detail: strOf(o.detail),
+      budget: strOf(o.budget),
+      when: strOf(o.when),
+      giveTypes: strListOf(o.giveTypes),
+      product: strOf(o.product),
+      boundary: strOf(o.boundary),
+      giveWays: strListOf(o.giveWays),
+      price: strOf(o.price),
+      scope: strOf(o.scope),
+    },
   };
 }
 

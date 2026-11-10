@@ -10,6 +10,8 @@ import type { IconName } from './AdminIcons';
  * 线索列表 / 供需数据 / 管理员账号），其余维护功能已下线
  * （活动、社区、智能体、课程、合作伙伴、统计数字、八大赋能、媒体库）。
  * 前台公开页仍直接从数据库读取对应数据，不受影响。
+ * 2026-11-10 首页 Banner 归入「内容管理」组（与新闻资讯、供需数据并列），
+ * 原「站点配置」组随之撤销。
  */
 
 export type NavKey =
@@ -39,15 +41,12 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { key: 'news', label: '新闻资讯', href: '/admin/news', icon: 'newspaper' },
       { key: 'market', label: '供需数据', href: '/admin/market', icon: 'store' },
+      { key: 'banners', label: '首页 Banner', href: '/admin/banners', icon: 'image' },
     ],
   },
   {
     title: '线索管理',
     items: [{ key: 'leads', label: '线索列表', href: '/admin/leads', icon: 'inbox' }],
-  },
-  {
-    title: '站点配置',
-    items: [{ key: 'banners', label: '首页 Banner', href: '/admin/banners', icon: 'image' }],
   },
   {
     title: '系统',

@@ -76,6 +76,7 @@ async function insertLead(
     source_page: data.sourcePage,
     source_ref: data.sourceRef || null,
     idempotency_key: idempotencyKey,
+    form_payload: data.formPayload ?? null,
   });
 }
 

@@ -2,12 +2,16 @@ import { z } from 'zod';
 import { agentCategories } from '@/lib/site/config';
 
 /**
- * 管理后台「资源模块」的统一契约：8 个规划中模块
- * （智能体工具 / 供需市场 / 课程管理 / 社区专区（复用 news）/ 合作伙伴 /
- *   统计数字 / 八大赋能 / 页面文案 / 媒体库）的 zod schema 与行类型。
+ * 管理后台「资源模块」的统一契约：zod schema 与行类型。
+ *
+ * 2026-11 后台瘦身批次后，仍在维护的模块只剩首页 Banner；
+ * 2026-11-10 供需数据改为直读 /market 表单提交的线索（不经本文件），
+ * market_items 的 schema / 行类型随 CRUD 一并下线。
+ * 智能体 / 课程 / 合作伙伴 / 统计 / 八大赋能 / 媒体库类型暂未删除，
+ * 仅作为历史契约锚点存在（db-schema-contract 测试锚定 AdminAgentRow 等）。
  *
  * 设计：全部走「服务端 zod 校验 + service_role 直写 + RLS 零策略」的既有模式
- * （与 news/leads 一致）；表单 UI 由 crud/ResourceForm 按字段配置渲染。
+ * （与 news/leads 一致）。
  */
 
 const slugRe = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/;
@@ -94,53 +98,6 @@ export type AdminAgentRow = {
   provider: string | null;
   featured: boolean;
   sort_order: number;
-  published: boolean;
-};
-
-/* ── 供需市场 ───────────────────────────────────────────────────────────── */
-
-export const MARKET_TYPES = ['demand', 'supply'] as const;
-export const MARKET_STATUS = ['open', 'matched', 'closed'] as const;
-export const marketStatusLabels: Record<string, string> = {
-  open: '进行中',
-  matched: '已撮合',
-  closed: '已关闭',
-};
-export const marketTypeLabels: Record<string, string> = { demand: '需求', supply: '供给' };
-
-export const marketItemInputSchema = z.object({
-  slug: z.string().trim().toLowerCase().regex(slugRe, 'slug 只能用小写字母、数字和中划线'),
-  type: z.enum(MARKET_TYPES),
-  title: z.string().trim().min(1, '标题不能为空').max(120, '标题过长（≤120 字）'),
-  category: z.string().trim().min(1, '分类不能为空').max(40, '分类过长（≤40 字）'),
-  summary: z.string().trim().min(1, '摘要不能为空').max(300, '摘要过长（≤300 字）'),
-  /** 富文本正文（HTML，单段入库）——与 news 的 body 同构 */
-  bodyHtml: z.string().trim().max(200_000).optional().default(''),
-  org_name: z.string().trim().max(80).optional().default(''),
-  tags: tagsField,
-  contact_hint: z.string().trim().max(200).optional().default(''),
-  status: z.enum(MARKET_STATUS).default('open'),
-  published_at: z
-    .union([z.literal(''), z.string().trim().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/, '时间格式不正确')])
-    .optional()
-    .default(''),
-  published: z.boolean().default(false),
-});
-export type MarketItemInput = z.infer<typeof marketItemInputSchema>;
-
-export type AdminMarketRow = {
-  id: number;
-  slug: string;
-  type: string;
-  title: string;
-  category: string;
-  summary: string;
-  body: string[];
-  org_name: string | null;
-  tags: string[];
-  contact_hint: string | null;
-  status: string;
-  published_at: string | null;
   published: boolean;
 };
 

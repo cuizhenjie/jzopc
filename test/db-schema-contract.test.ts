@@ -37,9 +37,11 @@ const sql = readdirSync(migrationDir)
   .map((f) => readFileSync(resolve(migrationDir, f), 'utf8'))
   .join('\n');
 const seedSrc = readFileSync(resolve(repoRoot, 'src/lib/data/seed.ts'), 'utf8');
-// 2026-10-26 第二批清理后，agents/market/courses 的应用侧类型锚点从公开页
-// seed 类型换成后台行类型（公开查询函数已随旧版原生页下线，管理后台是这三张
+// 2026-10-26 第二批清理后，agents/courses 的应用侧类型锚点从公开页
+// seed 类型换成后台行类型（公开查询函数已随旧版原生页下线，管理后台是这两张
 // 表的唯一直接消费方）；news 仍锚 seed 的 NewsPost（公开详情也在用）。
+// 2026-11-10 market_items 的后台 CRUD 下线（供需数据改读 /market 表单提交的
+// 线索），AdminMarketRow 随之移除，不再锚定。
 const adminResourcesSrc = readFileSync(resolve(repoRoot, 'src/lib/admin/resources.ts'), 'utf8');
 const leadRouteSrc = readFileSync(resolve(repoRoot, 'src/app/api/leads/route.ts'), 'utf8');
 
@@ -57,6 +59,12 @@ function parseTables(source: string): Map<string, Set<string>> {
       if (cm) cols.add(cm[1]);
     }
     tables.set(table, cols);
+  }
+  // 后置迁移用 `alter table … add column if not exists` 补的列（如 0009 的
+  // leads.form_payload）也并入最终形态
+  for (const m of source.matchAll(/alter table\s+(\w+)\s+add column if not exists\s+([a-z_][a-z0-9_]*)/g)) {
+    const cols = tables.get(m[1]);
+    if (cols) cols.add(m[2]);
   }
   // 后置迁移的 drop table（如 0006 下线 site_contents）要反映到最终形态
   for (const d of source.matchAll(/drop table if exists\s+(\w+)/g)) {
@@ -87,11 +95,12 @@ describe('数据库 DDL 与应用类型的契约', () => {
   });
 
   // 这张表就是踩过坑的那张：body_md vs body
-  // agents/market/courses 锚后台行类型（AdminXxxRow，snake_case 与 DDL 同形）；
+  // agents/courses 锚后台行类型（AdminXxxRow，snake_case 与 DDL 同形）；
   // news 锚公开类型 NewsPost（公开详情页在用）。
+  // market_items 的锚点已随后台 CRUD 下线移除（2026-11-10），表本身仍在
+  //（前台历史数据 / RLS 策略未动）。
   const pairs: Array<[string, string]> = [
     ['agents', 'AdminAgentRow'],
-    ['market_items', 'AdminMarketRow'],
     ['courses', 'AdminCourseRow'],
     ['news_posts', 'NewsPost'],
   ];

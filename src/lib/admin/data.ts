@@ -25,6 +25,9 @@ export type AdminLeadRow = {
   utm: Record<string, unknown> | null;
   status: string;
   note: string | null;
+  idempotency_key: string | null;
+  /** 表单原始取值（jsonb）：仅 /market 供需发布表单会写入，见 src/lib/opc/form-payload.ts。 */
+  form_payload: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 };
@@ -134,9 +137,31 @@ export async function listLeads(filters: LeadFilters): Promise<LeadListResult> {
   };
 }
 
-/** 概览用：各状态线索计数 + 近 N 天新增。 */
-export async function leadStats(): Promise<{ byStatus: Record<string, number>; recent7d: number; total: number }> {
+/**
+ * 供需数据列表：/market 前台「发布需求 / 发布能力」表单的提交记录。
+ *
+ * 与 listLeads 同一张 leads 表（lead_type='market'，source_ref=market:need/give
+ * 区分两栏），但此处按供需页的信息架构展示，不分页（目前量级小）。
+ * 表单原始取值在 form_payload 列（见 0009_leads_form_payload.sql），
+ * 2026-11-10 前的旧数据该列为 null，展示层回退为 message 原文。
+ */
+export async function listMarketSubmissions(): Promise<AdminLeadRow[]> {
   const sb = getSupabaseAdmin();
+  if (!sb) return [];
+  const { data, error } = await sb
+    .from('leads')
+    .select('*')
+    .eq('lead_type', 'market')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error(`[admin:market-submissions] 查询失败：${error.message}`);
+    return [];
+  }
+  return (data ?? []) as unknown as AdminLeadRow[];
+}
+
+/** 概览用：各状态线索计数 + 近 N 天新增。 */
+export async function leadStats(): Promise<{ byStatus: Record<string, number>; recent7d: number; total: number }> {  const sb = getSupabaseAdmin();
   const empty = { byStatus: {}, recent7d: 0, total: 0 };
   if (!sb) return empty;
 

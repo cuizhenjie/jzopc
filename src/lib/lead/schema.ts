@@ -71,6 +71,16 @@ export const leadSchema = z.object({
   company: z.string().max(200).optional(),
   /** 幂等键：30 分钟内同键不重复入库（窗口判定在 api/leads/route.ts） */
   idempotencyKey: z.string().trim().max(80).optional().or(z.literal('')),
+  /**
+   * 表单原始取值（JSON 对象）：目前仅 /market 供需发布表单会携带
+   * （结构见 src/lib/opc/form-payload.ts 的 MarketFormValues + kind），
+   * 供需数据页（/admin/market）据此结构化展示，而不是从 message 文案反解。
+   * 其它 leadType 不传。限制序列化后 ≤4KB，防滥用。
+   */
+  formPayload: z
+    .record(z.string(), z.unknown())
+    .refine((v) => JSON.stringify(v).length <= 4096, '表单数据过大')
+    .optional(),
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;

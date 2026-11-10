@@ -51,6 +51,7 @@ import {
   mapApplySubjectType,
   mapApplyTeamSize,
   parseAgentCategories,
+  parseMarketFormPayload,
   type ApplyFormValues,
   type MarketFormValues,
 } from '@/lib/opc/form-payload';
@@ -219,6 +220,43 @@ describe('供需发布表单 · 发布文案与线索载荷', () => {
   test('没填联系人时回落「社区成员」（不提交空 name）', () => {
     const payload = buildMarketLeadPayload('need', { ...marketValues, contact: '' });
     assert.equal(payload.name, '社区成员');
+  });
+
+  test('formPayload 携带 kind 与表单原始取值，入库后供后台结构化展示', () => {
+    const payload = buildMarketLeadPayload('need', marketValues);
+    assert.equal(payload.formPayload?.kind, 'need');
+    assert.equal(payload.formPayload?.oneline, marketValues.oneline);
+    assert.equal(payload.formPayload?.org, marketValues.org);
+    assert.deepEqual(payload.formPayload?.needTypes, marketValues.needTypes);
+    const give = buildMarketLeadPayload('give', marketValues);
+    assert.equal(give.formPayload?.kind, 'give');
+    assert.deepEqual(give.formPayload?.giveTypes, marketValues.giveTypes);
+  });
+});
+
+describe('parseMarketFormPayload（后台解析 leads.form_payload）', () => {
+  test('合法载荷 → kind + 完整取值面', () => {
+    const payload = buildMarketLeadPayload('give', marketValues).formPayload;
+    const parsed = parseMarketFormPayload(payload);
+    assert.ok(parsed);
+    assert.equal(parsed.kind, 'give');
+    assert.equal(parsed.values.product, marketValues.product);
+    assert.deepEqual(parsed.values.giveWays, marketValues.giveWays);
+  });
+
+  test('宽容读取：非对象 / kind 非法 → null（回退展示 message 原文）', () => {
+    assert.equal(parseMarketFormPayload(null), null);
+    assert.equal(parseMarketFormPayload('market:need'), null);
+    assert.equal(parseMarketFormPayload([1, 2]), null);
+    assert.equal(parseMarketFormPayload({ kind: 'other' }), null);
+  });
+
+  test('宽容读取：字段缺失给缺省值，数组混型过滤非字符串', () => {
+    const parsed = parseMarketFormPayload({ kind: 'need', oneline: '找人', needTypes: ['算力', 7, null] });
+    assert.ok(parsed);
+    assert.equal(parsed.values.oneline, '找人');
+    assert.equal(parsed.values.org, '');
+    assert.deepEqual(parsed.values.needTypes, ['算力']);
   });
 });
 

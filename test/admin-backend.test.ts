@@ -164,6 +164,8 @@ describe('CSV 导出', () => {
         utm: null,
         status: 'new',
         note: null,
+        idempotency_key: null,
+        form_payload: null,
         created_at: '2026-10-22T00:00:00Z',
         updated_at: '2026-10-22T00:00:00Z',
       },
