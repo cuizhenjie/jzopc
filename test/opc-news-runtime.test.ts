@@ -217,7 +217,23 @@ describe('getReplicaDetailPage：DB 唯一事实源', () => {
     assert.ok(page!.html.includes('>DB 里的新文章</h1>'));
     assert.ok(page!.html.includes('2026-10-23'));
     assert.ok(page!.html.includes('第一段<b>加粗</b>'));
-    assert.doesNotMatch(page!.html, /__OPC_(?:TITLE|DATE|ARTICLE)__/);
+    assert.doesNotMatch(page!.html, /__OPC_(?:TITLE|DATE|COVER|ARTICLE)__/);
+    // 封面渲染：cover_url 为 null → 回落站内占位图，与列表卡同策略
+    assert.ok(page!.html.includes('class="nfig news-detail__cover"'));
+    assert.ok(page!.html.includes('src="/opc/reference/img/news-wuzhen-opc.jpg"'));
+    // alt 用转义后的标题
+    assert.ok(page!.html.includes('alt="DB 里的新文章"'));
+  });
+
+  test('详情页封面：DB cover_url 直接渲染，非法值回落占位图', async () => {
+    const hit = await getReplicaDetailPage('392', {
+      loadPost: async () => ({ ...dbPost, cover_url: 'https://cdn.example.com/cover.jpg' }),
+    });
+    assert.ok(hit!.html.includes('src="https://cdn.example.com/cover.jpg"'));
+    const bad = await getReplicaDetailPage('392', {
+      loadPost: async () => ({ ...dbPost, cover_url: 'javascript:alert(1)' }),
+    });
+    assert.ok(bad!.html.includes('src="/opc/reference/img/news-wuzhen-opc.jpg"'));
   });
 
   test('slug id：只查 DB（loader 收到原样 slug）', async () => {

@@ -442,6 +442,7 @@ function buildArticleShell() {
       <span class="ntag">__OPC_CATEGORY__</span>
       <h1 class="news-detail__title">__OPC_TITLE__</h1>
       <time class="news-detail__date">__OPC_DATE__</time>
+__OPC_COVER__
       <div class="news-detail__body">__OPC_ARTICLE__</div>
     </article>
   </div>

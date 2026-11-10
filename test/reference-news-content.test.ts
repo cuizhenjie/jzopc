@@ -54,7 +54,7 @@ describe('参考站新闻 · 动态富文本数据', () => {
       assert.ok(page!.html.includes('<figure'), `${article.slug} 详情缺图`);
       assert.ok(page!.html.includes('<figcaption'), `${article.slug} 详情缺图注`);
       assert.ok(page!.html.includes('阅读原文 ↗'), `${article.slug} 详情缺原文链接`);
-      assert.doesNotMatch(page!.html, /__OPC_(?:TITLE|CATEGORY|DATE|ARTICLE)__/);
+      assert.doesNotMatch(page!.html, /__OPC_(?:TITLE|CATEGORY|DATE|COVER|ARTICLE)__/);
     }
   });
 });

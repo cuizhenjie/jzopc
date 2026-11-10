@@ -48,6 +48,10 @@ function isReducedMotion(): boolean {
 export default function ReferenceInteractions({ route }: { route: string }) {
   useEffect(() => {
     const noAnim = /noanim/.test(window.location.search);
+    // QA 钩子：?noanim 时关停首屏编排/轮播入场动画（见 extension.css 的 [data-opc-noanim]），
+    // 让截图测试不受进行中的 animation 影响。用属性而非 class：opc-content 测试会校验
+    // 扩展样式引用的每个类都存在于烘焙 DOM，运行时类会被判为死规则。
+    if (noAnim) document.querySelector('[data-opc-replica]')?.setAttribute('data-opc-noanim', '');
 
     /* ---------- 滚动进场 ---------- */
     const revealTargets = Array.from(document.querySelectorAll<HTMLElement>('.rv'));

@@ -157,6 +157,7 @@ function domClasses(): Set<string> {
     'src/lib/opc/news-runtime.ts',
     'src/lib/opc/hero-carousel.ts',
     'src/components/opc/ReferenceInteractions.tsx',
+    'src/components/opc/ReplicaPage.tsx',
   ]) {
     for (const token of classTokens(read(file))) classes.add(token);
   }

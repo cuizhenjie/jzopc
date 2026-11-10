@@ -373,3 +373,105 @@
   color:rgba(222,234,246,.92);
   text-align:center;
 }
+
+/* ---------- 动效评审优化（2026-11-10，motion-taste-checklist 评审落地）----------
+   全部追加在文件末尾：同特异性下后写者胜，不改动上面既有规则块，
+   也不触碰 main.css 烘焙源，因此无需重建 pages.json。 */
+
+/* B2 首屏内容入场编排：主标题 → 定位行 → 事实句 → CTA → 数据条，
+   共用一条曲线、阶梯延迟，进场顺序与视觉层级一致 */
+@keyframes opcRiseIn{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:none}
+}
+.opc-site .hero__in > .slogan{animation:opcRiseIn .8s .08s cubic-bezier(.2,.7,.3,1) both}
+.opc-site .hero__in > .hero__pos{animation:opcRiseIn .8s .22s cubic-bezier(.2,.7,.3,1) both}
+.opc-site .hero__in > .hero__meta{animation:opcRiseIn .8s .36s cubic-bezier(.2,.7,.3,1) both}
+.opc-site .hero__in > .hero__acts{animation:opcRiseIn .8s .5s cubic-bezier(.2,.7,.3,1) both}
+.opc-site .hero__in > .hero__stats{animation:opcRiseIn .8s .62s cubic-bezier(.2,.7,.3,1) both}
+
+/* A9/A10 轮播切换升级：去掉交叉淡出的叠化感，改为轻推近+淡入，
+   class 重挂即重启动画，纯 CSS 实现，hero-carousel.ts 无需改动 */
+@keyframes opcHeroIn{
+  from{opacity:0;transform:scale(1.045)}
+  to{opacity:1;transform:scale(1)}
+}
+.opc-site .hero__bg.is-live .hero__slide,
+.opc-site .hero__bg[data-hero-live] .hero__slide{transition:none}
+.opc-site .hero__bg.is-live .hero__slide.is-on,
+.opc-site .hero__bg[data-hero-live] .hero__slide.is-on{
+  animation:opcHeroIn 1.1s cubic-bezier(.2,.7,.3,1) both;
+}
+
+/* B5 步骤条微交互：激活段从中心展开 + 悬停预亮 */
+.opc-site .hero__step::before{
+  right:4px;left:4px;
+  transform:scaleX(.8);
+  transition:transform .35s cubic-bezier(.2,.7,.3,1),background .35s;
+}
+.opc-site .hero__step.is-on::before{transform:scaleX(1);background:#fff}
+.opc-site .hero__step:hover::before{background:rgba(255,255,255,.65)}
+
+/* 轮播箭头：悬停上浮放大（宽屏基础位移是 translateY(-50%)，需完整重写 transform） */
+.opc-site .hero__nav{transition:background .25s,transform .25s}
+.opc-site .hero__nav:hover{transform:translateY(-50%) scale(1.06)}
+
+/* 按钮按压反馈：hover 上移之外的 click 层级确认 */
+.opc-site .btn:active{transform:translateY(-1px) scale(.98)}
+
+/* totop 悬停上浮，呼应站点 hover 语言 */
+.opc-site .totop.on:hover{transform:translateY(-3px);box-shadow:0 12px 26px -10px rgba(13,43,110,.28)}
+
+/* 窄屏箭头位移基础值是 none，悬停只需缩放 */
+@media (max-width:560px){
+  .opc-site .hero__nav:hover{transform:scale(1.06)}
+}
+
+/* QA 钩子：?noanim 时关停首屏编排与轮播入场动画，保障截图测试确定性 */
+.opc-replica[data-opc-noanim] .hero__in > *{animation:none!important}
+.opc-replica[data-opc-noanim] .hero__slide{animation:none!important}
+
+/* 动效降级：reduced-motion 下停掉首屏编排与轮播入场（轮播本体由 hero-carousel.ts 负责停止） */
+@media (prefers-reduced-motion:reduce){
+  .opc-site .hero__in > *{animation:none}
+  .opc-site .hero__bg.is-live .hero__slide.is-on,
+  .opc-site .hero__bg[data-hero-live] .hero__slide.is-on{animation:none}
+}
+
+/* ---------- 详情页文章封面（news-runtime 注入 __OPC_COVER__）---------- */
+.opc-site .news-detail__cover{margin:22px 0 0}
+.opc-site .news-detail__cover img{max-height:460px;object-fit:cover}
+@media (max-width:560px){
+  .opc-site .news-detail__cover img{max-height:300px}
+}
+
+/* ---------- 移动端导航抽屉（响应式修复 2026-11-10）----------
+   可达性规则 .mnav a{display:inline-block;padding:3px 0} 会把子项挤成行内排列，
+   这里按抽屉场景恢复块级排版（触控高度由 padding 保证 ≥24px 门槛不受影响），
+   并补上层级、入场过渡与阴影质感。:not(.btn) 避免压扁底部 CTA 按钮的内边距。 */
+.opc-site .mnav a:not(.btn){display:block;padding:11px 4px;font-size:16px}
+.opc-site .mnav .sub{padding:8px 4px 8px 22px;border-bottom:0;font-size:14px;font-weight:600;color:var(--gray)}
+.opc-site .mnav > div{margin-bottom:2px}
+/* 底部 CTA：可达性规则会把按钮压成 inline-block 导致文字靠顶，
+   这里恢复 .btn 的 flex 居中与横向内边距（height:50px 由 .btn 基础样式保留） */
+.opc-site .mnav a.btn{display:inline-flex;padding:0 26px}
+/* main.css 的 .mnav a{color:#26374C} 优先级压过 .btn--primary{color:#fff}，CTA 文字发暗 */
+.opc-site .mnav a.btn{color:#fff}
+
+/* 抽屉入场过渡 + 质感：visibility 方案保留 transition 能力（display:none 做不到），
+   hidden 态不占据焦点，语义与原来一致 */
+.opc-site .mnav{
+  display:block;
+  visibility:hidden;
+  opacity:0;
+  transform:translateY(-10px);
+  border-bottom:0;
+  border-radius:0 0 18px 18px;
+  box-shadow:0 28px 52px -18px rgba(13,43,110,.28);
+  transition:opacity .28s cubic-bezier(.2,.7,.3,1),transform .28s cubic-bezier(.2,.7,.3,1),visibility .28s;
+}
+.opc-site .mnav.on{visibility:visible;opacity:1;transform:none}
+
+/* 抽屉内链接的悬停/按下反馈，呼应全站交互语言 */
+.opc-site .mnav a:not(.btn):hover{color:var(--btn)}
+.opc-site .mnav a.sub:hover{color:#42566E}

@@ -1,3 +1,3 @@
 {
- "html": "<section class=\"sec sec--bg\">\n  <div class=\"wrap\">\n    <article class=\"news-detail\">\n      <span class=\"ntag\">__OPC_CATEGORY__</span>\n      <h1 class=\"news-detail__title\">__OPC_TITLE__</h1>\n      <time class=\"news-detail__date\">__OPC_DATE__</time>\n      <div class=\"news-detail__body\">__OPC_ARTICLE__</div>\n    </article>\n  </div>\n</section>"
+ "html": "<section class=\"sec sec--bg\">\n  <div class=\"wrap\">\n    <article class=\"news-detail\">\n      <span class=\"ntag\">__OPC_CATEGORY__</span>\n      <h1 class=\"news-detail__title\">__OPC_TITLE__</h1>\n      <time class=\"news-detail__date\">__OPC_DATE__</time>\n__OPC_COVER__\n      <div class=\"news-detail__body\">__OPC_ARTICLE__</div>\n    </article>\n  </div>\n</section>"
 }

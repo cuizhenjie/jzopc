@@ -257,6 +257,7 @@ export async function getReplicaDetailPage(
   if (!post) return null;
 
   const article = renderArticleBody(post.body ?? []);
+  const cover = `<figure class="nfig news-detail__cover"><img src="${escapeText(resolveCover(post.cover_url))}" alt="${escapeText(post.title)}" loading="lazy" decoding="async"></figure>`;
   return {
     path: '/newsdetail',
     title: `${post.title} - ${REPLICA_SITE_NAME}`,
@@ -264,6 +265,7 @@ export async function getReplicaDetailPage(
       .replace('__OPC_TITLE__', () => escapeText(post!.title))
       .replace('__OPC_CATEGORY__', () => escapeText(post!.category))
       .replace('__OPC_DATE__', () => escapeText(formatNewsDate(post!.published_at)))
+      .replace('__OPC_COVER__', () => cover)
       .replace('__OPC_ARTICLE__', () => article),
   };
 }
