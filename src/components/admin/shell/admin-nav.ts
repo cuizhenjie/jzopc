@@ -6,7 +6,7 @@ import type { IconName } from './AdminIcons';
  * 2026-10 App Shell 拆分时从 AdminShell 迁出：AdminSidebar（菜单）、
  * AdminTopbar（面包屑 / 快速跳转）、AdminPageHeader（子页返回链接）
  * 共用这一份结构，保证三处的高亮/归属永远一致。
- * 「规划中」占位概念已移除 —— 全部 13 个模块均已落地。
+ * 「规划中」占位概念已移除 —— 全部 14 个模块均已落地。
  */
 
 export type NavKey =
@@ -19,6 +19,7 @@ export type NavKey =
   | 'courses'
   | 'partners'
   | 'leads'
+  | 'banners'
   | 'site-stats'
   | 'empower'
   | 'media'
@@ -57,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: '站点配置',
     items: [
+      { key: 'banners', label: '首页 Banner', href: '/admin/banners', icon: 'image' },
       { key: 'site-stats', label: '统计数字', href: '/admin/site-stats', icon: 'chart' },
       { key: 'empower', label: '八大赋能', href: '/admin/empower', icon: 'sparkles' },
     ],

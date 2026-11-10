@@ -98,7 +98,7 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 
 ## 已实现的页面
 
-`/` · `/about` · `/health` · `/empower` · `/empower/[slug]`（8 个赋能详情页） · `/market` · `/growth` · `/academy` · `/news` · `/newsdetail?id=` · `/agent` · `/apply` · `/admin` `/admin/login` `/admin/leads` `/admin/news` `/admin/agents` `/admin/courses` `/admin/market` `/admin/partners` `/admin/empower` `/admin/media` `/admin/site-stats` `/admin/accounts`（管理后台，管理员账号登录 + shader 背景层，noindex） · `/ops/leads`（旧看板 → 跳转 `/admin/leads`） · `/api/leads`（留资） · `/api/admin/*`（后台 CRUD） · `/api/opc/content`（文章只读） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` `llms.txt` · `not-found`
+`/` · `/about` · `/health` · `/empower` · `/empower/[slug]`（8 个赋能详情页） · `/market` · `/growth` · `/academy` · `/news` · `/newsdetail?id=` · `/agent` · `/apply` · `/admin` `/admin/login` `/admin/leads` `/admin/news` `/admin/agents` `/admin/courses` `/admin/market` `/admin/partners` `/admin/empower` `/admin/media` `/admin/banners` `/admin/site-stats` `/admin/accounts`（管理后台，管理员账号登录 + shader 背景层，noindex） · `/ops/leads`（旧看板 → 跳转 `/admin/leads`） · `/api/leads`（留资） · `/api/admin/*`（后台 CRUD） · `/api/opc/content`（文章只读） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` `llms.txt` · `not-found`
 
 旧链接一律 308 收敛：`/center→/academy`、`/traffic→/growth`、`/newslist→/news`、`/activitylist→/news`、`/join→/apply`.
 

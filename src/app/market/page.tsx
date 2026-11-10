@@ -5,8 +5,7 @@ import ReferenceInteractions from '@/components/opc/ReferenceInteractions';
 import { getRuntimeReplicaPage } from '@/lib/opc/blocks-runtime';
 
 /**
- * 供需发布：页面外壳是参考站快照，「社区供需榜」由后台 market_items 表接管
- * （供给 / 需求两列各自替换）。发布表单提交后进入后台线索池。
+ * 供需发布：页面外壳是参考站快照（发布表单 + 提交后进入后台线索池）。
  */
 export const revalidate = 300;
 

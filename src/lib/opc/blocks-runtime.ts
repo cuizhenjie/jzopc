@@ -3,12 +3,12 @@
  * 参考站页面是**静态快照**（scripts/opc-reference/ → generated/pages.json），
  * 但以下区块必须由后台动态维护，DB 是唯一事实源：
  *
+ *   - 首页首屏背景轮播     ← home_banners（后台「首页 Banner」）
  *   - 首页 hero 统计数字墙 ← site_stats（后台「统计数字」模块）
  *   - 首页社区动态四卡     ← news_posts（最新 4 条）
  *   - 集智商学院课程体系   ← courses（后台课程模块）
  *   - 关于页生态伙伴墙     ← partners（后台合作伙伴模块）
  *   - /agent 智能体目录    ← agents（分类 chips + 结果网格）
- *   - /market 社区供需榜   ← market_items（供给 / 需求两列）
  *   - /news 社区动态列表   ← news_posts（列表 + 详情）
  *
  * 定位方式：编译期给容器打了 `data-opc-block="<marker>"` 标记
@@ -17,6 +17,7 @@
  * 标记找不到时保持原样（外壳完整性保护，不做数据兜底）。
  *
  * 空区块语义：DB 无行 / 未配库 / 查询异常 → 对应容器置空（后台删空 = 前台真空）。
+ * 例外：首页首屏 banner。未配库或查询失败时保留烘焙图；查询成功（含 0 条可用图）才替换。
  *
  * 本模块服务端专用（依赖 supabase admin 客户端）。
  */
@@ -32,6 +33,15 @@ export interface StatRow {
   suffix: string | null;
   label: string;
 }
+
+export interface BannerRow {
+  image_url: string;
+  alt: string;
+}
+
+export type HomeBannerLoad =
+  | { status: 'unavailable' }
+  | { status: 'ready'; rows: BannerRow[] };
 
 export interface CourseRow {
   title: string;
@@ -53,16 +63,29 @@ export interface AgentRow {
   icon_url: string | null;
 }
 
-export interface MarketItemRow {
-  type: string;
-  title: string;
-  summary: string | null;
-  org_name: string | null;
-  tags: string[] | null;
-  published_at: string | null;
-}
-
 /* ── DB 读取 ───────────────────────────────────────────────────────────── */
+
+/** 首页首屏图。失败或未配库返回 unavailable，调用方必须保留烘焙图。 */
+export async function loadHomeBanners(): Promise<HomeBannerLoad> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { status: 'unavailable' };
+  try {
+    const { data, error } = await sb
+      .from('home_banners')
+      .select('image_url,alt')
+      .eq('published', true)
+      .order('sort_order', { ascending: true })
+      .order('id', { ascending: true });
+    if (error) {
+      console.error(`[blocks-runtime:home_banners] 查询失败，保留烘焙首屏：${error.message}`);
+      return { status: 'unavailable' };
+    }
+    return { status: 'ready', rows: (data ?? []) as BannerRow[] };
+  } catch (e) {
+    console.error('[blocks-runtime:home_banners] 查询异常，保留烘焙首屏', e);
+    return { status: 'unavailable' };
+  }
+}
 
 export async function loadSiteStats(): Promise<StatRow[]> {
   const sb = getSupabaseAdmin();
@@ -168,26 +191,6 @@ export async function loadHomeNews(): Promise<HomeNewsRow[]> {
   }
 }
 
-export async function loadMarketItems(): Promise<MarketItemRow[]> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return [];
-  try {
-    const { data, error } = await sb
-      .from('market_items')
-      .select('type,title,summary,org_name,tags,published_at')
-      .eq('published', true)
-      .order('published_at', { ascending: false });
-    if (error) {
-      console.error(`[blocks-runtime:market_items] 查询失败，区块置空：${error.message}`);
-      return [];
-    }
-    return (data ?? []) as MarketItemRow[];
-  } catch (e) {
-    console.error('[blocks-runtime:market_items] 查询异常，区块置空', e);
-    return [];
-  }
-}
-
 /* ── 图片与外链安全 ────────────────────────────────────────────────────── */
 
 function isSafeImage(value: string | null | undefined): value is string {
@@ -234,6 +237,31 @@ function statItemHtml(row: StatRow): string {
 
 export function applyHomeStats(html: string, rows: readonly StatRow[]): string {
   return replaceBlockInner(html, 'home-stats', 'div', () => rows.map(statItemHtml).join(''));
+}
+
+/* ── 首页首屏背景轮播 ───────────────────────────────────────────────────── */
+
+function heroSlideHtml(row: BannerRow, first: boolean): string {
+  const attrs = first
+    ? 'class="hero__slide is-on" fetchpriority="high" decoding="async"'
+    : 'class="hero__slide" loading="lazy" decoding="async"';
+  return `<img ${attrs} src="${escapeText(row.image_url)}" alt="${escapeText(row.alt)}">`;
+}
+
+/**
+ * 查询成功后替换首屏图。不安全的地址整张丢掉。
+ * 开标签补 `data-hero-live`，让 CSS 停掉两张图的自动交叉淡入，只显示 `.is-on`。
+ * 标记缺失时原样返回。
+ */
+export function applyHomeBanners(html: string, rows: readonly BannerRow[]): string {
+  if (!/<div\b[^>]*\bdata-opc-block="home-banners"/i.test(html)) return html;
+  const slides = rows.filter((row) => isSafeImage(row.image_url));
+  const inner = slides.map((row, index) => heroSlideHtml(row, index === 0)).join('');
+  const replaced = replaceBlockInner(html, 'home-banners', 'div', () => inner);
+  return replaced.replace(
+    /(<div\b[^>]*\bdata-opc-block="home-banners"[^>]*)(>)/i,
+    (full, open: string, end: string) => (/\bdata-hero-live\b/.test(open) ? full : `${open} data-hero-live${end}`),
+  );
 }
 
 /* ── 首页社区动态四卡 ───────────────────────────────────────────────────── */
@@ -383,56 +411,6 @@ export function applyAgentTools(html: string, rows: readonly AgentRow[]): string
   return out;
 }
 
-/* ── /market 社区供需榜 ─────────────────────────────────────────────────── */
-
-/** DB 是 date 或 timestamptz —— 统一按北京时间取日历日，解析失败留空。 */
-function marketDate(value: string | null): string {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Shanghai',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).formatToParts(date);
-  const picked = new Map(parts.map((p) => [p.type, p.value]));
-  return `${picked.get('year')}-${String(picked.get('month')).padStart(2, '0')}-${String(picked.get('day')).padStart(2, '0')}`;
-}
-
-function marketCardHtml(row: MarketItemRow, index: number): string {
-  const tags = (row.tags ?? []).map((t) => t.trim()).filter(Boolean).slice(0, 4);
-  const tagsHtml = tags
-    .map((t) => `<span class="tag">${escapeText(t)}</span>`)
-    .join('');
-  const org = escapeText(row.org_name ?? '社区成员');
-  const initial = escapeText((row.org_name ?? row.title).trim().charAt(0) || '社');
-  const color = AGENT_COLORS[index % AGENT_COLORS.length];
-  return (
-    `<article class="sd-card">`
-    + `<div class="sd-card__hd"><span class="sd-card__av" style="background:${color}">${initial}</span>`
-    + `<div><b>${org}</b><span>${escapeText(marketDate(row.published_at))}</span></div></div>`
-    + `<h3>${escapeText(row.title)}</h3>`
-    + (row.summary ? `<p>${escapeText(row.summary)}</p>` : '')
-    + (tagsHtml ? `<div class="sd-card__tags">${tagsHtml}</div>` : '')
-    + `</article>`
-  );
-}
-
-/** 供需两列各自替换；只录一边时另一侧为空（DB 是唯一事实源）。 */
-export function applyMarketItems(html: string, rows: readonly MarketItemRow[]): string {
-  const titled = rows.filter((row) => row.title.trim().length > 0);
-  const supply = titled.filter((row) => row.type === 'supply');
-  const demand = titled.filter((row) => row.type === 'demand');
-  let out = replaceBlockInner(html, 'market-supply', 'div', () =>
-    supply.map((row, index) => marketCardHtml(row, index)).join(''),
-  );
-  out = replaceBlockInner(out, 'market-demand', 'div', () =>
-    demand.map((row, index) => marketCardHtml(row, index)).join(''),
-  );
-  return out;
-}
-
 /* ── 页面级运行时渲染 ───────────────────────────────────────────────────── */
 
 export async function getRuntimeReplicaPage(pathname: string): Promise<ReplicaPageContent | null> {
@@ -442,17 +420,16 @@ export async function getRuntimeReplicaPage(pathname: string): Promise<ReplicaPa
   let html = base.html;
   try {
     if (pathname === '/') {
-      const [stats, news] = await Promise.all([loadSiteStats(), loadHomeNews()]);
+      const [stats, news, banners] = await Promise.all([loadSiteStats(), loadHomeNews(), loadHomeBanners()]);
       html = applyHomeStats(html, stats);
       html = applyHomeNews(html, news);
+      if (banners.status === 'ready') html = applyHomeBanners(html, banners.rows);
     } else if (pathname === '/about') {
       html = applyPartnerGrid(html, await loadPartners());
     } else if (pathname === '/academy') {
       html = applyCourseGrid(html, await loadCourses());
     } else if (pathname === '/agent') {
       html = applyAgentTools(html, await loadAgents());
-    } else if (pathname === '/market') {
-      html = applyMarketItems(html, await loadMarketItems());
     } else {
       return base;
     }

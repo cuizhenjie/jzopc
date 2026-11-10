@@ -7,6 +7,7 @@ import type {
   AdminMarketRow,
   AdminMediaRow,
   AdminPartnerRow,
+  AdminHomeBannerRow,
   AdminSiteStatRow,
 } from './resources';
 
@@ -92,6 +93,13 @@ export async function getPartnerById(id: number): Promise<AdminPartnerRow | null
 
 export async function listSiteStats(): Promise<AdminSiteStatRow[]> {
   return listAll<AdminSiteStatRow>('site_stats', [{ column: 'sort_order', ascending: true }]);
+}
+
+export async function listHomeBanners(): Promise<AdminHomeBannerRow[]> {
+  return listAll<AdminHomeBannerRow>('home_banners', [
+    { column: 'sort_order', ascending: true },
+    { column: 'id', ascending: true },
+  ]);
 }
 
 export async function listEmpowerModules(): Promise<AdminEmpowerRow[]> {

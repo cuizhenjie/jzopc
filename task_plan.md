@@ -75,7 +75,7 @@
 | 阶段 | 状态 | 产物 |
 |---|---|---|
 | 公开页面/路由/内容研究 | 完成 | 20路由、233工具、44社区、158内容 |
-| 科技蓝样式与本地素材（复现态） | 完成 | `reference-blue.css` + 875素材映射 |
+| 科技蓝样式与本地素材（复现态） | 完成 | 旧基线 reference-blue.css（2026-11-10 已删除）+ 875素材映射 |
 | 页面交互重写 | 完成 | 搜索/筛选/分页/弹窗/表单 |
 | 视觉基线审计 | 完成 | `scripts/opc-design-audit.mjs`，32→8 档字号等 8 项量化 |
 | 设计 token 层 | 完成 | `src/styles/globals.css`（旧 opc-tokens.css 已删除） |
@@ -138,7 +138,7 @@
 - **不动主站**：`src/app/**` 的原生 React 页面与 `globals.css` 不受影响，
   OPC 复刻页的样式全部收敛在 `.opc-replica` 作用域内。
 - **不执行原站 JavaScript**，不向原站认证、短信、上传或表单接口提交。
-- **手写样式独立于生成产物**：`public/opc/reference-blue.css` 由
+- **手写样式独立于生成产物**：旧基线 public/opc/reference-blue.css（已删除）由
   `pnpm opc:styles` 重跑覆盖，设计层放在 `src/styles/opc-*.css`，互不覆盖。
 - 账号后端及验证码未配置时明确显示真实状态，不伪报成功。
 - 现有管理员权限、线索API和数据库规则未修改。

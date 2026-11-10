@@ -215,6 +215,40 @@ export type AdminSiteStatRow = {
   sort_order: number;
 };
 
+/* ── 首页首屏 Banner ───────────────────────────────────────────────────── */
+
+/** 前台只渲染站内根路径或 https 图。http 会被轮播丢掉，所以接口这里直接拒绝。 */
+const bannerImageUrl = z
+  .string()
+  .trim()
+  .min(1, '请上传或填写图片地址')
+  .max(500, '图片地址过长')
+  .refine((value) => {
+    if (value.startsWith('/') && !value.startsWith('//') && !/[\u0000-\u001f\\]/.test(value)) return true;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' && !url.username && !url.password;
+    } catch {
+      return false;
+    }
+  }, '图片地址需为站内路径（/…）或 https 链接');
+
+export const homeBannerInputSchema = z.object({
+  image_url: bannerImageUrl,
+  alt: z.string().trim().min(1, '替代文本不能为空').max(80, '替代文本过长（≤80 字）'),
+  sort_order: z.coerce.number().int().min(0).max(9999).default(0),
+  published: z.boolean().default(true),
+});
+export type HomeBannerInput = z.infer<typeof homeBannerInputSchema>;
+
+export type AdminHomeBannerRow = {
+  id: number;
+  image_url: string;
+  alt: string;
+  sort_order: number;
+  published: boolean;
+};
+
 /* ── 八大赋能（slug 主键）──────────────────────────────────────────────── */
 
 export const empowerInputSchema = z.object({

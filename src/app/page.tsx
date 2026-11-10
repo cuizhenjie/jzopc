@@ -5,7 +5,8 @@ import ReferenceInteractions from '@/components/opc/ReferenceInteractions';
 import { getRuntimeReplicaPage } from '@/lib/opc/blocks-runtime';
 
 /**
- * 首页：页面外壳是参考站快照，两处动态区块由后台接管——
+ * 首页：页面外壳是参考站快照，三处动态区块由后台接管——
+ *   首屏背景轮播     ← home_banners（后台「首页 Banner」；库不可用时保留烘焙图）
  *   hero 统计数字墙 ← site_stats（后台「统计数字」模块）
  *   社区动态四卡     ← news_posts（最新 4 条）
  * 后台保存后 revalidatePath('/') 立即失效，另有 ISR 300s 兜底。

@@ -4,8 +4,8 @@
  * ── 2026-11-10 全站复刻后的契约 ─────────────────────────────────────────
  *   - /news：单一列表通道（旧的 /newslist + /activitylist 双通道已下线），
  *     列表容器由编译期打的 `data-opc-block="news-list"` 标记定位；
- *   - 卡片形态对齐参考站 .nitem（折叠卡：日期拆成「日 + 年月」、类目 tag、
- *     标题链到 /newsdetail?id=<slug>）；
+ *   - 卡片形态对齐参考站 .nitem（日期拆成「日 + 年月」、类目 tag，
+ *     整个卡片头链接到 /newsdetail?id=<slug>，不输出折叠正文）；
  *   - /newsdetail?id=：数字 id → slug=opc-N；slug → 原样；
  *     DB 未命中 / 查询异常 / 非法 id → 404（null）；
  *   - 纯文本正文转义成段落；富文本经 sanitize-html 允许列表净化。
@@ -52,21 +52,24 @@ const newsPost: NewsCardSource = {
   cover_url: '/opc/reference/img/news-wuzhen-opc.jpg',
 };
 
-describe('卡片渲染器 · renderNewsCard（参考站 .nitem 折叠卡）', () => {
-  test('日期拆成「日 + 年月」两段，类目成 tag，标题链到详情页', () => {
+describe('卡片渲染器 · renderNewsCard（整卡跳转详情）', () => {
+  test('日期、类目与标题保留，整个卡片头都是详情链接', () => {
     const html = renderNewsCard(newsPost);
     assert.ok(html.includes('<div class="nitem__date"><b>22</b><span>2026-10</span></div>'));
     assert.ok(html.includes('<span class="ntag">行业观察</span>'));
-    assert.ok(html.includes('<h3><a href="/newsdetail?id=392">集智 AI OPC 女性赋能计划第三期圆满收官</a></h3>'));
+    assert.ok(html.includes('<a class="nitem__hd" href="/newsdetail?id=392">'));
+    assert.ok(html.includes('<h3>集智 AI OPC 女性赋能计划第三期圆满收官</h3>'));
+    assert.ok(!html.includes('<h3><a'), '标题内不得再嵌套链接');
     assert.ok(html.includes('class="nitem rv"'));
     assert.ok(html.includes('data-news-cat="行业观察"'));
     assert.ok(html.includes('data-opc-id="392"'));
   });
 
-  test('展开区带首段正文与「阅读全文」入口', () => {
+  test('列表不输出折叠正文，每张卡只有一个详情跳转入口', () => {
     const html = renderNewsCard({ ...newsPost, body: ['第一段正文', '第二段正文'] });
-    assert.ok(html.includes('<div class="nitem__body"><p>第一段正文</p>'));
-    assert.ok(html.includes('<p class="nsrc"><b>阅读全文：</b><a href="/newsdetail?id=392">'));
+    assert.ok(!html.includes('nitem__body'));
+    assert.ok(!html.includes('阅读全文'));
+    assert.equal((html.match(/<a class="nitem__hd"/g) ?? []).length, 1);
   });
 
   test('slug 形态的 id 原样透出（不是 opc-N 时不转数字）', () => {
@@ -139,7 +142,8 @@ describe('getReplicaListPage：/news 列表渲染', () => {
     assert.ok(page!.html.includes('data-opc-block="news-list"'), '容器标记必须在');
     assert.ok(page!.html.includes('<div class="nitem__date"><b>22</b><span>2026-10</span></div>'));
     assert.ok(page!.html.includes('<span class="ntag">行业观察</span>'));
-    assert.ok(page!.html.includes('<h3><a href="/newsdetail?id=392">'));
+    assert.ok(page!.html.includes('<a class="nitem__hd" href="/newsdetail?id=392">'));
+    assert.ok(page!.html.includes('<h3>集智 AI OPC 女性赋能计划第三期圆满收官</h3>'));
     assert.ok(!page!.html.includes('OLD'), '旧内容必须被替换掉');
   });
 
@@ -319,12 +323,13 @@ describe('getReplicaDetailPage：DB 唯一事实源', () => {
   test('文章外壳的三个占位符都被替换掉', async () => {
     const page = await getReplicaDetailPage('392', { loadPost: async () => dbPost });
     assert.ok(page);
-    for (const token of ['__OPC_TITLE__', '__OPC_DATE__', '__OPC_ARTICLE__']) {
+    for (const token of ['__OPC_TITLE__', '__OPC_CATEGORY__', '__OPC_DATE__', '__OPC_ARTICLE__']) {
       assert.ok(!page!.html.includes(token), token);
     }
-    // 外壳自身的结构保留
-    assert.ok(page!.html.includes('class="nitem"'));
-    assert.ok(page!.html.includes('class="nitem__body"'));
+    // 详情使用独立文章结构，不继承列表的折叠隐藏或摘要截断样式
+    assert.ok(page!.html.includes('class="news-detail"'));
+    assert.ok(page!.html.includes('class="news-detail__body"'));
+    assert.ok(!page!.html.includes('nitem__body'));
   });
 });
 
@@ -349,6 +354,7 @@ describe('文章外壳产物本身', () => {
   test('外壳只保留占位符，不含脚本与事件属性', () => {
     assert.doesNotMatch(articleShell.html, /<script\b|\son[a-z]+\s*=/i);
     assert.ok(articleShell.html.includes('__OPC_TITLE__'));
+    assert.ok(articleShell.html.includes('__OPC_CATEGORY__'));
     assert.ok(articleShell.html.includes('__OPC_DATE__'));
     assert.ok(articleShell.html.includes('__OPC_ARTICLE__'));
   });

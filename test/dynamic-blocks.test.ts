@@ -9,9 +9,10 @@
  *      - replaceElementInnerById(html, id, tagName, buildInner)：按 id 定位单元素；
  *      - 标记缺失 / 闭标签不完整 → **原样返回**（外壳完整性保护，绝不截断页面）；
  *   2. DB 行 → 区块渲染成参考站的类名（.hstat / .ncard / .ac-crs__i /
- *      .partner-wall__i / .acard / .sd-card）；
+ *      .partner-wall__i / .acard）；
  *   3. 空数组 / 未配库 / 查询异常 → 区块**置空**（容器保留、内容清空；
- *      /agent 例外——重建为「全部」chip + 计数 0 + 空网格）；
+ *      /agent 例外——重建为「全部」chip + 计数 0 + 空网格；
+ *      首页 banner 例外——未配库 / 查询失败不调用替换，查询成功的空结果才清空）；
  *   4. 后台可控的文本一律 escapeText 转义；图片 URL 只允许 https 外链或根相对路径。
  *
  * 删除的旧断言（逐条说明）：
@@ -20,7 +21,10 @@
  *   - 「旧站烘焙卡结构（hero-stat / opc-academy-course-card / supply-card /
  *     demand-card / tool-card / data-opc-agent-group）」→ 参考站的类名体系；
  *   - 「烘焙 233 张工具卡 / 22 条供需 / 16 家合作企业被清空」→ 参考站快照
- *     本身没有这些卡（目录/课程/伙伴/供需全部由 DB 接管）。
+ *     本身没有这些卡（目录/课程/伙伴全部由 DB 接管）；
+ *   - 「/market 社区供需榜 · applyMarketItems」→ 2026-11-10 用户要求移除
+ *     COMMUNITY BOARD · 社区供需榜 模块：该板块已从编译期注入与运行期
+ *     接管中一并下线（供给/需求两列不再出现在前台）。
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
@@ -28,14 +32,14 @@ import { readFileSync } from 'node:fs';
 import {
   applyAgentTools,
   applyCourseGrid,
+  applyHomeBanners,
   applyHomeNews,
   applyHomeStats,
-  applyMarketItems,
   applyPartnerGrid,
   type AgentRow,
   type CourseRow,
+  type BannerRow,
   type HomeNewsRow,
-  type MarketItemRow,
   type PartnerRow,
   type StatRow,
 } from '@/lib/opc/blocks-runtime';
@@ -99,12 +103,11 @@ describe('烘焙产物前提守卫（标记定位的地基）', () => {
     const expected: Array<[string, string]> = [
       ['/', 'home-stats'],
       ['/', 'home-news'],
+      ['/', 'home-banners'],
       ['/about', 'partner-grid'],
       ['/academy', 'course-grid'],
       ['/news', 'news-list'],
       ['/agent', 'agent-grid'],
-      ['/market', 'market-supply'],
-      ['/market', 'market-demand'],
     ];
     for (const [path, marker] of expected) {
       const html = getReplicaPage(path)?.html ?? '';
@@ -131,9 +134,8 @@ describe('烘焙产物前提守卫（标记定位的地基）', () => {
   test('被运行时整体替换的区块容器只允许 div/ul（配平算法的标签前提）', () => {
     // 只有这些标记会被 replaceBlockInner 整体替换内部，
     // 因此它们的容器标签必须是配平算法支持的 div / ul。
-    // 其余标记（partners / market-board / market-items）是**外层包裹**，
-    // 运行期不碰它们的内部。
-    const replaced = ['home-stats', 'home-news', 'course-grid', 'partner-grid', 'news-list', 'agent-grid', 'market-supply', 'market-demand'];
+    // 其余标记（partners）是**外层包裹**，运行期不碰它们的内部。
+    const replaced = ['home-stats', 'home-news', 'home-banners', 'course-grid', 'partner-grid', 'news-list', 'agent-grid'];
     const pages = JSON.parse(readFileSync('src/lib/opc/generated/pages.json', 'utf8')) as Record<
       string,
       { html: string }
@@ -180,6 +182,57 @@ describe('首页统计数字墙 · applyHomeStats', () => {
     assert.ok(out.includes('hero__stats'), '容器必须在');
     assert.ok(out.includes('data-opc-block="home-stats"'), '容器标记必须在');
     assert.equal((out.match(/class="hstat"/g) ?? []).length, 0);
+  });
+});
+
+/* ── 首页首屏轮播 ──────────────────────────────────────────────────────── */
+
+describe('首页首屏轮播 · applyHomeBanners', () => {
+  const rows: BannerRow[] = [
+    { image_url: '/opc/reference/img/a.jpg', alt: '会场全景' },
+    { image_url: 'https://cdn.example.com/b.jpg', alt: '现场' },
+  ];
+
+  test('第一张高优先级且点亮，第二张懒加载', () => {
+    const out = applyHomeBanners(homeHtml, rows);
+    assert.match(out, /<div class="hero__bg"[^>]*data-opc-block="home-banners"[^>]*data-hero-live>/);
+    assert.match(
+      out,
+      /<img class="hero__slide is-on" fetchpriority="high" decoding="async" src="\/opc\/reference\/img\/a\.jpg" alt="会场全景">/,
+    );
+    assert.match(
+      out,
+      /<img class="hero__slide" loading="lazy" decoding="async" src="https:\/\/cdn\.example\.com\/b\.jpg" alt="现场">/,
+    );
+    assert.equal((out.match(/class="hero__slide/g) ?? []).length, 2);
+    assert.ok(!out.includes('hero-banner-1.jpg'), '查询成功后烘焙图不再留下');
+  });
+
+  test('替代文本转义，不安全地址整张丢掉', () => {
+    const out = applyHomeBanners(homeHtml, [
+      { image_url: '/ok.jpg', alt: '"><script>alert(1)</script>' },
+      { image_url: 'http://insecure.example/a.jpg', alt: 'http' },
+      { image_url: '//cdn.example/a.jpg', alt: 'protocol-relative' },
+      { image_url: 'javascript:alert(1)', alt: 'script' },
+    ]);
+    assert.ok(!out.includes('<script>alert'), '原始标签不得进入 HTML');
+    assert.ok(out.includes('alt="&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"'));
+    assert.ok(!out.includes('insecure.example'));
+    assert.ok(!out.includes('javascript:'));
+    assert.equal((out.match(/class="hero__slide/g) ?? []).length, 1);
+    assert.match(out, /<img class="hero__slide is-on" fetchpriority="high" decoding="async" src="\/ok\.jpg"/);
+    assert.ok(!out.includes('class="hero__slide" loading="lazy"'), '唯一一张不懒加载');
+  });
+
+  test('查询成功但没有可用图 → 清空内部并标成 live', () => {
+    const out = applyHomeBanners(homeHtml, []);
+    assert.match(out, /<div class="hero__bg"[^>]*data-hero-live[^>]*><\/div>/);
+    assert.equal((out.match(/class="hero__slide/g) ?? []).length, 0);
+  });
+
+  test('标记缺失 → 原样返回', () => {
+    const html = '<div class="hero__bg"><img class="hero__slide" src="/old.jpg" alt="old"></div>';
+    assert.equal(applyHomeBanners(html, rows), html);
   });
 });
 
@@ -373,71 +426,29 @@ describe('/agent 智能体目录 · applyAgentTools', () => {
   });
 });
 
-/* ── /market 社区供需榜 ────────────────────────────────────────────────── */
+/* ── /market 社区供需榜（已下线）───────────────────────────────────────── */
 
-describe('/market 社区供需榜 · applyMarketItems', () => {
-  const rows: MarketItemRow[] = [
-    { type: 'supply', title: '验收供给服务', summary: '供给摘要', org_name: '验收科技', tags: ['AI客服', '外包'], published_at: '2026-10-20' },
-    { type: 'demand', title: '验收需求项目', summary: '需求摘要', org_name: null, tags: ['小程序'], published_at: '2026-10-26' },
-  ];
-
-  test('供给 / 需求两区各自替换，卡片结构与参考站一致', () => {
-    const out = applyMarketItems(marketHtml, rows);
-    assert.ok(out.includes('data-opc-block="market-supply"'));
-    assert.ok(out.includes('data-opc-block="market-demand"'));
-    assert.ok(out.includes('<article class="sd-card">'));
-    assert.ok(out.includes('<h3>验收供给服务</h3>'));
-    assert.ok(out.includes('<b>验收科技</b>'));
-    assert.ok(out.includes('<span>2026-10-20</span>'));
-    assert.ok(out.includes('<h3>验收需求项目</h3>'));
-    assert.ok(out.includes('<b>社区成员</b>'), '缺机构名回落「社区成员」');
-    assert.ok(out.includes('<span class="tag">AI客服</span>'));
-    assert.equal((out.match(/class="sd-card"/g) ?? []).length, 2);
+/**
+ * 2026-11-10 用户要求移除「COMMUNITY BOARD · 社区供需榜」模块：
+ * 编译期注入、运行期接管与扩展样式一并下线。
+ * 这里留一条**下线守卫**，防止它被重新带回来（尤其是从参考站快照
+ * 或数据库灌数据时被顺带复活）。
+ */
+describe('/market 社区供需榜 · 已下线守卫', () => {
+  test('产物里不再有供需榜的标题、标记与卡片类', () => {
+    assert.ok(!marketHtml.includes('COMMUNITY BOARD'), '社区供需榜标题不得回归');
+    assert.ok(!marketHtml.includes('社区供需榜'), '社区供需榜文案不得回归');
+    for (const marker of ['market-board', 'market-items', 'market-supply', 'market-demand']) {
+      assert.ok(!marketHtml.includes(`data-opc-block="${marker}"`), `${marker} 标记不得回归`);
+    }
+    for (const cls of ['sd-board', 'sd-card']) {
+      assert.ok(!marketHtml.includes(cls), `${cls} 样式类不得回归`);
+    }
   });
 
-  test('只录一边 → 另一侧置空（DB 是唯一事实源）', () => {
-    const onlySupply = applyMarketItems(marketHtml, [rows[0]]);
-    assert.ok(onlySupply.includes('验收供给服务'));
-    assert.ok(!onlySupply.includes('验收需求项目'), '需求区必须置空');
-    assert.equal((onlySupply.match(/class="sd-card"/g) ?? []).length, 1);
-    // 容器仍然在（只是空了）
-    assert.ok(onlySupply.includes('data-opc-block="market-demand"'));
-  });
-
-  test('空数组 → 两区置空（容器保留）', () => {
-    const out = applyMarketItems(marketHtml, []);
-    assert.ok(out.includes('data-opc-block="market-supply"'), '供给区容器必须在');
-    assert.ok(out.includes('data-opc-block="market-demand"'), '需求区容器必须在');
-    assert.equal((out.match(/class="sd-card"/g) ?? []).length, 0);
-  });
-
-  test('标题为空的行被跳过', () => {
-    const out = applyMarketItems(marketHtml, [{ ...rows[0], title: '  ' }]);
-    assert.equal((out.match(/class="sd-card"/g) ?? []).length, 0);
-  });
-
-  test('timestamptz 按北京时间取日历日（UTC 前一天 16:00 = 北京次日 0 点）', () => {
-    const out = applyMarketItems(marketHtml, [
-      { type: 'demand', title: '时区验收', summary: '', org_name: 'T', tags: [], published_at: '2026-10-20T16:00:00+00:00' },
-    ]);
-    assert.ok(out.includes('<span>2026-10-21</span>'), 'timestamptz 应按 Asia/Shanghai 取日期');
-    assert.ok(!out.includes('<span>2026-10-20</span>'), '不得显示 UTC 前一天');
-  });
-
-  test('非法日期 → 日期留空（不显示 Invalid Date）', () => {
-    const out = applyMarketItems(marketHtml, [{ ...rows[0], published_at: '不是日期' }]);
-    assert.ok(!out.includes('Invalid Date'));
-    assert.ok(out.includes('<span></span>'));
-  });
-
-  test('标签最多 4 个，且文本转义', () => {
-    const out = applyMarketItems(marketHtml, [
-      { ...rows[0], tags: ['a', 'b', 'c', 'd', 'e', '<script>x</script>'] },
-    ]);
-    // 只看供需榜里的卡（页面其他位置也有 .tag）
-    const card = out.slice(out.indexOf('data-opc-block="market-supply"'), out.indexOf('data-opc-block="market-demand"'));
-    const tags = [...card.matchAll(/<span class="tag">([^<]*)<\/span>/g)].map((match) => match[1]);
-    assert.deepEqual(tags, ['a', 'b', 'c', 'd']);
-    assert.ok(!card.includes('<script>x</script>'));
+  test('供需榜下线不影响发布表单本身（表单仍在页面上）', () => {
+    for (const id of ['sdNeed', 'sdGive', 'sdText', 'sdCopy', 'sdOut']) {
+      assert.ok(marketHtml.includes(`id="${id}"`), `#${id} 必须保留`);
+    }
   });
 });

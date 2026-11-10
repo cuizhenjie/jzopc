@@ -4,8 +4,8 @@
  * - /news：DB（news_posts）渲染列表卡；未配库 / 查询异常 → **空列表**（DB 唯一事实源）
  * - /newsdetail?id=：数字 id → slug=opc-N；slug → 查 DB；库内无此文 → 404
  *
- * 列表沿用参考站的「折叠卡片」形态：.nitem__hd 点击展开 .nitem__body；
- * 标题同时链接到 /newsdetail?id=<slug>，保证详情页仍是独立可索引页面。
+ * 列表保留参考站的卡片布局，整个 .nitem__hd 原生链接到
+ * /newsdetail?id=<slug>，不再绑定折叠行为。
  *
  * 本模块服务端专用（依赖 @/lib/queries → supabase admin 客户端）。
  */
@@ -25,7 +25,7 @@ export interface NewsCardSource {
   category: string;
   published_at: string;
   cover_url?: string | null;
-  /** 列表卡里的首段正文（详情页用完整 body） */
+  /** 可选以兼容数据库行；列表不渲染，仅详情页使用完整正文。 */
   body?: string[];
 }
 
@@ -38,7 +38,7 @@ export interface NewsArticleSource extends NewsCardSource {
 const FALLBACK_COVER = '/opc/reference/img/news-wuzhen-opc.jpg';
 
 const CHEVRON_ICON =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>';
 
 /* ── 日期 ──────────────────────────────────────────────────────────────── */
 
@@ -80,11 +80,18 @@ const ARTICLE_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
     'figcaption', 'img', 'a', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'hr',
   ],
   allowedAttributes: {
-    '*': ['style'],
+    '*': ['style', 'class'],
     a: ['href', 'title', 'target', 'rel'],
     img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'decoding'],
     th: ['colspan', 'rowspan', 'scope'],
     td: ['colspan', 'rowspan'],
+  },
+  /** class 白名单：只放行详情页排版组件，防任意类名注入 */
+  allowedClasses: {
+    p: ['nsrc'],
+    figure: ['nfig'],
+    div: ['nnotice'],
+    span: ['nnotice'],
   },
   allowedStyles: {
     '*': {
@@ -145,25 +152,21 @@ export function renderArticleBody(segments: string[]): string {
 
 /* ── 列表卡片 ──────────────────────────────────────────────────────────── */
 
-/** 参考站 .nitem 折叠卡：标题行可点开正文，正文带「阅读全文」入口。 */
+/** 参考站 .nitem 卡：整个卡片头通过原生链接进入独立详情页。 */
 export function renderNewsCard(post: NewsCardSource): string {
   const { day, month } = splitDate(post.published_at);
   const detailHref = `/newsdetail?id=${encodeURIComponent(newsDetailIdOfSlug(post.slug))}`;
   const summary = escapeText(post.summary);
-  const body = escapeText(post.body?.[0] ?? post.summary);
   return (
     `<article class="nitem rv" data-opc-id="${escapeText(newsDetailIdOfSlug(post.slug))}" data-news-cat="${escapeText(post.category)}">`
-    + `<div class="nitem__hd">`
+    + `<a class="nitem__hd" href="${escapeText(detailHref)}">`
     + `<div class="nitem__date"><b>${escapeText(day)}</b><span>${escapeText(month)}</span></div>`
     + `<div class="nitem__ph"><img src="${escapeText(resolveCover(post.cover_url))}" alt="${escapeText(post.title)}" loading="lazy" decoding="async"></div>`
     + `<div class="nitem__bd"><span class="ntag">${escapeText(post.category)}</span>`
-    + `<h3><a href="${escapeText(detailHref)}">${escapeText(post.title)}</a></h3>`
+    + `<h3>${escapeText(post.title)}</h3>`
     + `<p>${summary}</p></div>`
     + `<span class="nitem__more">${CHEVRON_ICON}</span>`
-    + `</div>`
-    + `<div class="nitem__body"><p>${body}</p>`
-    + `<p class="nsrc"><b>阅读全文：</b><a href="${escapeText(detailHref)}">${escapeText(post.title)} ↗</a></p>`
-    + `</div></article>`
+    + `</a></article>`
   );
 }
 
@@ -259,6 +262,7 @@ export async function getReplicaDetailPage(
     title: `${post.title} - ${REPLICA_SITE_NAME}`,
     html: articleShell.html
       .replace('__OPC_TITLE__', () => escapeText(post!.title))
+      .replace('__OPC_CATEGORY__', () => escapeText(post!.category))
       .replace('__OPC_DATE__', () => escapeText(formatNewsDate(post!.published_at)))
       .replace('__OPC_ARTICLE__', () => article),
   };

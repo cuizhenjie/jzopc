@@ -9,6 +9,7 @@ import {
   filterAgents,
   type MarketFormValues,
 } from '@/lib/opc/form-payload';
+import { mountHeroCarousel } from '@/lib/opc/hero-carousel';
 
 /**
  * 参考站客户端行为层（2026-11-10 全站复刻）。
@@ -21,11 +22,11 @@ import {
  *   - 滚动进场（.rv → .vis，带 data-d 阶梯延迟）
  *   - 数字滚动（[data-count]）
  *   - 回到顶部（.totop）
- *   - 社区动态折叠卡（.nitem__hd 点击展开 .nitem__body）
- *   - 社区动态类目筛选（[data-news-filter]）
+ *   - 社区动态类目筛选（[data-news-filter]；卡片跳转交给原生链接）
  *   - 智能体目录：分类 chips + 关键词搜索 + 显示更多（#agentChips/#agentGrid/#agentCount/#agentMore）
  *   - 供需发布：需求/供给双 Tab + 表单校验 + 生成发布卡片（#sdNeed/#sdGive/#sdOut/#sdText/#sdCopy）
  *   - 入驻意向表：校验 + 提交到后台线索接口（#joinForm/#joinOk）
+ *   - 首页首屏轮播：左右切换、底部步骤条、自动播放（.hero）
  *
  * 与参考站的差异（**刻意**）：
  *   1. 入驻表单与供需表单**直连后台**（POST /api/leads），不再只写 localStorage；
@@ -47,8 +48,6 @@ function isReducedMotion(): boolean {
 export default function ReferenceInteractions({ route }: { route: string }) {
   useEffect(() => {
     const noAnim = /noanim/.test(window.location.search);
-    // TEMP-DEBUG-TOP
-    document.documentElement.setAttribute('data-ref-debug-top', `ran=${Date.now()}`);
 
     /* ---------- 滚动进场 ---------- */
     const revealTargets = Array.from(document.querySelectorAll<HTMLElement>('.rv'));
@@ -119,17 +118,7 @@ export default function ReferenceInteractions({ route }: { route: string }) {
       totop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
-    /* ---------- 社区动态：折叠卡 + 类目筛选 ---------- */
-    document.querySelectorAll<HTMLElement>('.nitem__hd').forEach((head) => {
-      head.addEventListener('click', () => {
-        const item = head.closest<HTMLElement>('.nitem');
-        if (!item) return;
-        const wasOpen = item.classList.contains('on');
-        document.querySelectorAll('.nitem.on').forEach((open) => open.classList.remove('on'));
-        if (!wasOpen) item.classList.add('on');
-      });
-    });
-
+    /* ---------- 社区动态：类目筛选（卡片头由原生链接跳转详情） ---------- */
     const filterButtons = Array.from(document.querySelectorAll<HTMLElement>('[data-news-filter]'));
     if (filterButtons.length) {
       filterButtons.forEach((button) => {
@@ -143,16 +132,6 @@ export default function ReferenceInteractions({ route }: { route: string }) {
           });
         });
       });
-    }
-
-    // 带 hash 进来时展开对应条目（参考站 news.html 的内联脚本行为）
-    const hash = window.location.hash.replace('#', '');
-    if (hash) {
-      const target = document.getElementById(hash);
-      if (target?.classList.contains('nitem')) {
-        target.classList.add('on');
-        setTimeout(() => target.scrollIntoView({ block: 'start' }), 120);
-      }
     }
 
     /* ---------- 智能体目录：分类 + 搜索 ---------- */
@@ -227,12 +206,6 @@ export default function ReferenceInteractions({ route }: { route: string }) {
     const sdOut = document.getElementById('sdOut');
     const sdText = document.getElementById('sdText');
     const sdCopy = document.getElementById('sdCopy');
-
-    // TEMP-DEBUG
-    document.getElementById('opc-page-content')?.setAttribute(
-      'data-ref-debug',
-      `sdTabs=${sdTabs.length} need=${!!sdForms.need} give=${!!sdForms.give} grid=${!!document.getElementById('agentGrid')} chips=${!!document.getElementById('agentChips')}`,
-    );
 
     const picked = (form: HTMLFormElement, name: string): string[] =>
       Array.from(form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)).map((i) => i.value);
@@ -467,6 +440,8 @@ export default function ReferenceInteractions({ route }: { route: string }) {
         });
       });
     }
+
+    return mountHeroCarousel(document);
   }, [route]);
 
   return null;

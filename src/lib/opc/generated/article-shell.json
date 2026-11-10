@@ -1,3 +1,3 @@
 {
- "html": "<section class=\"sec sec--bg\">\n  <div class=\"wrap\">\n    <div class=\"nitem\" style=\"max-width:880px;margin:0 auto\">\n      <div class=\"nitem__bd\">\n        <span class=\"ntag\">社区动态</span>\n        <h1 style=\"font-size:28px;line-height:1.4;margin:12px 0 8px\">__OPC_TITLE__</h1>\n        <div class=\"nitem__date\" style=\"margin-bottom:20px\">__OPC_DATE__</div>\n        <div class=\"nitem__body\" style=\"max-height:none\">__OPC_ARTICLE__</div>\n      </div>\n    </div>\n  </div>\n</section>"
+ "html": "<section class=\"sec sec--bg\">\n  <div class=\"wrap\">\n    <article class=\"news-detail\">\n      <span class=\"ntag\">__OPC_CATEGORY__</span>\n      <h1 class=\"news-detail__title\">__OPC_TITLE__</h1>\n      <time class=\"news-detail__date\">__OPC_DATE__</time>\n      <div class=\"news-detail__body\">__OPC_ARTICLE__</div>\n    </article>\n  </div>\n</section>"
 }

@@ -82,8 +82,8 @@ function typeFields(typeName: string): Set<string> {
 const tables = parseTables(sql);
 
 describe('数据库 DDL 与应用类型的契约', () => {
-  test('11 张业务表全部在迁移脚本中定义（site_contents 已随 0006 下线）', () => {
-    assert.equal(tables.size, 11, `实际解析到 ${tables.size} 张表`);
+  test('12 张业务表全部在迁移脚本中定义（site_contents 已随 0006 下线，home_banners 随 0007 上线）', () => {
+    assert.equal(tables.size, 12, `实际解析到 ${tables.size} 张表`);
   });
 
   // 这张表就是踩过坑的那张：body_md vs body
@@ -167,6 +167,7 @@ describe('数据库 DDL 与应用类型的契约', () => {
       'market_items',
       'courses',
       'partners',
+      'home_banners',
     ]) {
       assert.ok(tables.get(t)!.has('published'), `${t} 应有 published 列`);
     }

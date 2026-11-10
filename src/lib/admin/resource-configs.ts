@@ -10,6 +10,7 @@ import {
   type AdminMarketRow,
   type AdminMediaRow,
   type AdminPartnerRow,
+  type HomeBannerInput,
 } from './resources';
 import { agentCategories } from '@/lib/site/config';
 import type { ResourceFieldConfig, ResourceFormValues } from '@/components/admin/crud/ResourceForm';
@@ -258,6 +259,13 @@ export const partnerToRow = (input: {
   logo_url: input.logo_url,
   website: input.website,
   group_name: input.group_name || null,
+  sort_order: input.sort_order,
+  published: input.published,
+});
+
+export const homeBannerToRow = (input: HomeBannerInput): Record<string, unknown> => ({
+  image_url: input.image_url,
+  alt: input.alt,
   sort_order: input.sort_order,
   published: input.published,
 });

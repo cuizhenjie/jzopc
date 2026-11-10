@@ -17,7 +17,7 @@
 
 ## 0. 为什么要另起一套体系
 
-上一轮的「科技蓝复现」把参考站 CSS 逐条机器改色（`public/opc/reference-blue.css`，390KB）。
+上一轮的「科技蓝复现」把参考站 CSS 逐条机器改色（public/opc/reference-blue.css，390KB，**2026-11-10 已删除**）。
 色相换对了，但**设计体系没有建立** —— 实测（`scripts/opc-design-audit.mjs`）：
 
 | 维度 | 复现态 | 重设计后 | 收敛依据 |
@@ -494,7 +494,7 @@ src/styles/opc-interactions.css ← 手写交互态（弹窗、表单、菜单�
 layout.css（主站 globals.css） → reference-blue.css（原站基线） → page.css（设计层）
 ```
 
-`reference-blue.css` 通过 `<link precedence="opc-reference">` 注入，
+旧基线 reference-blue.css 通过 `<link precedence="opc-reference">` 注入，
 而手写层走 Next.js 的 CSS 打包链路，两者相对顺序**不由 import 位置决定**。
 
 ### 9.2 三层 CSS 的层叠坑（实测踩出）
@@ -508,7 +508,7 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 设计层若漏写 `!important`，原站那条高特异性规则就会赢。
 
 **坑二：同特异性时按加载顺序决胜，而加载顺序不由 import 语句控制。**
-见 9.1。因此设计层要**排到 `reference-blue.css` 之后**：
+见 9.1。因此设计层要**排到旧基线之后**：
 
 > 设计层不能 import 在 `src/app/layout.tsx` —— 那会进 layout 产物（layout.css），
 > 排在原站基线**之前**；也不能 import 在 Server Component `ReplicaPage.tsx` ——
@@ -646,7 +646,7 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 
 **根因链（三步，每一步都是实测出来的）**：
 
-1. 原站 `public/opc/reference-blue.css` 里写着：
+1. 原站旧基线（public/opc/reference-blue.css，已删除）里写着：
    ```css
    .nav-links a[data-v-…]:after { content:""; position:absolute; bottom:-10px; left:0; width:0; height:2px; … }
    .nav-links a.active[data-v-…]:after { width:100% }
@@ -676,7 +676,7 @@ CSS Cascade 规定带 `!important` 的声明**先于**不带 `!important` 的生
 特异性再高也没用。单测能挡住前三种，挡不住这一种。
 
 > 排查手法（可复用）：**逐个禁用样式表**，看计算值怎么变。
-> 禁用 `reference-blue.css` 的瞬间 `scrollWidth` 从 62 掉到 50、
+> 禁用旧基线（reference-blue.css）的瞬间 `scrollWidth` 从 62 掉到 50、
 > `::after` 宽度从 50px 变成 26px —— 一句话就锁定了「原站 CSS 贡献了 width」。
 > 比逐条读选择器快得多，也不会漏。
 

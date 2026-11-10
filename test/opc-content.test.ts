@@ -264,12 +264,11 @@ test('参考站关键区块的内容在烘焙产物里完整保留', () => {
 
 test('动态区块的 data-opc-block 标记在目标页恰好出现一次', () => {
   const expected: Record<string, string[]> = {
-    '/': ['home-stats', 'home-news'],
+    '/': ['home-stats', 'home-news', 'home-banners'],
     '/about': ['partners', 'partner-grid'],
     '/academy': ['course-grid'],
     '/news': ['news-list'],
     '/agent': ['agent-grid'],
-    '/market': ['market-board', 'market-items', 'market-supply', 'market-demand'],
   };
   for (const [path, markers] of Object.entries(expected)) {
     for (const marker of markers) {
@@ -277,13 +276,13 @@ test('动态区块的 data-opc-block 标记在目标页恰好出现一次', () =
       assert.equal(hits, 1, `${path} 的 ${marker} 标记应恰好一次（实际 ${hits}）`);
     }
   }
-  // 没有动态区块的页面不得带标记
-  for (const path of ['/health', '/empower', '/growth', '/apply']) {
+  // 没有动态区块的页面不得带标记（/market 的社区供需榜已于 2026-11-10 下线）
+  for (const path of ['/health', '/empower', '/growth', '/apply', '/market']) {
     assert.ok(!pagesSource[path].html.includes('data-opc-block'), `${path} 不应有动态区块标记`);
   }
 });
 
-test('需要接后台的交互节点（表单 / 智能体目录 / 供需榜）在产物里唯一存在', () => {
+test('需要接后台的交互节点（表单 / 智能体目录）在产物里唯一存在', () => {
   const idsOf = (path: string) =>
     new Set([...pagesSource[path].html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
   assert.deepEqual([...idsOf('/apply')].sort(), ['joinForm', 'joinOk']);

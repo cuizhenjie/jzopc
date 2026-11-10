@@ -394,13 +394,24 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:90p
 /* ---------- 智能体 ---------- */
 .opc-site .filters{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px}
 /* .chip 是筛选**按钮**的样式：限定 button.chip，避免误伤表单里的 <label class="chip">
-   （此前表单多选也用 .chip，胶囊按钮的边框/背景叠在 label 上，变成双层描边）。 */
+   （此前表单多选也用 .chip，胶囊按钮的边框/背景叠在 label 上，变成双层描边）。
+
+   2026-11-10 修正按钮内文字的排版（社区动态的类目 tab、智能体的分类 chip）：
+   - .chip 是 inline-flex 容器，按钮里的文字是它**唯一的匿名 flex 项**，
+     默认 align-items:stretch 会把这个文字块撑满 36px 的胶囊高度，
+     于是文字被顶到胶囊上沿（实测文字中心比胶囊中心高 5.5px，肉眼可见「字没居中」）。
+     改为 align-items:center + line-height:1，文字才真正垂直居中。
+   - 未选中态字重 700→600、字色改用 --gray；选中态保持 700 + 深蓝底 ——
+     拉开「选中 / 未选中」的层级差，而不是两个态同样粗。
+   - 补 :focus-visible 焦点环（键盘可达），hover 加极浅底色给出可点感。 */
 .opc-site button.chip{
   height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:#fff;
-  font-size:13.5px;font-weight:700;color:#4A5F78;cursor:pointer;transition:.2s;
+  display:inline-flex;align-items:center;justify-content:center;line-height:1;white-space:nowrap;
+  font-size:13.5px;font-weight:600;color:var(--gray);cursor:pointer;transition:.2s;
 }
-.opc-site button.chip:hover{border-color:#B8D3F2;color:var(--btn)}
-.opc-site button.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.opc-site button.chip:hover{border-color:#B8D3F2;color:var(--btn);background:var(--bg)}
+.opc-site button.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+.opc-site button.chip:focus-visible{outline:2px solid rgba(46,130,200,.45);outline-offset:2px}
 .opc-site .agrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .opc-site .acard{
   background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px;display:flex;flex-direction:column;
@@ -812,15 +823,19 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:90p
 .opc-site .chips{display:flex;flex-wrap:wrap;gap:9px}
 .opc-site .chip{position:relative;display:inline-flex}
 .opc-site .chip input{position:absolute;opacity:0;width:0;height:0}
-.opc-site .chip span{
+/* 「隐藏 input + 胶囊 span」是多选 chip 的形态（表单侧已改用 .needchip）。
+   这组规则必须带 input 才命中 —— 否则会误伤**筛选按钮**里的计数 span：
+   /agent 的「全部 233」里那个 233 会被套上 38px 的胶囊样式（多一圈边框），
+   并且在 36px 高的按钮里溢出。 */
+.opc-site .chip input + span{
   display:inline-flex;align-items:center;height:38px;padding:0 16px;border-radius:999px;
   border:1px solid var(--line);background:#FCFDFF;font-size:13.5px;font-weight:700;
   color:#4B5F76;cursor:pointer;transition:.2s;user-select:none;
 }
-.opc-site .chip span:hover{border-color:#BFD8F6;color:var(--btn)}
+.opc-site .chip input + span:hover{border-color:#BFD8F6;color:var(--btn)}
 .opc-site .chip input:checked + span{background:rgba(47,123,255,.1);border-color:var(--btn);color:var(--btn);font-weight:800}
 .opc-site .chip input:focus-visible + span{box-shadow:0 0 0 4px rgba(46,130,200,.14)}
-.opc-site .field.bad .chips .chip span{border-color:#E8B4B1;background:#FFF9F9}
+.opc-site .field.bad .chips .chip input + span{border-color:#E8B4B1;background:#FFF9F9}
 
 /* 多选框组件（我要什么 / 能提供什么 / 合作方式）
    参考站原实现是「隐藏 input + 胶囊 span」，看不出是多选、也没有勾选框；
@@ -844,7 +859,9 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:90p
 .opc-site .msel__txt{font-size:13.5px;font-weight:700;color:#4B5F76;line-height:1;transition:.2s}
 .opc-site .msel__opt input:checked ~ .msel__box{background:var(--btn);border-color:var(--btn)}
 .opc-site .msel__opt input:checked ~ .msel__box::after{opacity:1;transform:rotate(45deg) scale(1)}
-.opc-site .msel__opt input:checked ~ .msel__txt{color:var(--btn);font-weight:800}
+/* 选中态文字用 --btn-d（#1E63E8）：--btn 在浅蓝底上只有 ~3.9:1，
+   达不到正文 4.5:1 的对比度要求（实测对比度审计会判不合格）。 */
+.opc-site .msel__opt input:checked ~ .msel__txt{color:var(--btn-d);font-weight:800}
 .opc-site .msel__opt:has(input:checked){border-color:var(--btn);background:rgba(47,123,255,.06);box-shadow:0 0 0 3px rgba(47,123,255,.07)}
 .opc-site .msel__opt input:focus-visible ~ .msel__box{box-shadow:0 0 0 4px rgba(46,130,200,.16)}
 .opc-site .field.bad .msel__opt:not(:has(input:checked)){border-color:#E8B4B1;background:#FFF9F9}
@@ -883,7 +900,7 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:90p
   .opc-site .sdf{padding:24px 20px 22px}
   .opc-site .sdout{padding:20px}
   .opc-site .sdout__hd b{font-size:15.5px}
-  .opc-site .chip span{height:35px;padding:0 13px;font-size:12.8px}
+  .opc-site .chip input + span{height:35px;padding:0 13px;font-size:12.8px}
   .opc-site .msel{gap:8px}
   .opc-site .field .msel__opt{height:40px;padding:0 13px 0 11px;gap:8px}
   .opc-site .msel__txt{font-size:13px}

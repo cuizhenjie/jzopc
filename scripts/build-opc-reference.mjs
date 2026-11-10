@@ -332,6 +332,8 @@ function markDynamicBlocks(route, html) {
   let out = html;
 
   if (path === '/') {
+    // 首页首屏背景图：后台 home_banners 接管（步骤条与左右切换由前台脚本挂上）
+    out = out.replace(/<div class="hero__bg"([^>]*)>/, '<div class="hero__bg"$1 data-opc-block="home-banners">');
     // 首页 hero 统计墙：参考站容器存在但为空，后台 site_stats 接管
     out = out.replace(/<div class="hero__stats"([^>]*)>/, '<div class="hero__stats"$1 data-opc-block="home-stats">');
     // 首页动态四卡：社区动态前四条
@@ -350,27 +352,6 @@ function markDynamicBlocks(route, html) {
 
   if (path === '/agent') {
     out = out.replace(/<div class="agrid"([^>]*)>/, '<div class="agrid"$1 data-opc-block="agent-grid">');
-  }
-
-  if (path === '/market') {
-    // 供需已发布榜：后台 market_items 接管（参考站该页原本只有发布表单）
-    out = out.replace(
-      /<section class="cta">/,
-      `<section class="sec" data-opc-block="market-board">
-  <div class="wrap">
-    <div class="shead shead--center">
-      <span class="eyebrow">COMMUNITY BOARD · 社区供需榜</span>
-      <h2>社区里正在流转的需求与能力</h2>
-      <p class="sub">后台发布的供给与需求会实时出现在这里，欢迎社区成员直接对接。</p>
-    </div>
-    <div class="sd-board" data-opc-block="market-items">
-      <div class="sd-board__col" data-opc-block="market-supply"><h3 class="sd-board__t">社区供给</h3><div class="sd-board__list"></div></div>
-      <div class="sd-board__col" data-opc-block="market-demand"><h3 class="sd-board__t">社区需求</h3><div class="sd-board__list"></div></div>
-    </div>
-  </div>
-</section>
-<section class="cta">`,
-    );
   }
 
   if (path === '/about') {
@@ -457,14 +438,12 @@ function buildArticleShell() {
   return {
     html: `<section class="sec sec--bg">
   <div class="wrap">
-    <div class="nitem" style="max-width:880px;margin:0 auto">
-      <div class="nitem__bd">
-        <span class="ntag">社区动态</span>
-        <h1 style="font-size:28px;line-height:1.4;margin:12px 0 8px">__OPC_TITLE__</h1>
-        <div class="nitem__date" style="margin-bottom:20px">__OPC_DATE__</div>
-        <div class="nitem__body" style="max-height:none">__OPC_ARTICLE__</div>
-      </div>
-    </div>
+    <article class="news-detail">
+      <span class="ntag">社区动态</span>
+      <h1 class="news-detail__title">__OPC_TITLE__</h1>
+      <time class="news-detail__date">__OPC_DATE__</time>
+      <div class="news-detail__body">__OPC_ARTICLE__</div>
+    </article>
   </div>
 </section>`,
   };

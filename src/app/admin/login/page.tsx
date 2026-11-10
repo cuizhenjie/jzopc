@@ -19,7 +19,7 @@ export default async function AdminLoginPage() {
   return (
     <div
       data-nav-theme="light"
-      className="relative flex min-h-[92vh] items-center justify-center overflow-hidden px-5 py-28"
+      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-28"
       // CSS 渐变兜底层：WebGL 不可用 / shader 挂载前的首帧画面（与 MeshGradient 同色系）
       style={{
         background: `linear-gradient(135deg, ${brand.navy} 0%, ${brand.navyDeep} 55%, ${brand.gradientFrom} 130%)`,

@@ -122,7 +122,7 @@ function selectorsOf(css: string): string[] {
 /** 从 HTML / TSX 源码里收集真实存在的类名。 */
 function classTokens(source: string): string[] {
   const tokens: string[] = [];
-  const pattern = /class(?:Name)?=\s*(?:"([^"]*)"|'([^']*)'|`([^`]*)`|\{\s*`([^`]*)`\s*\})/g;
+  const pattern = /class(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)'|`([^`]*)`|\{\s*`([^`]*)`\s*\})/g;
   for (const match of source.matchAll(pattern)) {
     const raw = match[1] ?? match[2] ?? match[3] ?? match[4] ?? '';
     // 模板字面量只取静态前缀（`mnav${open ? ' on' : ''}` → mnav）
@@ -155,6 +155,7 @@ function domClasses(): Set<string> {
     'src/components/layout/SiteChrome.tsx',
     'src/lib/opc/blocks-runtime.ts',
     'src/lib/opc/news-runtime.ts',
+    'src/lib/opc/hero-carousel.ts',
     'src/components/opc/ReferenceInteractions.tsx',
   ]) {
     for (const token of classTokens(read(file))) classes.add(token);
@@ -219,7 +220,7 @@ test('扩展样式补齐了参考站自身缺失的类（课程卡 / 就业流�
   for (const name of [
     'ac-crs', 'ac-crs__i', 'ac-flow', 'ac-fl', 'gw-band', 'gw-tb',
     'jblk', 'jben', 'jfl', 'jreq', 'nfig', 'nnotice', 'nsrc', 'ab-cap', 'chev',
-    'partner-wall', 'sd-board', 'sd-card', 'totop',
+    'partner-wall', 'totop',
   ]) {
     assert.ok(css.includes(`.${name}`), `扩展样式缺少 .${name}`);
   }

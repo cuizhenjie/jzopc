@@ -332,3 +332,12 @@ describe('表单提交反馈与输出安全', () => {
     assert.ok(!interactionSource.includes('joinOk.innerHTML'));
   });
 });
+
+
+describe('社区动态 · 整卡跳转而非折叠', () => {
+  test('客户端不再注册 nitem 折叠与 hash 展开行为', () => {
+    assert.ok(!interactionSource.includes("querySelectorAll<HTMLElement>('.nitem__hd')"));
+    assert.ok(!interactionSource.includes("document.querySelectorAll('.nitem.on')"));
+    assert.ok(!interactionSource.includes("target.classList.add('on')"));
+  });
+});

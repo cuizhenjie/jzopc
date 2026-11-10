@@ -83,26 +83,26 @@ begin
 end;
 $$;
 
--- 1. 表数量（0006 下线 site_contents 后为 11 张）
+-- 1. 表数量（0006 下线 site_contents 后为 11 张，0007 增加 home_banners 后为 12 张）
 select pg_temp.assert_true(
-  '11 张业务表全部创建（0004 的 admin_users 在内，site_contents 已下线）',
+  '12 张业务表全部创建（含 admin_users 与 home_banners，site_contents 已下线）',
   (select count(*) from information_schema.tables
-    where table_schema = 'public' and table_type = 'BASE TABLE') = 11
+    where table_schema = 'public' and table_type = 'BASE TABLE') = 12
 );
 
 -- 2. RLS 全部开启
 select pg_temp.assert_true(
-  '11 张表全部开启 RLS',
+  '12 张表全部开启 RLS',
   (select count(*) from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
-   where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity) = 11
+   where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity) = 12
 );
 
--- 3. 公开内容表各有一条 select 策略（site_contents 的策略随表级联删除）
+-- 3. 公开内容表各有一条 select 策略（site_contents 的策略随表级联删除；0007 增加 home_banners）
 select pg_temp.assert_true(
-  '9 张公开内容表各有一条 "public read *" 策略',
+  '10 张公开内容表各有一条 "public read *" 策略',
   (select count(*) from pg_policies
-    where schemaname = 'public' and policyname like 'public read %') = 9
+    where schemaname = 'public' and policyname like 'public read %') = 10
 );
 
 -- 4. 核心安全断言：leads 表没有任何策略
@@ -206,6 +206,26 @@ begin
     raise exception '[FAIL] anon 读 site_stats 应至少读到 1 行，实际 % 行', v;
   end if;
   raise notice '[PASS] anon 可读 site_stats（% 行）', v;
+end $$;
+
+-- anon 读首页 banner：已发布可见，未发布不可见
+insert into home_banners (image_url, alt, sort_order, published)
+values ('/opc/reference/img/hero-banner-smoke-hidden.jpg', 'smoke-hidden', 99, false);
+
+do $$
+declare v_pub int; v_hidden int;
+begin
+  perform set_config('role', 'anon', true);
+  select count(*) into v_pub from home_banners where image_url = '/opc/reference/img/hero-banner-1.jpg';
+  select count(*) into v_hidden from home_banners where alt = 'smoke-hidden';
+  perform set_config('role', 'postgres', true);
+  if v_pub <> 1 then
+    raise exception '[FAIL] anon 应能读到已发布的 hero-banner-1，实际 % 行', v_pub;
+  end if;
+  if v_hidden <> 0 then
+    raise exception '[FAIL] anon 不应读到未发布 banner，实际 % 行', v_hidden;
+  end if;
+  raise notice '[PASS] anon 只读已发布 home_banners';
 end $$;
 
 -- anon 读 news_posts：已发布的可见、未发布的不可见

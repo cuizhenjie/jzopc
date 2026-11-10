@@ -30,6 +30,7 @@ import { createClient } from '@supabase/supabase-js';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseReferenceNews } from './reference-news-content.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const dryRun = process.argv.includes('--dry-run');
@@ -84,40 +85,9 @@ function parseCourses() {
   }).filter((r) => r.title);
 }
 
-/** 参考站 /news 的折叠卡 → news_posts 行 */
+/** 参考站 /news → 保留完整 HTML 的 news_posts 行 */
 function parseNews() {
-  const html = pages['/news']?.html ?? '';
-  const articles = html.split(/<article class="nitem/).slice(1);
-  return articles.map((raw, index) => {
-    const body = raw.slice(0, raw.indexOf('</article>'));
-    const dateBlock = body.match(/<div class="nitem__date">([\s\S]*?)<\/div>/)?.[1] ?? '';
-    const day = stripTags(dateBlock.match(/<b>([\s\S]*?)<\/b>/)?.[1] ?? '');
-    const month = stripTags(dateBlock.match(/<span>([\s\S]*?)<\/span>/)?.[1] ?? '');
-    const cover = attr(body.match(/<div class="nitem__ph">([\s\S]*?)<\/div>/)?.[1] ?? '', 'src');
-    const bd = body.match(/<div class="nitem__bd">([\s\S]*?)<\/div>\s*<span class="nitem__more"/)?.[1] ?? '';
-    const category = stripTags(bd.match(/<span class="ntag">([\s\S]*?)<\/span>/)?.[1] ?? '');
-    const title = stripTags(bd.match(/<h3>([\s\S]*?)<\/h3>/)?.[1] ?? '');
-    const summary = stripTags(bd.match(/<p>([\s\S]*?)<\/p>/)?.[1] ?? '');
-    const bodyBlock = body.match(/<div class="nitem__body">([\s\S]*)$/)?.[1] ?? '';
-    const paragraphs = [...bodyBlock.matchAll(/<p(?![^>]*class="nsrc")[^>]*>([\s\S]*?)<\/p>/g)]
-      .map((m) => stripTags(m[1]))
-      .filter(Boolean);
-    const source = bodyBlock.match(/<p class="nsrc">([\s\S]*?)<\/p>/)?.[1] ?? '';
-    const sourceText = stripTags(source);
-    const sourceHref = attr(source.match(/<a[^>]*href="([^"]*)"/)?.[0] ?? '', 'href');
-    if (sourceText) paragraphs.push(`转载自：${sourceText}${sourceHref ? ` ${sourceHref}` : ''}`);
-    return {
-      slug: `opc-ref-${String(index + 1).padStart(2, '0')}`,
-      title,
-      summary,
-      category,
-      published_at: `${month}-${day.padStart(2, '0')}T09:00:00+08:00`,
-      cover_url: cover || null,
-      body: paragraphs,
-      status: 'published',
-      author: '集智 AI',
-    };
-  }).filter((r) => r.title);
+  return parseReferenceNews(pages['/news']?.html ?? '');
 }
 
 /* ── 备份 ──────────────────────────────────────────────────────────────── */

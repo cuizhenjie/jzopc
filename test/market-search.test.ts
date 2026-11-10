@@ -11,6 +11,7 @@
  *     → 旧站供需卡结构（supply-card / demand-card / data-opc-action）已下线；
  *       参考站的供需榜由后台 market_items 表接管（.sd-card），且参考站页面
  *       本身没有烘焙供需卡 —— 无可比对的产物；
+ *       （2026-11-10 起「社区供需榜」模块本身也已移除，详见下方断言）；
  *   - 「facetMatches（旧站供给/需求分类检索）」
  *     → 旧站的分类别名模型已随 interaction-model.ts 删除；
  *       智能体目录的新筛选规则是**分类 slug 同值比对**，见下；
@@ -258,10 +259,13 @@ describe('供需页 · 静态渲染红线', () => {
     assert.deepEqual(offenders, [], '这些文件手写了搜索输入框（筛选应统一走参考站语义）');
   });
 
-  test('供需榜的容器标记在产物里唯一存在', () => {
-    for (const marker of ['market-supply', 'market-demand']) {
+  test('供需榜已下线：产物里不再有供需榜的标记', () => {
+    // 2026-11-10 用户要求移除「COMMUNITY BOARD · 社区供需榜」模块，
+    // 供给/需求两列不再由 market_items 表接管展示。
+    for (const marker of ['market-supply', 'market-demand', 'market-items', 'market-board']) {
       const hits = (marketHtml.match(new RegExp(`data-opc-block="${marker}"`, 'g')) ?? []).length;
-      assert.equal(hits, 1, `${marker} 应恰好一次（实际 ${hits}）`);
+      assert.equal(hits, 0, `${marker} 不应再出现（实际 ${hits}）`);
     }
+    assert.ok(!marketHtml.includes('COMMUNITY BOARD'), '社区供需榜标题不得回归');
   });
 });
