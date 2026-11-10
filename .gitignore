@@ -63,9 +63,15 @@ webimages/
 .next-*/
 .next-traffic/
 
+# 数据库对齐前的整表备份（可回滚，不入库）
+.db-backup/
+
 # 本地 Supabase CLI 链接凭据痕迹（含 credential_ref，绝不入库）
 supabase/.temp/
 
 # 个人 portfolio 发布脚本的工作目录（scripts/publish-portfolio.sh 生成）
 .portfolio-src/
 .portfolio-dist/
+
+# 本地一次性调试脚本
+*.tmp.mjs

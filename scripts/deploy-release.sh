@@ -6,10 +6,10 @@
 #   bash deploy-release.sh <tarball> <release-id> [root-dir]
 #
 # 例：
-#   bash deploy-release.sh /tmp/jizhi-release/jizhi-abc123.tar.gz abc123 /opt/jizhi
+#   bash deploy-release.sh /tmp/jizhi-release/jizhi-abc123.tar.gz abc123 /data/app-home/jizhi
 #
 # ── 为什么是「切 symlink」而不是「覆盖文件」─────────────────────────────
-# 直接覆盖 /opt/jizhi/current 里的文件，会出现**新旧文件混在一起**的中间态：
+# 直接覆盖 /data/app-home/jizhi/current 里的文件，会出现**新旧文件混在一起**的中间态：
 # server.js 已换新、.next/server 还是旧的 → 运行时报错或返回诡异结果。
 # 正确做法是：每个版本解到独立目录 releases/<id>/，然后原子切 symlink：
 #   ln -sfn releases/<id> current.tmp && mv -Tf current.tmp current
@@ -30,7 +30,18 @@ set -euo pipefail
 
 TARBALL="${1:?用法: deploy-release.sh <tarball> <release-id> [root-dir]}"
 RELEASE_ID="${2:?用法: deploy-release.sh <tarball> <release-id> [root-dir]}"
-ROOT="${3:-/opt/jizhi}"
+ROOT="${3:-/data/app-home/jizhi}"
+
+[[ "$RELEASE_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || { echo '非法 release-id' >&2; exit 1; }
+[ "$(uname -s)" = Linux ] || { echo '发布必须在 Linux 执行' >&2; exit 1; }
+# 显式 SUDO='' 仅用于无提权的本地 fixture 测试；真实发布应 sudo 整个脚本。
+if [ "$(id -u)" -ne 0 ] && ! { [ "${SUDO+x}" = x ] && [ -z "$SUDO" ]; }; then
+    echo '请用 sudo 执行整个 deploy-release.sh' >&2
+    exit 1
+fi
+for command in node python3 flock; do
+    command -v "$command" >/dev/null || { echo "缺少命令：$command" >&2; exit 1; }
+done
 
 # 规范化部署根目录（解析符号链接）。
 #
@@ -45,7 +56,7 @@ ROOT="$(cd "$ROOT" && pwd -P)"
 APP_USER="${APP_USER:-jizhi}"
 PROCESS_MANAGER="${PROCESS_MANAGER:-systemd}"
 KEEP_RELEASES="${KEEP_RELEASES:-5}"
-APP_PORT="${APP_PORT:-3000}"
+APP_PORT="${APP_PORT:-4000}"
 SERVICE_NAME="${SERVICE_NAME:-jizhi}"
 HEALTH_ATTEMPTS="${HEALTH_ATTEMPTS:-30}"     # 健康检查重试次数
 HEALTH_INTERVAL="${HEALTH_INTERVAL:-2}"       # 重试间隔（秒）
@@ -59,42 +70,106 @@ log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[!]\033[0m %s\n' "$*"; }
 err()  { printf '\033[1;31m[x]\033[0m %s\n' "$*" >&2; }
 
-# 需要 root 的操作：写 /opt/jizhi、restart systemd。
-#
-# SUDO 的三态（用 ${SUDO+x} 判断「是否被设置」，不能用 ${SUDO:-}）：
-#   未设置    → 自动探测：有 sudo 就用 sudo，没有就报错退出
-#   设置为空 → 显式表示「不加提权前缀」（root 直连 / 自定义提权 / 本地测试）
-#   设置为值 → 直接用该值（如 "sudo -n"）
-#
-# 注意 ${SUDO:-} 做不到这件事：它把「未设置」和「显式空串」都变成空串，
-# 于是外部传 SUDO="" 也拦不住脚本自动加回 sudo。
-if [ "$(id -u)" -eq 0 ]; then
-    SUDO=""
-elif [ -n "${SUDO+x}" ]; then
-    :                                       # 外部已显式指定，尊重它
-elif command -v sudo >/dev/null 2>&1; then
-    SUDO="sudo"
-else
-    err "需要 root 或 sudo 权限（或显式设置 SUDO= 走自定义提权）"
+SUDO=""
+[[ "$KEEP_RELEASES" =~ ^[0-9]+$ ]] && [ "$KEEP_RELEASES" -ge 2 ] || { err 'KEEP_RELEASES 必须 >= 2'; exit 1; }
+exec 9>"$ROOT/.deploy.lock"
+flock -n 9 || { err '已有发布正在进行'; exit 1; }
+[ ! -e "$CURRENT" ] || [ -L "$CURRENT" ] || { err 'current 必须是符号链接'; exit 1; }
+if [ -e "$RELEASE_DIR" ] || [ -L "$RELEASE_DIR" ]; then
+    err "版本目录已存在，拒绝覆盖：$RELEASE_ID"
     exit 1
 fi
 
 # ── 1. 校验包完整性 ──────────────────────────────────────────────────────
 [ -f "$TARBALL" ] || { err "找不到发布包：$TARBALL"; exit 1; }
 
-if [ -f "$TARBALL.sha256" ]; then
-    log "校验 SHA256"
-    ( cd "$(dirname "$TARBALL")" && sha256sum -c "$(basename "$TARBALL").sha256" ) \
-        || { err "校验失败：发布包在传输中损坏，不要发布"; exit 1; }
-else
-    warn "没有 .sha256 文件，跳过校验"
-fi
+[ -f "$TARBALL.sha256" ] || { err "缺少 .sha256 文件，拒绝发布"; exit 1; }
+log "校验实际发布包的 SHA256"
+python3 - "$TARBALL" <<'PYHASH'
+import hashlib, os, re, sys
+archive = sys.argv[1]
+with open(archive + '.sha256', 'r', encoding='utf-8') as stream:
+    record = stream.read(4097)
+match = re.fullmatch(r'([0-9a-fA-F]{64}) [ *]([^\r\n]+)\n?', record)
+if not match or match[2] != os.path.basename(archive):
+    raise SystemExit('校验文件必须只有一条记录，且文件名必须匹配实际发布包')
+digest = hashlib.sha256()
+with open(archive, 'rb') as stream:
+    for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+        digest.update(chunk)
+if digest.hexdigest() != match[1].lower():
+    raise SystemExit('发布包 SHA256 不匹配，拒绝发布')
+PYHASH
+
+# 在解包前验证路径、链接和平台。允许 pnpm 的包内相对 symlink。
+python3 - "$TARBALL" "$RELEASE_ID" "$(node -p 'process.arch')" <<'PY'
+import json, posixpath, sys, tarfile
+archive, release_id, arch = sys.argv[1:]
+def fail(message):
+    raise SystemExit('发布包验证失败：' + message)
+def safe(name):
+    normalized = posixpath.normpath(name)
+    if name.startswith('/') or normalized == '..' or normalized.startswith('../'):
+        fail('路径越界')
+    if any(p == '.env' or p.startswith('.env.') for p in normalized.split('/')):
+        fail('包含环境文件')
+    return normalized
+with tarfile.open(archive, 'r:gz') as tar:
+    members = tar.getmembers()
+    paths = {}
+    links = set()
+    for item in members:
+        name = safe(item.name)
+        if name in paths:
+            fail('重复成员')
+        paths[name] = item
+        if not (item.isfile() or item.isdir() or item.issym() or item.islnk()):
+            fail('不支持的成员类型')
+        if item.issym() or item.islnk():
+            links.add(name)
+            target = item.linkname
+            if target.startswith('/'):
+                fail('绝对链接')
+            safe(posixpath.join(posixpath.dirname(name), target) if item.issym() else target)
+    for name in paths:
+        parent = posixpath.dirname(name)
+        while parent:
+            if parent in links:
+                fail('成员位于链接目录下')
+            parent = posixpath.dirname(parent)
+    # 按原始目标逐段检查；不能先 normpath，否则 pivot/../x 会隐藏链接跳转。
+    # pnpm 指向 .pnpm 下真实包目录的相对链接可用；经另一链接的目标一律拒绝。
+    # 此约束同时拒绝链接环与任意深度的链接链。
+    for name in links:
+        item = paths[name]
+        parts = posixpath.dirname(name).split('/') if item.issym() else []
+        parts = [part for part in parts if part and part != '.']
+        for part in item.linkname.split('/'):
+            if not part or part == '.':
+                continue
+            if part == '..':
+                if not parts:
+                    fail('链接解析后越界')
+                parts.pop()
+            else:
+                parts.append(part)
+                if '/'.join(parts) in links:
+                    fail('链接目标经过另一链接或存在循环')
+    metadata = paths.get('RELEASE-METADATA.json')
+    if not metadata or not metadata.isfile() or metadata.size > 16384:
+        fail('缺少或无效的发布元数据')
+    data = json.load(tar.extractfile(metadata))
+    if data.get('platform') != 'linux' or data.get('arch') != arch:
+        fail('平台或CPU架构不匹配')
+    if data.get('releaseId') != release_id:
+        fail('版本号与包内元数据不一致')
+PY
 
 # ── 2. 解包到独立版本目录 ───────────────────────────────────────────────
 log "解包 → $RELEASE_DIR"
-rm -rf "$RELEASE_DIR"
-mkdir -p "$RELEASE_DIR"
-tar -xzf "$TARBALL" -C "$RELEASE_DIR"
+mkdir -p "$RELEASES"
+mkdir "$RELEASE_DIR"
+tar --no-same-owner -xzf "$TARBALL" -C "$RELEASE_DIR"
 
 # 解包后必须真的有入口与静态资源。
 # 缺 server.js → 进程起不来；缺 .next/static → 整站白屏但 HTTP 仍是 200；
@@ -234,6 +309,7 @@ if [ -n "$OLD_LIST" ]; then
     while read -r d; do
         d="${d%/}"
         [ "$d" = "$CURRENT_REAL" ] && continue
+        [ "$d" = "$PREV_TARGET" ] && continue
         rm -rf "$d"
         log "已删除旧版本 $(basename "$d")"
     done <<< "$OLD_LIST"

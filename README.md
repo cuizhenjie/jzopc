@@ -1,6 +1,10 @@
-# OPC Store · 科技蓝全站复现
+# 集智 AI OPC 社区 · 全站复刻
 
-当前前台按用户于2026-10-22指定的 [OPC Store](https://opcstore.com/webNew/index.html#/) 复现公开布局与文案。包括20个页面模板、233个工具条目、44个南京社区与158条公开内容详情；导航、筛选、分页、弹窗及账号表单界面使用本地实现。
+生产部署：见 [Rocky 9 内网应用与跳板机 Nginx 部署](docs/20-Rocky9内网与跳板机部署.md)，对应 `www.jizhiai.net.cn`、`192.168.10.179:4000`、`/data/app-home/jizhi`。
+
+当前前台按用户于 2026-11-10 指定的参考站 [集智 AI OPC 社区](https://jizhi-ai-opc.app.workbuddy.host/) **全站复刻**：菜单、页面模块的文案与素材全部对齐参考站（首页 / 关于集智 / 大健康+AI / 八大赋能 / 供需发布 / 流量赋能 / 集智商学院 / 社区动态 / 申请入驻 共 10 个页面 + 8 个赋能详情页）。
+
+**动态维护能力保留**：智能体目录、课程体系、社区动态、供需榜、统计数字、生态伙伴与线索表单仍由后台数据库维护，前台按发布状态实时渲染；入驻意向表与供需发布表单直连后台线索接口。
 
 ```bash
 pnpm install
@@ -88,13 +92,15 @@ PG_BIN=/opt/homebrew/opt/postgresql@16/bin pnpm db:smoke
 | [`docs/09-生产环境复核报告.md`](docs/09-生产环境复核报告.md) | 对《整改优化开发 MVP 计划 v2》的**生产环境复核**：三轮实测、34 项声明逐条核验、13 处数字修订、5 条文档未覆盖的重要事实（生产已有活着的 R3F 粒子层 / 部署形态是 Coze FaaS 非 Docker / partners 页同样纯文字 / admin 后台未上线 / 路由已分叉） |
 | [`docs/10-代码审查与整改报告出入分析.md`](docs/10-代码审查与整改报告出入分析.md) | **代码层审查**：整改计划 S0–S5 逐项对代码现状，结论是「S0 代码早已修好、真正缺的是一次发布」；纠正原报告 2 处误判（S2-2 早已实现、JSON-LD 已绝对化）、列出 3 处漏判、给出修订排期与新的优先级排序 |
 | [`docs/06-视觉方案与3D动效规范.md`](docs/06-视觉方案与3D动效规范.md) | 视觉总纲、色彩系统、排版栅格、3D 粒子动效规范（含实测调优后的最终参数）、页面级视觉矩阵、组件规范、可访问性与验收清单 |
-| [`docs/12-OPC复刻站设计体系.md`](docs/12-OPC复刻站设计体系.md) | **OPC 复刻站的设计体系规范**：从「机器改色」升级为「有体系」—— 色彩/排版/间距/圆角四套 token、编辑式去居中化排版、品牌替换映射表与实施位置、**本站站点信息表**（电话/邮箱/地址/域名已按业务方提供的值落地，备案号未提供故不渲染）、**CSS Cascade 的九条实测坑**（`!important` 优先于特异性 / 同权重按加载顺序决胜 / **通用基线的选择器不能比定向覆盖更具体** / **注释块被拆断 = 整条规则静默丢弃** / **绝对定位 `left+right+width` 过度约束会忽略 `right`** / **`max-width` 不能覆盖 `width`** / **首页深底规则必须带 `:not(.scrolled)`** / **SSR 静态 HTML 里的 `el-carousel` 永不切换** / **留白不能 padding+margin 双重叠加**）、**死规则（类名写错 = 整段样式静默失效）**、对比度实测的方法修正与采样覆盖度、9 个零依赖验收脚本 |
+| [`docs/12-OPC复刻站设计体系.md`](docs/12-OPC复刻站设计体系.md) | **OPC 复刻站的设计体系规范**：从「机器改色」升级为「有体系」—— 色彩/排版/间距/圆角四套 token、编辑式去居中化排版、品牌替换映射表与实施位置、**本站站点信息表**（电话/邮箱/地址/域名/备案号均按业务方提供的值落地）、**CSS Cascade 的九条实测坑**（`!important` 优先于特异性 / 同权重按加载顺序决胜 / **通用基线的选择器不能比定向覆盖更具体** / **注释块被拆断 = 整条规则静默丢弃** / **绝对定位 `left+right+width` 过度约束会忽略 `right`** / **`max-width` 不能覆盖 `width`** / **首页深底规则必须带 `:not(.scrolled)`** / **SSR 静态 HTML 里的 `el-carousel` 永不切换** / **留白不能 padding+margin 双重叠加**）、**死规则（类名写错 = 整段样式静默失效）**、对比度实测的方法修正与采样覆盖度、9 个零依赖验收脚本 |
 | [`findings.md`](findings.md) | 从 docx 提取的原始事实、品牌色板实测值、**14 项内容缺口与矛盾清单**（G13 已补 docx 原文证据） |
 | [`task_plan.md`](task_plan.md) | 规划过程的任务清单与范围决策记录 |
 
 ## 已实现的页面
 
-`/` · `/about` `/about/history` `/about/audience` `/about/partners` · `/empower/[slug]`（8 个赋能页） · `/agents` `/agents/[slug]` · `/market` `/market/[slug]` · `/academy` `/academy/courses/[slug]` · `/news` `/news/[slug]` · `/traffic` · `/apply` · `/search`（站内搜索） · `/admin` `/admin/login` `/admin/leads` `/admin/news`（管理后台，管理员账号登录 + shader 背景层，noindex） · `/ops/leads`（旧看板 → 301 跳转 `/admin/leads`） · `/api/leads`（留资） · `/api/admin/session`（后台登录/登出） · `/api/admin/leads/[id]`（线索状态/备注/删除） · `/api/admin/leads/export`（线索 CSV） · `/api/admin/news[/id]`（新闻 CRUD） · `/api/search`（站内检索） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` · `not-found`
+`/` · `/about` · `/health` · `/empower` · `/empower/[slug]`（8 个赋能详情页） · `/market` · `/growth` · `/academy` · `/news` · `/newsdetail?id=` · `/agent` · `/apply` · `/admin` `/admin/login` `/admin/leads` `/admin/news` `/admin/agents` `/admin/courses` `/admin/market` `/admin/partners` `/admin/empower` `/admin/media` `/admin/site-stats` `/admin/accounts`（管理后台，管理员账号登录 + shader 背景层，noindex） · `/ops/leads`（旧看板 → 跳转 `/admin/leads`） · `/api/leads`（留资） · `/api/admin/*`（后台 CRUD） · `/api/opc/content`（文章只读） · `/api/og`（动态分享图 1200×630） · `sitemap.xml` `robots.txt` `llms.txt` · `not-found`
+
+旧链接一律 308 收敛：`/center→/academy`、`/traffic→/growth`、`/newslist→/news`、`/activitylist→/news`、`/join→/apply`.
 
 ## 质量基线（实测）
 
@@ -169,3 +175,17 @@ Next.js 15 (App Router) · React 19 · TypeScript · Tailwind v4 · Supabase (Po
 5. **对外主标**：「不只是八个服务，是一条从工位到订单的链」是否采用
 6. **价格与指标口径**（竞品审查 R9/R10）：工位费/免租时长/水电口径、四项指标的可核查口径
 7. **实机调研**（竞品审查 R1–R15）：同橙 opcstore 线上 Store 形态、OPC 社区官网存在情况、商业楼宇 3D 看楼能力
+
+## 参考站快照管线（2026-11-10）
+
+```bash
+pnpm reference:fetch   # 抓取参考站（需 sharecode）→ scripts/opc-reference/
+pnpm reference:build   # 编译 → src/lib/opc/generated/ 与 public/opc/reference/
+pnpm reference:seed    # 把参考站内容灌进后台表（幂等：已有数据就跳过）
+```
+
+- 事实源：`scripts/opc-reference/`（页面 + CSS + JS + 图片原件）
+- 编译产物：`src/lib/opc/generated/pages.json`（路由 → 标题 + HTML）
+- 运行时：`src/lib/opc/blocks-runtime.ts`（按 `data-opc-block` 标记把区块换成后台数据）、`src/lib/opc/news-runtime.ts`（社区动态列表与详情）
+- 样式：参考站样式表在编译期被加上 `.opc-site` 作用域前缀，公开站外壳是作用域根，**后台不受影响**
+- 契约文档：`docs/19-全站复刻与参考站快照管线.md`、`docs/17-区块运行时化契约.md`、`docs/14-动态内容契约.md`

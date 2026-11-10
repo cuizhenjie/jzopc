@@ -30,10 +30,12 @@
  */
 import { cpSync, existsSync, rmSync, statSync } from 'node:fs';
 import { readdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const nextDir = join(root, '.next');
+const distDir = process.env.NEXT_DIST_DIR || '.next';
+if (!/^\.next(?:-[A-Za-z0-9_-]+)?$/.test(distDir)) throw new Error('NEXT_DIST_DIR 必须是 .next 或 .next-* 单层目录');
+const nextDir = join(root, distDir);
 const standalone = join(nextDir, 'standalone');
 const deployDir = join(root, 'deploy');
 
@@ -55,18 +57,29 @@ for (const { path, hint } of REQUIRED) {
   if (!existsSync(path)) fail(`${path.replace(root + '/', '')} 不存在 —— ${hint}`);
 }
 
+const isEnvFile = (name) => name === '.env' || name.startsWith('.env.');
+const copyOptions = { recursive: true, verbatimSymlinks: true, filter: (source) => !isEnvFile(basename(source)) };
+
 // 2) 组装（先清空，避免上一版残留）
 rmSync(deployDir, { recursive: true, force: true });
-cpSync(standalone, deployDir, { recursive: true });
-cpSync(join(nextDir, 'static'), join(deployDir, '.next/static'), { recursive: true });
-cpSync(join(root, 'public'), join(deployDir, 'public'), { recursive: true });
+cpSync(standalone, deployDir, copyOptions);
+cpSync(join(nextDir, 'static'), join(deployDir, distDir, 'static'), copyOptions);
+cpSync(join(root, 'public'), join(deployDir, 'public'), copyOptions);
 
 // 3) 把进程守护配置一并带进部署目录（服务器只需这一个目录）
 const pm2Config = join(root, 'pm2.config.cjs');
-if (existsSync(pm2Config)) cpSync(pm2Config, join(deployDir, 'pm2.config.cjs'));
+if (existsSync(pm2Config)) cpSync(pm2Config, join(deployDir, 'pm2.config.cjs'), copyOptions);
+
+function assertNoEnvFiles(dir) {
+  for (const item of readdirSync(dir, { withFileTypes: true })) {
+    if (isEnvFile(item.name)) fail('部署目录不得包含环境文件');
+    if (item.isDirectory()) assertNoEnvFiles(join(dir, item.name));
+  }
+}
+assertNoEnvFiles(deployDir);
 
 // 4) 自检：static 目录不能是空的（空目录说明构建没产出客户端资源）
-const staticEntries = readdirSync(join(deployDir, '.next/static'));
+const staticEntries = readdirSync(join(deployDir, distDir, 'static'));
 if (staticEntries.length === 0) fail('deploy/.next/static 是空的 —— 客户端资源没打出来');
 
 function dirSize(dir) {
@@ -87,7 +100,7 @@ console.log(`   目录：deploy/`);
 console.log(`   体积：${dirSize(deployDir)} MB（含 standalone 最小 node_modules）`);
 console.log('');
 console.log('   服务器上启动：');
-console.log('     cd deploy && PORT=3000 HOSTNAME=127.0.0.1 NODE_ENV=production node server.js');
+console.log('     cd deploy && PORT=4000 HOSTNAME=0.0.0.0 NODE_ENV=production node server.js');
 console.log('');
 console.log('   用 pm2 守护（可选）：');
 console.log('     cd deploy && pm2 start pm2.config.cjs && pm2 save');
