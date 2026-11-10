@@ -372,7 +372,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* 「为什么选集智」深色块：整体高度压到原高约 3/4，并换成科技感底图 */
 .sec#why{
   padding:74px 0;
-  background:var(--night) url("../img/why-bg.jpg") center center/cover no-repeat;
+  background:var(--night) url("./img/why-bg.jpg") center center/cover no-repeat;
 }
 .sec#why::before{
   background:linear-gradient(180deg,rgba(5,12,34,.58) 0%,rgba(5,12,34,.12) 42%,rgba(5,12,34,.24) 74%,rgba(5,12,34,.80) 100%);

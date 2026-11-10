@@ -3,7 +3,7 @@
   "capturedBy": "scripts/fetch-opc-reference.mjs",
   "compiledBy": "scripts/build-opc-reference.mjs",
   "routeCount": 10,
-  "images": 26,
+  "images": 27,
   "checksums": {
     "/": "3167bc12815008fd",
     "/about": "4b6f17f126b1f5b3",

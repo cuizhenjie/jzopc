@@ -212,7 +212,7 @@ test('烘焙产物的 title 与参考站 <title> 逐字一致', () => {
 test('manifest 记录来源、路由数、素材数与逐页校验和', () => {
   assert.match(manifest.source, /^https:\/\/jizhi-ai-opc\.app\.workbuddy\.host\//);
   assert.equal(manifest.routeCount, Object.keys(pagesSource).length);
-  assert.equal(manifest.images, 26);
+  assert.equal(manifest.images, 27);
   for (const [path, page] of Object.entries(pagesSource)) {
     const digest = createHash('sha256').update(page.html).digest('hex').slice(0, 16);
     assert.equal(manifest.checksums[path], digest, `${path} 的校验和与产物不一致`);
