@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { ActionLink } from '@/components/admin/templates/page-actions';
 import { redirect } from 'next/navigation';
 import { isAdminAuthed } from '@/lib/admin/auth';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
 import { listMarketSubmissions } from '@/lib/admin/data';
 import AdminShell from '@/components/admin/AdminShell';
+import MarketSubmissionsActions from '@/components/admin/MarketSubmissionsActions';
 import MarketSubmissionsTable from '@/components/admin/MarketSubmissionsTable';
 
 export const metadata: Metadata = {
@@ -29,13 +29,8 @@ export default async function AdminMarketPage() {
     <AdminShell
       active="market"
       title="供需数据"
-      desc={`共 ${rows.length} 条提交，按时间倒序。数据来自 /market 前台的「发布需求 / 发布能力」表单；备注维护在线索列表。`}
       dbConfigured={isSupabaseConfigured()}
-      actions={
-        <ActionLink href="/admin/leads?type=market" variant="outline">
-          在线索列表查看
-        </ActionLink>
-      }
+      actions={<MarketSubmissionsActions />}
     >
       <div className="mt-1">
         <MarketSubmissionsTable rows={rows} />

@@ -86,19 +86,7 @@ export default function MarketSubmissionsTable({ rows }: { rows: AdminLeadRow[] 
   }
 
   if (list.length === 0) {
-    return (
-      <Empty
-        title="暂无供需提交"
-        description={
-          <>
-            /market 前台的「发布需求 / 发布能力」表单提交后会自动出现在这里。
-            若已提交但看不到，请检查 Supabase 连接与
-            <code className="mx-1 rounded bg-secondary px-1.5 py-0.5 text-[12px]">leads</code>
-            表配置。
-          </>
-        }
-      />
-    );
+    return <Empty title="暂无供需提交" />;
   }
 
   return (
