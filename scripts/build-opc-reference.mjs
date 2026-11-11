@@ -194,18 +194,27 @@ const SANITIZE_OPTIONS = {
 const RANDOM_ID = /^[A-Za-z0-9]{20,}$/;
 
 /**
- * 把「多选 chip」的包裹元素从 <span> 改成 <label>。
+ * 把入驻表单的「需要哪些赋能」多选 chip 升级为 .msel 多选组件（与供需发布同一套）。
  *
- * 参考站原文用 <span> 包裹 checkbox：**点文字不会勾选**，只能点 15px 的小方块，
- * 触控目标远小于 WCAG 2.2 SC 2.5.8 AA 的 24×24。
- * 改成 <label> 后整块 chip 都是点击热区（点文字即勾选），
- * 响应式审计里「input 位于 label 内」这一豁免也随之成立。
+ * 参考站原文用 <span> 内联样式包裹原生 checkbox，有三层问题：
+ *   ① 点文字不会勾选（span 不是可点击热区），原生 checkbox 只有 15px；
+ *   ② 选中态只有一圈细边框换色，视觉权重不足，用户看不出哪些已选；
+ *   ③ 与 /market 供需表单的 .msel 多选是两套长相，同站不同形。
+ * 这里在编译期整体重写为 .msel 结构（label.msel__opt + 隐藏 input + 自绘勾选框），
+ * 复用 main.css 的 .msel 样式：42px 触控热区、自绘 18px 勾选框、
+ * 选中整块高亮（蓝边 + 浅蓝底 + 光环），点文字即勾选。
  */
 function promoteCheckboxChips(html) {
-  return html.replace(
-    /<span style="display:inline-flex;align-items:center;gap:7px;font-size:13\.5px;font-weight:600;color:#42566E;background:#FCFDFF;border:1px solid #E4EBF5;border-radius:9px;padding:8px 13px;cursor:pointer;margin:0">(<input type="checkbox"[^>]*>)([^<]*)<\/span>/g,
-    '<label class="needchip">$1$2</label>',
+  let out = html.replace(
+    /<span style="display:inline-flex;align-items:center;gap:7px;font-size:13\.5px;font-weight:600;color:#42566E;background:#FCFDFF;border:1px solid #E4EBF5;border-radius:9px;padding:8px 13px;cursor:pointer;margin:0"><input type="checkbox" name="need" value="([^"]*)"[^>]*>([^<]*)<\/span>/g,
+    '<label class="msel__opt"><input type="checkbox" name="need" value="$1"><span class="msel__box" aria-hidden="true"></span><span class="msel__txt">$2</span></label>',
   );
+  // 包裹容器由内联样式换成 .msel 布局类，并补 group 语义（该内联串全站仅此处使用）
+  out = out.replace(
+    /<div style="display:flex;flex-wrap:wrap;gap:10px;padding-top:4px">/,
+    '<div class="msel" role="group" aria-label="需要哪些赋能（可多选）">',
+  );
+  return out;
 }
 
 /**
@@ -299,6 +308,118 @@ function stripScripts(html) {
     .replace(/\son[a-z]+="[^"]*"/gi, '')
     .replace(/\sdata-page-node-id="[^"]*"/gi, '')
     .replace(/\sdata-sp-[a-z-]+="[^"]*"/gi, '');
+}
+
+/**
+ * /market 首屏两个 CTA 与「发布需求 / 发布能力」双 Tab 建立锚点关联。
+ *
+ * 参考站原文两个按钮都指向 #publish，而 #publish 区块默认展示「发布能力」——
+ * 点「我要发布需求」落在供给表单上，需要手动切换（2026-11-11 审计问题 1）。
+ * 这里把两个 CTA 拆成 #publish-need / #publish-give 两个语义锚点；
+ * 区块本身保留 id="publish"（滚动定位不变），Tab 同步由 ReferenceInteractions
+ * 读 hash 完成（浏览器原生锚点滚动到不了这两个 hash，正好不会抢跳转）。
+ */
+function differentiatePublishCtas(html) {
+  return html
+    .replace(/href="#publish"(>我要发布需求)/g, 'href="#publish-need"$1')
+    .replace(/href="#publish"(>我能提供能力)/g, 'href="#publish-give"$1');
+}
+
+/**
+ * 入驻表单 7 个必填控件补 label for / id 关联（2026-11-11 审计问题 3）。
+ *
+ * 参考站原文的 <label> 是控件的**兄弟节点**且无 for 属性——视觉上有名称，
+ * 读屏器却读不出（accessible name 为空）。这里按 name 补 join-<name> 关联对：
+ *   type / team / contact / tel / track / size / intro
+ * 只匹配「无属性的 <label> 紧跟同字段控件」这一形态，不碰带 class 的
+ * chip/同意条款 label（它们是包裹式关联，本来就有效）。
+ */
+const JOIN_LABELLED_FIELDS = new Set(['type', 'team', 'contact', 'tel', 'track', 'size', 'intro']);
+
+/**
+ * 「无属性 <label> 紧跟同字段控件」补 for / id 关联的通用实现。
+ * 只匹配这一形态：带 class 的包裹式 label（chip / 同意条款 / msel 选项）
+ * 本来就有效，不会被碰到。
+ */
+function wireSiblingLabels(html, prefix, fields) {
+  return html.replace(
+    /<label>([^<]*(?:<i>\*<\/i>)?)<\/label>(\s*)<(input|select|textarea)([^>]*)>/g,
+    (full, text, gap, tag, attrs) => {
+      const name = /name="(\w+)"/.exec(attrs)?.[1];
+      if (!fields.has(name)) return full;
+      const id = `${prefix}${name}`;
+      return `<label for="${id}">${text}</label>${gap}<${tag} id="${id}"${attrs}>`;
+    },
+  );
+}
+
+function wireJoinFormLabels(html) {
+  return wireSiblingLabels(html, 'join-', JOIN_LABELLED_FIELDS);
+}
+
+/**
+ * /market 供需两表单的 label for / id 关联（2026-11-11，与入驻表单同类修复）。
+ *
+ * 两表单同名不同义（need.org 与 give.org），id 前缀按表单区分（need- / give-），
+ * 因此先切出各自的 <form> 块再关联，避免跨表单误配。
+ * 复选组（needtype / givetype / giveway）是包裹式 label + 分组 aria-label，无需处理。
+ */
+const MARKET_LABELLED_FIELDS = {
+  need: new Set(['org', 'oneline', 'contact', 'tel', 'detail', 'budget', 'when']),
+  give: new Set(['org', 'oneline', 'contact', 'tel', 'product', 'boundary', 'price', 'when', 'scope']),
+};
+
+function wireMarketFormLabels(html) {
+  return html.replace(
+    /<form\b[^>]*id="(sdNeed|sdGive)"[^>]*>[\s\S]*?<\/form>/g,
+    (full, formId) => wireSiblingLabels(
+      full,
+      formId === 'sdNeed' ? 'need-' : 'give-',
+      MARKET_LABELLED_FIELDS[formId === 'sdNeed' ? 'need' : 'give'],
+    ),
+  );
+}
+
+/**
+ * /market 提交按钮「生成发布卡片」→「提交」（2026-11-11 需求）。
+ * 按钮内还有箭头 svg，只替换文本节点本身。
+ */
+function renameMarketSubmitButton(html) {
+  return html.replace(/>生成发布卡片</g, '>提交<');
+}
+
+/**
+ * 删除 /market 提交按钮旁的「发布免费」提示（2026-11-11 需求）：
+ *   「发布免费 · 不成交不收费」「发布免费 · 上架不收坑位费」
+ * （第一条末尾带零宽字符，用 [^<]* 兜住。）
+ */
+function removeMarketFreeHints(html) {
+  // 源文件里 need 表单的 hint 带空 style="" 属性，give 表单没有——容忍可选属性
+  return html.replace(/<span class="sdacts__hint"(?:\s[^>]*)?>\s*发布免费[^<]*<\/span>/g, '');
+}
+
+/**
+ * /market 手机号字段的错误提示原文是「请填写联系方式」，
+ * 与服务端实际校验（11 位手机号，contactType=phone）不一致——
+ * 改成准确口径，客户端格式拦截（ReferenceInteractions）共用同一句话。
+ */
+function clarifyMarketTelError(html) {
+  return html.replace(/>请填写联系方式</g, '>请填写有效的 11 位手机号<');
+}
+
+/**
+ * 「同意条款」文案里的公约与入驻须知变成可打开的链接（2026-11-11 审计问题 2）。
+ *
+ * 参考站原文要求勾选「已阅读并同意《公约》与入驻须知」，但两份文件全站
+ * 无处可看。这里分别链到 /agreement 页的两个锚点；新开标签页打开，
+ * 不打断正在填写的表单。链接在 <label> 内部：按 HTML 规范，点 label 内的
+ * 交互元素不会触发勾选，不存在「点链接误勾同意」的副作用。
+ */
+function wireAgreementLinks(html) {
+  return html.replace(
+    /《集智 AI OPC 空间使用公约》与入驻须知/,
+    '<a href="/agreement#covenant" target="_blank">《集智 AI OPC 空间使用公约》</a>与<a href="/agreement#notice" target="_blank">入驻须知</a>',
+  );
 }
 
 /** 随机 id 属性去掉；语义锚点保留。 */
@@ -569,6 +690,21 @@ function compilePage(route) {
   html = promoteCheckboxChips(html);
   html = promoteAgreeCheckbox(html);
   html = correctMarketFormNote(html);
+  html = differentiatePublishCtas(html);
+  // 入驻表单两处修正只作用于 /apply：market 表单有同名字段（contact/tel），
+  // 不能让 name 匹配跨页误伤。
+  if (route.path === '/apply') {
+    html = wireJoinFormLabels(html);
+    html = wireAgreementLinks(html);
+  }
+  // /market 的四处修正同样只作用于本页：改名 / 删提示 / 改错误文案 /
+  // 补 label 关联（两表单同名不同义，wireMarketFormLabels 内部按表单分块处理）。
+  if (route.path === '/market') {
+    html = wireMarketFormLabels(html);
+    html = renameMarketSubmitButton(html);
+    html = removeMarketFreeHints(html);
+    html = clarifyMarketTelError(html);
+  }
   html = moveJoinOkOutsideForm(html);
   html = normalizeBooleanAttrs(html);
   if (route.path === '/news') html = removeNewsSubscribeCard(html);

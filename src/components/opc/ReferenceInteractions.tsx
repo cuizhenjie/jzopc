@@ -228,8 +228,15 @@ export default function ReferenceInteractions({ route }: { route: string }) {
     const validateSd = (form: HTMLFormElement, isNeed: boolean): boolean => {
       let ok = true;
       form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[required]').forEach((el) => {
-        ok = markBad(el, !(el.value ?? '').trim()) && ok;
+        // select 的占位项「请选择」value 非空，普通空值检查拦不住——按未选处理
+        const placeholderSelected = el instanceof HTMLSelectElement && el.value === '请选择';
+        ok = markBad(el, placeholderSelected || !(el.value ?? '').trim()) && ok;
       });
+      // 服务端按 11 位手机号校验（contactType=phone），这里提前拦截，避免提交后才报错
+      const tel = form.querySelector<HTMLInputElement>('[name="tel"]');
+      if (tel && tel.value.trim() && !/^1[3-9]\d{9}$/.test(tel.value.trim())) {
+        ok = markBad(tel, true) && ok;
+      }
       const detail = form.querySelector<HTMLTextAreaElement>(isNeed ? '[name="detail"]' : '[name="product"]');
       if (detail) ok = markBad(detail, (detail.value ?? '').trim().length < 20) && ok;
       const group = isNeed ? 'needtype' : 'givetype';
@@ -263,19 +270,49 @@ export default function ReferenceInteractions({ route }: { route: string }) {
     const buildSdCard = (form: HTMLFormElement, isNeed: boolean): string =>
       buildMarketCardText(isNeed ? 'need' : 'give', sdValues(form, isNeed));
 
+    const selectSdTab = (kind: 'need' | 'give') => {
+      sdTabs.forEach((other) => {
+        const on = (other.getAttribute('data-sd') ?? '') === kind;
+        other.classList.toggle('on', on);
+        other.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      if (sdForms.need) sdForms.need.hidden = kind !== 'need';
+      if (sdForms.give) sdForms.give.hidden = kind !== 'give';
+      if (sdOut) sdOut.hidden = true;
+    };
+
     sdTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
-        const current = tab.getAttribute('data-sd');
-        sdTabs.forEach((other) => {
-          const on = other === tab;
-          other.classList.toggle('on', on);
-          other.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-        if (sdForms.need) sdForms.need.hidden = current !== 'need';
-        if (sdForms.give) sdForms.give.hidden = current !== 'give';
-        if (sdOut) sdOut.hidden = true;
+        selectSdTab(tab.getAttribute('data-sd') === 'give' ? 'give' : 'need');
       });
     });
+
+    /* ---------- 供需 Tab 与入口锚点同步（#publish-need / #publish-give） ----------
+     * 首屏两个 CTA 由编译期拆成两个语义锚点（见 build-opc-reference.mjs），
+     * 这里让 hash 决定初始 Tab：点「我要发布需求」直达需求表单。
+     * 浏览器原生锚点滚动找不到这两个 id（区块仍是 #publish），不会抢跳转，
+     * 滚动定位统一交给这里的 scrollIntoView。 */
+    const SD_HASH_TABS: Record<string, 'need' | 'give'> = {
+      '#publish-need': 'need',
+      '#publish-give': 'give',
+    };
+    const applySdHash = () => {
+      const kind = SD_HASH_TABS[window.location.hash];
+      if (!kind) return;
+      selectSdTab(kind);
+      document.getElementById('publish')?.scrollIntoView({ behavior: 'smooth' });
+    };
+    applySdHash();
+    window.addEventListener('hashchange', applySdHash);
+    document
+      .querySelectorAll<HTMLAnchorElement>('a[href="#publish-need"], a[href="#publish-give"]')
+      .forEach((cta) => {
+        cta.addEventListener('click', (event) => {
+          event.preventDefault();
+          window.history.pushState(null, '', cta.getAttribute('href'));
+          applySdHash();
+        });
+      });
 
     const setSdStatus = (status: string, note: string, failed = false) => {
       const statusEl = sdOut?.querySelector('.sdout__hd span');
@@ -303,7 +340,7 @@ export default function ReferenceInteractions({ route }: { route: string }) {
           sdOut.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         setSdStatus('正在提交后台，请稍候…', '提交完成前请勿重复操作。');
-        const originalLabel = button?.textContent?.trim() || '生成发布卡片';
+        const originalLabel = button?.textContent?.trim() || '提交';
         if (button) {
           button.disabled = true;
           button.textContent = '提交中…';
@@ -445,7 +482,11 @@ export default function ReferenceInteractions({ route }: { route: string }) {
       });
     }
 
-    return mountHeroCarousel(document);
+    const cleanupHero = mountHeroCarousel(document);
+    return () => {
+      window.removeEventListener('hashchange', applySdHash);
+      cleanupHero();
+    };
   }, [route]);
 
   return null;

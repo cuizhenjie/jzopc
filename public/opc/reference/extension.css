@@ -206,16 +206,8 @@
 .opc-site .totop.on{opacity:1;visibility:visible;transform:translateY(0)}
 .opc-site .totop svg{width:20px;height:20px}
 
-/* ---------- 入驻页：多选 chip（编译期已由 <span> 提升为 <label>）---------- */
-.opc-site .needchip{
-  display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:#42566E;
-  background:#FCFDFF;border:1px solid #E4EBF5;border-radius:9px;padding:8px 13px;cursor:pointer;
-  min-height:24px;transition:border-color .2s,background .2s;
-}
-.opc-site .needchip:hover{border-color:#BFD8F6;background:#F6F9FD}
-.opc-site .needchip:has(input:checked){border-color:#2F7BFF;background:rgba(47,123,255,.06);color:#1E63E8}
-.opc-site .needchip input{width:16px;height:16px;margin:0;accent-color:#2F7BFF;flex:0 0 auto}
-.opc-site .needchip:focus-within{outline:2px solid rgba(46,130,200,.45);outline-offset:2px}
+/* 入驻页「需要哪些赋能」多选已于 2026-11-11 换用参考站的 .msel 组件
+   （main.css，与供需发布同一套），.needchip 规则随之删除。 */
 /* 同意条款：整行都是点击热区（参考站原文点文字不勾选） */
 .opc-site .agree-check{
   display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#5B6B82;
@@ -361,34 +353,22 @@
   .opc-site .hero__nav--next{right:10px}
   .opc-site .hero__steps{bottom:16px;max-width:calc(100% - 128px)}
 }
-/* 横幅第三行是静态事实句。不放进 home-stats，统计数字查询失败时不会把这行清掉。 */
-.opc-site .hero__meta{
-  margin:16px auto 0;
-  max-width:980px;
-  padding:0 8px;
-  font-size:clamp(14px,1.55vw,18px);
-  font-weight:600;
-  line-height:1.65;
-  letter-spacing:.02em;
-  color:rgba(222,234,246,.92);
-  text-align:center;
-}
 
 /* ---------- 动效评审优化（2026-11-10，motion-taste-checklist 评审落地）----------
    全部追加在文件末尾：同特异性下后写者胜，不改动上面既有规则块，
    也不触碰 main.css 烘焙源，因此无需重建 pages.json。 */
 
-/* B2 首屏内容入场编排：主标题 → 定位行 → 事实句 → CTA → 数据条，
-   共用一条曲线、阶梯延迟，进场顺序与视觉层级一致 */
+/* B2 首屏内容入场编排：主标题 → 定位行 → CTA → 数据条，
+   共用一条曲线、阶梯延迟，进场顺序与视觉层级一致。
+   （hero__meta 静态事实句已删，2026-11-11；四项事实并入 home-stats 数字墙） */
 @keyframes opcRiseIn{
   from{opacity:0;transform:translateY(18px)}
   to{opacity:1;transform:none}
 }
 .opc-site .hero__in > .slogan{animation:opcRiseIn .8s .08s cubic-bezier(.2,.7,.3,1) both}
 .opc-site .hero__in > .hero__pos{animation:opcRiseIn .8s .22s cubic-bezier(.2,.7,.3,1) both}
-.opc-site .hero__in > .hero__meta{animation:opcRiseIn .8s .36s cubic-bezier(.2,.7,.3,1) both}
-.opc-site .hero__in > .hero__acts{animation:opcRiseIn .8s .5s cubic-bezier(.2,.7,.3,1) both}
-.opc-site .hero__in > .hero__stats{animation:opcRiseIn .8s .62s cubic-bezier(.2,.7,.3,1) both}
+.opc-site .hero__in > .hero__acts{animation:opcRiseIn .8s .36s cubic-bezier(.2,.7,.3,1) both}
+.opc-site .hero__in > .hero__stats{animation:opcRiseIn .8s .5s cubic-bezier(.2,.7,.3,1) both}
 
 /* A9/A10 轮播切换升级：去掉交叉淡出的叠化感，改为轻推近+淡入，
    class 重挂即重启动画，纯 CSS 实现，hero-carousel.ts 无需改动 */

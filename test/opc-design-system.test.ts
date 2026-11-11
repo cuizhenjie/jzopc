@@ -246,19 +246,26 @@ test('交互控件自身的触控区不小于 24px', () => {
   const css = read(EXTENSION_CSS);
   const rules = rulesOf(css);
   // 我们在扩展样式里自己写的交互控件
-  const controls = ['totop', 'needchip', 'agree-check'];
+  const controls = ['totop', 'agree-check'];
   for (const control of controls) {
     const own = rules.find((rule) => rule.selector.endsWith(`.${control}`));
     assert.ok(own, `扩展样式缺少 .${control} 的规则`);
-    const box = /(?:^|;)\s*(?:min-)?(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px/.exec(own!.body);
+    const box = own!.body.match(/(?:^|;)\s*(?:min-)?(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px/);
     assert.ok(box, `.${control} 必须显式声明触控尺寸`);
     assert.ok(Number(box![1]) >= 24, `.${control} 的触控区只有 ${box![1]}px`);
   }
+  // .msel__opt（供需发布 / 入驻表单共用的多选组件）在参考站样式里，同样守 24px
+  const mainRules = rulesOf(read(MAIN_CSS));
+  const msel = mainRules.find((rule) => rule.selector.endsWith('.msel__opt'));
+  assert.ok(msel, '参考站样式缺少 .msel__opt 的规则');
+  const mselBox = msel!.body.match(/(?:^|;)\s*(?:min-)?(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px/);
+  assert.ok(mselBox, '.msel__opt 必须显式声明触控尺寸');
+  assert.ok(Number(mselBox![1]) >= 24, `.msel__opt 的触控区只有 ${mselBox![1]}px`);
 });
 
 test('小于 24px 的尺寸只落在控件内部的装饰元素上，不落在控件本体', () => {
   const css = read(EXTENSION_CSS);
-  const controls = new Set(['totop', 'needchip', 'agree-check', 'btn', 'chip', 'button', 'a']);
+  const controls = new Set(['totop', 'agree-check', 'btn', 'chip', 'button', 'a']);
   const offenders: string[] = [];
   for (const rule of rulesOf(css)) {
     for (const match of rule.body.matchAll(/(?:^|;)\s*(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px/g)) {

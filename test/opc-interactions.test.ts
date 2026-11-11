@@ -376,6 +376,69 @@ describe('社区动态 · 整卡跳转而非折叠', () => {
   test('客户端不再注册 nitem 折叠与 hash 展开行为', () => {
     assert.ok(!interactionSource.includes("querySelectorAll<HTMLElement>('.nitem__hd')"));
     assert.ok(!interactionSource.includes("document.querySelectorAll('.nitem.on')"));
-    assert.ok(!interactionSource.includes("target.classList.add('on')"));
+    assert.ok(!interactionSource.includes('target.classList.add(\'on\')'));
+  });
+});
+
+describe('供需 Tab 与入口锚点同步', () => {
+  test('#publish-need / #publish-give 驱动初始 Tab（修复入口错位）', () => {
+    // 2026-11-11：首屏「我要发布需求」落在默认供给 Tab 的错位修复——
+    // 两个 CTA 的语义锚点由编译期拆出，客户端必须消费它们。
+    assert.ok(interactionSource.includes("'#publish-need': 'need'"), 'hash → 需求 Tab 的映射缺失');
+    assert.ok(interactionSource.includes("'#publish-give': 'give'"), 'hash → 供给 Tab 的映射缺失');
+    assert.ok(interactionSource.includes('applySdHash()'), '挂载时必须应用一次 hash 状态');
+    assert.ok(
+      interactionSource.includes("window.addEventListener('hashchange', applySdHash)"),
+      'hash 变化必须同步 Tab',
+    );
+  });
+});
+
+describe('供需表单校验加固（select 占位项 / 手机号格式）', () => {
+  test('「请选择」占位项按未选处理，不再骗过必填检查', () => {
+    // select 的占位 <option>请选择</option> value 非空，空值检查拦不住：
+    // 原实现允许带着「请选择」直接提交，文案里会出现「预算 / 方式：请选择」。
+    assert.ok(
+      interactionSource.includes("el.value === '请选择'"),
+      'select 占位项判定缺失',
+    );
+  });
+
+  test('提交前拦截非 11 位手机号（与服务端 contactType=phone 对齐）', () => {
+    // 服务端 validateContact 按 /^1[3-9]\d{9}$/ 拒绝非手机号，
+    // 客户端提前拦截，避免用户提交后才在结果卡里看到失败。
+    const guards = [...interactionSource.matchAll(/1\[3-9\]\\d\{9\}/g)];
+    assert.ok(guards.length >= 2, '供需与入驻表单都应有手机号格式拦截');
+  });
+});
+
+describe('幂等键：重复提交不重复入库', () => {
+  test('供需载荷携带内容指纹幂等键：同内容同键、改内容换键、键长合规', () => {
+    const base = buildMarketLeadPayload('need', marketValues);
+    const again = buildMarketLeadPayload('need', { ...marketValues });
+    assert.ok(base.idempotencyKey, '供需载荷必须携带幂等键');
+    assert.equal(again.idempotencyKey, base.idempotencyKey, '同内容同键（重复点击被服务端去重）');
+    assert.notEqual(
+      buildMarketLeadPayload('need', { ...marketValues, detail: '换一个需求描述，长度超过二十个字' }).idempotencyKey,
+      base.idempotencyKey,
+      '内容变了要换键（不同诉求各自入库）',
+    );
+    assert.notEqual(
+      buildMarketLeadPayload('give', marketValues).idempotencyKey,
+      base.idempotencyKey,
+      '需求与供给是不同场景，键要区分',
+    );
+    assert.ok((base.idempotencyKey ?? '').length <= 80, '键长不得超过后台 schema 上限 80');
+  });
+
+  test('入驻载荷同样携带幂等键（同内容同键、改内容换键）', () => {
+    const base = buildApplyLeadPayload(applyValues);
+    assert.ok(base.idempotencyKey, '入驻载荷必须携带幂等键');
+    assert.equal(buildApplyLeadPayload({ ...applyValues }).idempotencyKey, base.idempotencyKey);
+    assert.notEqual(
+      buildApplyLeadPayload({ ...applyValues, intro: '做 AI 客服，给连锁药店用（改）' }).idempotencyKey,
+      base.idempotencyKey,
+    );
+    assert.ok((base.idempotencyKey ?? '').length <= 80);
   });
 });

@@ -111,6 +111,20 @@ export interface LeadPayload {
   sourceRef: string;
   /** 表单原始取值（仅供需发布表单携带），入库 leads.form_payload 供后台结构化展示。 */
   formPayload?: Record<string, unknown>;
+  /**
+   * 幂等键：内容指纹（场景 + 手机号 + message 哈希）。
+   * 服务端 leads.idempotency_key 是全局部分唯一索引，30 分钟窗口内
+   * 同键视为同一次提交（重复点击 / 网络重试）不重复入库；窗口外
+   * 换新键落库（见 /api/leads 的 handleIdempotencyConflict）。
+   */
+  idempotencyKey?: string;
+}
+
+/** 稳定短哈希（djb2）——仅用于幂等键的内容指纹派生，非安全用途。 */
+function shortHash(input: string): string {
+  let h = 5381;
+  for (let i = 0; i < input.length; i += 1) h = ((h << 5) + h + input.charCodeAt(i)) >>> 0;
+  return h.toString(36);
 }
 
 /** 「需要哪些赋能」在 message 里的固定行首。 */
@@ -127,6 +141,9 @@ export const APPLY_NEEDS_LINE_PREFIX = '需要哪些赋能：';
  */
 export function buildApplyLeadPayload(values: ApplyFormValues): LeadPayload {
   const needs = (values.need ?? []).map((item) => item.trim()).filter(Boolean);
+  const message = [values.intro.trim(), needs.length ? `${APPLY_NEEDS_LINE_PREFIX}${needs.join('、')}` : '']
+    .filter(Boolean)
+    .join('\n');
   return {
     leadType: APPLY_LEAD_TYPE,
     name: values.contact.trim(),
@@ -136,12 +153,11 @@ export function buildApplyLeadPayload(values: ApplyFormValues): LeadPayload {
     subjectType: mapApplySubjectType(values.type),
     teamSize: mapApplyTeamSize(values.size),
     track: values.track.trim(),
-    message: [values.intro.trim(), needs.length ? `${APPLY_NEEDS_LINE_PREFIX}${needs.join('、')}` : '']
-      .filter(Boolean)
-      .join('\n'),
+    message,
     agreeTerms: values.agree === true,
     sourcePage: '/apply',
     sourceRef: 'join-form',
+    idempotencyKey: `ap:${values.tel.trim()}:${shortHash(message)}`,
   };
 }
 
@@ -218,6 +234,7 @@ export function buildMarketCardText(kind: MarketFormKind, values: MarketFormValu
  * 供 /admin/market 结构化展示——不从 message 文案反解。
  */
 export function buildMarketLeadPayload(kind: MarketFormKind, values: MarketFormValues): LeadPayload {
+  const message = buildMarketCardText(kind, values);
   return {
     leadType: MARKET_LEAD_TYPE,
     name: values.contact.trim() || '社区成员',
@@ -225,10 +242,11 @@ export function buildMarketLeadPayload(kind: MarketFormKind, values: MarketFormV
     contact: values.tel.trim(),
     orgName: values.org.trim(),
     subjectType: '团队',
-    message: buildMarketCardText(kind, values),
+    message,
     sourcePage: '/market',
     sourceRef: kind === 'need' ? 'market:need' : 'market:give',
     formPayload: { kind, ...values },
+    idempotencyKey: `mk:${kind}:${values.tel.trim()}:${shortHash(message)}`,
   };
 }
 

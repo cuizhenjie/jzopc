@@ -68,8 +68,22 @@ const REFERENCE_SOURCE: Record<string, string> = {
   '/agent': 'agent.html',
 };
 
-/** 已声明的公开路由（烘焙快照里的 10 条 + DB 驱动的 /newsdetail）。 */
-const PUBLIC_ROUTES: Set<string> = new Set(replicaPaths);
+/** 已声明的公开路由（烘焙快照里的 10 条 + DB 驱动的 /newsdetail + React 静态页 /agreement）。 */
+const PUBLIC_ROUTES: Set<string> = new Set([...replicaPaths, '/agreement']);
+
+/**
+ * 行为锚点：hash 不对应任何 DOM id，由 ReferenceInteractions 读 hash 驱动交互。
+ * 供需页两个首屏 CTA 拆成 #publish-need / #publish-give（2026-11-11 修复
+ * 「我要发布需求」落到供给 Tab 的入口错位；区块滚动锚点仍是 #publish）。
+ */
+const BEHAVIORAL_FRAGMENTS: Record<string, Set<string>> = {
+  '/market': new Set(['publish-need', 'publish-give']),
+};
+
+/** React 静态页的锚点不进烘焙 DOM，锚点清单与页面组件同步维护。 */
+const REACT_PAGE_ANCHORS: Record<string, Set<string>> = {
+  '/agreement': new Set(['covenant', 'notice']),
+};
 
 /** 参考站外壳类名 —— 出现在正文里就说明「第二个导航」漏进来了。 */
 const SHELL_CLASSES = ['nav', 'menu', 'mlink', 'drop', 'burger', 'mnav', 'ft', 'ft__links', 'ft__ct', 'brand'];
@@ -149,8 +163,10 @@ test('站内链接只指向已声明的公开路由或该页真实存在的锚�
       const targetPath = target || path;
       assert.ok(PUBLIC_ROUTES.has(targetPath), `${path} 的站内链接指向未声明路由：${href}`);
       if (fragment) {
+        const known =
+          REACT_PAGE_ANCHORS[targetPath] ?? idsOf(targetPath);
         assert.ok(
-          idsOf(targetPath).has(fragment),
+          BEHAVIORAL_FRAGMENTS[targetPath]?.has(fragment) || known.has(fragment),
           `${path} 的站内链接指向不存在的锚点：${href}`,
         );
       }
@@ -246,10 +262,10 @@ test('参考站关键区块的内容在烘焙产物里完整保留', () => {
   const home = pagesSource['/'].html;
   assert.match(home, /集智 · 大健康\+<em>AI<\/em> OPC 社区/);
   assert.match(home, /集智OPC社区 {2}\| 健康管理 · AI赋能 · <span class="nowrap">社区连接<\/span>/);
-  assert.match(home, /<p class="hero__meta">3000\+ m² 首期空间　·　5 个月 工位免租期　·　8 大 赋能体系　·　4 类 订单来源<\/p>/);
   const heroEnd = home.indexOf('</section>');
   const hero = home.slice(0, heroEnd);
-  assert.ok(hero.indexOf('class="hero__meta"') < hero.indexOf('data-opc-block="home-stats"'));
+  // hero__meta 一行文案已删：首屏只留 slogan、定位语与统计数字墙（site_stats 动态注入）
+  assert.doesNotMatch(hero, /hero__meta|首期空间　·|工位免租期　·/);
   assert.doesNotMatch(hero, /首期 3000\+ ㎡ 共享空间|“八大赋能”助力|大健康垂类AI OPC社区/);
   assert.match(home, /八大赋能/);
   assert.match(home, /订单市场/);
@@ -291,9 +307,22 @@ test('动态区块的 data-opc-block 标记在目标页恰好出现一次', () =
 test('需要接后台的交互节点（表单 / 智能体目录）在产物里唯一存在', () => {
   const idsOf = (path: string) =>
     new Set([...pagesSource[path].html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
-  assert.deepEqual([...idsOf('/apply')].sort(), ['joinForm', 'joinOk']);
+  // join-* 是 7 个必填控件的 label 关联 id（编译期 wireJoinFormLabels），
+  // 与交互节点一并断言唯一存在。
+  assert.deepEqual([...idsOf('/apply')].sort(), [
+    'join-contact', 'join-intro', 'join-size', 'join-team', 'join-tel', 'join-track', 'join-type',
+    'joinForm', 'joinOk',
+  ]);
   assert.deepEqual([...idsOf('/agent')].sort(), ['agentChips', 'agentCount', 'agentGrid', 'agentMore', 'agentSearch']);
-  assert.deepEqual([...idsOf('/market')].sort(), ['publish', 'sdCopy', 'sdGive', 'sdNeed', 'sdOut', 'sdText']);
+  // need-*/give-* 是供需两表单的 label 关联 id（编译期 wireMarketFormLabels，
+  // 两表单同名不同义，前缀按表单区分）。
+  assert.deepEqual([...idsOf('/market')].sort(), [
+    'give-boundary', 'give-contact', 'give-oneline', 'give-org', 'give-price',
+    'give-product', 'give-scope', 'give-tel', 'give-when',
+    'need-budget', 'need-contact', 'need-detail', 'need-oneline', 'need-org',
+    'need-tel', 'need-when',
+    'publish', 'sdCopy', 'sdGive', 'sdNeed', 'sdOut', 'sdText',
+  ]);
 });
 
 test('供需页初始只展示供给表单，需求表单与结果卡保留 hidden 状态', () => {
@@ -310,6 +339,88 @@ test('供需结果卡不再宣称是静态演示，说明与真实后台提交�
   const html = pagesSource['/market'].html;
   assert.ok(!html.includes('这是静态演示版'));
   assert.ok(html.includes('运营审核'));
+});
+
+test('供需首屏 CTA 与双 Tab 一一对应（#publish-need / #publish-give）', () => {
+  // 2026-11-11 修复入口错位：两个 CTA 原本都指向 #publish，落在默认的供给 Tab。
+  const html = pagesSource['/market'].html;
+  assert.ok(html.includes('href="#publish-need">我要发布需求'), '需求 CTA 应指向 #publish-need');
+  assert.ok(html.includes('href="#publish-give">我能提供能力'), '能力 CTA 应指向 #publish-give');
+  // 不得残留无语义的 #publish 直链；区块滚动锚点 id="publish" 本身保留
+  assert.ok(!html.includes('href="#publish">'), 'CTA 不得再直链 #publish');
+});
+
+test('供需两表单的 label for / id 关联按表单前缀配对', () => {
+  // 2026-11-11 与入驻表单同类的读屏可访问性修复：
+  // 两表单同名不同义（need.org ≠ give.org），前缀按表单区分。
+  const html = pagesSource['/market'].html;
+  const forms = [...html.matchAll(/<form\b[^>]*id="(sdNeed|sdGive)"[^>]*>([\s\S]*?)<\/form>/g)];
+  assert.equal(forms.length, 2, '供需两表单必须都在');
+  const EXPECTED = {
+    sdNeed: ['org', 'oneline', 'contact', 'tel', 'detail', 'budget', 'when'],
+    sdGive: ['org', 'oneline', 'contact', 'tel', 'product', 'boundary', 'price', 'when', 'scope'],
+  };
+  for (const [, formId, body] of forms) {
+    const prefix = formId === 'sdNeed' ? 'need-' : 'give-';
+    for (const name of EXPECTED[formId as 'sdNeed' | 'sdGive']) {
+      assert.ok(body.includes(`<label for="${prefix}${name}">`), `${formId} 的 ${name} 缺 label for`);
+      assert.ok(body.includes(`id="${prefix}${name}"`), `${formId} 的 ${name} 缺控件 id`);
+    }
+    // 关联 id 不越界：恰好覆盖字段集
+    const wired = [...body.matchAll(/\sid="(need|give)-(\w+)"/g)].map((m) => m[2]);
+    assert.deepEqual([...new Set(wired)].sort(), [...EXPECTED[formId as 'sdNeed' | 'sdGive']].sort());
+  }
+});
+
+test('供需提交按钮文案为「提交」，且不再有发布免费提示', () => {
+  // 2026-11-11 需求：生成发布卡片 → 提交；删除按钮旁两条免费口径提示。
+  const html = pagesSource['/market'].html;
+  const buttons = [...html.matchAll(/<button type="submit"[^>]*>([^<]*)/g)].map((m) => m[1]);
+  assert.deepEqual(buttons, ['提交', '提交']);
+  assert.ok(!html.includes('生成发布卡片'), '旧按钮文案不得残留');
+  assert.ok(!html.includes('sdacts__hint'), '免费提示 span 应整体删除');
+  assert.ok(!html.includes('不成交不收费') && !html.includes('上架不收坑位费'), '两条免费口径不得残留');
+  // 页首 lead 段落的「发布免费，社区内撮合…」是另一段文案，不属于本次删除范围
+  assert.ok(html.includes('发布免费，社区内撮合'), '页首 lead 文案不应被误删');
+});
+
+test('供需手机号错误提示与服务端口径一致（11 位手机号）', () => {
+  // 服务端 validateContact 按 /^1[3-9]\d{9}$/ 校验（contactType=phone），
+  // 原提示「请填写联系方式」与实际校验不符——改成准确口径。
+  const html = pagesSource['/market'].html;
+  assert.equal((html.match(/请填写有效的 11 位手机号/g) ?? []).length, 2, '两表单各一条');
+  assert.ok(!html.includes('请填写联系方式'), '旧口径不得残留');
+});
+
+test('入驻同意条款的公约与入驻须知可打开（链接 /agreement 锚点）', () => {
+  // 2026-11-11 修复协议不可见：勾选文案里的两份文件此前全站无处可看。
+  const html = pagesSource['/apply'].html;
+  assert.ok(
+    html.includes('<a href="/agreement#covenant" target="_blank" rel="noopener noreferrer">《集智 AI OPC 空间使用公约》</a>'),
+    '公约应链接到 /agreement#covenant 并新开标签页',
+  );
+  assert.ok(
+    html.includes('<a href="/agreement#notice" target="_blank" rel="noopener noreferrer">入驻须知</a>'),
+    '入驻须知应链接到 /agreement#notice 并新开标签页',
+  );
+  // 承载页（React 静态页，不进烘焙产物）必须真的有这两个锚点
+  const agreementPage = readFileSync('src/app/agreement/page.tsx', 'utf8');
+  assert.ok(agreementPage.includes('id="covenant"'), '/agreement 缺 #covenant 锚点');
+  assert.ok(agreementPage.includes('id="notice"'), '/agreement 缺 #notice 锚点');
+});
+
+test('入驻表单 7 个必填控件都有 label for / id 关联', () => {
+  // 2026-11-11 修复读屏可访问性：label 原本是控件兄弟节点且无 for，accessible name 为空。
+  const html = pagesSource['/apply'].html;
+  const controls = [...html.matchAll(/<(input|select|textarea)\b([^>]*)>/g)].map((match) => match[2]);
+  for (const name of ['type', 'team', 'contact', 'tel', 'track', 'size', 'intro']) {
+    const control = controls.find((attrs) => attrs.includes(`name="${name}"`));
+    assert.ok(control, `控件 name=${name} 不存在`);
+    assert.ok(control?.includes(`id="join-${name}"`), `控件 name=${name} 缺 id="join-${name}"`);
+    assert.ok(html.includes(`<label for="join-${name}">`), `控件 name=${name} 缺 label for`);
+  }
+  // join-* 关联 id 恰好 7 个，不蔓延到其它控件
+  assert.equal((html.match(/\sid="join-\w+"/g) ?? []).length, 7);
 });
 
 test('入驻结果提示位于表单外，成功隐藏表单后仍然可见', () => {

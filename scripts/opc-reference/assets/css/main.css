@@ -823,7 +823,7 @@ table.tbl td b{color:var(--navy)}
 .chips{display:flex;flex-wrap:wrap;gap:9px}
 .chip{position:relative;display:inline-flex}
 .chip input{position:absolute;opacity:0;width:0;height:0}
-/* 「隐藏 input + 胶囊 span」是多选 chip 的形态（表单侧已改用 .needchip）。
+/* 「隐藏 input + 胶囊 span」是多选 chip 的形态（表单侧已改用 .msel）。
    这组规则必须带 input 才命中 —— 否则会误伤**筛选按钮**里的计数 span：
    /agent 的「全部 233」里那个 233 会被套上 38px 的胶囊样式（多一圈边框），
    并且在 36px 高的按钮里溢出。 */
